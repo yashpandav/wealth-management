@@ -21,6 +21,8 @@ export default async function DashboardPage() {
     redirect('/admin');
   } else if (role === 'RM') {
     redirect('/rm');
+  } else if (role === 'DOCADMIN') {
+    redirect('/docadmin');
   } else if (role === 'CLIENT') {
     redirect('/client/portfolio');
   } else {

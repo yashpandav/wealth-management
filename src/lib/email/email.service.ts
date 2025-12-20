@@ -1114,6 +1114,7 @@ export async function sendDocumentVerificationResult(
   isApproved: boolean,
   rejectionReason?: string
 ): Promise<boolean> {
+  const loginUrl = `${config.app.url}/login`;
   const documentsUrl = `${config.app.url}/client/documents`;
   const documentTypeFormatted = documentType.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 
@@ -1184,9 +1185,9 @@ export async function sendDocumentVerificationResult(
           `}
 
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${documentsUrl}"
+            <a href="${isApproved ? loginUrl : documentsUrl}"
                style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
-              ${isApproved ? 'View My Documents' : 'Upload New Document'}
+              ${isApproved ? 'Login to Platform' : 'Upload New Document'}
             </a>
           </div>
 
@@ -1216,7 +1217,7 @@ Document Type: ${documentTypeFormatted}
 
 This document is now on file and meets our verification requirements. If all your required documents are verified, you'll have full access to investment features.
 
-View My Documents: ${documentsUrl}
+Login to Platform: ${loginUrl}
 
 If you have any questions about document verification, please contact your Relationship Manager.
 
