@@ -1,0 +1,34 @@
+additional context(post analzyis of PDFs): 
+
+a wealth management platform where customers will be managed by their relation managers. These RM will be administered by admins. 
+
+Now, how will the interface look like
+
+each customer can come to our platform and try to invest on instruments, These instruments are created by admin
+
+customer need not log in necessarily, they can explore, the instruments, the RM portfolio and the general trends. but to invest in those instruments, they need to sign in, sign up, reset pass forget pass, general shit, in their profile page. 
+
+
+now after login, 
+
+clients will be able to see their assigned RM, their details, and their email and phone number, 
+they should be able to put a purchase request in their instruments as well as put a withdrawl request which both will be handled by their RM's 
+
+admin will oversee the withdrawl and admin will approve the final withdrawl . 
+note that no payment gateway is involved, it's a manual process and rm's and admins will refer to their bank statements and then approve, reject or process withdrawls. 
+
+admin page should have general analytics and other dashboard relevant stuffs, should be able to create instruments, assign clients to RM
+
+note that multiple client can be assigned to one RM, but only one RM get's assigned to one client. 
+also keep the assignment process simple on admin side. 
+
+note that. admin will administer the flow. 
+
+more so, general analytics relevant to each user should be visible to them.
+
+
+proejct will b doen on next, js, typescript, prisma, postgres (rest additinal planning and design can be done baswed on AI's analysis ), SHOULD HAVE BEAUTIFUL ,REPSOSNIVE UI , AND A LOOKER OF A FROTNEND,W ITH ROBUST BCKEND , DATABSE, AUTH EVEYTHING END TO END 
+
+
+DB CREDENTIALS:
+DATABASE_URL="postgresql://postgres:password@localhost:5432/fintech"

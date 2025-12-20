@@ -1,0 +1,258 @@
+# ===================================
+# Wealth Management CRM - .gitignore
+# ===================================
+
+# Environment Variables (NEVER COMMIT)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===================================
+# Node.js / npm / pnpm / yarn
+# ===================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-store/
+
+# ===================================
+# Next.js
+# ===================================
+.next/
+out/
+build/
+dist/
+.vercel
+.turbo
+
+# Next.js cache
+.next/cache/
+
+# ===================================
+# Testing
+# ===================================
+coverage/
+.nyc_output/
+*.lcov
+.jest-cache/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ===================================
+# Logs
+# ===================================
+logs/
+*.log
+dev-debug.log
+
+# ===================================
+# Database
+# ===================================
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# Prisma
+prisma/.env
+
+# ===================================
+# OS Specific
+# ===================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Linux
+.directory
+
+# Windows
+desktop.ini
+
+# ===================================
+# IDEs / Editors
+# ===================================
+# VSCode (keep settings if team uses it)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains (WebStorm, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+
+# ===================================
+# Claude Code (Keep configuration in git)
+# ===================================
+# Keep .claude/ directory for team consistency
+# Ignore local-only settings
+.claude/settings.local.json
+.claude/*.local.*
+
+# ===================================
+# Task Master AI (Keep tasks in git)
+# ===================================
+# Keep .taskmaster/ directory and tasks in git
+# Ignore local state and temporary files
+.taskmaster/state.json
+.taskmaster/cache/
+.taskmaster/temp/
+.taskmaster/*.local.*
+
+# Keep these in git:
+# .taskmaster/config.json
+# .taskmaster/tasks/
+# .taskmaster/docs/
+# .taskmaster/templates/
+
+# ===================================
+# MCP Configuration (Keep in git)
+# ===================================
+# Keep .mcp.json in git for team consistency
+# If you need local overrides, use .mcp.local.json
+.mcp.local.json
+
+# ===================================
+# TypeScript
+# ===================================
+*.tsbuildinfo
+.tsbuildinfo
+
+# ===================================
+# Temporary & Build Files
+# ===================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.cache
+
+# ===================================
+# Docker
+# ===================================
+# Keep docker-compose.yml and Dockerfile in git
+# Ignore local overrides
+docker-compose.override.yml
+.dockerignore
+
+# ===================================
+# CI/CD
+# ===================================
+# Keep GitHub Actions workflows in git
+
+# ===================================
+# Security & Secrets (CRITICAL)
+# ===================================
+# Never commit these:
+*.pem
+*.key
+*.cert
+*.p12
+secrets/
+credentials/
+.credentials
+.secrets
+
+# ===================================
+# Monitoring & Logs
+# ===================================
+logs/
+*.log
+sentry.properties
+
+# ===================================
+# Generated Files (Optional)
+# ===================================
+# Uncomment if you don't want generated files in git
+# For this project, we keep generated task files
+# .taskmaster/tasks/*.md
+
+# ===================================
+# Miscellaneous
+# ===================================
+.storybook-out/
+storybook-static/
+
+# Bundle analyzer
+.next-bundle-analyzer/
+
+# Local certificates
+*.local.crt
+*.local.key
+
+# ===================================
+# Project Specific
+# ===================================
+# Add any project-specific ignores below
+
+# Uploaded files (if you implement file uploads)
+uploads/
+public/uploads/
+
+# Reports (keep structure, ignore generated)
+reports/*.pdf
+reports/*.csv
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+
+# Dependency directories
+node_modules/
+
+# Environment variables
+.env
+.claude/
+.taskmaster/
+.mcp.json
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific
+.DS_Store

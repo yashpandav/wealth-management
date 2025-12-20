@@ -1,0 +1,16 @@
+# Robots.txt for Wealth Management CRM
+# Allow all web crawlers to access public content
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /client/
+Disallow: /rm/
+Disallow: /api/
+
+# Allow public pages
+Allow: /instruments/
+Allow: /instruments/*
+
+# Sitemap location
+Sitemap: https://wealthcrm.com/sitemap.xml

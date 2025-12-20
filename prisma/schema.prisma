@@ -1,0 +1,699 @@
+// Prisma Schema for Wealth Management CRM
+// Database: PostgreSQL 15+
+//
+// Connection Pooling Configuration:
+// Add these parameters to DATABASE_URL for optimal performance:
+// - connection_limit: Maximum number of connections (recommended: 10-20 for production)
+// - pool_timeout: Connection pool timeout in seconds (default: 10)
+// - Example: postgresql://user:pass@localhost:5432/db?connection_limit=10&pool_timeout=20
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = []
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Shadow database for development migrations (optional)
+  // shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// ====================================
+// ENUMS
+// ====================================
+
+enum UserRole {
+  CLIENT
+  RM // Relationship Manager
+  ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+  SUSPENDED
+}
+
+enum RequestStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  RM_REVIEW
+  RM_APPROVED
+  RM_REJECTED
+  ADMIN_REVIEW
+  ADMIN_APPROVED
+  ADMIN_REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  PURCHASE
+  WITHDRAWAL
+  DIVIDEND
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  COMPLETED
+  FAILED
+  REVERSED
+  PENDING_SETTLEMENT
+}
+
+enum InstrumentType {
+  STOCK
+  BOND
+  MUTUAL_FUND
+  ETF
+  COMMODITY
+  CRYPTOCURRENCY
+  REAL_ESTATE
+  OTHER
+}
+
+enum AuditAction {
+  // Authentication
+  LOGIN
+  LOGOUT
+  PASSWORD_CHANGE
+  MFA_ENABLE
+  MFA_DISABLE
+
+  // User management
+  USER_CREATE
+  USER_UPDATE
+  USER_DELETE
+  USER_ACTIVATE
+  USER_DEACTIVATE
+
+  // Client-RM assignment
+  CLIENT_ASSIGN
+  CLIENT_REASSIGN
+
+  // Transaction requests
+  PURCHASE_REQUEST_CREATE
+  PURCHASE_REQUEST_APPROVE
+  PURCHASE_REQUEST_REJECT
+  PURCHASE_REQUEST_CANCEL
+  WITHDRAWAL_REQUEST_CREATE
+  WITHDRAWAL_REQUEST_RM_APPROVE
+  WITHDRAWAL_REQUEST_RM_REJECT
+  WITHDRAWAL_REQUEST_ADMIN_APPROVE
+  WITHDRAWAL_REQUEST_ADMIN_REJECT
+  WITHDRAWAL_REQUEST_CANCEL
+
+  // Transactions
+  TRANSACTION_CREATE
+  TRANSACTION_REVERSE
+  TRANSACTION_FAIL
+
+  // Instruments
+  INSTRUMENT_CREATE
+  INSTRUMENT_UPDATE
+  INSTRUMENT_DELETE
+  INSTRUMENT_ACTIVATE
+  INSTRUMENT_DEACTIVATE
+
+  // Portfolio
+  PORTFOLIO_CREATE
+  PORTFOLIO_UPDATE
+  HOLDING_CREATE
+  HOLDING_UPDATE
+  HOLDING_DELETE
+
+  // System
+  SYSTEM_CONFIG_CHANGE
+  DATA_EXPORT
+  DATA_IMPORT
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  ALERT
+}
+
+enum NotificationCategory {
+  TRANSACTION
+  REQUEST
+  ASSIGNMENT
+  SYSTEM
+  PORTFOLIO
+  SECURITY
+}
+
+// ====================================
+// CORE USER ENTITIES
+// ====================================
+
+/// Base User entity for all user types
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String // bcrypt hashed
+  role      UserRole
+
+  // Personal Information
+  firstName String
+  lastName  String
+  phone     String?
+
+  // Account Status & Security
+  status               AccountStatus @default(ACTIVE)
+  isActive             Boolean       @default(true)
+  emailVerified        Boolean       @default(false)
+  failedLoginAttempts  Int           @default(0)
+  accountLockedUntil   DateTime?
+  lastLogin            DateTime?
+  lastFailedLogin      DateTime?
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relationships based on role
+  client               Client?
+  relationshipManager  RelationshipManager?
+
+  // Activity logs
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  // Admin approvals (for withdrawal requests and transactions)
+  approvedWithdrawals  WithdrawalRequest[] @relation("AdminApprover")
+  approvedTransactions Transaction[]       @relation("TransactionApprover")
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}
+
+/// Client-specific data extending User
+model Client {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Assigned Relationship Manager (required)
+  assignedRMId String
+  assignedRM   RelationshipManager @relation(fields: [assignedRMId], references: [id])
+
+  // Client-specific data
+  riskTolerance String? // LOW, MEDIUM, HIGH
+  investmentGoals String? @db.Text
+  kycVerified   Boolean @default(false)
+  kycDocuments  String? @db.Text // JSON array of document URLs
+
+  // Assignment tracking
+  assignedAt DateTime @default(now())
+
+  // Relationships
+  portfolio          Portfolio?
+  purchaseRequests   PurchaseRequest[]
+  withdrawalRequests WithdrawalRequest[]
+  transactions       Transaction[]
+
+  @@index([assignedRMId])
+  @@map("clients")
+}
+
+/// Relationship Manager specific data extending User
+model RelationshipManager {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // RM-specific data
+  specialization String? // e.g., "High Net Worth", "Retirement Planning"
+  certifications String? @db.Text // JSON array of certifications
+  maxClientLimit Int?    @default(50)
+
+  // Performance metrics
+  totalAUM Decimal @default(0) @db.Decimal(15, 2) // Assets Under Management
+
+  // Relationships
+  assignedClients         Client[]
+  processedPurchases      PurchaseRequest[]
+  processedWithdrawals    WithdrawalRequest[] @relation("RMProcessor")
+  processedTransactions   Transaction[]       @relation("RMProcessor")
+
+  @@map("relationship_managers")
+}
+
+// ====================================
+// PLACEHOLDER MODELS (to be defined in next subtasks)
+// ====================================
+
+/// Client investment portfolio
+model Portfolio {
+  id String @id @default(uuid())
+
+  // One-to-one with Client
+  clientId String @unique
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Portfolio valuation (calculated fields - updated via application logic)
+  totalValue        Decimal @default(0) @db.Decimal(15, 2) // Current total portfolio value
+  totalInvested     Decimal @default(0) @db.Decimal(15, 2) // Total amount invested
+  totalGainLoss     Decimal @default(0) @db.Decimal(15, 2) // Unrealized gain/loss
+  totalGainLossPercent Decimal @default(0) @db.Decimal(10, 4) // Gain/loss percentage
+
+  // Performance metrics
+  dayChange         Decimal @default(0) @db.Decimal(15, 2) // Change in last 24h
+  dayChangePercent  Decimal @default(0) @db.Decimal(10, 4)
+  weekChange        Decimal @default(0) @db.Decimal(15, 2)
+  monthChange       Decimal @default(0) @db.Decimal(15, 2)
+  yearChange        Decimal @default(0) @db.Decimal(15, 2)
+
+  // Timestamps
+  lastUpdatedAt DateTime @default(now()) // Last portfolio recalculation
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  holdings Holding[]
+
+  // Indexes
+  @@index([clientId])
+  @@index([totalValue])
+  @@index([lastUpdatedAt])
+  @@map("portfolios")
+}
+
+/// Investment instruments (stocks, bonds, funds, etc.)
+model Instrument {
+  id String @id @default(uuid())
+
+  // Instrument identification
+  symbol      String         @unique @db.VarChar(20) // Ticker symbol or unique identifier
+  name        String         @db.VarChar(255)
+  type        InstrumentType
+  isin        String?        @unique @db.VarChar(12) // International Securities Identification Number
+  description String?        @db.Text
+
+  // Pricing information
+  currentPrice     Decimal  @db.Decimal(15, 4) // Current market price
+  currency         String   @default("USD") @db.VarChar(3)
+  lastPriceUpdate  DateTime @default(now())
+
+  // Market data
+  exchange        String?  @db.VarChar(50) // Stock exchange (e.g., NYSE, NASDAQ)
+  sector          String?  @db.VarChar(100)
+  marketCap       Decimal? @db.Decimal(20, 2)
+  yearlyHigh      Decimal? @db.Decimal(15, 4)
+  yearlyLow       Decimal? @db.Decimal(15, 4)
+  dividendYield   Decimal? @db.Decimal(5, 4) // As percentage
+  peRatio         Decimal? @db.Decimal(10, 2)
+
+  // Risk and metadata
+  riskRating      String?  @db.VarChar(20) // e.g., "Low", "Medium", "High"
+  minimumInvestment Decimal? @db.Decimal(15, 2)
+
+  // Status
+  isActive   Boolean  @default(true)
+  isPublic   Boolean  @default(true) // Visible to all clients
+  launchDate DateTime?
+
+  // Documents
+  prospectusUrl String? @db.VarChar(500) // URL/path to prospectus PDF document
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Soft delete
+
+  // Relations
+  transactions Transaction[]
+  holdings     Holding[]
+  purchaseRequests PurchaseRequest[]
+
+  // Indexes
+  @@index([symbol])
+  @@index([type])
+  @@index([isActive])
+  @@index([isPublic])
+  @@map("instruments")
+}
+
+/// Individual instrument holdings within a portfolio
+model Holding {
+  id String @id @default(uuid())
+
+  // Portfolio reference
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  // Instrument reference
+  instrumentId String
+  instrument   Instrument @relation(fields: [instrumentId], references: [id])
+
+  // Position details
+  quantity              Decimal @db.Decimal(15, 6) // Number of units held
+  averagePurchasePrice  Decimal @db.Decimal(15, 4) // Average cost per unit
+  totalCost             Decimal @db.Decimal(15, 2) // Total amount invested in this holding
+
+  // Current valuation (calculated - updated via application logic)
+  currentPrice    Decimal @db.Decimal(15, 4) // Current market price per unit
+  currentValue    Decimal @db.Decimal(15, 2) // Current total value (quantity * currentPrice)
+  gainLoss        Decimal @db.Decimal(15, 2) // Unrealized gain/loss
+  gainLossPercent Decimal @db.Decimal(10, 4) // Gain/loss percentage
+
+  // Performance tracking
+  dayChange        Decimal @default(0) @db.Decimal(15, 2)
+  dayChangePercent Decimal @default(0) @db.Decimal(10, 4)
+
+  // Allocation percentage within portfolio
+  allocationPercent Decimal @default(0) @db.Decimal(5, 2)
+
+  // Timestamps
+  firstPurchasedAt DateTime  // Date of first purchase
+  lastUpdatedAt    DateTime  @default(now()) // Last recalculation
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime? // Soft delete (when fully divested)
+
+  // Indexes
+  @@unique([portfolioId, instrumentId]) // One holding per instrument per portfolio
+  @@index([portfolioId])
+  @@index([instrumentId])
+  @@index([currentValue])
+  @@map("holdings")
+}
+
+/// Purchase request submitted by clients
+model PurchaseRequest {
+  id String @id @default(uuid())
+
+  // Tracking number for client reference
+  trackingNumber String @unique @db.VarChar(50)
+
+  // Client who submitted the request
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Instrument to purchase
+  instrumentId String
+  instrument   Instrument @relation(fields: [instrumentId], references: [id])
+
+  // Request details
+  amount        Decimal       @db.Decimal(15, 2) // Investment amount
+  quantity      Decimal?      @db.Decimal(15, 4) // Calculated based on price
+  requestedPrice Decimal?     @db.Decimal(15, 4) // Price at time of request
+  status        RequestStatus @default(PENDING)
+
+  // Processing information
+  processedById String?
+  processedBy   RelationshipManager? @relation(fields: [processedById], references: [id])
+  processedAt   DateTime?
+
+  // Bank statement verification
+  bankStatementRef String? // Reference to uploaded bank statement
+  paymentProof     String? @db.Text // URL or reference to payment proof
+
+  // Notes and comments
+  clientNotes String? @db.Text
+  rmNotes     String? @db.Text // RM notes during processing
+  rejectionReason String? @db.Text
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Reference to completed transaction
+  transaction Transaction?
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([processedById])
+  @@map("purchase_requests")
+}
+
+/// Withdrawal request with two-tier approval workflow
+model WithdrawalRequest {
+  id String @id @default(uuid())
+
+  // Unique tracking number for user reference
+  trackingNumber String @unique
+
+  // Client who submitted the request
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Withdrawal details
+  amount           Decimal          @db.Decimal(15, 2)
+  bankAccountName  String
+  bankAccountNumber String
+  bankName         String
+  bankBranch       String?
+  swiftCode        String?
+  status           WithdrawalStatus @default(PENDING)
+
+  // RM Processing (First tier)
+  processedByRMId String?
+  processedByRM   RelationshipManager? @relation("RMProcessor", fields: [processedByRMId], references: [id])
+  rmProcessedAt   DateTime?
+  rmApproved      Boolean?
+  rmNotes         String?              @db.Text
+
+  // Admin Approval (Second tier - final authority)
+  approvedByAdminId String?
+  approvedByAdmin   User?    @relation("AdminApprover", fields: [approvedByAdminId], references: [id])
+  adminProcessedAt  DateTime?
+  adminApproved     Boolean?
+  adminNotes        String?  @db.Text
+
+  // Bank statement verification
+  bankStatementRef String? // Reference to bank details verification
+
+  // Client provided information
+  reason      String? @db.Text // Reason for withdrawal
+  clientNotes String? @db.Text
+
+  // Rejection information
+  rejectionReason String? @db.Text
+  rejectedBy      String? // RM or ADMIN
+  rejectedAt      DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Reference to completed transaction
+  transaction Transaction?
+
+  @@index([clientId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([processedByRMId])
+  @@index([approvedByAdminId])
+  @@map("withdrawal_requests")
+}
+
+/// Completed financial transactions
+model Transaction {
+  id String @id @default(uuid())
+
+  // References
+  clientId   String
+  client     Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Instrument reference (nullable for withdrawals/dividends)
+  instrumentId String?
+  instrument   Instrument? @relation(fields: [instrumentId], references: [id])
+
+  // Transaction details
+  type   TransactionType
+  status TransactionStatus @default(COMPLETED)
+
+  // Financial amounts (all in base currency)
+  amount   Decimal  @db.Decimal(15, 2) // Transaction amount
+  price    Decimal? @db.Decimal(15, 4) // Unit price (for purchases)
+  quantity Decimal? @db.Decimal(15, 6) // Number of units (for purchases)
+  total    Decimal  @db.Decimal(15, 2) // Total transaction value
+  fees     Decimal  @default(0) @db.Decimal(15, 2) // Transaction fees/commissions
+  netAmount Decimal @db.Decimal(15, 2) // Amount after fees
+
+  // Currency (default to base currency)
+  currency String @default("USD") @db.VarChar(3)
+
+  // Bank verification
+  bankStatementReference String? @db.Text // Reference to bank statement document
+  paymentProof           String? @db.Text // Path or reference to payment proof document
+
+  // Processing information
+  processedById String?
+  processedBy   RelationshipManager? @relation("RMProcessor", fields: [processedById], references: [id])
+
+  // Admin approval (for withdrawals)
+  approvedById String?
+  approvedBy   User?    @relation("TransactionApprover", fields: [approvedById], references: [id])
+
+  // Original request references
+  purchaseRequestId  String? @unique
+  purchaseRequest    PurchaseRequest?  @relation(fields: [purchaseRequestId], references: [id])
+  withdrawalRequestId String? @unique
+  withdrawalRequest   WithdrawalRequest? @relation(fields: [withdrawalRequestId], references: [id])
+
+  // Timestamps
+  completedAt DateTime  @default(now()) // When transaction was completed
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete (for reversed transactions)
+
+  // Notes and metadata
+  notes        String? @db.Text
+  metadata     String? @db.Text // JSON for additional data
+  failureReason String? @db.Text // If status is FAILED
+
+  // Indexes for performance
+  @@index([clientId])
+  @@index([type])
+  @@index([status])
+  @@index([completedAt])
+  @@index([instrumentId])
+  @@index([processedById])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+/// Comprehensive audit trail for all critical actions
+model AuditLog {
+  id String @id @default(uuid())
+
+  // User who performed the action
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Action details
+  action      AuditAction
+  description String?     @db.Text // Human-readable description
+
+  // Entity affected by the action
+  entityType String @db.VarChar(50) // e.g., "User", "Transaction", "PurchaseRequest"
+  entityId   String // ID of the affected entity
+
+  // Change tracking (JSON format)
+  oldValues Json? // Previous state before action
+  newValues Json? // New state after action
+
+  // Request metadata
+  ipAddress String? @db.VarChar(45) // IPv4 or IPv6
+  userAgent String? @db.Text // Browser/client info
+
+  // Additional context
+  metadata   Json?    // Extra contextual data
+  severity   String   @default("INFO") @db.VarChar(20) // INFO, WARNING, ERROR, CRITICAL
+  success    Boolean  @default(true) // Whether action succeeded
+  errorMessage String? @db.Text // If action failed
+
+  // Session tracking
+  sessionId String? @db.VarChar(100)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Retention management (for compliance)
+  retentionDate DateTime? // Date when log can be archived/deleted
+
+  // Indexes
+  @@index([userId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([severity])
+  @@index([ipAddress])
+  @@map("audit_logs")
+}
+
+/// In-app notifications for users
+model Notification {
+  id String @id @default(uuid())
+
+  // Recipient
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Notification details
+  type     NotificationType
+  category NotificationCategory
+  title    String               @db.VarChar(255)
+  message  String               @db.Text
+
+  // Status
+  isRead    Boolean   @default(false)
+  readAt    DateTime?
+  isDismissed Boolean @default(false)
+
+  // Action link (optional)
+  actionUrl  String? @db.VarChar(500) // URL to navigate when clicked
+  actionText String? @db.VarChar(100) // Text for action button
+
+  // Related entity (optional)
+  entityType String? @db.VarChar(50) // Type of related entity
+  entityId   String? // ID of related entity
+
+  // Priority and expiration
+  priority  String   @default("NORMAL") @db.VarChar(20) // LOW, NORMAL, HIGH, URGENT
+  expiresAt DateTime? // When notification becomes irrelevant
+
+  // Metadata
+  metadata Json? // Additional contextual data
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([category])
+  @@index([type])
+  @@index([expiresAt])
+  @@map("notifications")
+}
+
+/// Email verification tokens for user registration
+model VerificationToken {
+  id String @id @default(uuid())
+
+  // User being verified
+  email String @db.VarChar(255)
+
+  // Token details
+  token     String   @unique @db.VarChar(255)
+  expiresAt DateTime
+
+  // Token type
+  type String @default("EMAIL_VERIFICATION") @db.VarChar(50) // EMAIL_VERIFICATION, PASSWORD_RESET
+
+  // Usage tracking
+  used   Boolean   @default(false)
+  usedAt DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([email])
+  @@index([token])
+  @@index([expiresAt])
+  @@index([type])
+  @@map("verification_tokens")
+}
