@@ -240,9 +240,9 @@ model Client {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Assigned Relationship Manager (required)
-  assignedRMId String
-  assignedRM   RelationshipManager @relation(fields: [assignedRMId], references: [id])
+  // Assigned Relationship Manager (optional until admin assigns)
+  assignedRMId String?
+  assignedRM   RelationshipManager? @relation(fields: [assignedRMId], references: [id])
 
   // Client-specific data
   riskTolerance String? // LOW, MEDIUM, HIGH

@@ -192,30 +192,17 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Check document verification status for CLIENT users
-        // Block login if documents are pending review or rejected
+        // Block login only if documents are pending review (waiting for admin verification)
+        // Allow login for NOT_SUBMITTED, REJECTED, EXPIRED so users can upload/resubmit
         if (user.role === 'CLIENT' && user.client?.verificationStatus) {
           const blockedStatuses: VerificationStatus[] = [
             'PENDING',
             'UNDER_REVIEW',
-            'REJECTED',
-            'EXPIRED',
           ];
 
           if (blockedStatuses.includes(user.client.verificationStatus)) {
-            const statusMessages: Record<string, string> = {
-              PENDING:
-                "Your documents are under verification. You'll receive an email once verified.",
-              UNDER_REVIEW:
-                "Your documents are under verification. You'll receive an email once verified.",
-              REJECTED:
-                'Your documents have been rejected. Please check your email for details and resubmit.',
-              EXPIRED:
-                'Your document verification has expired. Please resubmit your documents.',
-            };
-
             throw new Error(
-              statusMessages[user.client.verificationStatus] ||
-                "Your documents are under verification. You'll receive an email once verified."
+              "Your documents are under verification. You'll receive an email once verified."
             );
           }
         }
