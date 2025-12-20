@@ -76,6 +76,14 @@ export function useIsClient(): boolean {
 }
 
 /**
+ * Check if user is a Document Admin
+ * @returns Boolean indicating if user is a DOCADMIN
+ */
+export function useIsDocAdmin(): boolean {
+  return useHasRole(UserRole.DOCADMIN);
+}
+
+/**
  * Check if user is either Admin or RM (management roles)
  * @returns Boolean indicating if user has management access
  */
@@ -84,7 +92,15 @@ export function useIsManagement(): boolean {
 }
 
 /**
- * Role hierarchy: Admin > RM > Client
+ * Check if user is any admin type (ADMIN or DOCADMIN)
+ * @returns Boolean indicating if user has any admin access
+ */
+export function useIsAnyAdmin(): boolean {
+  return useHasAnyRole([UserRole.ADMIN, UserRole.DOCADMIN]);
+}
+
+/**
+ * Role hierarchy: Admin > DOCADMIN > RM > Client
  * Check if user's role is at least the specified level
  * @param minRole - Minimum required role level
  * @returns Boolean indicating if user meets minimum role requirement
@@ -95,7 +111,8 @@ export function useHasMinimumRole(minRole: UserRole): boolean {
   if (!userRole) return false;
 
   const roleHierarchy: Record<UserRole, number> = {
-    [UserRole.ADMIN]: 3,
+    [UserRole.ADMIN]: 4,
+    [UserRole.DOCADMIN]: 3,
     [UserRole.RM]: 2,
     [UserRole.CLIENT]: 1,
   };
@@ -123,7 +140,12 @@ type Permission =
   | 'view_portfolio'
   | 'submit_requests'
   | 'view_rm_dashboard'
-  | 'view_admin_dashboard';
+  | 'view_admin_dashboard'
+  | 'view_documents'
+  | 'verify_documents'
+  | 'reject_documents'
+  | 'view_docadmin_dashboard'
+  | 'manage_verification_status';
 
 /**
  * Permission mapping for each role
@@ -143,6 +165,19 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'view_audit_logs',
     'manage_users',
     'view_admin_dashboard',
+    'view_documents',
+    'verify_documents',
+    'reject_documents',
+    'manage_verification_status',
+  ],
+  [UserRole.DOCADMIN]: [
+    'view_clients',
+    'view_documents',
+    'verify_documents',
+    'reject_documents',
+    'view_docadmin_dashboard',
+    'manage_verification_status',
+    'view_audit_logs',
   ],
   [UserRole.RM]: [
     'view_instruments',
@@ -151,6 +186,7 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     'approve_purchases',
     'view_analytics',
     'view_rm_dashboard',
+    'view_documents',
   ],
   [UserRole.CLIENT]: [
     'view_instruments',
@@ -228,9 +264,11 @@ export function useAuthorization() {
     isLoading,
     isAuthenticated,
     isAdmin: role === UserRole.ADMIN,
+    isDocAdmin: role === UserRole.DOCADMIN,
     isRM: role === UserRole.RM,
     isClient: role === UserRole.CLIENT,
     isManagement: role === UserRole.ADMIN || role === UserRole.RM,
+    isAnyAdmin: role === UserRole.ADMIN || role === UserRole.DOCADMIN,
   };
 }
 

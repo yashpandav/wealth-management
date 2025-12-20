@@ -27,6 +27,7 @@ enum UserRole {
   CLIENT
   RM // Relationship Manager
   ADMIN
+  DOCADMIN // Document Administrator for verification workflow
 }
 
 enum AccountStatus {
@@ -132,6 +133,13 @@ enum AuditAction {
   HOLDING_UPDATE
   HOLDING_DELETE
 
+  // Document verification
+  DOCUMENT_UPLOAD
+  DOCUMENT_VERIFY
+  DOCUMENT_REJECT
+  DOCUMENT_DELETE
+  CLIENT_VERIFICATION_STATUS_UPDATE
+
   // System
   SYSTEM_CONFIG_CHANGE
   DATA_EXPORT
@@ -153,6 +161,26 @@ enum NotificationCategory {
   SYSTEM
   PORTFOLIO
   SECURITY
+}
+
+enum DocumentType {
+  IDENTITY_PROOF       // Government ID, Passport, Driver's License
+  ADDRESS_PROOF        // Utility bill, Bank statement with address
+  INCOME_PROOF         // Salary slip, Tax return, Employment letter
+  BANK_STATEMENT       // Bank account statements
+  TAX_DOCUMENT         // Tax returns, W-2, 1099
+  INVESTMENT_AGREEMENT // Signed investment agreements
+  KYC_FORM             // KYC/AML compliance forms
+  OTHER                // Other document types
+}
+
+enum VerificationStatus {
+  NOT_SUBMITTED        // No documents submitted yet
+  PENDING              // Documents submitted, awaiting review
+  UNDER_REVIEW         // Documents are being reviewed
+  VERIFIED             // All documents verified successfully
+  REJECTED             // Documents rejected, need resubmission
+  EXPIRED              // Verification expired, need renewal
 }
 
 // ====================================
@@ -197,6 +225,9 @@ model User {
   approvedWithdrawals  WithdrawalRequest[] @relation("AdminApprover")
   approvedTransactions Transaction[]       @relation("TransactionApprover")
 
+  // Document verifications (for DOCADMIN and ADMIN roles)
+  verifiedDocuments Document[] @relation("DocumentVerifier")
+
   @@index([email])
   @@index([role])
   @@index([status])
@@ -219,6 +250,9 @@ model Client {
   kycVerified   Boolean @default(false)
   kycDocuments  String? @db.Text // JSON array of document URLs
 
+  // Document verification status
+  verificationStatus VerificationStatus @default(NOT_SUBMITTED)
+
   // Assignment tracking
   assignedAt DateTime @default(now())
 
@@ -227,8 +261,10 @@ model Client {
   purchaseRequests   PurchaseRequest[]
   withdrawalRequests WithdrawalRequest[]
   transactions       Transaction[]
+  documents          Document[]
 
   @@index([assignedRMId])
+  @@index([verificationStatus])
   @@map("clients")
 }
 
@@ -696,4 +732,50 @@ model VerificationToken {
   @@index([expiresAt])
   @@index([type])
   @@map("verification_tokens")
+}
+
+/// Documents uploaded by clients for verification
+model Document {
+  id String @id @default(uuid())
+
+  // Client who uploaded the document
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Document details
+  documentType DocumentType
+  filePath     String       @db.VarChar(500) // Path to stored document file
+
+  // Verification status
+  verificationStatus VerificationStatus @default(PENDING)
+
+  // Verification details (populated when reviewed by DOCADMIN/ADMIN)
+  verifiedById String?
+  verifiedBy   User?     @relation("DocumentVerifier", fields: [verifiedById], references: [id])
+  verifiedAt   DateTime?
+
+  // Rejection details
+  rejectionReason String? @db.Text
+
+  // Document metadata
+  fileName    String?  @db.VarChar(255) // Original file name
+  fileSize    Int?     // File size in bytes
+  mimeType    String?  @db.VarChar(100) // MIME type of the file
+  description String?  @db.Text // Optional description by client
+
+  // Expiry tracking (for documents that expire)
+  expiryDate DateTime?
+
+  // Timestamps
+  uploadedAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Indexes
+  @@index([clientId])
+  @@index([documentType])
+  @@index([verificationStatus])
+  @@index([verifiedById])
+  @@index([uploadedAt])
+  @@map("documents")
 }

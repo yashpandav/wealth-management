@@ -85,7 +85,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Send verification email if enabled
-    if (config.features.emailVerification) {
       // Generate verification token
       const token = randomBytes(32).toString('hex');
       const expiresAt = new Date();
@@ -123,7 +122,6 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 }
       );
-    }
 
     // Email verification disabled - return success
     return NextResponse.json(

@@ -11,6 +11,9 @@ import { applySecurityHeaders, generateNonce } from '@/lib/security/headers';
 // Define public routes that don't require authentication
 const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/instruments'];
 
+// Routes that clients with NOT_SUBMITTED status can access
+const documentUploadRoutes = ['/upload-documents', '/client/documents', '/client/verification'];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -49,10 +52,36 @@ export async function middleware(request: NextRequest) {
       } else if (pathname.startsWith('/admin')) {
         // Only admins can access admin routes
         response = NextResponse.redirect(new URL('/error?error=AccessDenied', request.url));
+      } else if (pathname.startsWith('/docadmin') && userRole !== 'DOCADMIN') {
+        // Only DOCADMIN can access document admin routes
+        response = NextResponse.redirect(new URL('/error?error=AccessDenied', request.url));
       } else if (pathname.startsWith('/rm') && userRole !== 'RM') {
         response = NextResponse.redirect(new URL('/error?error=AccessDenied', request.url));
-      } else if (pathname.startsWith('/client') && userRole !== 'CLIENT') {
-        response = NextResponse.redirect(new URL('/error?error=AccessDenied', request.url));
+      } else if (pathname.startsWith('/client')) {
+        // Client routes require CLIENT role and verified status
+        if (userRole !== 'CLIENT') {
+          response = NextResponse.redirect(new URL('/error?error=AccessDenied', request.url));
+        } else {
+          // Check verification status for clients
+          const verificationStatus = token.verificationStatus as string | undefined;
+          if (verificationStatus === 'NOT_SUBMITTED' || verificationStatus === 'REJECTED') {
+            // Redirect to upload documents page if not submitted or rejected
+            if (pathname.startsWith('/client/verification') || pathname === '/client/documents') {
+              response = NextResponse.next();
+            } else {
+              response = NextResponse.redirect(new URL('/upload-documents', request.url));
+            }
+          } else if (verificationStatus === 'PENDING' || verificationStatus === 'UNDER_REVIEW') {
+            // Allow access to verification status page only while pending
+            if (pathname.startsWith('/client/verification') || pathname === '/client/documents') {
+              response = NextResponse.next();
+            } else {
+              response = NextResponse.redirect(new URL('/upload-documents', request.url));
+            }
+          } else {
+            response = NextResponse.next();
+          }
+        }
       } else {
         response = NextResponse.next();
       }

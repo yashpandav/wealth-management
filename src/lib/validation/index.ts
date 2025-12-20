@@ -3,5 +3,8 @@
  * Zod schemas for form and API validation
  */
 
-// Export validation schemas here
-export {};
+// Auth validation
+export * from './auth.validation';
+
+// Document validation
+export * from './document.validation';
