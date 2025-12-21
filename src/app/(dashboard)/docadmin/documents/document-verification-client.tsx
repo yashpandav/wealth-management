@@ -202,7 +202,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
 
     setProcessing(true);
     try {
-      const res = await fetch('/api/clients/assign-rm', {
+      const res = await fetch('/api/client/assign-rm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,6 +1,6 @@
 /**
  * Client RM Assignment API
- * POST /api/clients/assign-rm
+ * POST /api/client/assign-rm
  *
  * Assigns a Relationship Manager to a client
  * Only available after all client documents are verified
