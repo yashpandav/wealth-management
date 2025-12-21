@@ -9,7 +9,7 @@ import { getToken } from 'next-auth/jwt';
 import { applySecurityHeaders, generateNonce } from '@/lib/security/headers';
 
 // Define public routes that don't require authentication
-const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/instruments'];
+const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/instruments', '/user-form'];
 
 // Routes that clients with NOT_SUBMITTED status can access
 const documentUploadRoutes = ['/upload-documents', '/client/documents', '/client/verification', '/api/documents/upload'];
@@ -26,7 +26,8 @@ export async function middleware(request: NextRequest) {
   // Check if route requires authentication
   const isPublicRoute = publicRoutes.some((route) => pathname === route || pathname.startsWith(route + '/'))
     || pathname.startsWith('/api/auth/')
-    || pathname.startsWith('/api/public/');
+    || pathname.startsWith('/api/public/')
+    || pathname === '/api/leads';
 
   if (isPublicRoute) {
     response = NextResponse.next();

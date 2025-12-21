@@ -779,3 +779,39 @@ model Document {
   @@index([uploadedAt])
   @@map("documents")
 }
+
+// ====================================
+// USER LEADS (Demo Form Submissions)
+// ====================================
+
+/// User lead form submissions from public wealth management form
+model UserLead {
+  id String @id @default(uuid())
+
+  // Personal Information (Section 1)
+  fullName String  @db.VarChar(255)
+  email    String  @db.VarChar(255)
+  phone    String  @db.VarChar(50)
+  age      Int
+
+  // Financial Information (Section 2)
+  monthlyIncome    Decimal  @db.Decimal(15, 2)
+  monthlyExpenses  Decimal  @db.Decimal(15, 2)
+  familyExpenses   Decimal  @db.Decimal(15, 2)
+  financialGoals   String   @db.Text
+
+  // Additional financial info
+  currentSavings       Decimal? @db.Decimal(15, 2)
+  investmentExperience String?  @db.VarChar(100) // None, Beginner, Intermediate, Advanced
+  riskTolerance        String?  @db.VarChar(50)  // Low, Medium, High
+  investmentHorizon    String?  @db.VarChar(50)  // Short-term, Medium-term, Long-term
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([email])
+  @@index([createdAt])
+  @@map("user_leads")
+}

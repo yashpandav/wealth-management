@@ -8,3 +8,6 @@ export * from './auth.validation';
 
 // Document validation
 export * from './document.validation';
+
+// Lead validation
+export * from './lead.validation';
