@@ -257,11 +257,12 @@ model Client {
   assignedAt DateTime @default(now())
 
   // Relationships
-  portfolio          Portfolio?
-  purchaseRequests   PurchaseRequest[]
-  withdrawalRequests WithdrawalRequest[]
-  transactions       Transaction[]
-  documents          Document[]
+  portfolio               Portfolio?
+  purchaseRequests        PurchaseRequest[]
+  withdrawalRequests      WithdrawalRequest[]
+  transactions            Transaction[]
+  documents               Document[]
+  productPurchaseRequests ProductPurchaseRequest[]
 
   @@index([assignedRMId])
   @@index([verificationStatus])
@@ -283,10 +284,11 @@ model RelationshipManager {
   totalAUM Decimal @default(0) @db.Decimal(15, 2) // Assets Under Management
 
   // Relationships
-  assignedClients         Client[]
-  processedPurchases      PurchaseRequest[]
-  processedWithdrawals    WithdrawalRequest[] @relation("RMProcessor")
-  processedTransactions   Transaction[]       @relation("RMProcessor")
+  assignedClients           Client[]
+  processedPurchases        PurchaseRequest[]
+  processedWithdrawals      WithdrawalRequest[] @relation("RMProcessor")
+  processedTransactions     Transaction[]       @relation("RMProcessor")
+  productPurchaseRequests   ProductPurchaseRequest[]
 
   @@map("relationship_managers")
 }
@@ -814,4 +816,122 @@ model UserLead {
   @@index([email])
   @@index([createdAt])
   @@map("user_leads")
+}
+
+// ====================================
+// PRODUCT PURCHASE REQUEST MODULE
+// ====================================
+
+/// Investment Products (Venture A, B, C)
+model Product {
+  id String @id @default(uuid())
+
+  // Product identification
+  name        String @db.VarChar(255) // e.g., "Venture A", "Venture B", "Venture C"
+  description String? @db.Text
+
+  // Amount range for the product
+  minAmount Decimal @db.Decimal(15, 2) // Minimum investment amount
+  maxAmount Decimal? @db.Decimal(15, 2) // Maximum investment amount (null for "and Above")
+  currency  String  @default("AED") @db.VarChar(3)
+
+  // Display order
+  displayOrder Int @default(0)
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  options         ProductOption[]
+  purchaseRequests ProductPurchaseRequest[]
+
+  // Indexes
+  @@index([isActive])
+  @@index([displayOrder])
+  @@map("products")
+}
+
+/// Product Options (subcategories with duration, withdrawal frequency, ROI)
+model ProductOption {
+  id String @id @default(uuid())
+
+  // Product reference
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Option details
+  duration            String @db.VarChar(50) // e.g., "1 Year", "2 Years"
+  withdrawalFrequency String @db.VarChar(50) // e.g., "Monthly", "Quarterly"
+  roi                 Decimal @db.Decimal(5, 2) // ROI percentage (e.g., 3.00, 10.00, 15.00)
+  annualReturn        Decimal @db.Decimal(5, 2) // Annual return percentage (e.g., 36.00, 40.00)
+
+  // Display order
+  displayOrder Int @default(0)
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  purchaseRequests ProductPurchaseRequest[]
+
+  // Indexes
+  @@index([productId])
+  @@index([isActive])
+  @@map("product_options")
+}
+
+/// Product Purchase Request submitted by clients
+model ProductPurchaseRequest {
+  id String @id @default(uuid())
+
+  // Tracking number for client reference
+  trackingNumber String @unique @db.VarChar(50)
+
+  // Client who submitted the request
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Product and option selected
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  productOptionId String
+  productOption   ProductOption @relation(fields: [productOptionId], references: [id])
+
+  // Request details
+  amount Decimal       @db.Decimal(15, 2) // Investment amount
+  status RequestStatus @default(PENDING)
+
+  // RM assigned at time of request
+  assignedRMId String?
+  assignedRM   RelationshipManager? @relation(fields: [assignedRMId], references: [id])
+
+  // Processing information
+  processedAt DateTime?
+
+  // Notes
+  clientNotes     String? @db.Text
+  rmNotes         String? @db.Text
+  rejectionReason String? @db.Text
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([clientId])
+  @@index([productId])
+  @@index([productOptionId])
+  @@index([assignedRMId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("product_purchase_requests")
 }

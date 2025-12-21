@@ -17,6 +17,7 @@ import {
   Loader2,
   AlertCircle,
   TrendingUp,
+  Package,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -41,12 +42,13 @@ interface DashboardStats {
   totalClients: number;
   pendingPurchaseRequests: number;
   pendingWithdrawalRequests: number;
+  pendingProductRequests: number;
   totalAUM: number;
 }
 
 interface Activity {
   id: string;
-  type: 'PURCHASE' | 'WITHDRAWAL';
+  type: 'PURCHASE' | 'WITHDRAWAL' | 'PRODUCT';
   clientName: string;
   instrumentName: string;
   instrumentSymbol: string;
@@ -58,7 +60,7 @@ interface Activity {
 interface ChartData {
   requestStatusData: Array<{ name: string; value: number; fill: string }>;
   topClientsByAUM: Array<{ name: string; value: number }>;
-  activityTrend: Array<{ date: string; purchases: number; withdrawals: number }>;
+  activityTrend: Array<{ date: string; purchases: number; withdrawals: number; products: number }>;
   approvalRates: {
     purchaseApprovalRate: number;
     withdrawalApprovalRate: number;
@@ -131,7 +133,7 @@ export function RMDashboard() {
   return (
     <div className="space-y-6">
       {/* Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         {/* Total Clients */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -188,6 +190,25 @@ export function RMDashboard() {
             <p className="text-xs text-muted-foreground">Awaiting your review</p>
             {stats && stats.pendingWithdrawalRequests > 0 && (
               <Link href="/rm/withdrawal-requests">
+                <Button variant="link" size="sm" className="mt-2 h-auto p-0">
+                  Review requests →
+                </Button>
+              </Link>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Pending Product Requests */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Product Requests</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.pendingProductRequests || 0}</div>
+            <p className="text-xs text-muted-foreground">Awaiting your review</p>
+            {stats && stats.pendingProductRequests > 0 && (
+              <Link href="/rm/product-requests">
                 <Button variant="link" size="sm" className="mt-2 h-auto p-0">
                   Review requests →
                 </Button>
@@ -350,6 +371,13 @@ export function RMDashboard() {
                       strokeWidth={2}
                       name="Withdrawal Requests"
                     />
+                    <Line
+                      type="monotone"
+                      dataKey="products"
+                      stroke="#8b5cf6"
+                      strokeWidth={2}
+                      name="Product Requests"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -374,9 +402,17 @@ export function RMDashboard() {
                   className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
                 >
                   <div className="flex items-start gap-4">
-                    <div className={`rounded-full p-2 ${activity.type === 'PURCHASE' ? 'bg-blue-500/10' : 'bg-orange-500/10'}`}>
+                    <div className={`rounded-full p-2 ${
+                      activity.type === 'PURCHASE'
+                        ? 'bg-blue-500/10'
+                        : activity.type === 'PRODUCT'
+                          ? 'bg-purple-500/10'
+                          : 'bg-orange-500/10'
+                    }`}>
                       {activity.type === 'PURCHASE' ? (
                         <ShoppingCart className="h-4 w-4 text-blue-600" />
+                      ) : activity.type === 'PRODUCT' ? (
+                        <Package className="h-4 w-4 text-purple-600" />
                       ) : (
                         <DollarSign className="h-4 w-4 text-orange-600" />
                       )}
@@ -387,6 +423,10 @@ export function RMDashboard() {
                         {activity.type === 'PURCHASE' ? (
                           <>
                             Purchase request for {activity.instrumentSymbol} - {activity.instrumentName}
+                          </>
+                        ) : activity.type === 'PRODUCT' ? (
+                          <>
+                            Product request for {activity.instrumentName} ({activity.instrumentSymbol})
                           </>
                         ) : (
                           <>
@@ -402,7 +442,10 @@ export function RMDashboard() {
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <p className="font-medium">
-                        ${activity.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {activity.type === 'PRODUCT'
+                          ? `${activity.instrumentSymbol} ${activity.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : `$${activity.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        }
                       </p>
                     </div>
                     <Badge variant="outline" className={getStatusColor(activity.status)}>
