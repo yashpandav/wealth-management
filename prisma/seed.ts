@@ -17,6 +17,9 @@ async function main() {
   await prisma.auditLog.deleteMany();
   await prisma.transaction.deleteMany();
   await prisma.purchaseRequest.deleteMany();
+  await prisma.productPurchaseRequest.deleteMany();
+  await prisma.productOption.deleteMany();
+  await prisma.product.deleteMany();
   await prisma.withdrawalRequest.deleteMany();
   await prisma.holding.deleteMany();
   await prisma.portfolio.deleteMany();
@@ -42,6 +45,20 @@ async function main() {
       firstName: 'Admin',
       lastName: 'User',
       phone: '+1234567890',
+      status: 'ACTIVE',
+      emailVerified: true,
+    },
+  });
+
+  // DocAdmin user (Document Administrator for KYC verification)
+  await prisma.user.create({
+    data: {
+      email: 'docadmin@wealthcrm.com',
+      password: hashedPassword,
+      role: 'DOCADMIN',
+      firstName: 'Document',
+      lastName: 'Admin',
+      phone: '+1234567899',
       status: 'ACTIVE',
       emailVerified: true,
     },
@@ -114,7 +131,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Created 6 users');
+  console.log('✅ Created 7 users (1 admin, 1 docadmin, 2 RMs, 3 clients)');
 
   // ========================================
   // RELATIONSHIP MANAGERS
@@ -335,6 +352,133 @@ async function main() {
   });
 
   console.log('✅ Created 5 instruments');
+
+  // ========================================
+  // PRODUCTS (Investment Ventures)
+  // ========================================
+  console.log('📦 Creating products...');
+
+  // Venture A (AED 50,000 – 99,999)
+  const ventureA = await prisma.product.create({
+    data: {
+      name: 'Venture A',
+      description: 'Entry-level investment product for amounts between AED 50,000 and AED 99,999. Ideal for first-time investors looking for stable returns.',
+      minAmount: 50000,
+      maxAmount: 99999,
+      currency: 'AED',
+      displayOrder: 1,
+      isActive: true,
+    },
+  });
+
+  // Venture A Options
+  await prisma.productOption.createMany({
+    data: [
+      {
+        productId: ventureA.id,
+        duration: '2 Years',
+        withdrawalFrequency: 'Monthly',
+        roi: 3.00,
+        annualReturn: 36.00,
+        displayOrder: 1,
+        isActive: true,
+      },
+      {
+        productId: ventureA.id,
+        duration: '2 Years',
+        withdrawalFrequency: 'Quarterly',
+        roi: 10.00,
+        annualReturn: 40.00,
+        displayOrder: 2,
+        isActive: true,
+      },
+    ],
+  });
+
+  // Venture B (AED 100,000 – 499,999)
+  const ventureB = await prisma.product.create({
+    data: {
+      name: 'Venture B',
+      description: 'Mid-tier investment product for amounts between AED 100,000 and AED 499,999. Offers flexible duration options with competitive returns.',
+      minAmount: 100000,
+      maxAmount: 499999,
+      currency: 'AED',
+      displayOrder: 2,
+      isActive: true,
+    },
+  });
+
+  // Venture B Options
+  await prisma.productOption.createMany({
+    data: [
+      {
+        productId: ventureB.id,
+        duration: '1 Year',
+        withdrawalFrequency: 'Monthly',
+        roi: 3.00,
+        annualReturn: 36.00,
+        displayOrder: 1,
+        isActive: true,
+      },
+      {
+        productId: ventureB.id,
+        duration: '2 Years',
+        withdrawalFrequency: 'Monthly',
+        roi: 3.50,
+        annualReturn: 42.00,
+        displayOrder: 2,
+        isActive: true,
+      },
+      {
+        productId: ventureB.id,
+        duration: '2 Years',
+        withdrawalFrequency: 'Quarterly',
+        roi: 11.00,
+        annualReturn: 44.00,
+        displayOrder: 3,
+        isActive: true,
+      },
+    ],
+  });
+
+  // Venture C (AED 500,000 and Above)
+  const ventureC = await prisma.product.create({
+    data: {
+      name: 'Venture C',
+      description: 'Premium investment product for amounts of AED 500,000 and above. Highest returns for substantial investments.',
+      minAmount: 500000,
+      maxAmount: null, // No upper limit
+      currency: 'AED',
+      displayOrder: 3,
+      isActive: true,
+    },
+  });
+
+  // Venture C Options
+  await prisma.productOption.createMany({
+    data: [
+      {
+        productId: ventureC.id,
+        duration: '1 Year',
+        withdrawalFrequency: 'Monthly',
+        roi: 4.00,
+        annualReturn: 48.00,
+        displayOrder: 1,
+        isActive: true,
+      },
+      {
+        productId: ventureC.id,
+        duration: '2 Years',
+        withdrawalFrequency: 'Quarterly',
+        roi: 15.00,
+        annualReturn: 60.00,
+        displayOrder: 2,
+        isActive: true,
+      },
+    ],
+  });
+
+  console.log('✅ Created 3 products with 7 options');
 
   // ========================================
   // HOLDINGS
@@ -795,10 +939,11 @@ async function main() {
   console.log('🎉 Database seeding complete!');
   console.log('');
   console.log('📊 Summary:');
-  console.log('  - 6 users (1 admin, 2 RMs, 3 clients)');
+  console.log('  - 7 users (1 admin, 1 docadmin, 2 RMs, 3 clients)');
   console.log('  - 2 relationship managers');
   console.log('  - 3 clients with portfolios');
   console.log('  - 5 instruments (AAPL, GOOGL, MSFT, VTI, BND)');
+  console.log('  - 3 products (Venture A, B, C) with 7 options');
   console.log('  - 7 holdings across portfolios');
   console.log('  - 3 purchase requests (approved, pending, rejected)');
   console.log('  - 3 withdrawal requests (admin approved, pending, RM rejected)');

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { verifyEmailSchema } from '@/lib/validation/auth.validation';
+import { sendWelcomeEmailWithKYCPrompt } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
   try {
@@ -102,6 +103,11 @@ export async function GET(request: NextRequest) {
         },
       }),
     ]);
+
+    // Send welcome email with KYC prompt (non-blocking)
+    sendWelcomeEmailWithKYCPrompt(user.email, user.firstName).catch((err) => {
+      console.error('Failed to send welcome email:', err);
+    });
 
     return NextResponse.json(
       {

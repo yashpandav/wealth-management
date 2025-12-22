@@ -9,7 +9,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { prisma } from '@/lib/db/prisma';
 import { config } from '@/lib/config';
-import { UserRole } from '@prisma/client';
+import { UserRole, VerificationStatus } from '@prisma/client';
 
 // Extend NextAuth types
 declare module 'next-auth' {
@@ -21,6 +21,7 @@ declare module 'next-auth' {
       firstName: string | null;
       lastName: string | null;
       status: string;
+      verificationStatus: VerificationStatus | null; // Only for CLIENT role
     };
   }
 
@@ -31,6 +32,7 @@ declare module 'next-auth' {
     firstName: string | null;
     lastName: string | null;
     status: string;
+    verificationStatus: VerificationStatus | null; // Only for CLIENT role
   }
 }
 
@@ -42,6 +44,7 @@ declare module 'next-auth/jwt' {
     firstName: string | null;
     lastName: string | null;
     status: string;
+    verificationStatus: VerificationStatus | null; // Only for CLIENT role
   }
 }
 
@@ -125,7 +128,7 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email and password are required');
         }
 
-        // Find user with password
+        // Find user with password and client data if applicable
         const user = await prisma.user.findUnique({
           where: { email: credentials.email.toLowerCase() },
           select: {
@@ -139,6 +142,11 @@ export const authOptions: NextAuthOptions = {
             emailVerified: true,
             accountLockedUntil: true,
             failedLoginAttempts: true,
+            client: {
+              select: {
+                verificationStatus: true,
+              },
+            },
           },
         });
 
@@ -183,6 +191,22 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Please verify your email address before logging in.');
         }
 
+        // Check document verification status for CLIENT users
+        // Block login only if documents are pending review (waiting for admin verification)
+        // Allow login for NOT_SUBMITTED, REJECTED, EXPIRED so users can upload/resubmit
+        if (user.role === 'CLIENT' && user.client?.verificationStatus) {
+          const blockedStatuses: VerificationStatus[] = [
+            'PENDING',
+            'UNDER_REVIEW',
+          ];
+
+          if (blockedStatuses.includes(user.client.verificationStatus)) {
+            throw new Error(
+              "Your documents are under verification. You'll receive an email once verified."
+            );
+          }
+        }
+
         // Reset failed attempts on successful login
         await resetFailedAttempts(user.id);
 
@@ -209,6 +233,7 @@ export const authOptions: NextAuthOptions = {
           firstName: user.firstName,
           lastName: user.lastName,
           status: user.status,
+          verificationStatus: user.client?.verificationStatus || null,
         };
       },
     }),
@@ -243,6 +268,7 @@ export const authOptions: NextAuthOptions = {
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.status = user.status;
+        token.verificationStatus = user.verificationStatus;
       }
 
       // Update session - verify user still exists and is active
@@ -256,6 +282,11 @@ export const authOptions: NextAuthOptions = {
             firstName: true,
             lastName: true,
             status: true,
+            client: {
+              select: {
+                verificationStatus: true,
+              },
+            },
           },
         });
 
@@ -270,6 +301,7 @@ export const authOptions: NextAuthOptions = {
         token.firstName = dbUser.firstName;
         token.lastName = dbUser.lastName;
         token.status = dbUser.status;
+        token.verificationStatus = dbUser.client?.verificationStatus || null;
       }
 
       return token;
@@ -284,6 +316,7 @@ export const authOptions: NextAuthOptions = {
           firstName: token.firstName,
           lastName: token.lastName,
           status: token.status,
+          verificationStatus: token.verificationStatus,
         };
       }
 

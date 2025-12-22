@@ -67,12 +67,15 @@ export function RegisterForm() {
         return;
       }
 
-      setSuccess(data.message);
-      // Redirect to login after 2 seconds
+      setSuccess(
+        data.message +
+          ' After verifying your email, you will need to upload your KYC documents.'
+      );
+      // Redirect to login after 3 seconds
       setTimeout(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         router.push('/login' as any);
-      }, 2000);
+      }, 3000);
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);

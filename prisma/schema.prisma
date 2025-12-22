@@ -27,6 +27,7 @@ enum UserRole {
   CLIENT
   RM // Relationship Manager
   ADMIN
+  DOCADMIN // Document Administrator for verification workflow
 }
 
 enum AccountStatus {
@@ -132,6 +133,13 @@ enum AuditAction {
   HOLDING_UPDATE
   HOLDING_DELETE
 
+  // Document verification
+  DOCUMENT_UPLOAD
+  DOCUMENT_VERIFY
+  DOCUMENT_REJECT
+  DOCUMENT_DELETE
+  CLIENT_VERIFICATION_STATUS_UPDATE
+
   // System
   SYSTEM_CONFIG_CHANGE
   DATA_EXPORT
@@ -153,6 +161,26 @@ enum NotificationCategory {
   SYSTEM
   PORTFOLIO
   SECURITY
+}
+
+enum DocumentType {
+  IDENTITY_PROOF       // Government ID, Passport, Driver's License
+  ADDRESS_PROOF        // Utility bill, Bank statement with address
+  INCOME_PROOF         // Salary slip, Tax return, Employment letter
+  BANK_STATEMENT       // Bank account statements
+  TAX_DOCUMENT         // Tax returns, W-2, 1099
+  INVESTMENT_AGREEMENT // Signed investment agreements
+  KYC_FORM             // KYC/AML compliance forms
+  OTHER                // Other document types
+}
+
+enum VerificationStatus {
+  NOT_SUBMITTED        // No documents submitted yet
+  PENDING              // Documents submitted, awaiting review
+  UNDER_REVIEW         // Documents are being reviewed
+  VERIFIED             // All documents verified successfully
+  REJECTED             // Documents rejected, need resubmission
+  EXPIRED              // Verification expired, need renewal
 }
 
 // ====================================
@@ -197,6 +225,9 @@ model User {
   approvedWithdrawals  WithdrawalRequest[] @relation("AdminApprover")
   approvedTransactions Transaction[]       @relation("TransactionApprover")
 
+  // Document verifications (for DOCADMIN and ADMIN roles)
+  verifiedDocuments Document[] @relation("DocumentVerifier")
+
   @@index([email])
   @@index([role])
   @@index([status])
@@ -209,9 +240,9 @@ model Client {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Assigned Relationship Manager (required)
-  assignedRMId String
-  assignedRM   RelationshipManager @relation(fields: [assignedRMId], references: [id])
+  // Assigned Relationship Manager (optional until admin assigns)
+  assignedRMId String?
+  assignedRM   RelationshipManager? @relation(fields: [assignedRMId], references: [id])
 
   // Client-specific data
   riskTolerance String? // LOW, MEDIUM, HIGH
@@ -219,16 +250,22 @@ model Client {
   kycVerified   Boolean @default(false)
   kycDocuments  String? @db.Text // JSON array of document URLs
 
+  // Document verification status
+  verificationStatus VerificationStatus @default(NOT_SUBMITTED)
+
   // Assignment tracking
   assignedAt DateTime @default(now())
 
   // Relationships
-  portfolio          Portfolio?
-  purchaseRequests   PurchaseRequest[]
-  withdrawalRequests WithdrawalRequest[]
-  transactions       Transaction[]
+  portfolio               Portfolio?
+  purchaseRequests        PurchaseRequest[]
+  withdrawalRequests      WithdrawalRequest[]
+  transactions            Transaction[]
+  documents               Document[]
+  productPurchaseRequests ProductPurchaseRequest[]
 
   @@index([assignedRMId])
+  @@index([verificationStatus])
   @@map("clients")
 }
 
@@ -247,10 +284,11 @@ model RelationshipManager {
   totalAUM Decimal @default(0) @db.Decimal(15, 2) // Assets Under Management
 
   // Relationships
-  assignedClients         Client[]
-  processedPurchases      PurchaseRequest[]
-  processedWithdrawals    WithdrawalRequest[] @relation("RMProcessor")
-  processedTransactions   Transaction[]       @relation("RMProcessor")
+  assignedClients           Client[]
+  processedPurchases        PurchaseRequest[]
+  processedWithdrawals      WithdrawalRequest[] @relation("RMProcessor")
+  processedTransactions     Transaction[]       @relation("RMProcessor")
+  productPurchaseRequests   ProductPurchaseRequest[]
 
   @@map("relationship_managers")
 }
@@ -696,4 +734,204 @@ model VerificationToken {
   @@index([expiresAt])
   @@index([type])
   @@map("verification_tokens")
+}
+
+/// Documents uploaded by clients for verification
+model Document {
+  id String @id @default(uuid())
+
+  // Client who uploaded the document
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Document details
+  documentType DocumentType
+  filePath     String       @db.VarChar(500) // Path to stored document file
+
+  // Verification status
+  verificationStatus VerificationStatus @default(PENDING)
+
+  // Verification details (populated when reviewed by DOCADMIN/ADMIN)
+  verifiedById String?
+  verifiedBy   User?     @relation("DocumentVerifier", fields: [verifiedById], references: [id])
+  verifiedAt   DateTime?
+
+  // Rejection details
+  rejectionReason String? @db.Text
+
+  // Document metadata
+  fileName    String?  @db.VarChar(255) // Original file name
+  fileSize    Int?     // File size in bytes
+  mimeType    String?  @db.VarChar(100) // MIME type of the file
+  description String?  @db.Text // Optional description by client
+
+  // Expiry tracking (for documents that expire)
+  expiryDate DateTime?
+
+  // Timestamps
+  uploadedAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  // Indexes
+  @@index([clientId])
+  @@index([documentType])
+  @@index([verificationStatus])
+  @@index([verifiedById])
+  @@index([uploadedAt])
+  @@map("documents")
+}
+
+// ====================================
+// USER LEADS (Demo Form Submissions)
+// ====================================
+
+/// User lead form submissions from public wealth management form
+model UserLead {
+  id String @id @default(uuid())
+
+  // Personal Information (Section 1)
+  fullName String  @db.VarChar(255)
+  email    String  @db.VarChar(255)
+  phone    String  @db.VarChar(50)
+  age      Int
+
+  // Financial Information (Section 2)
+  monthlyIncome    Decimal  @db.Decimal(15, 2)
+  monthlyExpenses  Decimal  @db.Decimal(15, 2)
+  familyExpenses   Decimal  @db.Decimal(15, 2)
+  financialGoals   String   @db.Text
+
+  // Additional financial info
+  currentSavings       Decimal? @db.Decimal(15, 2)
+  investmentExperience String?  @db.VarChar(100) // None, Beginner, Intermediate, Advanced
+  riskTolerance        String?  @db.VarChar(50)  // Low, Medium, High
+  investmentHorizon    String?  @db.VarChar(50)  // Short-term, Medium-term, Long-term
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([email])
+  @@index([createdAt])
+  @@map("user_leads")
+}
+
+// ====================================
+// PRODUCT PURCHASE REQUEST MODULE
+// ====================================
+
+/// Investment Products (Venture A, B, C)
+model Product {
+  id String @id @default(uuid())
+
+  // Product identification
+  name        String @db.VarChar(255) // e.g., "Venture A", "Venture B", "Venture C"
+  description String? @db.Text
+
+  // Amount range for the product
+  minAmount Decimal @db.Decimal(15, 2) // Minimum investment amount
+  maxAmount Decimal? @db.Decimal(15, 2) // Maximum investment amount (null for "and Above")
+  currency  String  @default("AED") @db.VarChar(3)
+
+  // Display order
+  displayOrder Int @default(0)
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  options         ProductOption[]
+  purchaseRequests ProductPurchaseRequest[]
+
+  // Indexes
+  @@index([isActive])
+  @@index([displayOrder])
+  @@map("products")
+}
+
+/// Product Options (subcategories with duration, withdrawal frequency, ROI)
+model ProductOption {
+  id String @id @default(uuid())
+
+  // Product reference
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Option details
+  duration            String @db.VarChar(50) // e.g., "1 Year", "2 Years"
+  withdrawalFrequency String @db.VarChar(50) // e.g., "Monthly", "Quarterly"
+  roi                 Decimal @db.Decimal(5, 2) // ROI percentage (e.g., 3.00, 10.00, 15.00)
+  annualReturn        Decimal @db.Decimal(5, 2) // Annual return percentage (e.g., 36.00, 40.00)
+
+  // Display order
+  displayOrder Int @default(0)
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  purchaseRequests ProductPurchaseRequest[]
+
+  // Indexes
+  @@index([productId])
+  @@index([isActive])
+  @@map("product_options")
+}
+
+/// Product Purchase Request submitted by clients
+model ProductPurchaseRequest {
+  id String @id @default(uuid())
+
+  // Tracking number for client reference
+  trackingNumber String @unique @db.VarChar(50)
+
+  // Client who submitted the request
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Product and option selected
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  productOptionId String
+  productOption   ProductOption @relation(fields: [productOptionId], references: [id])
+
+  // Request details
+  amount Decimal       @db.Decimal(15, 2) // Investment amount
+  status RequestStatus @default(PENDING)
+
+  // RM assigned at time of request
+  assignedRMId String?
+  assignedRM   RelationshipManager? @relation(fields: [assignedRMId], references: [id])
+
+  // Processing information
+  processedAt DateTime?
+
+  // Notes
+  clientNotes     String? @db.Text
+  rmNotes         String? @db.Text
+  rejectionReason String? @db.Text
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([clientId])
+  @@index([productId])
+  @@index([productOptionId])
+  @@index([assignedRMId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("product_purchase_requests")
 }

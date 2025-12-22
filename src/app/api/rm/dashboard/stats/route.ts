@@ -52,10 +52,12 @@ export async function GET() {
       totalClients,
       pendingPurchaseRequests,
       pendingWithdrawalRequests,
+      pendingProductRequests,
       totalAUM,
       recentActivities,
       allPurchaseRequests,
       allWithdrawalRequests,
+      allProductPurchaseRequests,
       clientsWithPortfolios,
     ] = await Promise.all([
       // Total assigned clients
@@ -76,6 +78,14 @@ export async function GET() {
         where: {
           clientId: { in: clientIds },
           status: 'RM_REVIEW',
+        },
+      }),
+
+      // Pending product purchase requests
+      prisma.productPurchaseRequest.count({
+        where: {
+          clientId: { in: clientIds },
+          status: 'PENDING',
         },
       }),
 
@@ -132,6 +142,17 @@ export async function GET() {
         },
       }),
 
+      // All product purchase requests for stats
+      prisma.productPurchaseRequest.findMany({
+        where: { clientId: { in: clientIds } },
+        select: {
+          id: true,
+          status: true,
+          createdAt: true,
+          amount: true,
+        },
+      }),
+
       // Clients with portfolios for distribution
       prisma.client.findMany({
         where: { id: { in: clientIds } },
@@ -176,6 +197,31 @@ export async function GET() {
       },
     });
 
+    // Recent product purchase requests
+    const recentProductRequests = await prisma.productPurchaseRequest.findMany({
+      where: { clientId: { in: clientIds } },
+      take: 5,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        client: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        product: {
+          select: {
+            name: true,
+            currency: true,
+          },
+        },
+      },
+    });
+
     // Combine and sort activities
     const combinedActivities = [
       ...recentActivities.map((req) => ({
@@ -198,6 +244,16 @@ export async function GET() {
         status: req.status,
         createdAt: req.createdAt.toISOString(),
       })),
+      ...recentProductRequests.map((req) => ({
+        id: req.id,
+        type: 'PRODUCT' as const,
+        clientName: `${req.client.user.firstName} ${req.client.user.lastName}`,
+        instrumentName: req.product.name,
+        instrumentSymbol: req.product.currency,
+        amount: Number(req.amount),
+        status: req.status,
+        createdAt: req.createdAt.toISOString(),
+      })),
     ]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 10);
@@ -209,6 +265,11 @@ export async function GET() {
     }, {} as Record<string, number>);
 
     const withdrawalStatusCounts = allWithdrawalRequests.reduce((acc, req) => {
+      acc[req.status] = (acc[req.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const productStatusCounts = allProductPurchaseRequests.reduce((acc, req) => {
       acc[req.status] = (acc[req.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -228,6 +289,9 @@ export async function GET() {
         value: (withdrawalStatusCounts['RM_REJECTED'] || 0) + (withdrawalStatusCounts['ADMIN_REJECTED'] || 0),
         fill: '#dc2626',
       },
+      { name: 'Product - Pending', value: productStatusCounts['PENDING'] || 0, fill: '#8b5cf6' },
+      { name: 'Product - Approved', value: productStatusCounts['APPROVED'] || 0, fill: '#06b6d4' },
+      { name: 'Product - Rejected', value: productStatusCounts['REJECTED'] || 0, fill: '#f43f5e' },
     ].filter((item) => item.value > 0);
 
     // Top clients by AUM
@@ -259,10 +323,16 @@ export async function GET() {
         return reqDate === dateStr;
       }).length;
 
+      const productCount = allProductPurchaseRequests.filter((req) => {
+        const reqDate = new Date(req.createdAt).toISOString().split('T')[0];
+        return reqDate === dateStr;
+      }).length;
+
       activityTrend.push({
         date: dateStr,
         purchases: purchaseCount,
         withdrawals: withdrawalCount,
+        products: productCount,
       });
     }
 
@@ -286,6 +356,7 @@ export async function GET() {
           totalClients,
           pendingPurchaseRequests,
           pendingWithdrawalRequests,
+          pendingProductRequests,
           totalAUM: Number(totalAUM._sum.totalValue || 0),
         },
         recentActivities: combinedActivities,

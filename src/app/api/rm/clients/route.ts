@@ -127,6 +127,7 @@ export async function GET(request: NextRequest) {
       id: client.id,
       user: client.user,
       kycVerified: client.kycVerified,
+      verificationStatus: client.verificationStatus,
       assignedAt: client.assignedAt.toISOString(),
       portfolio: client.portfolio
         ? {

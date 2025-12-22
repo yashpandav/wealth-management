@@ -40,6 +40,7 @@ interface Client {
     phone: string | null;
   };
   kycVerified: boolean;
+  verificationStatus: 'NOT_SUBMITTED' | 'PENDING' | 'UNDER_REVIEW' | 'VERIFIED' | 'REJECTED' | 'EXPIRED';
   assignedAt: string;
   portfolio: {
     totalValue: number;
@@ -204,13 +205,25 @@ export function AssignedClientsTable() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {client.kycVerified ? (
+                      {client.verificationStatus === 'VERIFIED' ? (
                         <Badge variant="outline" className="bg-green-500/10 text-green-700">
                           Verified
                         </Badge>
+                      ) : client.verificationStatus === 'PENDING' || client.verificationStatus === 'UNDER_REVIEW' ? (
+                        <Badge variant="outline" className="bg-blue-500/10 text-blue-700">
+                          {client.verificationStatus === 'UNDER_REVIEW' ? 'Under Review' : 'Pending'}
+                        </Badge>
+                      ) : client.verificationStatus === 'REJECTED' ? (
+                        <Badge variant="outline" className="bg-red-500/10 text-red-700">
+                          Rejected
+                        </Badge>
+                      ) : client.verificationStatus === 'EXPIRED' ? (
+                        <Badge variant="outline" className="bg-orange-500/10 text-orange-700">
+                          Expired
+                        </Badge>
                       ) : (
-                        <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700">
-                          Pending
+                        <Badge variant="outline" className="bg-gray-500/10 text-gray-700">
+                          Not Submitted
                         </Badge>
                       )}
                     </TableCell>

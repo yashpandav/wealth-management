@@ -124,7 +124,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       createdAt: user.createdAt,
       isAssigned: user.client !== null,
       clientId: user.client?.id || null,
-      assignedRM: user.client
+      assignedRM: user.client?.assignedRM
         ? {
             id: user.client.assignedRM.id,
             userId: user.client.assignedRM.userId,

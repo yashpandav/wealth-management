@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(password, config.security.bcryptRounds);
 
-    // Create user
+    // Create user with client record if role is CLIENT
+    const userRole = role || 'CLIENT';
     const user = await prisma.user.create({
       data: {
         email,
@@ -56,9 +57,18 @@ export async function POST(request: NextRequest) {
         firstName,
         lastName,
         phone: phone || null,
-        role: role || 'CLIENT',
+        role: userRole,
         status: 'ACTIVE',
         emailVerified: !config.features.emailVerification, // Skip verification if disabled
+        // Create associated Client record if role is CLIENT
+        ...(userRole === 'CLIENT' && {
+          client: {
+            create: {
+              verificationStatus: 'NOT_SUBMITTED',
+              kycVerified: false,
+            },
+          },
+        }),
       },
       select: {
         id: true,
