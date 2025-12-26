@@ -128,7 +128,7 @@ export async function PATCH(
     await prisma.auditLog.create({
       data: {
         userId: docAdmin.id,
-        action: 'LEAD_RM_ASSIGNED',
+        action: 'CLIENT_ASSIGN', // Using CLIENT_ASSIGN for lead RM assignment
         entityType: 'UserLead',
         entityId: leadId,
         description: `DocAdmin assigned RM ${rm.user.firstName} ${rm.user.lastName} to lead ${lead.firstName} ${lead.lastName}`,

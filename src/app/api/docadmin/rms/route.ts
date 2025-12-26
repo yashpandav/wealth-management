@@ -16,15 +16,19 @@ export async function GET(_request: NextRequest) {
     // Require DocAdmin role
     await requireRole('DOCADMIN');
 
-    // Fetch all active RMs
-    const rms = await prisma.relationshipManager.findMany({
+    // Fetch all active RMs with their user information
+    const rmsData = await prisma.relationshipManager.findMany({
       where: {
         user: {
           isActive: true,
           status: 'ACTIVE',
         },
       },
-      include: {
+      select: {
+        id: true,
+        userId: true,
+        specialization: true,
+        maxClientLimit: true,
         user: {
           select: {
             id: true,
@@ -37,7 +41,7 @@ export async function GET(_request: NextRequest) {
         },
         _count: {
           select: {
-            clients: true,
+            assignedClients: true,
           },
         },
       },
@@ -49,14 +53,14 @@ export async function GET(_request: NextRequest) {
     });
 
     // Format response
-    const formattedRms = rms.map((rm) => ({
+    const formattedRms = rmsData.map((rm) => ({
       id: rm.id,
       userId: rm.user.id,
       name: `${rm.user.firstName} ${rm.user.lastName}`,
       email: rm.user.email,
       firstName: rm.user.firstName,
       lastName: rm.user.lastName,
-      clientCount: rm._count.clients,
+      clientCount: rm._count.assignedClients,
       isActive: rm.user.isActive,
       status: rm.user.status,
     }));

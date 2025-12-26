@@ -44,8 +44,6 @@ type LeadSource =
   | 'REFERRAL'
   | 'OTHER';
 
-type LeadStatus = 'NEW' | 'CONTACTED' | 'CONVERTED' | 'LOST';
-
 interface UserLead {
   id: string;
   firstName: string;
@@ -54,9 +52,15 @@ interface UserLead {
   phoneNumber: string;
   leadSource: LeadSource;
   rmReference: string | null;
-  status: LeadStatus;
   createdAt: string;
   updatedAt: string;
+}
+
+interface RM {
+  id: string;
+  name: string;
+  email: string;
+  clientCount: number;
 }
 
 export function LeadsTable() {
@@ -66,10 +70,16 @@ export function LeadsTable() {
   const [selectedLead, setSelectedLead] = useState<UserLead | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
+  // RM Assignment State
+  const [isAssignRmOpen, setIsAssignRmOpen] = useState(false);
+  const [availableRMs, setAvailableRMs] = useState<RM[]>([]);
+  const [selectedRmId, setSelectedRmId] = useState<string>('');
+  const [assignmentNotes, setAssignmentNotes] = useState('');
+  const [isAssigning, setIsAssigning] = useState(false);
+
   // Filters
   const [search, setSearch] = useState('');
   const [filterSource, setFilterSource] = useState<string>('');
-  const [filterStatus, setFilterStatus] = useState<string>('');
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -92,7 +102,6 @@ export function LeadsTable() {
         sortOrder,
         ...(search && { query: search }),
         ...(filterSource && { leadSource: filterSource }),
-        ...(filterStatus && { status: filterStatus }),
       });
 
       const response = await fetch(`/api/docadmin/leads?${params}`);
@@ -111,7 +120,7 @@ export function LeadsTable() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortOrder, search, filterSource, filterStatus]);
+  }, [page, limit, sortBy, sortOrder, search, filterSource]);
 
   // Handle sort
   const handleSort = (column: string) => {
@@ -140,17 +149,6 @@ export function LeadsTable() {
     });
   };
 
-  // Get status badge variant
-  const getStatusBadge = (status: LeadStatus) => {
-    const variants: Record<LeadStatus, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-      NEW: { variant: 'default', label: 'New' },
-      CONTACTED: { variant: 'secondary', label: 'Contacted' },
-      CONVERTED: { variant: 'outline', label: 'Converted' },
-      LOST: { variant: 'destructive', label: 'Lost' },
-    };
-    return variants[status] || { variant: 'default', label: status };
-  };
-
   // Get source label
   const getSourceLabel = (source: LeadSource) => {
     const labels: Record<LeadSource, string> = {
@@ -165,6 +163,71 @@ export function LeadsTable() {
     return labels[source] || source;
   };
 
+  // Fetch available RMs
+  const fetchRMs = useCallback(async () => {
+    try {
+      const response = await fetch('/api/docadmin/rms');
+      const result = await response.json();
+
+      if (result.success) {
+        setAvailableRMs(result.data.rms);
+      } else {
+        toast.error('Failed to load RMs');
+      }
+    } catch (error) {
+      console.error('Error fetching RMs:', error);
+      toast.error('Failed to load RMs');
+    }
+  }, []);
+
+  // Handle assign RM
+  const handleAssignRM = async () => {
+    if (!selectedLead || !selectedRmId) {
+      toast.error('Please select an RM');
+      return;
+    }
+
+    setIsAssigning(true);
+    try {
+      const response = await fetch(`/api/docadmin/leads/${selectedLead.id}/assign-rm`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rmId: selectedRmId,
+          notes: assignmentNotes || undefined,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(result.message || 'RM assigned successfully');
+        setIsAssignRmOpen(false);
+        setSelectedRmId('');
+        setAssignmentNotes('');
+        setIsDetailsOpen(false);
+        // Refresh leads list
+        fetchLeads();
+      } else {
+        toast.error(result.error || 'Failed to assign RM');
+      }
+    } catch (error) {
+      console.error('Error assigning RM:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  // Open assign RM dialog
+  const openAssignRmDialog = (lead: UserLead) => {
+    setSelectedLead(lead);
+    setIsAssignRmOpen(true);
+    if (availableRMs.length === 0) {
+      fetchRMs();
+    }
+  };
+
   // Effect to fetch when filters change
   useEffect(() => {
     fetchLeads();
@@ -174,123 +237,91 @@ export function LeadsTable() {
     <div className="space-y-4">
       <Toaster position="top-right" />
 
-      {/* Filters */}
-      <div className="flex flex-col gap-4 rounded-lg border p-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="space-y-2">
-            <Label htmlFor="search">Search</Label>
-            <Input
-              id="search"
-              placeholder="Name, email, phone, RM ref..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="source-filter">Lead Source</Label>
-            <Select
-              value={filterSource || 'ALL'}
-              onValueChange={(value) => {
-                setFilterSource(value === 'ALL' ? '' : value);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger id="source-filter">
-                <SelectValue placeholder="All sources" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All sources</SelectItem>
-                <SelectItem value="INSTAGRAM">Instagram</SelectItem>
-                <SelectItem value="YOUTUBE">YouTube</SelectItem>
-                <SelectItem value="FACEBOOK_ADS">Facebook Ads</SelectItem>
-                <SelectItem value="GOOGLE_ADS">Google Ads</SelectItem>
-                <SelectItem value="WEBSITE">Website</SelectItem>
-                <SelectItem value="REFERRAL">Referral</SelectItem>
-                <SelectItem value="OTHER">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="status-filter">Status</Label>
-            <Select
-              value={filterStatus || 'ALL'}
-              onValueChange={(value) => {
-                setFilterStatus(value === 'ALL' ? '' : value);
-                setPage(1);
-              }}
-            >
-              <SelectTrigger id="status-filter">
-                <SelectValue placeholder="All statuses" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All statuses</SelectItem>
-                <SelectItem value="NEW">New</SelectItem>
-                <SelectItem value="CONTACTED">Contacted</SelectItem>
-                <SelectItem value="CONVERTED">Converted</SelectItem>
-                <SelectItem value="LOST">Lost</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-end">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setSearch('');
-                setFilterSource('');
-                setFilterStatus('');
-                setPage(1);
-              }}
-            >
-              Clear Filters
-            </Button>
-          </div>
+      {/* Search & Filters */}
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <Input
+            placeholder="Search by name, email, phone, or RM reference..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="h-10"
+          />
         </div>
+        <Select
+          value={filterSource || 'ALL'}
+          onValueChange={(value) => {
+            setFilterSource(value === 'ALL' ? '' : value);
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Source" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Sources</SelectItem>
+            <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+            <SelectItem value="YOUTUBE">YouTube</SelectItem>
+            <SelectItem value="FACEBOOK_ADS">Facebook Ads</SelectItem>
+            <SelectItem value="GOOGLE_ADS">Google Ads</SelectItem>
+            <SelectItem value="WEBSITE">Website</SelectItem>
+            <SelectItem value="REFERRAL">Referral</SelectItem>
+            <SelectItem value="OTHER">Other</SelectItem>
+          </SelectContent>
+        </Select>
+        {(search || filterSource) && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setSearch('');
+              setFilterSource('');
+              setPage(1);
+            }}
+          >
+            Clear
+          </Button>
+        )}
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Enquiries
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">All submitted leads</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">New</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Assigned to RM
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {leads.filter((l) => l.status === 'NEW').length}
+              {leads.filter((l) => l.rmReference).length}
             </div>
+            <p className="text-xs text-muted-foreground mt-1">Have assigned managers</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Contacted</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Unassigned
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {leads.filter((l) => l.status === 'CONTACTED').length}
+              {leads.filter((l) => !l.rmReference).length}
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Converted</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {leads.filter((l) => l.status === 'CONVERTED').length}
-            </div>
+            <p className="text-xs text-muted-foreground mt-1">Need RM assignment</p>
           </CardContent>
         </Card>
       </div>
@@ -319,13 +350,7 @@ export function LeadsTable() {
               >
                 Source {sortBy === 'leadSource' && (sortOrder === 'asc' ? '↑' : '↓')}
               </TableHead>
-              <TableHead>RM Ref</TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('status')}
-              >
-                Status {sortBy === 'status' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
+              <TableHead>Assigned RM</TableHead>
               <TableHead
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => handleSort('createdAt')}
@@ -338,13 +363,13 @@ export function LeadsTable() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : leads.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No leads found
                 </TableCell>
               </TableRow>
@@ -354,23 +379,26 @@ export function LeadsTable() {
                   <TableCell className="font-medium">
                     {lead.firstName} {lead.lastName}
                   </TableCell>
-                  <TableCell>{lead.email}</TableCell>
-                  <TableCell>{lead.phoneNumber}</TableCell>
+                  <TableCell className="text-muted-foreground">{lead.email}</TableCell>
+                  <TableCell className="text-muted-foreground">{lead.phoneNumber}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{getSourceLabel(lead.leadSource)}</Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {lead.rmReference || '-'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadge(lead.status).variant}>
-                      {getStatusBadge(lead.status).label}
+                    <Badge variant="outline" className="font-normal">
+                      {getSourceLabel(lead.leadSource)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{formatDate(lead.createdAt)}</TableCell>
+                  <TableCell className="text-sm">
+                    {lead.rmReference ? (
+                      <span className="text-foreground">{lead.rmReference.split(' (')[0]}</span>
+                    ) : (
+                      <span className="text-muted-foreground italic">Not assigned</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {formatDate(lead.createdAt)}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" size="sm" onClick={() => handleViewDetails(lead)}>
-                      View Details
+                      Details
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -432,97 +460,179 @@ export function LeadsTable() {
 
       {/* Details Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Lead Details - New Enquiry</DialogTitle>
-            <DialogDescription>Complete information for this lead submission</DialogDescription>
+            <DialogTitle className="text-xl">Lead Enquiry Details</DialogTitle>
+            <DialogDescription>
+              View and manage lead information
+            </DialogDescription>
           </DialogHeader>
 
           {selectedLead && (
-            <div className="space-y-6">
-              {/* Contact Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Contact Information</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label className="text-muted-foreground">First Name</Label>
-                    <p className="font-medium">{selectedLead.firstName}</p>
+            <div className="space-y-5">
+              {/* Contact Info */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Contact
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-sm text-muted-foreground">Name</span>
+                    <span className="text-sm font-medium">
+                      {selectedLead.firstName} {selectedLead.lastName}
+                    </span>
                   </div>
-                  <div>
-                    <Label className="text-muted-foreground">Last Name</Label>
-                    <p className="font-medium">{selectedLead.lastName}</p>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-sm text-muted-foreground">Email</span>
+                    <span className="text-sm font-medium">{selectedLead.email}</span>
                   </div>
-                  <div>
-                    <Label className="text-muted-foreground">Email</Label>
-                    <p className="font-medium">{selectedLead.email}</p>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-sm text-muted-foreground">Phone</span>
+                    <span className="text-sm font-medium">{selectedLead.phoneNumber}</span>
                   </div>
-                  <div>
-                    <Label className="text-muted-foreground">Phone Number</Label>
-                    <p className="font-medium">{selectedLead.phoneNumber}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Source & Status */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Lead Information</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-2">
+              {/* Lead Info */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Information
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-sm text-muted-foreground">Source</span>
+                    <Badge variant="outline" className="font-normal">
+                      {getSourceLabel(selectedLead.leadSource)}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-sm text-muted-foreground">Assigned RM</span>
+                    <span className="text-sm font-medium">
+                      {selectedLead.rmReference ? (
+                        selectedLead.rmReference.split(' (')[0]
+                      ) : (
+                        <span className="italic text-muted-foreground">Not assigned</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-sm text-muted-foreground">Submitted</span>
+                    <span className="text-sm font-medium">{formatDate(selectedLead.createdAt)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={() => openAssignRmDialog(selectedLead)}
+                  className="flex-1"
+                  size="default"
+                >
+                  {selectedLead.rmReference ? 'Reassign RM' : 'Assign RM'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDetailsOpen(false)}
+                  size="default"
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* RM Assignment Dialog */}
+      <Dialog open={isAssignRmOpen} onOpenChange={setIsAssignRmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Assign Manager</DialogTitle>
+            <DialogDescription>
+              Choose an RM to handle this enquiry
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedLead && (
+            <div className="space-y-4">
+              {/* Lead Summary */}
+              <div className="rounded-lg border p-3 bg-muted/50">
+                <div className="flex justify-between items-start">
                   <div>
-                    <Label className="text-muted-foreground">Lead Source</Label>
                     <p className="font-medium">
-                      <Badge variant="outline">{getSourceLabel(selectedLead.leadSource)}</Badge>
+                      {selectedLead.firstName} {selectedLead.lastName}
                     </p>
+                    <p className="text-sm text-muted-foreground">{selectedLead.email}</p>
                   </div>
-                  <div>
-                    <Label className="text-muted-foreground">Status</Label>
-                    <p className="font-medium">
-                      <Badge variant={getStatusBadge(selectedLead.status).variant}>
-                        {getStatusBadge(selectedLead.status).label}
-                      </Badge>
-                    </p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label className="text-muted-foreground">RM Reference</Label>
-                    <p className="font-medium">{selectedLead.rmReference || 'Not provided'}</p>
-                  </div>
-                </CardContent>
-              </Card>
+                  {selectedLead.rmReference && (
+                    <Badge variant="secondary" className="text-xs">
+                      Currently: {selectedLead.rmReference.split(' (')[0]}
+                    </Badge>
+                  )}
+                </div>
+              </div>
 
-              {/* Submission Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Submission Details</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label className="text-muted-foreground">Submitted On</Label>
-                    <p className="font-medium">{formatDate(selectedLead.createdAt)}</p>
-                  </div>
-                  <div>
-                    <Label className="text-muted-foreground">Last Updated</Label>
-                    <p className="font-medium">{formatDate(selectedLead.updatedAt)}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Select RM */}
+              <div className="space-y-2">
+                <Label htmlFor="rm-select">Relationship Manager</Label>
+                <Select value={selectedRmId} onValueChange={setSelectedRmId}>
+                  <SelectTrigger id="rm-select">
+                    <SelectValue placeholder="Select RM..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableRMs.length === 0 ? (
+                      <div className="p-2 text-sm text-muted-foreground">Loading RMs...</div>
+                    ) : (
+                      availableRMs.map((rm) => (
+                        <SelectItem key={rm.id} value={rm.id}>
+                          <div className="flex justify-between items-center w-full">
+                            <span>{rm.name}</span>
+                            <span className="text-xs text-muted-foreground ml-2">
+                              {rm.clientCount} {rm.clientCount === 1 ? 'client' : 'clients'}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
 
-              {/* Action: Assign RM */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Actions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Use the RM Assignment feature to assign this lead to a Relationship Manager.
-                  </p>
-                  <Button variant="default" size="sm">
-                    Assign RM
-                  </Button>
-                </CardContent>
-              </Card>
+              {/* Notes */}
+              <div className="space-y-2">
+                <Label htmlFor="assignment-notes">Notes (Optional)</Label>
+                <Input
+                  id="assignment-notes"
+                  placeholder="Add notes if needed..."
+                  value={assignmentNotes}
+                  onChange={(e) => setAssignmentNotes(e.target.value)}
+                  maxLength={500}
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsAssignRmOpen(false);
+                    setSelectedRmId('');
+                    setAssignmentNotes('');
+                  }}
+                  disabled={isAssigning}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAssignRM}
+                  disabled={!selectedRmId || isAssigning}
+                  className="flex-1"
+                >
+                  {isAssigning ? 'Assigning...' : 'Assign'}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
