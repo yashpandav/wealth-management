@@ -1,11 +1,11 @@
 /**
  * Registration Form Component
- * Client-side form for user registration
+ * Client-side form for user registration with lead data prefilling
  */
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface FormData {
@@ -19,6 +19,7 @@ interface FormData {
 
 export function RegisterForm() {
   const router = useRouter();
+
   const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
@@ -30,6 +31,30 @@ export function RegisterForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Load and prefill lead data from localStorage
+  useEffect(() => {
+    try {
+      const storedData = localStorage.getItem('leadFormData');
+
+      if (storedData) {
+        const leadData = JSON.parse(storedData);
+        setFormData((prev) => ({
+          ...prev,
+          firstName: leadData.firstName || '',
+          lastName: leadData.lastName || '',
+          email: leadData.email || '',
+          phone: leadData.phoneNumber || '',
+        }));
+
+        // Clear localStorage after reading to avoid stale data
+        localStorage.removeItem('leadFormData');
+      }
+    } catch (err) {
+      console.error('Error loading lead data from localStorage:', err);
+      // Continue without prefilling
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
