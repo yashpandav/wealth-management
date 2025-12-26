@@ -16,6 +16,7 @@ This is an **enterprise-grade Wealth Management CRM platform** designed for fina
 - **Clients** to explore and invest in financial instruments
 - **Relationship Managers (RMs)** to manage client portfolios and process transactions
 - **Administrators** to oversee operations, create instruments, and approve critical transactions
+- **DocAdmins** to verify documents and manage KYC workflows
 
 ### Key Business Context
 
@@ -24,6 +25,7 @@ This is an **enterprise-grade Wealth Management CRM platform** designed for fina
 - **Two-Tier Approval:** Withdrawals require both RM review AND admin approval
 - **Public Access:** Unauthenticated users can browse instruments but must sign in to invest
 - **Enterprise Standards:** Production-grade code with security, compliance, observability, and scalability
+- **KYC Workflow:** Document verification with login restrictions during pending/under-review states
 
 ---
 
@@ -34,12 +36,13 @@ This is an **enterprise-grade Wealth Management CRM platform** designed for fina
 - **Framework:** Next.js 14+ with App Router (TypeScript)
 - **Language:** TypeScript 5+ (strict mode)
 - **Database:** PostgreSQL 15+
-- **ORM:** Prisma 5+
-- **Authentication:** NextAuth.js v4 or Auth.js v5
+- **ORM:** Prisma 5.20+ (schema: 937 lines, 20+ models)
+- **Authentication:** NextAuth.js v4 with Credentials Provider (JWT-based sessions)
 - **Validation:** Zod schemas
 - **State Management:** React Context API + TanStack Query (React Query)
 - **Forms:** React Hook Form
-- **Styling:** Tailwind CSS 3+ with shadcn/ui components
+- **Styling:** Tailwind CSS 3.4+ with shadcn/ui components
+- **Charts:** Recharts for data visualization
 
 ### Database Configuration
 
@@ -47,15 +50,26 @@ This is an **enterprise-grade Wealth Management CRM platform** designed for fina
 DATABASE_URL="postgresql://postgres:password@localhost:5432/fintech"
 ```
 
+### API Structure
+
+- **60+ RESTful API endpoints** organized by role
+- Routes: `/api/auth/*`, `/api/client/*`, `/api/rm/*`, `/api/admin/*`, `/api/docadmin/*`
+
 ### Supporting Libraries
 
 - **Date handling:** date-fns
-- **Charts:** Recharts or Chart.js
+- **Charts:** Recharts
 - **PDF generation:** react-pdf or jsPDF
-- **Email:** Nodemailer or Resend
-- **Notifications:** React Hot Toast
+- **Email:** Nodemailer with SMTP (email templates in `src/lib/email/email.service.ts`)
+- **Notifications:** React Hot Toast + in-app Notification model
 - **Tables:** TanStack Table
 - **File uploads:** React Dropzone
+
+### File Storage
+
+- **Local file paths** stored in database (`filePath` field in Document)
+- Document uploads to `/uploads/` directory via `/api/documents/upload` and `/api/rm/upload`
+- No cloud storage (S3/GCS) integration currently
 
 ### Development Tools
 
@@ -83,46 +97,66 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/fintech"
 
 **Access:** Read-only public content
 
-- Browse available investment instruments
-- View RM portfolio performance (anonymized)
-- Access general market trends
-- **Cannot:** Make investments, access personal data
+- Browse `/instruments` (public listing)
+- Submit `/user-form` (lead form only)
+- View homepage
+- **Cannot:** Access any dashboard, make investments, view personal data
 
 ### 2. Client (Authenticated Customer)
 
 **Access:** Personal portfolio management
 
-- View assigned RM details (name, email, phone)
-- Browse instruments with detailed information
+- View assigned RM details (`/client/my-rm`)
+- Browse instruments and products
 - Submit purchase requests
 - Submit withdrawal requests
-- View portfolio and transaction history
-- Access personal analytics
-- **Cannot:** Approve own transactions, access other clients' data, create instruments
+- View portfolio and transaction history (`/client/portfolio`)
+- Access analytics dashboard (`/client/analytics`)
+- View own notifications
+- **Cannot:** Approve any transactions, access other clients' data, create instruments, view admin panels
+
+**Role Assignment:**
+- Created during registration (`/api/auth/register`)
+- Client record auto-created with `verificationStatus: NOT_SUBMITTED`
 
 ### 3. Relationship Manager (RM)
 
 **Access:** Client management and transaction processing
 
-- View all assigned clients
+- View assigned clients list (`/rm/clients`)
 - Access client portfolio details
-- Process purchase requests (approve/reject)
-- Review withdrawal requests (submit to admin)
+- Process/approve/reject purchase requests (`/rm/purchase-requests`)
+- Review withdrawal requests → submit to Admin OR reject (`/rm/withdrawal-requests`)
 - View pending requests dashboard
-- Generate client reports
-- **Cannot:** Approve final withdrawals, create instruments, access system-wide analytics
+- Upload files for clients
+- **Cannot:** Final approve withdrawals (admin only), create instruments, assign RMs to clients, access system-wide analytics
 
-### 4. Administrator
+### 4. DocAdmin (Document Administrator)
+
+**Access:** Document verification and KYC management
+
+- View pending documents for verification (`/docadmin/documents`)
+- Verify or reject documents
+- Assign RM to client during verification (`/docadmin/assign-rm`)
+- Update client verification status
+- View audit logs
+- Stats: Pending, Under Review, Verified, Rejected
+- **Cannot:** Process financial transactions, create instruments, access full admin dashboard
+
+### 5. Administrator
 
 **Access:** Full system access
 
-- Create/edit investment instruments
-- Assign clients to RMs
-- **Final approval authority** for withdrawal requests
+- Create/edit/delete investment instruments (`/admin/instruments`)
+- Assign clients to RMs (`/admin/assignments`)
+- **Final approval authority** for withdrawal requests (`/admin/withdrawal-requests`)
 - View system-wide analytics dashboard
-- Manage user accounts
-- Access audit logs
-- **Cannot:** Directly process client transactions (delegates to RMs)
+- Manage user accounts (`/admin/users`)
+- Access all audit logs (`/admin/audit-logs`)
+- RM performance (`/admin/rm-performance`)
+- Leads management (`/admin/leads`)
+- Override any operation
+- **Cannot:** (No restrictions)
 
 ---
 
@@ -132,18 +166,24 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/fintech"
 
 #### Purchase Request Flow
 
-1. **Client** submits purchase request for instrument
-2. **RM** reviews request and verifies bank statement
-3. **RM** approves → Transaction completes automatically
-4. **RM** rejects → Client notified with reason
+1. **Client** submits purchase request for instrument → `status: PENDING`
+2. **RM** reviews request at `/rm/purchase-requests/[id]` and verifies bank statement
+3. **RM** approves → `status: APPROVED` → Transaction created → Portfolio updated
+4. **RM** rejects → `status: REJECTED` → Client notified with reason
 
-#### Withdrawal Request Flow
+**Status Flow:** `PENDING → PROCESSING → APPROVED | REJECTED`
 
-1. **Client** submits withdrawal request
-2. **RM** reviews request and verifies availability
-3. **RM** submits to admin for approval (or rejects)
-4. **Admin** provides final approval/rejection
-5. Transaction completes only after admin approval
+#### Withdrawal Request Flow (Two-Tier)
+
+1. **Client** submits withdrawal request → `status: PENDING`
+2. **RM** reviews request and verifies availability:
+   - Approves → `status: RM_APPROVED` → sent to Admin
+   - Rejects → `status: RM_REJECTED` → ends flow
+3. **Admin** reviews (if RM approved):
+   - Approves → `status: ADMIN_APPROVED` → Transaction created → Portfolio deducted
+   - Rejects → `status: ADMIN_REJECTED` → ends flow
+
+**Status Flow:** `PENDING → RM_REVIEW → RM_APPROVED → ADMIN_REVIEW → ADMIN_APPROVED | ADMIN_REJECTED`
 
 ### Assignment Rules
 
@@ -151,6 +191,7 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/fintech"
 - **One-to-One:** One client can only have ONE RM
 - Assignment/reassignment creates audit trail
 - Both parties notified of assignment changes
+- RM assignment happens during document verification by DocAdmin OR via Admin at `/admin/assignments`
 
 ### Manual Processing
 
@@ -160,32 +201,208 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/fintech"
 
 ---
 
+## Lead & User Flow
+
+### 1. Lead Creation (Public Form)
+- User visits `/user-form`
+- 2-step form: Personal Info → Financial Info
+- Submits to `/api/leads`
+- Data stored in `UserLead` table
+- **Note:** No automatic conversion to user - leads remain separate
+
+### 2. User Registration
+- User visits `/register`
+- Submits form → `/api/auth/register`
+- Creates User + Client records
+- Sends verification email (24-hour token)
+- `verificationStatus: NOT_SUBMITTED`
+
+### 3. Email Verification
+- User clicks email link → `/verify-email?token=xxx`
+- Token validated → `emailVerified: true`
+- Welcome email sent with KYC prompt
+
+### 4. Login Restrictions During Verification
+- If `verificationStatus` is `PENDING` or `UNDER_REVIEW`: **Login is BLOCKED** with message "documents under verification"
+- If `NOT_SUBMITTED`, `REJECTED`, or `EXPIRED`: Login allowed so user can upload/resubmit documents
+
+### 5. Document/KYC Submission
+- Client visits `/upload-documents` (auth page)
+- Uploads via `/api/documents/upload`
+- Document created with `verificationStatus: PENDING`
+- Client's `verificationStatus` updated to `PENDING`
+
+### 6. RM Assignment
+- Happens during document verification by DocAdmin
+- DocAdmin verifies document → optionally assigns RM
+- OR Admin can assign via `/admin/assignments`
+- Creates `Client.assignedRMId` relationship
+
+### 7. KYC Approval
+- DocAdmin reviews documents at `/docadmin/documents`
+- Calls `/api/documents/verify` with `VERIFY` or `REJECT`
+- Updates document status → recalculates client `verificationStatus`
+- If all docs verified → client `verificationStatus: VERIFIED`
+
+### 8. Product/Instrument Selection
+- Client browses `/client/products` or `/client/instruments`
+- Views details at `/client/products/[id]`
+
+### 9. Purchase Request
+- Client submits purchase request
+- Stored in `PurchaseRequest` with `status: PENDING`
+- RM reviews at `/rm/purchase-requests/[id]`
+- RM approves → Transaction created → Portfolio updated
+- RM rejects → Client notified
+
+### 10. Withdrawal Request (Two-Tier)
+1. Client submits → `status: PENDING`
+2. RM reviews:
+   - Approves → `status: RM_APPROVED` → sent to Admin
+   - Rejects → `status: RM_REJECTED` → ends
+3. Admin reviews (if RM approved):
+   - Approves → `status: ADMIN_APPROVED` → Transaction created → Portfolio deducted
+   - Rejects → `status: ADMIN_REJECTED` → ends
+
+---
+
 ## Database Schema (Key Entities)
 
 ### Core Tables
 
-- **User** - Base entity with role (CLIENT, RM, ADMIN)
-- **Client** - Extends User, links to RM
-- **RelationshipManager** - Extends User
-- **Instrument** - Investment products (stocks, bonds, funds, etc.)
-- **Portfolio** - Client holdings aggregate
-- **Holding** - Individual instrument positions
-- **PurchaseRequest** - Client purchase submissions
-- **WithdrawalRequest** - Two-tier approval workflow
-- **Transaction** - Completed financial transactions
-- **Notification** - In-app notifications
-- **AuditLog** - Comprehensive audit trail
+| Entity | Key Relations |
+|--------|---------------|
+| **User** | Base entity → extends to Client, RM, Admin, DocAdmin |
+| **Client** | 1:1 to RM (optional), 1:1 to Portfolio, 1:many Documents |
+| **RelationshipManager** | Extends User, manages multiple clients |
+| **Portfolio** | 1:many Holdings |
+| **Holding** | many:1 Instrument |
+| **Instrument** | Investment products (stocks, bonds, funds, etc.) |
+| **PurchaseRequest** | Client → Instrument, processed by RM |
+| **WithdrawalRequest** | Client → two-tier approval (RM → Admin) |
+| **Transaction** | Completed financial transactions |
+| **Document** | Client → verified by DocAdmin/Admin |
+| **Notification** | In-app notifications (types: INFO, SUCCESS, WARNING, ERROR, ALERT) |
+| **AuditLog** | Tracks 30+ action types |
+| **UserLead** | Public form submissions (separate from Users) |
+| **Product/ProductOption** | Investment venture types (A/B/C) |
 
 ### Important Relationships
 
 ```
-Client (1) ←→ (1) RM
+User (1) → extends to → Client | RM | Admin | DocAdmin
+Client (1) ←→ (1) RM (optional)
 Client (1) ←→ (1) Portfolio
+Client (1) ←→ (many) Documents
 Portfolio (1) ←→ (many) Holdings
 Holding (many) ←→ (1) Instrument
 Client (1) ←→ (many) PurchaseRequests
 Client (1) ←→ (many) WithdrawalRequests
 ```
+
+### State & Status Models
+
+#### User Account Status (AccountStatus)
+`ACTIVE | INACTIVE | LOCKED | SUSPENDED`
+- LOCKED: After 5 failed login attempts (auto-unlock after 30 min)
+- SUSPENDED: Manual admin action
+
+#### Client Verification Status (VerificationStatus)
+`NOT_SUBMITTED → PENDING → UNDER_REVIEW → VERIFIED | REJECTED | EXPIRED`
+- Blocks login when PENDING or UNDER_REVIEW
+- Transitions managed by document verification API
+
+#### Purchase Request Status (RequestStatus)
+`PENDING → PROCESSING → APPROVED | REJECTED`
+
+#### Withdrawal Status (WithdrawalStatus)
+`PENDING → RM_REVIEW → RM_APPROVED → ADMIN_REVIEW → ADMIN_APPROVED | ADMIN_REJECTED`
+(or `RM_REJECTED` which ends the flow)
+
+#### Transaction Status (TransactionStatus)
+`COMPLETED | FAILED | REVERSED | PENDING_SETTLEMENT`
+
+#### Document Verification Status
+`PENDING → UNDER_REVIEW → VERIFIED | REJECTED`
+
+---
+
+## Notifications & Emails
+
+### When Emails Are Sent
+
+| Event | Email Sent To |
+|-------|---------------|
+| Registration | User (verification email) |
+| Email verified | User (welcome + KYC prompt) |
+| Document uploaded | DocAdmin (notification) |
+| Document verified | User |
+| Document rejected | User (with reason) |
+| Purchase approved | Client |
+| Purchase rejected | Client |
+| Withdrawal submitted | Client (confirmation) |
+| Withdrawal RM approved | Client (status update) |
+| Withdrawal final approved | Client (with bank details) |
+| Withdrawal rejected | Client (with reason) |
+| Password reset requested | User (reset link) |
+
+### In-App Notifications
+- **Model:** Notification with types: `INFO`, `SUCCESS`, `WARNING`, `ERROR`, `ALERT`
+- **Categories:** `TRANSACTION`, `REQUEST`, `ASSIGNMENT`, `SYSTEM`, `PORTFOLIO`, `SECURITY`
+- **Display:** `/notifications` page, bell icon in header
+
+### Email Configuration
+- Templates in `src/lib/email/email.service.ts` (1,260 lines)
+- Skip email flag for development: `SKIP_EMAIL=true`
+
+### Time-Based Automations
+- **NOT IMPLEMENTED** - No reminders, scheduled tasks, or automated follow-ups
+
+---
+
+## Known Limitations & Tech Debt
+
+### No Background Processing
+- **Critical Gap:** No cron jobs, schedulers, or queues
+- Cannot implement: time-based reminders, auto-expiry, scheduled reports
+- Affects: 3–7 day KYC deadlines, lead auto-removal, session cleanup
+
+### No Lead-to-User Conversion
+- `UserLead` table is separate from `User`
+- No workflow to convert leads to registered users
+- No status tracking for leads (contacted, converted, lost)
+
+### No Time-Based Rules
+- Cannot enforce "KYC must complete within X days"
+- Cannot auto-deactivate stale leads
+- Cannot send reminder emails
+
+### Document Storage
+- Files stored locally (not cloud)
+- No CDN integration
+- Potential scalability issue
+
+### No Contract/Signing Workflow
+- No Contract model exists
+- No e-signature integration
+- No agreement tracking
+
+### Session Management
+- 30-minute inactivity timeout
+- No "remember me" option
+- No multi-device session management
+
+### Missing Features for Multi-Step Approvals
+- No "in-progress" or "pending verification" intermediate states for complex flows
+- DocAdmin cannot mark document as "under review" - only verify/reject
+
+### No Soft Delete Consistency
+- Some models have `deletedAt` (soft delete)
+- Others don't - inconsistent pattern
+
+### Email Failure Handling
+- Email failures logged but not retried
+- No email queue or delivery tracking
 
 ---
 
@@ -194,11 +411,14 @@ Client (1) ←→ (many) WithdrawalRequests
 ### Authentication & Authorization
 
 - **Password:** bcrypt hashing (rounds=12), min 8 chars with complexity
-- **MFA:** TOTP-based multi-factor authentication
-- **Sessions:** Secure cookies (httpOnly, secure, sameSite)
-- **Lockout:** 5 failed attempts triggers account lock
+- **Sessions:** JWT-based via NextAuth.js with secure cookies (httpOnly, secure, sameSite)
+- **Email Verification:** Token-based with 24-hour expiry
+- **Lockout:** 5 failed attempts triggers 30-minute account lock
 - **Timeout:** 30 minutes inactivity
-- **RBAC:** Role-based access control at all layers
+- **RBAC:** Role-based access control at all layers (defined in `src/lib/auth/rbac.hooks.ts`)
+- **Client-side hooks:** `useIsAdmin()`, `useIsRM()`, `useIsClient()`, `useIsDocAdmin()`
+- **Server-side:** `getServerSession()` + role validation
+- **No OAuth/Social login** currently implemented
 
 ### Data Protection
 
@@ -589,6 +809,6 @@ task-master analyze-complexity
 
 ---
 
-**Last Updated:** 2025-10-25
-**Project Status:** Initial Setup Phase
-**Current Focus:** Project initialization and task generation complete
+**Last Updated:** 2025-12-26
+**Project Status:** Active Development
+**Current Focus:** Core platform features implemented, addressing known limitations
