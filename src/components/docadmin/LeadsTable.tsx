@@ -166,6 +166,32 @@ export function LeadsTable() {
     return labels[source] || source;
   };
 
+  // Get status label
+  const getStatusLabel = (status: LeadStatus) => {
+    const labels: Record<LeadStatus, string> = {
+      NEW: 'New',
+      CONTACTED: 'Contacted',
+      INTERESTED: 'Interested',
+      NOT_INTERESTED: 'Not Interested',
+      CONVERTED: 'Converted',
+      LOST: 'Lost',
+    };
+    return labels[status] || status;
+  };
+
+  // Get status color
+  const getStatusColor = (status: LeadStatus) => {
+    const colors: Record<LeadStatus, string> = {
+      NEW: 'bg-blue-500/10 text-blue-700',
+      CONTACTED: 'bg-purple-500/10 text-purple-700',
+      INTERESTED: 'bg-green-500/10 text-green-700',
+      NOT_INTERESTED: 'bg-orange-500/10 text-orange-700',
+      CONVERTED: 'bg-emerald-500/10 text-emerald-700',
+      LOST: 'bg-red-500/10 text-red-700',
+    };
+    return colors[status] || '';
+  };
+
   // Fetch available RMs
   const fetchRMs = useCallback(async () => {
     try {
@@ -353,6 +379,7 @@ export function LeadsTable() {
               >
                 Source {sortBy === 'leadSource' && (sortOrder === 'asc' ? '↑' : '↓')}
               </TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Assigned RM</TableHead>
               <TableHead
                 className="cursor-pointer hover:bg-muted/50"
@@ -366,13 +393,13 @@ export function LeadsTable() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : leads.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell colSpan={8} className="h-24 text-center">
                   No leads found
                 </TableCell>
               </TableRow>
@@ -387,6 +414,11 @@ export function LeadsTable() {
                   <TableCell>
                     <Badge variant="outline" className="font-normal">
                       {getSourceLabel(lead.leadSource)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={getStatusColor(lead.status)}>
+                      {getStatusLabel(lead.status)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm">
@@ -506,6 +538,12 @@ export function LeadsTable() {
                     <span className="text-sm text-muted-foreground">Source</span>
                     <Badge variant="outline" className="font-normal">
                       {getSourceLabel(selectedLead.leadSource)}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-sm text-muted-foreground">Status</span>
+                    <Badge variant="outline" className={getStatusColor(selectedLead.status)}>
+                      {getStatusLabel(selectedLead.status)}
                     </Badge>
                   </div>
                   <div className="flex justify-between py-2 border-b">

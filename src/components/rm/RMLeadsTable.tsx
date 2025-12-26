@@ -151,17 +151,20 @@ export function RMLeadsTable() {
     );
   }
 
-  if (error) {
+  const leads = data?.data.leads || [];
+  const pagination = data?.data.pagination;
+
+  // Show friendly message for errors or empty data
+  if (error && !leads.length) {
     return (
-      <Alert variant="destructive">
+      <Alert>
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Failed to load leads. Please try again later.</AlertDescription>
+        <AlertDescription>
+          Unable to load leads at the moment. Please check your connection and try again.
+        </AlertDescription>
       </Alert>
     );
   }
-
-  const leads = data?.data.leads || [];
-  const pagination = data?.data.pagination;
 
   return (
     <div className="space-y-4">
@@ -272,8 +275,13 @@ export function RMLeadsTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                  No leads found
+                <TableCell colSpan={6} className="h-32 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <p className="text-muted-foreground">No leads assigned to you yet</p>
+                    <p className="text-sm text-muted-foreground">
+                      Leads will appear here once they are assigned by DocAdmin
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}

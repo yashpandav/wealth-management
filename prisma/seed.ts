@@ -24,6 +24,7 @@ async function main() {
   await prisma.holding.deleteMany();
   await prisma.portfolio.deleteMany();
   await prisma.instrument.deleteMany();
+  await prisma.userLead.deleteMany();
   await prisma.client.deleteMany();
   await prisma.relationshipManager.deleteMany();
   await prisma.user.deleteMany();
@@ -935,6 +936,73 @@ async function main() {
 
   console.log('✅ Created 4 audit logs');
 
+  // ========================================
+  // USER LEADS
+  // ========================================
+  console.log('📧 Creating user leads...');
+
+  await prisma.userLead.create({
+    data: {
+      firstName: 'David',
+      lastName: 'Thompson',
+      email: 'david.thompson@example.com',
+      phoneNumber: '+1234567896',
+      leadSource: 'INSTAGRAM',
+      status: 'NEW',
+      rmReference: `${rm1User.firstName} ${rm1User.lastName} (${rm1.id})`,
+    },
+  });
+
+  await prisma.userLead.create({
+    data: {
+      firstName: 'Emma',
+      lastName: 'Rodriguez',
+      email: 'emma.rodriguez@example.com',
+      phoneNumber: '+1234567897',
+      leadSource: 'WEBSITE',
+      status: 'CONTACTED',
+      rmReference: `${rm1User.firstName} ${rm1User.lastName} (${rm1.id})`,
+    },
+  });
+
+  await prisma.userLead.create({
+    data: {
+      firstName: 'Frank',
+      lastName: 'Chen',
+      email: 'frank.chen@example.com',
+      phoneNumber: '+1234567898',
+      leadSource: 'GOOGLE_ADS',
+      status: 'INTERESTED',
+      rmReference: `${rm2User.firstName} ${rm2User.lastName} (${rm2.id})`,
+    },
+  });
+
+  await prisma.userLead.create({
+    data: {
+      firstName: 'Grace',
+      lastName: 'Anderson',
+      email: 'grace.anderson@example.com',
+      phoneNumber: '+1234567899',
+      leadSource: 'REFERRAL',
+      status: 'NOT_INTERESTED',
+      rmReference: `${rm2User.firstName} ${rm2User.lastName} (${rm2.id})`,
+    },
+  });
+
+  await prisma.userLead.create({
+    data: {
+      firstName: 'Henry',
+      lastName: 'Parker',
+      email: 'henry.parker@example.com',
+      phoneNumber: '+1234567800',
+      leadSource: 'FACEBOOK_ADS',
+      status: 'NEW',
+      rmReference: null,
+    },
+  });
+
+  console.log('✅ Created 5 user leads');
+
   console.log('');
   console.log('🎉 Database seeding complete!');
   console.log('');
@@ -950,6 +1018,7 @@ async function main() {
   console.log('  - 3 transactions (2 completed, 1 failed)');
   console.log('  - 4 notifications');
   console.log('  - 4 audit log entries');
+  console.log('  - 5 user leads (with various statuses)');
   console.log('');
   console.log('🔑 Login credentials (all users):');
   console.log('  Email: [see above] | Password: Password123!');

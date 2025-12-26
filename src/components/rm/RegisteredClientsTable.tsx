@@ -85,17 +85,20 @@ export function RegisteredClientsTable() {
     );
   }
 
-  if (error) {
+  const clients = data?.data.clients || [];
+  const pagination = data?.data.pagination;
+
+  // Show friendly message for errors
+  if (error && !clients.length) {
     return (
-      <Alert variant="destructive">
+      <Alert>
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Failed to load clients. Please try again later.</AlertDescription>
+        <AlertDescription>
+          Unable to load clients at the moment. Please check your connection and try again.
+        </AlertDescription>
       </Alert>
     );
   }
-
-  const clients = data?.data.clients || [];
-  const pagination = data?.data.pagination;
 
   return (
     <div className="space-y-4">
@@ -161,8 +164,13 @@ export function RegisteredClientsTable() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                  No clients found
+                <TableCell colSpan={4} className="h-32 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <p className="text-muted-foreground">No registered clients without KYC</p>
+                    <p className="text-sm text-muted-foreground">
+                      Clients who register but haven't submitted KYC documents will appear here
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
