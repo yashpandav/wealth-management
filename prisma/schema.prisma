@@ -184,6 +184,15 @@ enum LeadSource {
   OTHER
 }
 
+enum LeadStatus {
+  NEW              // New lead, not yet contacted
+  CONTACTED        // RM has contacted the lead
+  INTERESTED       // Lead showed interest
+  NOT_INTERESTED   // Lead is not interested
+  CONVERTED        // Lead converted to registered client
+  LOST             // Lead lost/dead
+}
+
 enum VerificationStatus {
   NOT_SUBMITTED        // No documents submitted yet
   PENDING              // Documents submitted, awaiting review
@@ -811,7 +820,7 @@ model UserLead {
   rmReference String?    @db.VarChar(255) // Optional RM name or code reference
 
   // Lead Status
-  status String @default("NEW") @db.VarChar(50) // NEW, CONTACTED, CONVERTED, LOST
+  status LeadStatus @default(NEW)
 
   // Timestamps
   createdAt DateTime @default(now())

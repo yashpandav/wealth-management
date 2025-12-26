@@ -44,6 +44,8 @@ type LeadSource =
   | 'REFERRAL'
   | 'OTHER';
 
+type LeadStatus = 'NEW' | 'CONTACTED' | 'INTERESTED' | 'NOT_INTERESTED' | 'CONVERTED' | 'LOST';
+
 interface UserLead {
   id: string;
   firstName: string;
@@ -51,6 +53,7 @@ interface UserLead {
   email: string;
   phoneNumber: string;
   leadSource: LeadSource;
+  status: LeadStatus;
   rmReference: string | null;
   createdAt: string;
   updatedAt: string;
