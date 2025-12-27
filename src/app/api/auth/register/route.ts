@@ -48,6 +48,16 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(password, config.security.bcryptRounds);
 
+    // Check if a matching lead exists for this email
+    const existingLead = await prisma.userLead.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        assignedRMId: true,
+        status: true,
+      },
+    });
+
     // Create user with client record if role is CLIENT
     const userRole = role || 'CLIENT';
     const user = await prisma.user.create({
@@ -66,6 +76,10 @@ export async function POST(request: NextRequest) {
             create: {
               verificationStatus: 'NOT_SUBMITTED',
               kycVerified: false,
+              // If lead had an assigned RM, copy it to the Client record
+              ...(existingLead?.assignedRMId && {
+                assignedRMId: existingLead.assignedRMId,
+              }),
             },
           },
         }),
@@ -78,6 +92,17 @@ export async function POST(request: NextRequest) {
         role: true,
       },
     });
+
+    // If a matching lead exists, link it to the new user and update status
+    if (existingLead) {
+      await prisma.userLead.update({
+        where: { id: existingLead.id },
+        data: {
+          userId: user.id,
+          status: 'CONVERTED',
+        },
+      });
+    }
 
     // Create audit log
     if (config.features.auditLog) {

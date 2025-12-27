@@ -73,14 +73,11 @@ export async function PATCH(
 
     const { status } = validationResult.data;
 
-    // Build rmReference string to match
-    const rmReference = `${rm.user.firstName} ${rm.user.lastName} (${rm.id})`;
-
     // Verify lead exists and is assigned to this RM
     const lead = await prisma.userLead.findFirst({
       where: {
         id: leadId,
-        rmReference,
+        assignedRMId: rm.id,
       },
     });
 

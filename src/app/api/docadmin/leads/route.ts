@@ -37,7 +37,9 @@ export async function GET(request: NextRequest) {
       validationResult.data;
 
     // Build where clause for filtering
+    // DocAdmin only sees leads with status NEW, CONTACTED, or INTERESTED (not CONVERTED/LOST/NOT_INTERESTED)
     const where: Prisma.UserLeadWhereInput = {
+      status: status ? status : { in: ['NEW', 'CONTACTED', 'INTERESTED'] },
       ...(query && {
         OR: [
           { firstName: { contains: query, mode: 'insensitive' } },
@@ -48,7 +50,6 @@ export async function GET(request: NextRequest) {
         ],
       }),
       ...(leadSource && { leadSource }),
-      ...(status && { status }),
     };
 
     // Get total count for pagination
@@ -68,9 +69,23 @@ export async function GET(request: NextRequest) {
         phoneNumber: true,
         leadSource: true,
         rmReference: true,
+        assignedRMId: true,
+        userId: true,
         status: true,
         createdAt: true,
         updatedAt: true,
+        assignedRM: {
+          select: {
+            id: true,
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 

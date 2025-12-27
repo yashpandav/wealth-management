@@ -102,11 +102,12 @@ export async function PATCH(
       );
     }
 
-    // Update lead with RM reference
+    // Update lead with RM assignment (actual FK) and RM reference (display name)
     const updatedLead = await prisma.userLead.update({
       where: { id: leadId },
       data: {
-        rmReference: `${rm.user.firstName} ${rm.user.lastName} (${rmId})`,
+        assignedRMId: rmId, // Store actual RM ID for queries
+        rmReference: `${rm.user.firstName} ${rm.user.lastName}`, // Store display name
         status: lead.status === 'NEW' ? 'CONTACTED' : lead.status,
         updatedAt: new Date(),
       },
@@ -117,6 +118,7 @@ export async function PATCH(
         email: true,
         phoneNumber: true,
         leadSource: true,
+        assignedRMId: true,
         rmReference: true,
         status: true,
         createdAt: true,
