@@ -10,18 +10,17 @@ import { prisma } from '@/lib/db/prisma';
 import { AssignRMClient } from './assign-rm-client';
 
 export const metadata = {
-  title: 'Assign RM | Wealth Management CRM',
-  description: 'Assign Relationship Managers to verified clients',
+  title: 'RM Assignment Pending | Wealth Management CRM',
+  description: 'Manage clients with verified KYC awaiting RM assignment',
 };
 
 async function getVerifiedClientsWithoutRM() {
-  // Get all clients who have all documents verified but no RM assigned
+  // Get all clients with VERIFIED KYC status but no RM assigned
+  // KYC verification must be complete BEFORE RM assignment is allowed
   const clients = await prisma.client.findMany({
     where: {
+      verificationStatus: 'VERIFIED',
       assignedRMId: null,
-      documents: {
-        some: {},
-      },
     },
     include: {
       user: {
@@ -39,6 +38,10 @@ async function getVerifiedClientsWithoutRM() {
           id: true,
           documentType: true,
           verificationStatus: true,
+          verifiedAt: true,
+        },
+        orderBy: {
+          verifiedAt: 'desc',
         },
       },
     },
@@ -49,14 +52,7 @@ async function getVerifiedClientsWithoutRM() {
     },
   });
 
-  // Filter to only include clients where ALL documents are verified
-  return clients.filter((client) => {
-    const hasDocuments = client.documents.length > 0;
-    const allVerified = client.documents.every(
-      (doc) => doc.verificationStatus === 'VERIFIED'
-    );
-    return hasDocuments && allVerified;
-  });
+  return clients;
 }
 
 async function getRelationshipManagers() {
@@ -102,15 +98,27 @@ export default async function AssignRMPage() {
     getRelationshipManagers(),
   ]);
 
-  const formattedClients = clients.map((client) => ({
-    id: client.id,
-    userId: client.user.id,
-    name: `${client.user.firstName} ${client.user.lastName}`,
-    email: client.user.email,
-    phone: client.user.phone || '',
-    documentsCount: client.documents.length,
-    registeredAt: client.user.createdAt.toISOString(),
-  }));
+  const formattedClients = clients.map((client) => {
+    // Get the most recent verification date from documents
+    const verifiedDocs = client.documents.filter((d) => d.verifiedAt);
+    const latestVerifiedAt = verifiedDocs.length > 0
+      ? verifiedDocs.reduce((latest, doc) =>
+          doc.verifiedAt && (!latest || doc.verifiedAt > latest) ? doc.verifiedAt : latest,
+          null as Date | null
+        )
+      : null;
+
+    return {
+      id: client.id,
+      userId: client.user.id,
+      name: `${client.user.firstName} ${client.user.lastName}`,
+      email: client.user.email,
+      phone: client.user.phone || '',
+      documentsCount: client.documents.length,
+      registeredAt: client.user.createdAt.toISOString(),
+      verifiedAt: latestVerifiedAt?.toISOString() || null,
+    };
+  });
 
   const formattedRMs = rms.map((rm) => ({
     id: rm.id,
@@ -122,9 +130,9 @@ export default async function AssignRMPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Assign Relationship Manager</h1>
+        <h1 className="text-3xl font-bold text-gray-900">RM Assignment Pending</h1>
         <p className="text-gray-600 mt-2">
-          Assign RMs to clients whose documents have been verified.
+          Clients with verified KYC documents awaiting Relationship Manager assignment.
         </p>
       </div>
 

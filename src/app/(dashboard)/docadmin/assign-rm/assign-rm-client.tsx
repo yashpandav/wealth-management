@@ -2,6 +2,49 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+  Users,
+  UserCheck,
+  Clock,
+  CheckCircle2,
+  Phone,
+  Mail,
+  Calendar,
+  FileCheck,
+  UserPlus,
+  X,
+  Loader2,
+  AlertCircle,
+  ChevronRight,
+} from 'lucide-react';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface Client {
   id: string;
@@ -11,6 +54,7 @@ interface Client {
   phone: string;
   documentsCount: number;
   registeredAt: string;
+  verifiedAt: string | null;
 }
 
 interface RelationshipManager {
@@ -53,13 +97,10 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
 
     setProcessing(true);
     try {
-      const res = await fetch('/api/client/assign-rm', {
-        method: 'POST',
+      const res = await fetch(`/api/docadmin/clients/${selectedClient.id}/assign-rm`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientId: selectedClient.id,
-          rmId: selectedRM,
-        }),
+        body: JSON.stringify({ rmId: selectedRM }),
       });
 
       const data = await res.json();
@@ -67,254 +108,387 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
       if (data.success) {
         setMessage({
           type: 'success',
-          text: `RM assigned successfully to ${selectedClient.name}`,
+          text: `Successfully assigned RM to ${selectedClient.name}`,
         });
         closeModal();
-        // Refresh the page to update the list
         router.refresh();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to assign RM' });
       }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'An error occurred' });
+    } catch {
+      setMessage({ type: 'error', text: 'An error occurred while assigning RM' });
     } finally {
       setProcessing(false);
     }
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const avgClientsPerRM =
+    relationshipManagers.length > 0
+      ? Math.round(
+          relationshipManagers.reduce((sum, rm) => sum + rm.clientCount, 0) /
+            relationshipManagers.length
+        )
+      : 0;
+
   return (
     <div className="space-y-6">
-      {/* Message */}
+      {/* Alert Messages */}
       {message && (
         <div
-          className={`p-4 rounded-md ${
-            message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+          className={`flex items-center gap-3 rounded-lg border p-4 ${
+            message.type === 'success'
+              ? 'border-green-200 bg-green-50 text-green-800'
+              : 'border-red-200 bg-red-50 text-red-800'
           }`}
         >
-          {message.text}
-          <button onClick={() => setMessage(null)} className="float-right font-bold">
-            x
+          {message.type === 'success' ? (
+            <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          )}
+          <p className="text-sm font-medium">{message.text}</p>
+          <button
+            onClick={() => setMessage(null)}
+            className="ml-auto rounded-md p-1 hover:bg-black/5"
+          >
+            <X className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* Summary Card */}
+      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="bg-white rounded-lg border p-4">
-          <div className="text-sm font-medium text-gray-500">Clients Awaiting RM</div>
-          <div className="mt-2 text-2xl font-bold text-blue-600">{clients.length}</div>
-        </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="text-sm font-medium text-gray-500">Available RMs</div>
-          <div className="mt-2 text-2xl font-bold text-green-600">{relationshipManagers.length}</div>
-        </div>
-        <div className="bg-white rounded-lg border p-4">
-          <div className="text-sm font-medium text-gray-500">Avg Clients per RM</div>
-          <div className="mt-2 text-2xl font-bold text-gray-900">
-            {relationshipManagers.length > 0
-              ? Math.round(
-                  relationshipManagers.reduce((sum, rm) => sum + rm.clientCount, 0) /
-                    relationshipManagers.length
-                )
-              : 0}
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Pending Assignment
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clients.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Clients awaiting RM
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Available RMs
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{relationshipManagers.length}</div>
+            <p className="text-xs text-muted-foreground">
+              Active relationship managers
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Avg Clients per RM
+            </CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{avgClientsPerRM}</div>
+            <p className="text-xs text-muted-foreground">
+              Current workload distribution
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Clients List */}
-      {clients.length === 0 ? (
-        <div className="bg-white border rounded-lg p-8 text-center">
-          <div className="text-gray-400 mb-4">
-            <svg
-              className="mx-auto h-12 w-12"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-gray-900">All Caught Up!</h3>
-          <p className="text-gray-500 mt-2">
-            No verified clients are waiting for RM assignment.
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white border rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Client
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Documents
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Registered
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+      {/* Clients Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Clients Pending RM Assignment</CardTitle>
+          <CardDescription>
+            These clients have completed KYC verification and are ready to be assigned to a Relationship Manager
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {clients.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="rounded-full bg-green-100 p-3 mb-4">
+                <CheckCircle2 className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">All Caught Up!</h3>
+              <p className="mt-1 text-sm text-muted-foreground max-w-sm">
+                No clients with verified KYC are pending RM assignment. Check back later for new clients.
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>KYC Status</TableHead>
+                  <TableHead>Registered</TableHead>
+                  <TableHead>Verified</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {clients.map((client) => (
-                  <tr key={client.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0">
-                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span className="text-blue-600 font-semibold">
-                              {client.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{client.name}</div>
-                          <div className="text-sm text-gray-500">{client.email}</div>
+                  <TableRow key={client.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                            {getInitials(client.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{client.name}</div>
+                          <div className="text-sm text-muted-foreground">{client.email}</div>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{client.phone || '-'}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                        {client.documentsCount} verified
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(client.registeredAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => openModal(client)}
-                        className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
-                      >
+                    </TableCell>
+                    <TableCell>
+                      {client.phone ? (
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <Phone className="h-3.5 w-3.5" />
+                          {client.phone}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <Badge variant="default" className="w-fit bg-green-600 hover:bg-green-600">
+                          <CheckCircle2 className="mr-1 h-3 w-3" />
+                          Verified
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {client.documentsCount} document{client.documentsCount !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                        {formatDate(client.registeredAt)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {client.verifiedAt ? (
+                        <div className="flex items-center gap-1.5 text-sm">
+                          <FileCheck className="h-3.5 w-3.5 text-green-600" />
+                          {formatDate(client.verifiedAt)}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" onClick={() => openModal(client)}>
+                        <UserPlus className="mr-1.5 h-4 w-4" />
                         Assign RM
-                      </button>
-                    </td>
-                  </tr>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* RM Workload Overview */}
       {relationshipManagers.length > 0 && (
-        <div className="bg-white border rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">RM Workload Overview</h3>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {relationshipManagers.map((rm) => (
-              <div key={rm.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-gray-900">{rm.name}</div>
-                    <div className="text-sm text-gray-500">{rm.email}</div>
+        <Card>
+          <CardHeader>
+            <CardTitle>RM Workload Overview</CardTitle>
+            <CardDescription>
+              Current client distribution across Relationship Managers
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {relationshipManagers.map((rm) => (
+                <div
+                  key={rm.id}
+                  className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-secondary text-secondary-foreground">
+                        {getInitials(rm.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-medium">{rm.name}</div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        {rm.email}
+                      </div>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-blue-600">{rm.clientCount}</div>
-                    <div className="text-xs text-gray-500">clients</div>
+                    <div className="text-2xl font-bold text-primary">{rm.clientCount}</div>
+                    <div className="text-xs text-muted-foreground">clients</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Assign RM Dialog */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Assign Relationship Manager</DialogTitle>
+            <DialogDescription>
+              Select a Relationship Manager to assign to this client
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedClient && (
+            <div className="space-y-4">
+              {/* Client Info */}
+              <div className="rounded-lg border bg-muted/50 p-4">
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                      {getInitials(selectedClient.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-1">
+                    <h4 className="font-semibold">{selectedClient.name}</h4>
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Mail className="h-3.5 w-3.5" />
+                      {selectedClient.email}
+                    </div>
+                    {selectedClient.phone && (
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Phone className="h-3.5 w-3.5" />
+                        {selectedClient.phone}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-3 border-t pt-3">
+                  <div>
+                    <div className="text-xs text-muted-foreground">KYC Status</div>
+                    <Badge variant="default" className="mt-1 bg-green-600 hover:bg-green-600">
+                      <CheckCircle2 className="mr-1 h-3 w-3" />
+                      Verified
+                    </Badge>
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Documents</div>
+                    <div className="mt-1 text-sm font-medium">
+                      {selectedClient.documentsCount} verified
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Assign RM Modal */}
-      {showModal && selectedClient && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Assign Relationship Manager</h2>
-                <button
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
-                >
-                  x
-                </button>
-              </div>
-
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm font-medium text-blue-900">Client Details</p>
-                <p className="text-sm text-blue-700">{selectedClient.name}</p>
-                <p className="text-xs text-blue-600">{selectedClient.email}</p>
-                <p className="text-xs text-green-600 mt-1">
-                  {selectedClient.documentsCount} documents verified
-                </p>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Relationship Manager <span className="text-red-500">*</span>
+              {/* RM Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  Select Relationship Manager <span className="text-destructive">*</span>
                 </label>
-                <select
-                  value={selectedRM}
-                  onChange={(e) => setSelectedRM(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">-- Select RM --</option>
-                  {relationshipManagers.map((rm) => (
-                    <option key={rm.id} value={rm.id}>
-                      {rm.name} ({rm.email}) - {rm.clientCount} clients
-                    </option>
-                  ))}
-                </select>
+                <Select value={selectedRM} onValueChange={setSelectedRM}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a Relationship Manager..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {relationshipManagers.map((rm) => (
+                      <SelectItem key={rm.id} value={rm.id}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{rm.name}</span>
+                          <span className="text-muted-foreground">
+                            ({rm.clientCount} clients)
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
+              {/* Selected RM Preview */}
               {selectedRM && (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <div className="rounded-lg border p-3">
                   {(() => {
                     const rm = relationshipManagers.find((r) => r.id === selectedRM);
                     if (!rm) return null;
                     return (
-                      <div className="text-sm">
-                        <p className="font-medium text-gray-900">{rm.name}</p>
-                        <p className="text-gray-600">{rm.email}</p>
-                        <p className="text-gray-500 mt-1">
-                          Currently managing {rm.clientCount} client
-                          {rm.clientCount !== 1 ? 's' : ''}
-                        </p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9">
+                            <AvatarFallback className="bg-secondary">
+                              {getInitials(rm.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{rm.name}</div>
+                            <div className="text-xs text-muted-foreground">{rm.email}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          {rm.clientCount} clients
+                          <ChevronRight className="h-4 w-4" />
+                          {rm.clientCount + 1}
+                        </div>
                       </div>
                     );
                   })()}
                 </div>
               )}
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAssignRM}
-                  disabled={processing || !selectedRM}
-                  className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {processing ? 'Assigning...' : 'Assign RM'}
-                </button>
-              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={closeModal} disabled={processing}>
+              Cancel
+            </Button>
+            <Button onClick={handleAssignRM} disabled={processing || !selectedRM}>
+              {processing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Assigning...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Assign RM
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

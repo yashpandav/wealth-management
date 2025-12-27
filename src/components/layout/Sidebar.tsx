@@ -1,6 +1,7 @@
 /**
  * Sidebar Component
  * Side navigation with role-based menu items and responsive behavior
+ * Dynamically shows/hides KYC Documents based on verification status
  */
 
 'use client';
@@ -9,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { shouldShowKycUpload } from '@/lib/utils/client-utils';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -21,6 +23,8 @@ interface NavItem {
   icon: React.ReactNode;
   roles: string[];
   disabled?: boolean;
+  /** If true, this item is only shown when KYC upload is needed */
+  kycUploadOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -178,7 +182,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/docadmin/assign-rm',
-    label: 'Assign RM',
+    label: 'RM Assignment Pending',
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -432,6 +436,7 @@ const navItems: NavItem[] = [
       </svg>
     ),
     roles: ['CLIENT'],
+    kycUploadOnly: true, // Only show when KYC is not yet verified
   },
 ];
 
@@ -440,9 +445,22 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   const userRole = session?.user?.role || '';
-  const filteredNavItems = navItems.filter((item) =>
-    item.roles.includes(userRole)
-  );
+  const verificationStatus = session?.user?.verificationStatus || null;
+
+  // Filter nav items based on role and KYC status
+  const filteredNavItems = navItems.filter((item) => {
+    // First check role
+    if (!item.roles.includes(userRole)) {
+      return false;
+    }
+
+    // For KYC-only items, hide if KYC is already verified
+    if (item.kycUploadOnly && !shouldShowKycUpload(verificationStatus)) {
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <>
