@@ -40,11 +40,11 @@ export async function testDatabaseConnection() {
   try {
     await prisma.$connect();
     // eslint-disable-next-line no-console
-    console.log('✅ Database connection successful');
+    console.log('[Database] Connection successful');
     return true;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('❌ Database connection failed:', error);
+    console.error('[Database] Connection failed:', error);
     return false;
   }
 }

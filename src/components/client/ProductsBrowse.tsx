@@ -191,14 +191,14 @@ export function ProductsBrowse() {
               {!kycStatus.data.identityProofVerified && (
                 <div className="flex items-center gap-2">
                   <span className="text-orange-700">
-                    ❌ Identity Proof {kycStatus.data.identityProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                    Identity Proof {kycStatus.data.identityProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
                   </span>
                 </div>
               )}
               {!kycStatus.data.addressProofVerified && (
                 <div className="flex items-center gap-2">
                   <span className="text-orange-700">
-                    ❌ Address Proof {kycStatus.data.addressProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                    Address Proof {kycStatus.data.addressProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
                   </span>
                 </div>
               )}

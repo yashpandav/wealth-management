@@ -276,14 +276,14 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                   {!kycStatus.identityProofVerified && (
                     <div className="flex items-center gap-2">
                       <span className="text-orange-700">
-                        ❌ Identity Proof {kycStatus.identityProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                        Identity Proof {kycStatus.identityProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
                       </span>
                     </div>
                   )}
                   {!kycStatus.addressProofVerified && (
                     <div className="flex items-center gap-2">
                       <span className="text-orange-700">
-                        ❌ Address Proof {kycStatus.addressProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                        Address Proof {kycStatus.addressProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
                       </span>
                     </div>
                   )}

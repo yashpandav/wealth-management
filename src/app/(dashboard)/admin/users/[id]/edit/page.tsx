@@ -338,7 +338,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
               </select>
               {role !== originalRole && (
                 <p className="mt-1 text-xs text-yellow-600">
-                  ⚠️ Role change requires confirmation
+                  Note: Role change requires confirmation
                 </p>
               )}
             </div>
