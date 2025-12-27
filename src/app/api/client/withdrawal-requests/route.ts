@@ -14,6 +14,7 @@ import {
 } from '@/lib/validation/withdrawal-request.validation';
 import { WithdrawalStatus } from '@prisma/client';
 import { sendWithdrawalRequestSubmittedEmail } from '@/lib/email/email.service';
+import { checkTransactionEligibility } from '@/lib/utils/client-utils';
 
 /**
  * Generate unique tracking number
@@ -80,6 +81,23 @@ export async function POST(request: NextRequest) {
 
     if (!client.portfolio) {
       return NextResponse.json({ success: false, error: 'No portfolio found. Unable to process withdrawal.' }, { status: 400 });
+    }
+
+    // Check if client can make transactions (RM assigned + KYC verified)
+    const eligibility = checkTransactionEligibility(
+      !!client.assignedRMId,
+      client.verificationStatus
+    );
+
+    if (!eligibility.canTransact) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: eligibility.reason || 'You are not eligible to make withdrawal requests',
+          details: eligibility.banner?.message,
+        },
+        { status: 403 }
+      );
     }
 
     // Parse and validate request body

@@ -13,6 +13,7 @@ import {
   type CreatePurchaseRequestInput,
 } from '@/lib/validation/purchase-request.validation';
 import { RequestStatus } from '@prisma/client';
+import { checkTransactionEligibility } from '@/lib/utils/client-utils';
 
 /**
  * Generate unique tracking number
@@ -62,6 +63,23 @@ export async function POST(request: NextRequest) {
 
     if (!client) {
       return NextResponse.json({ success: false, error: 'Client record not found' }, { status: 404 });
+    }
+
+    // Check if client can make transactions (RM assigned + KYC verified)
+    const eligibility = checkTransactionEligibility(
+      !!client.assignedRMId,
+      client.verificationStatus
+    );
+
+    if (!eligibility.canTransact) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: eligibility.reason || 'You are not eligible to make purchase requests',
+          details: eligibility.banner?.message,
+        },
+        { status: 403 }
+      );
     }
 
     // Parse and validate request body

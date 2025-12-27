@@ -8,7 +8,9 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
 import { PurchaseRequestForm } from '@/components/client';
+import { ClientStatusBanner } from '@/components/client/ClientStatusBanner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = {
   title: 'New Purchase Request | Client',
@@ -23,6 +25,19 @@ export default async function NewPurchaseRequestPage() {
     redirect('/login');
   }
 
+  // Fetch client data to determine eligibility for transactions
+  const client = await prisma.client.findUnique({
+    where: { userId: session.user.id },
+    select: {
+      assignedRMId: true,
+      verificationStatus: true,
+    },
+  });
+
+  if (!client) {
+    redirect('/login');
+  }
+
   return (
     <div className="container mx-auto max-w-4xl py-8">
       {/* Header */}
@@ -32,6 +47,13 @@ export default async function NewPurchaseRequestPage() {
           Submit a request to purchase an investment instrument
         </p>
       </div>
+
+      {/* Show status banner if client cannot transact */}
+      <ClientStatusBanner
+        hasRM={!!client.assignedRMId}
+        verificationStatus={client.verificationStatus}
+        className="mb-6"
+      />
 
       {/* Information Card */}
       <Card className="mb-6">

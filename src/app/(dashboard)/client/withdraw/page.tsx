@@ -19,6 +19,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertCircle, CheckCircle, DollarSign, RefreshCw, Wallet } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createWithdrawalRequestSchema, type CreateWithdrawalRequestInput } from '@/lib/validation/withdrawal-request.validation';
+import { ClientStatusBannerClient } from '@/components/client/ClientStatusBannerClient';
+import { checkTransactionEligibility } from '@/lib/utils/client-utils';
 
 interface PortfolioData {
   totalValue: number;
@@ -47,6 +49,8 @@ export default function WithdrawPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [formData, setFormData] = useState<CreateWithdrawalRequestInput | null>(null);
+  const [hasRM, setHasRM] = useState<boolean | null>(null);
+  const [canTransact, setCanTransact] = useState(true);
 
   const {
     register,
@@ -68,6 +72,32 @@ export default function WithdrawPage() {
       router.push('/dashboard');
     }
   }, [status, session, router]);
+
+  // Check client eligibility for transactions
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.role === 'CLIENT') {
+      const fetchClientStatus = async () => {
+        try {
+          const response = await fetch('/api/client/my-rm');
+          const data = await response.json();
+          setHasRM(!!data.data);
+        } catch (error) {
+          console.error('Error fetching client RM status:', error);
+          setHasRM(false);
+        }
+      };
+
+      fetchClientStatus();
+    }
+  }, [status, session]);
+
+  // Update canTransact based on RM assignment and verification status
+  useEffect(() => {
+    if (hasRM !== null && session?.user?.verificationStatus) {
+      const eligibility = checkTransactionEligibility(hasRM, session.user.verificationStatus);
+      setCanTransact(eligibility.canTransact);
+    }
+  }, [hasRM, session?.user?.verificationStatus]);
 
   // Fetch portfolio data
   useEffect(() => {
@@ -160,6 +190,9 @@ export default function WithdrawPage() {
           Submit a withdrawal request from your portfolio
         </p>
       </div>
+
+      {/* Show status banner if client cannot transact */}
+      <ClientStatusBannerClient className="mt-6" />
 
       <div className="mt-8 grid gap-6 md:grid-cols-2">
         {/* Portfolio Balance Card */}
@@ -413,7 +446,8 @@ export default function WithdrawPage() {
               </Button>
               <Button
                 type="submit"
-                disabled={insufficientBalance || requestedAmount <= 0}
+                disabled={!canTransact || insufficientBalance || requestedAmount <= 0}
+                title={!canTransact ? 'You must have an assigned RM and verified KYC to submit withdrawal requests' : undefined}
               >
                 Submit Withdrawal Request
               </Button>

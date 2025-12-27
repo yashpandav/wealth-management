@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   createPurchaseRequestSchema,
   type CreatePurchaseRequestInput,
@@ -27,6 +28,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'react-hot-toast';
+import { checkTransactionEligibility } from '@/lib/utils/client-utils';
 
 interface Instrument {
   id: string;
@@ -45,10 +47,13 @@ interface PurchaseRequestFormProps {
 
 export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [instruments, setInstruments] = useState<Instrument[]>([]);
   const [selectedInstrument, setSelectedInstrument] = useState<Instrument | null>(null);
   const [isLoadingInstruments, setIsLoadingInstruments] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasRM, setHasRM] = useState<boolean | null>(null);
+  const [canTransact, setCanTransact] = useState(true);
 
   const {
     register,
@@ -62,6 +67,32 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
 
   const instrumentId = watch('instrumentId');
   const amount = watch('amount');
+
+  // Check client eligibility for transactions
+  useEffect(() => {
+    if (session?.user?.role === 'CLIENT') {
+      const fetchClientStatus = async () => {
+        try {
+          const response = await fetch('/api/client/my-rm');
+          const data = await response.json();
+          setHasRM(!!data.data);
+        } catch (error) {
+          console.error('Error fetching client RM status:', error);
+          setHasRM(false);
+        }
+      };
+
+      fetchClientStatus();
+    }
+  }, [session]);
+
+  // Update canTransact based on RM assignment and verification status
+  useEffect(() => {
+    if (hasRM !== null && session?.user?.verificationStatus) {
+      const eligibility = checkTransactionEligibility(hasRM, session.user.verificationStatus);
+      setCanTransact(eligibility.canTransact);
+    }
+  }, [hasRM, session?.user?.verificationStatus]);
 
   // Fetch available instruments
   useEffect(() => {
@@ -302,7 +333,11 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={!selectedInstrument || isSubmitting || !!amountError}>
+        <Button
+          type="submit"
+          disabled={!canTransact || !selectedInstrument || isSubmitting || !!amountError}
+          title={!canTransact ? 'You must have an assigned RM and verified KYC to submit purchase requests' : undefined}
+        >
           {isSubmitting ? 'Submitting...' : 'Submit Purchase Request'}
         </Button>
       </div>
