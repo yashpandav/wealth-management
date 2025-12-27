@@ -1,7 +1,6 @@
 /**
  * Client Products Browse Component
- * Grid/List view for investment products (Venture A, B, C)
- * Styled to match InstrumentsBrowse component
+ * Professional investment products showcase
  */
 
 'use client';
@@ -15,13 +14,9 @@ import {
   Loader2,
   AlertCircle,
   TrendingUp,
-  DollarSign,
-  Clock,
-  Calendar,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ProductOption {
@@ -110,24 +105,48 @@ export function ProductsBrowse() {
     queryFn: fetchKYCStatus,
   });
 
-  const getProductBadgeColor = (name: string) => {
+  const getProductAccentColor = (name: string) => {
     if (name.includes('A')) {
-      return 'bg-blue-500/10 text-blue-700 border-blue-200';
+      return {
+        gradient: 'from-blue-500 to-blue-600',
+        text: 'text-blue-700',
+        bg: 'bg-blue-50',
+        border: 'border-blue-200',
+        hover: 'hover:border-blue-300',
+      };
     } else if (name.includes('B')) {
-      return 'bg-purple-500/10 text-purple-700 border-purple-200';
+      return {
+        gradient: 'from-purple-500 to-purple-600',
+        text: 'text-purple-700',
+        bg: 'bg-purple-50',
+        border: 'border-purple-200',
+        hover: 'hover:border-purple-300',
+      };
     } else if (name.includes('C')) {
-      return 'bg-emerald-500/10 text-emerald-700 border-emerald-200';
+      return {
+        gradient: 'from-emerald-500 to-emerald-600',
+        text: 'text-emerald-700',
+        bg: 'bg-emerald-50',
+        border: 'border-emerald-200',
+        hover: 'hover:border-emerald-300',
+      };
     }
-    return 'bg-gray-500/10 text-gray-700 border-gray-200';
+    return {
+      gradient: 'from-gray-500 to-gray-600',
+      text: 'text-gray-700',
+      bg: 'bg-gray-50',
+      border: 'border-gray-200',
+      hover: 'hover:border-gray-300',
+    };
   };
 
   const formatAmountRange = (product: Product) => {
     const min = product.minAmount.toLocaleString();
     if (product.maxAmount) {
       const max = product.maxAmount.toLocaleString();
-      return `${product.currency} ${min} – ${max}`;
+      return `${product.currency} ${min} - ${max}`;
     }
-    return `${product.currency} ${min} and Above`;
+    return `${product.currency} ${min}+`;
   };
 
   const getHighestReturn = (options: ProductOption[]) => {
@@ -137,16 +156,16 @@ export function ProductsBrowse() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading products...</span>
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        <span className="ml-3 text-gray-600">Loading products...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
+      <Alert variant="destructive" className="mx-auto max-w-2xl">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>Failed to load products. Please try again later.</AlertDescription>
       </Alert>
@@ -157,155 +176,160 @@ export function ProductsBrowse() {
 
   return (
     <div className="space-y-6">
-      {/* Header with View Toggle */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-200">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Investment Products</h2>
-          <p className="text-gray-600 mt-1">{products.length} products available</p>
+          <h1 className="text-2xl font-bold text-gray-900">Investment Products</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            {products.length} {products.length === 1 ? 'product' : 'products'} available
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant={viewMode === 'grid' ? 'default' : 'outline'}
-            size="sm"
+        <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+          <button
             onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'grid'
+                ? 'bg-white shadow-sm text-gray-900'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+            aria-label="Grid view"
           >
             <Grid3x3 className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
+          </button>
+          <button
             onClick={() => setViewMode('list')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'list'
+                ? 'bg-white shadow-sm text-gray-900'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+            aria-label="List view"
           >
             <List className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* KYC Status Alert */}
       {kycStatus && !kycStatus.data.canSubmitRequests && (
-        <Alert variant="destructive" className="border-orange-200 bg-orange-50">
-          <AlertCircle className="h-4 w-4 text-orange-600" />
-          <AlertDescription className="text-orange-900">
-            <strong>KYC Verification Required:</strong> You must complete your KYC verification before submitting product requests.
-            <div className="mt-2 space-y-1 text-sm">
+        <Alert className="border-l-4 border-l-amber-500 bg-amber-50 border-amber-200">
+          <AlertCircle className="h-5 w-5 text-amber-600" />
+          <AlertDescription className="text-amber-900">
+            <div className="font-semibold mb-2">KYC Verification Required</div>
+            <p className="text-sm mb-3">
+              Complete your KYC verification to submit product requests and start investing.
+            </p>
+            <div className="space-y-1 text-sm mb-4">
               {!kycStatus.data.identityProofVerified && (
-                <div className="flex items-center gap-2">
-                  <span className="text-orange-700">
-                    Identity Proof {kycStatus.data.identityProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                <div className="flex items-center gap-2 text-amber-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                  <span>
+                    Identity Proof{' '}
+                    {kycStatus.data.identityProofStatus === 'REJECTED'
+                      ? '(rejected - please re-upload)'
+                      : '(not verified)'}
                   </span>
                 </div>
               )}
               {!kycStatus.data.addressProofVerified && (
-                <div className="flex items-center gap-2">
-                  <span className="text-orange-700">
-                    Address Proof {kycStatus.data.addressProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                <div className="flex items-center gap-2 text-amber-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                  <span>
+                    Address Proof{' '}
+                    {kycStatus.data.addressProofStatus === 'REJECTED'
+                      ? '(rejected - please re-upload)'
+                      : '(not verified)'}
                   </span>
                 </div>
               )}
-              <div className="mt-3">
-                <Link
-                  href="/upload-documents"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm font-medium"
-                >
-                  Upload & Verify Documents
-                </Link>
-              </div>
             </div>
+            <Link href="/upload-documents">
+              <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                Upload Documents
+              </Button>
+            </Link>
           </AlertDescription>
         </Alert>
       )}
 
-      {kycStatus && kycStatus.data.canSubmitRequests && (
-        <Alert className="border-green-200 bg-green-50">
-          <AlertCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-900">
-            <strong>✓ KYC Verified:</strong> Your documents are verified. You can now submit product requests.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Products Grid/List */}
+      {/* Products Display */}
       {products.length > 0 ? (
         <>
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => {
                 const highestReturn = getHighestReturn(product.options);
+                const colors = getProductAccentColor(product.name);
 
                 return (
-                  <Card
+                  <div
                     key={product.id}
-                    className="hover:shadow-lg transition-shadow cursor-pointer"
+                    className={`bg-white border ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-200 shadow-sm hover:shadow-md`}
                   >
-                    <CardHeader>
+                    {/* Product Header with Gradient */}
+                    <div className={`bg-gradient-to-r ${colors.gradient} px-6 py-5 text-white`}>
                       <div className="flex justify-between items-start mb-2">
-                        <Badge variant="outline" className={getProductBadgeColor(product.name)}>
-                          {product.name}
-                        </Badge>
+                        <h3 className="text-xl font-bold">{product.name}</h3>
                         {highestReturn && (
-                          <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-200">
-                            Up to {highestReturn}% Annual
-                          </Badge>
+                          <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+                            <p className="text-xs font-semibold">Up to {highestReturn}%</p>
+                          </div>
                         )}
                       </div>
-                      <CardTitle className="text-xl">{product.name}</CardTitle>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <DollarSign className="h-4 w-4" />
-                        <span className="font-mono">{formatAmountRange(product)}</span>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <p className="text-sm text-gray-700 line-clamp-2">
-                        {product.description || 'Premium investment opportunity with competitive returns'}
+                      <p className="text-white/90 text-sm font-medium">
+                        {formatAmountRange(product)}
+                      </p>
+                    </div>
+
+                    {/* Product Body */}
+                    <div className="px-6 py-5">
+                      <p className="text-gray-700 text-sm mb-5 min-h-[40px]">
+                        {product.description ||
+                          'Secure investment opportunity with competitive returns and flexible terms'}
                       </p>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>Options</span>
-                          </div>
-                          <p className="font-semibold">{product.options.length} Plans</p>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                            <TrendingUp className="h-3 w-3" />
-                            <span>Best Return</span>
-                          </div>
-                          <p className="font-semibold text-green-600">
-                            {highestReturn ? `${highestReturn}%` : 'N/A'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Options Preview */}
-                      <div className="space-y-2">
-                        {product.options.slice(0, 2).map((option) => (
+                      {/* Investment Options */}
+                      <div className="space-y-2 mb-5">
+                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
+                          Investment Plans
+                        </p>
+                        {product.options.slice(0, 3).map((option) => (
                           <div
                             key={option.id}
-                            className="flex items-center justify-between p-2 bg-gray-50 rounded-md text-sm"
+                            className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
                           >
-                            <span className="text-gray-600 flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {option.duration} / {option.withdrawalFrequency}
-                            </span>
-                            <span className="font-semibold text-green-600">
-                              {option.annualReturn}% Annual
+                            <div className="flex items-center gap-2">
+                              <TrendingUp className="h-3.5 w-3.5 text-gray-500" />
+                              <span className="text-sm text-gray-700">{option.duration}</span>
+                              <span className="text-xs text-gray-500">
+                                {option.withdrawalFrequency}
+                              </span>
+                            </div>
+                            <span className="text-sm font-semibold text-green-600">
+                              {option.annualReturn}%
                             </span>
                           </div>
                         ))}
-                        {product.options.length > 2 && (
-                          <p className="text-xs text-gray-500 text-center">
-                            +{product.options.length - 2} more options
+                        {product.options.length > 3 && (
+                          <p className="text-xs text-gray-500 text-center pt-1">
+                            +{product.options.length - 3} more plan
+                            {product.options.length - 3 > 1 ? 's' : ''}
                           </p>
                         )}
                       </div>
 
+                      {/* Action Button */}
                       <Link href={`/client/products/${product.id}`}>
-                        <Button className="w-full">View Details</Button>
+                        <Button
+                          className="w-full bg-gray-900 hover:bg-gray-800 text-white group"
+                          size="default"
+                        >
+                          <span>View Details</span>
+                          <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        </Button>
                       </Link>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -313,72 +337,90 @@ export function ProductsBrowse() {
             <div className="space-y-4">
               {products.map((product) => {
                 const highestReturn = getHighestReturn(product.options);
+                const colors = getProductAccentColor(product.name);
 
                 return (
-                  <Card key={product.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-start gap-3 mb-2">
-                            <div>
-                              <h3 className="text-xl font-bold text-gray-900">{product.name}</h3>
-                              <p className="text-sm text-gray-600 font-mono flex items-center gap-1">
-                                <DollarSign className="h-4 w-4" />
-                                {formatAmountRange(product)}
-                              </p>
-                            </div>
-                            <Badge variant="outline" className={getProductBadgeColor(product.name)}>
-                              {product.name}
-                            </Badge>
-                            {highestReturn && (
-                              <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-200">
-                                Up to {highestReturn}% Annual
-                              </Badge>
-                            )}
+                  <div
+                    key={product.id}
+                    className={`bg-white border ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-200 shadow-sm hover:shadow-md`}
+                  >
+                    <div className="flex flex-col md:flex-row">
+                      {/* Left Section - Product Info */}
+                      <div className={`bg-gradient-to-br ${colors.gradient} text-white p-6 md:w-64 flex-shrink-0`}>
+                        <h3 className="text-2xl font-bold mb-2">{product.name}</h3>
+                        <p className="text-white/90 text-sm font-medium mb-4">
+                          {formatAmountRange(product)}
+                        </p>
+                        {highestReturn && (
+                          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                            <TrendingUp className="h-4 w-4" />
+                            <span className="text-sm font-semibold">
+                              Up to {highestReturn}% Annual
+                            </span>
                           </div>
-                          <p className="text-gray-700 text-sm">
-                            {product.description || 'Premium investment opportunity with competitive returns'}
-                          </p>
+                        )}
+                      </div>
 
-                          {/* Options in list view */}
-                          <div className="mt-4 flex flex-wrap gap-2">
+                      {/* Right Section - Details & Options */}
+                      <div className="flex-1 p-6">
+                        <p className="text-gray-700 text-sm mb-5">
+                          {product.description ||
+                            'Secure investment opportunity with competitive returns and flexible terms'}
+                        </p>
+
+                        <div className="mb-5">
+                          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
+                            Available Investment Plans ({product.options.length})
+                          </p>
+                          <div className="flex flex-wrap gap-2">
                             {product.options.map((option) => (
-                              <Badge key={option.id} variant="secondary" className="text-xs">
-                                {option.duration} / {option.withdrawalFrequency}: {option.annualReturn}%
-                              </Badge>
+                              <div
+                                key={option.id}
+                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-lg text-sm"
+                              >
+                                <span className="text-gray-700">{option.duration}</span>
+                                <span className="text-gray-400">•</span>
+                                <span className="text-gray-600 text-xs">
+                                  {option.withdrawalFrequency}
+                                </span>
+                                <span className="text-gray-400">•</span>
+                                <span className="font-semibold text-green-600">
+                                  {option.annualReturn}%
+                                </span>
+                              </div>
                             ))}
                           </div>
                         </div>
 
-                        <div className="flex md:flex-col justify-between md:justify-start items-end gap-4 md:min-w-[200px]">
-                          <div className="text-right">
-                            <p className="text-xs text-gray-600 mb-1">Options Available</p>
-                            <p className="font-semibold">{product.options.length} Plans</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xs text-gray-600 mb-1">Best Annual Return</p>
-                            <p className="font-semibold text-green-600">
-                              {highestReturn ? `${highestReturn}%` : 'N/A'}
-                            </p>
-                          </div>
-                          <Link href={`/client/products/${product.id}`}>
-                            <Button size="sm">View Details</Button>
-                          </Link>
-                        </div>
+                        <Link href={`/client/products/${product.id}`}>
+                          <Button
+                            className="bg-gray-900 hover:bg-gray-800 text-white group"
+                            size="default"
+                          >
+                            <span>View Full Details & Apply</span>
+                            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                          </Button>
+                        </Link>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })}
             </div>
           )}
         </>
       ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-gray-600">No products available at the moment.</p>
-          </CardContent>
-        </Card>
+        <div className="text-center py-16 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="max-w-md mx-auto">
+            <div className="mx-auto h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+              <TrendingUp className="h-6 w-6 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Available</h3>
+            <p className="text-gray-600 text-sm">
+              No investment products are currently available. Please check back later.
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );
