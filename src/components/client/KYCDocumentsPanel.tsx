@@ -294,54 +294,8 @@ export function KYCDocumentsPanel() {
   const documents = data?.data.documents || [];
   const verificationStatus = data?.data.verificationStatus;
 
-  // Show verification status banner
-  if (verificationStatus === 'PENDING' || verificationStatus === 'UNDER_REVIEW') {
-    return (
-      <div className="space-y-6">
-        <Alert className="border-blue-200 bg-blue-50">
-          <Clock className="h-4 w-4 text-blue-600" />
-          <AlertTitle className="text-blue-900">Documents Under Review</AlertTitle>
-          <AlertDescription className="text-blue-800">
-            Your documents have been submitted and are being reviewed by our team.
-            You will receive an email notification once the verification is complete.
-          </AlertDescription>
-        </Alert>
-
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Submitted Documents</h3>
-          {DOCUMENT_TYPES.map((docType) => {
-            const doc = getDocumentByType(docType.id);
-            if (!doc) return null;
-
-            return (
-              <Card key={docType.id} className="border-border">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <FileText className="mt-1 h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium">{docType.name}</p>
-                        <p className="text-sm text-muted-foreground">{doc.fileName}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Uploaded{' '}
-                          {new Date(doc.uploadedAt).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric',
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                    {getStatusBadge(doc.verificationStatus)}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
+  // Show banner if documents are under review
+  const showUnderReviewBanner = verificationStatus === 'PENDING' || verificationStatus === 'UNDER_REVIEW';
 
   // Upload interface - show document types with upload buttons
   return (
@@ -353,7 +307,19 @@ export function KYCDocumentsPanel() {
         </p>
       </div>
 
-      {documents.length > 0 && (
+      {showUnderReviewBanner && (
+        <Alert className="border-blue-200 bg-blue-50">
+          <Clock className="h-4 w-4 text-blue-600" />
+          <AlertTitle className="text-blue-900">Documents Under Review</AlertTitle>
+          <AlertDescription className="text-blue-800">
+            Your submitted documents are being reviewed by our team.
+            You can continue uploading any remaining documents.
+            You will receive an email notification once the verification is complete.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {!showUnderReviewBanner && documents.length > 0 && (
         <Alert className="border-green-200 bg-green-50">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-900">
