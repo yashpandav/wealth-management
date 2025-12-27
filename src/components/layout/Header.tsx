@@ -116,12 +116,6 @@ export function Header({ onMenuClick }: HeaderProps) {
               >
                 Portfolio
               </Link>
-              <Link
-                href="/client/instruments"
-                className="text-foreground/60 transition-colors hover:text-foreground"
-              >
-                Explore Instruments
-              </Link>
             </>
           )}
         </nav>

@@ -31,7 +31,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
   // Skip email sending in development if configured
   if (config.email.skip) {
     // eslint-disable-next-line no-console
-    console.log('📧 Email sending skipped (development mode)');
+    console.log('[Email] Sending skipped (development mode)');
     // eslint-disable-next-line no-console
     console.log('To:', options.to);
     // eslint-disable-next-line no-console

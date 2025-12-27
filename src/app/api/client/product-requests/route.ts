@@ -88,6 +88,62 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // CRITICAL: Check if all mandatory KYC documents are verified
+    const documents = await prisma.document.findMany({
+      where: {
+        clientId: client.id,
+        documentType: {
+          in: ['IDENTITY_PROOF', 'ADDRESS_PROOF'], // Mandatory documents
+        },
+      },
+      select: {
+        documentType: true,
+        verificationStatus: true,
+      },
+    });
+
+    // Check if both mandatory documents exist and are VERIFIED
+    const identityProof = documents.find((d) => d.documentType === 'IDENTITY_PROOF');
+    const addressProof = documents.find((d) => d.documentType === 'ADDRESS_PROOF');
+
+    if (!identityProof || identityProof.verificationStatus !== 'VERIFIED') {
+      const errorMessage = !identityProof
+        ? 'Identity Proof document is required. Please upload your Identity Proof document.'
+        : identityProof.verificationStatus === 'REJECTED'
+        ? 'Your Identity Proof document was rejected. Please re-upload a valid Identity Proof document.'
+        : identityProof.verificationStatus === 'PENDING' || identityProof.verificationStatus === 'UNDER_REVIEW'
+        ? 'Your Identity Proof document is still being verified. Please wait for verification to complete.'
+        : 'Identity Proof document must be verified before submitting product requests.';
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: errorMessage,
+          code: 'IDENTITY_PROOF_NOT_VERIFIED',
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!addressProof || addressProof.verificationStatus !== 'VERIFIED') {
+      const errorMessage = !addressProof
+        ? 'Address Proof document is required. Please upload your Address Proof document.'
+        : addressProof.verificationStatus === 'REJECTED'
+        ? 'Your Address Proof document was rejected. Please re-upload a valid Address Proof document.'
+        : addressProof.verificationStatus === 'PENDING' || addressProof.verificationStatus === 'UNDER_REVIEW'
+        ? 'Your Address Proof document is still being verified. Please wait for verification to complete.'
+        : 'Address Proof document must be verified before submitting product requests.';
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: errorMessage,
+          code: 'ADDRESS_PROOF_NOT_VERIFIED',
+        },
+        { status: 400 }
+      );
+    }
+
     // Parse and validate request body
     const body = await request.json();
     const validationResult = createProductPurchaseRequestSchema.safeParse(body);

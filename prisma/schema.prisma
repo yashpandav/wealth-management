@@ -250,6 +250,9 @@ model User {
   // Document verifications (for DOCADMIN and ADMIN roles)
   verifiedDocuments Document[] @relation("DocumentVerifier")
 
+  // Product request completions (for DOCADMIN and ADMIN roles)
+  completedProductRequests ProductPurchaseRequest[] @relation("ProductRequestCompleter")
+
   @@index([email])
   @@index([role])
   @@index([status])
@@ -791,6 +794,9 @@ model Document {
   // Expiry tracking (for documents that expire)
   expiryDate DateTime?
 
+  // Reverse relations
+  productContractRequests ProductPurchaseRequest[] @relation("ProductContract")
+
   // Timestamps
   uploadedAt DateTime  @default(now())
   createdAt  DateTime  @default(now())
@@ -946,6 +952,16 @@ model ProductPurchaseRequest {
   // Processing information
   processedAt DateTime?
 
+  // Contract information (DocAdmin)
+  contractDocumentId String?
+  contractDocument   Document? @relation("ProductContract", fields: [contractDocumentId], references: [id])
+  contractStartDate  DateTime?
+
+  // Completion information (DocAdmin)
+  completedAt   DateTime?
+  completedById String?
+  completedBy   User?     @relation("ProductRequestCompleter", fields: [completedById], references: [id])
+
   // Notes
   clientNotes     String? @db.Text
   rmNotes         String? @db.Text
@@ -962,5 +978,6 @@ model ProductPurchaseRequest {
   @@index([assignedRMId])
   @@index([status])
   @@index([createdAt])
+  @@index([contractDocumentId])
   @@map("product_purchase_requests")
 }

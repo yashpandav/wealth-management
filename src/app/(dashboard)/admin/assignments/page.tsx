@@ -775,7 +775,7 @@ function AssignmentsContent() {
                             </div>
                             {wouldExceed && (
                               <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-800">
-                                ⚠️ This assignment would exceed the RM&apos;s capacity limit
+                                Warning: This assignment would exceed the RM&apos;s capacity limit
                               </div>
                             )}
                             {selectedRM.specialization && (

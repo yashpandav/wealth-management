@@ -22,6 +22,8 @@ import {
   Clock,
   AlertCircle,
   Loader2,
+  Eye,
+  ExternalLink,
 } from 'lucide-react';
 import { VerificationStatus } from '@prisma/client';
 import { formatFileSize } from '@/lib/utils';
@@ -371,6 +373,16 @@ export function KYCDocumentsPanel() {
                           </p>
                         </div>
                       </div>
+                      <a
+                        href={existingDoc.filePath}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        View
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                     </div>
                     {existingDoc.rejectionReason && (
                       <Alert variant="destructive" className="mt-3">
