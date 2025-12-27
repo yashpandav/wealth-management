@@ -423,7 +423,7 @@ const navItems: NavItem[] = [
     roles: ['CLIENT'],
   },
   {
-    href: '/upload-documents',
+    href: '/client/documents',
     label: 'KYC Documents',
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -436,7 +436,6 @@ const navItems: NavItem[] = [
       </svg>
     ),
     roles: ['CLIENT'],
-    kycUploadOnly: true, // Only show when KYC is not yet verified
   },
 ];
 
