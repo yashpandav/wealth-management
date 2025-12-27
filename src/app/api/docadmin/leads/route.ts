@@ -10,8 +10,16 @@ import { leadQuerySchema, type LeadQuery } from '@/lib/validation/lead.validatio
 import { Prisma } from '@prisma/client';
 
 /**
- * GET /api/docadmin/leads
- * List all user leads with pagination and filtering (DocAdmin only)
+ * Returns a paginated, filterable list of user leads visible to DocAdmin users.
+ *
+ * Validates query parameters and returns leads matching status, query (searched across firstName,
+ * lastName, email, phoneNumber, rmReference), and leadSource, ordered and paginated by page, limit,
+ * sortBy, and sortOrder.
+ *
+ * @returns JSON with `success: true` and `data` containing `leads` (selected lead fields including
+ * `assignedRM` user info) and `pagination` metadata (`page`, `limit`, `totalCount`, `totalPages`,
+ * `hasNextPage`, `hasPrevPage`). On validation or authorization errors returns `success: false`
+ * with an `error` message and an appropriate HTTP status code.
  */
 export async function GET(request: NextRequest) {
   try {

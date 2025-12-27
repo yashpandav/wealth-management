@@ -17,8 +17,18 @@ const assignRmSchema = z.object({
 });
 
 /**
- * PATCH /api/docadmin/clients/[id]/assign-rm
- * Assign a Relationship Manager to a verified client (DocAdmin only)
+ * Assigns a Relationship Manager (RM) to a verified client; action is restricted to DocAdmin users.
+ *
+ * Validates the route `id` as the client identifier and the request body against the `assignRmSchema`
+ * (requires `rmId` UUID, optional `notes`). Ensures the client exists and has verificationStatus `VERIFIED`,
+ * that no RM is already assigned, and that the specified RM exists and is active. On success updates the client
+ * record with `assignedRMId` and `assignedAt`, optionally creates an audit log when audit logging is enabled,
+ * and returns the updated client and assigned RM details.
+ *
+ * @param request - The incoming NextRequest
+ * @param params - An object containing route parameters; expects `id` (the client ID)
+ * @returns JSON with `success`, a human-readable `message`, and `data` containing `client` (id, name, email, verificationStatus, assignedAt)
+ *          and `assignedRM` (id, userId, name, email). On error returns an appropriate status and `success: false` with an `error` message.
  */
 export async function PATCH(
   request: NextRequest,

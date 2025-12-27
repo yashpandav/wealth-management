@@ -11,6 +11,19 @@ import { sendVerificationEmail } from '@/lib/email';
 import { config } from '@/lib/config';
 import { randomBytes } from 'crypto';
 
+/**
+ * Handles POST /api/auth/register requests to create a new user account.
+ *
+ * Validates the request body, creates a new User (and associated Client record for role `CLIENT`),
+ * links and converts an existing lead when present, optionally records an audit log, and
+ * optionally issues an email verification token and sends a verification email.
+ *
+ * @returns A NextResponse containing a JSON object describing the result:
+ * - On successful registration: status 201 and `{ success: true, message: string, user: { id, email, firstName, lastName, role } }`.
+ * - When validation fails: status 400 and `{ success: false, error: 'Validation failed', details: [...] }`.
+ * - When the email is already registered: status 409 and `{ success: false, error: string }`.
+ * - On unexpected errors: status 500 and `{ success: false, error: string }`.
+ */
 export async function POST(request: NextRequest) {
   try {
     // Parse and validate request body

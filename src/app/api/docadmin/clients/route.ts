@@ -9,9 +9,20 @@ import { prisma } from '@/lib/db/prisma';
 import { Prisma } from '@prisma/client';
 
 /**
- * GET /api/docadmin/clients
- * List clients for DocAdmin - specifically for RM assignment workflow
- * By default, shows VERIFIED clients without RM assigned
+ * List DocAdmin-managed clients for RM assignment with optional filtering, search, and pagination.
+ *
+ * Supports query parameters:
+ * - `page` (defaults to 1)
+ * - `limit` (defaults to 20)
+ * - `query` (text search against user's firstName, lastName, email)
+ * - `filter` (`pending_rm` (default): VERIFIED clients without an RM, `all_verified`: all VERIFIED clients, `all`: all clients)
+ *
+ * The successful response includes `data.clients` (array of client summaries including id, name, email, phone, userId, verificationStatus, registeredAt, assignedAt, assignedRM, documentsCount, verifiedDocumentsCount)
+ * and `data.pagination` (page, limit, totalCount, totalPages, hasNextPage, hasPrevPage).
+ *
+ * On error, returns `{ success: false, error: string }` with HTTP status 401 for unauthorized, 403 for forbidden, or 500 for other failures.
+ *
+ * @returns A JSON response containing the clients list and pagination metadata on success, or an error object on failure.
  */
 export async function GET(request: NextRequest) {
   try {

@@ -31,8 +31,15 @@ function generateTrackingNumber(): string {
 }
 
 /**
- * POST /api/client/withdrawal-requests
- * Submit a new withdrawal request
+ * Handle POST requests to create a new client withdrawal request.
+ *
+ * Validates authentication and client eligibility, validates request data and balances,
+ * creates a withdrawal request with a unique tracking number, sends a confirmation email,
+ * and returns the created request summary on success.
+ *
+ * @returns A JSON response object containing `success` and either the created withdrawal request data
+ * (fields: `id`, `trackingNumber`, `status`, `amount`, `createdAt`) on success, or an `error` and
+ * optional `details` on failure.
  */
 export async function POST(request: NextRequest) {
   try {

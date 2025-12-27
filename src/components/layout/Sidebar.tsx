@@ -440,6 +440,15 @@ const navItems: NavItem[] = [
   },
 ];
 
+/**
+ * Render the responsive, role-aware sidebar that conditionally shows KYC-specific navigation.
+ *
+ * The sidebar displays navigation items permitted for the current user's role and hides items
+ * marked `kycUploadOnly` when the user's verification status indicates KYC is complete.
+ *
+ * @param onClose - Callback invoked when the overlay or a navigation link is clicked to close the sidebar
+ * @returns The sidebar JSX element containing the navigation panel and (on small screens) the dismissible overlay
+ */
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const { data: session } = useSession();
   const pathname = usePathname();

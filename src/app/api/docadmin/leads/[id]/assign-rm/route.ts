@@ -14,8 +14,11 @@ const assignRmSchema = z.object({
 });
 
 /**
- * PATCH /api/docadmin/leads/[id]/assign-rm
- * Assign a Relationship Manager to a lead (DocAdmin only)
+ * Assign a Relationship Manager to a lead, update the lead record, and create an audit log (DocAdmin only).
+ *
+ * @param request - The incoming Next.js request object
+ * @param params - Route parameters; resolves to an object with `id` string representing the lead ID
+ * @returns On success, a JSON object with `success: true`, a `message`, and `data` containing the updated `lead` and `assignedRM` info; on failure, a JSON error object with `success: false` and an `error` message (appropriate HTTP status codes are used for validation, authorization, not found, and server errors)
  */
 export async function PATCH(
   request: NextRequest,

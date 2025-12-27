@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   description: 'View your investment portfolio',
 };
 
+/**
+ * Renders the "My Portfolio" page for authenticated clients, enforcing access control and fetching the client's record to determine RM assignment and verification status before rendering.
+ *
+ * @returns The page element containing the header, a client status banner (reflecting RM assignment and verification status), and the portfolio dashboard.
+ */
 export default async function ClientPortfolioPage() {
   const session = await getServerSession(authOptions);
 

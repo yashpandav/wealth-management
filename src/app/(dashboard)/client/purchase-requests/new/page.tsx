@@ -17,6 +17,14 @@ export const metadata: Metadata = {
   description: 'Submit a new purchase request',
 };
 
+/**
+ * Render the New Purchase Request page for authenticated client users.
+ *
+ * Redirects to '/login' when there is no authenticated user, the user's role is not 'CLIENT',
+ * or no client record is found for the current user.
+ *
+ * @returns A React element representing the New Purchase Request page, including header, client status banner, informational card, and the purchase request form.
+ */
 export default async function NewPurchaseRequestPage() {
   const session = await getServerSession(authOptions);
 

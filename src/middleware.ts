@@ -11,6 +11,13 @@ import { applySecurityHeaders, generateNonce } from '@/lib/security/headers';
 // Define public routes that don't require authentication
 const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/instruments', '/user-form', '/upload-documents'];
 
+/**
+ * Protects routes by allowing public paths, enforcing authentication, applying role-based access rules, and attaching security headers.
+ *
+ * Routes listed as public are forwarded; other requests require a valid session token and may be redirected to /login or /error?error=AccessDenied based on the authenticated user's role (`CLIENT`, `ADMIN`, `DOCADMIN`, `RM`). Security headers (including a CSP nonce) are applied to non-redirect responses.
+ *
+ * @returns The response to send back to the client: either a proxied NextResponse for allowed requests or a redirect NextResponse for login/access-denied flows, with security headers applied when appropriate.
+ */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 

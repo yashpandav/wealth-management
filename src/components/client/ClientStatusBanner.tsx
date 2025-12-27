@@ -19,6 +19,14 @@ interface ClientStatusBannerProps {
   className?: string;
 }
 
+/**
+ * Render an alert banner when a client cannot transact due to a missing relationship manager or unverified KYC.
+ *
+ * @param hasRM - Whether the client has an assigned relationship manager
+ * @param verificationStatus - The client's KYC verification status, or `null` if unknown
+ * @param className - Additional CSS class names to apply to the banner container
+ * @returns The banner element with appropriate styling and icon when a problem exists, or `null` when no banner is needed
+ */
 export function ClientStatusBanner({
   hasRM,
   verificationStatus,

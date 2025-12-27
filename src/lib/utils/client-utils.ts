@@ -47,11 +47,15 @@ export interface TransactionEligibility {
 }
 
 /**
- * Get the current onboarding state and status for a client
+ * Determine a client's onboarding state and related UI/eligibility flags.
  *
- * @param hasRM - Whether the client has an assigned RM
- * @param verificationStatus - Client's KYC verification status
- * @returns OnboardingStatus object with state, canTransact, showKycUpload, and banner
+ * @param hasRM - Whether the client has an assigned Relationship Manager
+ * @param verificationStatus - Client's KYC verification status, or `null` if not provided
+ * @returns The client's OnboardingStatus containing:
+ *  - `state`: the canonical onboarding progression
+ *  - `canTransact`: whether the client may perform transactions
+ *  - `showKycUpload`: whether the KYC upload UI should be shown
+ *  - `banner`: an optional message and type for user-facing UI, or `null`
  */
 export function getOnboardingStatus(
   hasRM: boolean,
@@ -134,15 +138,14 @@ export function getOnboardingStatus(
 }
 
 /**
- * Check if a client can make transactions (purchases/withdrawals)
+ * Determine whether a client is allowed to make transactions.
  *
- * Requirements to transact:
- * 1. Client must have verified KYC (verificationStatus === 'VERIFIED')
- * 2. Client must have an assigned RM
+ * When the client is not allowed, includes a human-readable `reason` and an optional `banner`.
+ * If a banner is returned, its `type` will never be `success` (it is normalized to `info`).
  *
- * @param hasRM - Whether the client has an assigned RM
- * @param verificationStatus - Client's KYC verification status
- * @returns TransactionEligibility object with canTransact boolean and reason
+ * @param hasRM - Whether the client has an assigned relationship manager
+ * @param verificationStatus - The client's KYC verification status, or `null` if not submitted
+ * @returns An object with `canTransact: true` when transactions are permitted; otherwise `canTransact: false` with a `reason` and optional `banner` explaining why
  */
 export function checkTransactionEligibility(
   hasRM: boolean,
@@ -167,12 +170,11 @@ export function checkTransactionEligibility(
 }
 
 /**
- * Get banner message for client based on RM assignment and KYC status
- * This is a convenience function that returns just the banner info
+ * Return the client's status banner derived from RM assignment and KYC verification.
  *
- * @param hasRM - Whether the client has an assigned RM
- * @param verificationStatus - Client's KYC verification status
- * @returns Banner info or null if client is eligible
+ * @param hasRM - Whether the client has an assigned relationship manager
+ * @param verificationStatus - The client's KYC verification status, or `null` if not available
+ * @returns The banner object with `message` and normalized `type` (`'info'`, `'warning'`, or `'error'`), or `null` if no banner should be shown
  */
 export function getClientStatusBanner(
   hasRM: boolean,
@@ -189,10 +191,10 @@ export function getClientStatusBanner(
 }
 
 /**
- * Check if KYC upload UI should be shown to the client
+ * Determine whether the KYC upload UI should be shown for the given verification status.
  *
- * @param verificationStatus - Client's KYC verification status
- * @returns boolean indicating if KYC upload should be visible
+ * @param verificationStatus - The client's KYC verification status, or `null` if not available
+ * @returns `true` if the verification status is not `'VERIFIED'`, `false` otherwise
  */
 export function shouldShowKycUpload(verificationStatus: VerificationStatus | null): boolean {
   // Show KYC upload for: NOT_SUBMITTED, PENDING, UNDER_REVIEW, REJECTED, EXPIRED

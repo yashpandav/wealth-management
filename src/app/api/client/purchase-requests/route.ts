@@ -30,8 +30,11 @@ function generateTrackingNumber(): string {
 }
 
 /**
- * POST /api/client/purchase-requests
- * Submit a new purchase request
+ * Create a new purchase request for the authenticated client.
+ *
+ * Validates client session and transaction eligibility, validates and sanitizes the request body, verifies instrument availability and minimum investment, generates a unique tracking number, and creates a pending purchase request record returned in the response.
+ *
+ * @returns On success, a JSON payload containing `success: true` and the created purchase request details (`id`, `trackingNumber`, `status`, `amount`, `quantity`, `instrument`, `createdAt`). On failure, a JSON payload with `success: false` and an `error` message (and optional `details`).
  */
 export async function POST(request: NextRequest) {
   try {
