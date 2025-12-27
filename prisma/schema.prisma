@@ -174,6 +174,25 @@ enum DocumentType {
   OTHER                // Other document types
 }
 
+enum LeadSource {
+  INSTAGRAM
+  YOUTUBE
+  FACEBOOK_ADS
+  GOOGLE_ADS
+  WEBSITE
+  REFERRAL
+  OTHER
+}
+
+enum LeadStatus {
+  NEW              // New lead, not yet contacted
+  CONTACTED        // RM has contacted the lead
+  INTERESTED       // Lead showed interest
+  NOT_INTERESTED   // Lead is not interested
+  CONVERTED        // Lead converted to registered client
+  LOST             // Lead lost/dead
+}
+
 enum VerificationStatus {
   NOT_SUBMITTED        // No documents submitted yet
   PENDING              // Documents submitted, awaiting review
@@ -790,23 +809,18 @@ model Document {
 model UserLead {
   id String @id @default(uuid())
 
-  // Personal Information (Section 1)
-  fullName String  @db.VarChar(255)
-  email    String  @db.VarChar(255)
-  phone    String  @db.VarChar(50)
-  age      Int
+  // Personal Information
+  firstName String @db.VarChar(255)
+  lastName  String @db.VarChar(255)
+  email     String @db.VarChar(255)
+  phoneNumber String @db.VarChar(50)
 
-  // Financial Information (Section 2)
-  monthlyIncome    Decimal  @db.Decimal(15, 2)
-  monthlyExpenses  Decimal  @db.Decimal(15, 2)
-  familyExpenses   Decimal  @db.Decimal(15, 2)
-  financialGoals   String   @db.Text
+  // Lead Source & RM Reference
+  leadSource  LeadSource
+  rmReference String?    @db.VarChar(255) // Optional RM name or code reference
 
-  // Additional financial info
-  currentSavings       Decimal? @db.Decimal(15, 2)
-  investmentExperience String?  @db.VarChar(100) // None, Beginner, Intermediate, Advanced
-  riskTolerance        String?  @db.VarChar(50)  // Low, Medium, High
-  investmentHorizon    String?  @db.VarChar(50)  // Short-term, Medium-term, Long-term
+  // Lead Status
+  status LeadStatus @default(NEW)
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -814,6 +828,8 @@ model UserLead {
 
   // Indexes
   @@index([email])
+  @@index([leadSource])
+  @@index([status])
   @@index([createdAt])
   @@map("user_leads")
 }

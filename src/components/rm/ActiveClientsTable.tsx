@@ -1,6 +1,6 @@
 /**
- * RM - Assigned Clients Table Component
- * Displays assigned clients with search, filtering, and sorting
+ * RM - Active Clients Table Component
+ * Displays verified clients eligible for transactions with portfolio data
  */
 
 'use client';
@@ -25,9 +25,9 @@ import {
   ChevronRight,
   Loader2,
   AlertCircle,
-  Eye,
   TrendingUp,
   TrendingDown,
+  Eye,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -40,7 +40,7 @@ interface Client {
     phone: string | null;
   };
   kycVerified: boolean;
-  verificationStatus: 'NOT_SUBMITTED' | 'PENDING' | 'UNDER_REVIEW' | 'VERIFIED' | 'REJECTED' | 'EXPIRED';
+  verificationStatus: 'VERIFIED';
   assignedAt: string;
   portfolio: {
     totalValue: number;
@@ -80,21 +80,21 @@ async function fetchClients(params: {
 
   if (params.search) queryParams.append('search', params.search);
 
-  const response = await fetch(`/api/rm/clients?${queryParams.toString()}`);
+  const response = await fetch(`/api/rm/active-clients?${queryParams.toString()}`);
   if (!response.ok) {
     throw new Error('Failed to fetch clients');
   }
   return response.json();
 }
 
-export function AssignedClientsTable() {
+export function ActiveClientsTable() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('assignedAt');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['assigned-clients', page, search, sortBy, sortOrder],
+    queryKey: ['active-clients', page, search, sortBy, sortOrder],
     queryFn: () => fetchClients({ page, search, sortBy, sortOrder }),
   });
 
@@ -133,7 +133,7 @@ export function AssignedClientsTable() {
 
   return (
     <div className="space-y-4">
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="flex items-center gap-4">
         <Input
           placeholder="Search by name or email..."
@@ -142,9 +142,9 @@ export function AssignedClientsTable() {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="max-w-sm"
+          className="max-w-md"
         />
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground ml-auto">
           {pagination?.totalCount || 0} total clients
         </div>
       </div>
@@ -165,7 +165,7 @@ export function AssignedClientsTable() {
               </TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Phone</TableHead>
-              <TableHead>KYC Status</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">
                 <Button
                   variant="ghost"
@@ -208,27 +208,9 @@ export function AssignedClientsTable() {
                       )}
                     </TableCell>
                     <TableCell>
-                      {client.verificationStatus === 'VERIFIED' ? (
-                        <Badge variant="outline" className="bg-green-500/10 text-green-700">
-                          Verified
-                        </Badge>
-                      ) : client.verificationStatus === 'PENDING' || client.verificationStatus === 'UNDER_REVIEW' ? (
-                        <Badge variant="outline" className="bg-blue-500/10 text-blue-700">
-                          {client.verificationStatus === 'UNDER_REVIEW' ? 'Under Review' : 'Pending'}
-                        </Badge>
-                      ) : client.verificationStatus === 'REJECTED' ? (
-                        <Badge variant="outline" className="bg-red-500/10 text-red-700">
-                          Rejected
-                        </Badge>
-                      ) : client.verificationStatus === 'EXPIRED' ? (
-                        <Badge variant="outline" className="bg-orange-500/10 text-orange-700">
-                          Expired
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="bg-gray-500/10 text-gray-700">
-                          Not Submitted
-                        </Badge>
-                      )}
+                      <Badge variant="outline" className="bg-green-500/10 text-green-700">
+                        Verified
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {client.portfolio
@@ -254,7 +236,9 @@ export function AssignedClientsTable() {
                         '-'
                       )}
                     </TableCell>
-                    <TableCell>{format(new Date(client.assignedAt), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {format(new Date(client.assignedAt), 'MMM dd, yyyy')}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/rm/clients/${client.id}`}>
@@ -270,9 +254,9 @@ export function AssignedClientsTable() {
               <TableRow>
                 <TableCell colSpan={8} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <p className="text-muted-foreground">No clients assigned to you yet</p>
+                    <p className="text-muted-foreground">No active clients yet</p>
                     <p className="text-sm text-muted-foreground">
-                      Your assigned clients will appear here
+                      Clients with verified KYC and active portfolios will appear here
                     </p>
                   </div>
                 </TableCell>

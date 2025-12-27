@@ -1,106 +1,55 @@
 /**
- * Admin Leads API
- * GET: List all user leads with pagination and filtering
+ * Admin Leads API - FORBIDDEN
+ * Lead management has been moved to DocAdmin exclusively
+ * Use /api/docadmin/leads instead (DocAdmin role only)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth/session';
-import { prisma } from '@/lib/db/prisma';
-import { leadQuerySchema, type LeadQuery } from '@/lib/validation/lead.validation';
-import { Prisma } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 /**
- * GET /api/admin/leads
- * List all user leads with pagination and filtering
+ * GET /api/admin/leads - FORBIDDEN
+ * Lead management is now exclusive to DocAdmin
+ * Redirect to /api/docadmin/leads
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
-    await requireAdmin();
+    const session = await getServerSession(authOptions);
 
-    // Parse and validate query parameters
-    const searchParams = Object.fromEntries(request.nextUrl.searchParams);
-    const validationResult = leadQuerySchema.safeParse(searchParams);
-
-    if (!validationResult.success) {
+    if (!session) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid query parameters',
-          details: validationResult.error.format(),
-        },
-        { status: 400 }
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
       );
     }
 
-    const { page, limit, query, sortBy, sortOrder }: LeadQuery = validationResult.data;
-
-    // Build where clause for filtering
-    const where: Prisma.UserLeadWhereInput = {
-      ...(query && {
-        OR: [
-          { fullName: { contains: query, mode: 'insensitive' } },
-          { email: { contains: query, mode: 'insensitive' } },
-          { phone: { contains: query, mode: 'insensitive' } },
-        ],
-      }),
-    };
-
-    // Get total count for pagination
-    const totalCount = await prisma.userLead.count({ where });
-
-    // Get leads with pagination
-    const leads = await prisma.userLead.findMany({
-      where,
-      orderBy: { [sortBy]: sortOrder },
-      skip: (page - 1) * limit,
-      take: limit,
-      select: {
-        id: true,
-        fullName: true,
-        email: true,
-        phone: true,
-        age: true,
-        monthlyIncome: true,
-        monthlyExpenses: true,
-        familyExpenses: true,
-        financialGoals: true,
-        currentSavings: true,
-        investmentExperience: true,
-        riskTolerance: true,
-        investmentHorizon: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    // Calculate pagination metadata
-    const totalPages = Math.ceil(totalCount / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
-
-    return NextResponse.json({
-      success: true,
-      data: {
-        leads,
-        pagination: {
-          page,
-          limit,
-          totalCount,
-          totalPages,
-          hasNextPage,
-          hasPrevPage,
+    // If DocAdmin, inform them to use the correct endpoint
+    if (session.user.role === 'DOCADMIN') {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Please use /api/docadmin/leads endpoint for lead management',
         },
-      },
-    });
-  } catch (error: unknown) {
-    console.error('Error fetching leads:', error);
-
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        { status: 403 }
+      );
     }
 
+    // For all other roles (including ADMIN), return forbidden
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch leads' },
+      {
+        success: false,
+        error: 'Forbidden: Lead management is exclusive to DocAdmin role',
+        message:
+          'As of the latest update, all lead-related operations have been transferred to the DocAdmin role. Please contact your administrator for access.',
+      },
+      { status: 403 }
+    );
+  } catch (error: unknown) {
+    console.error('Error in admin leads API:', error);
+
+    return NextResponse.json(
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

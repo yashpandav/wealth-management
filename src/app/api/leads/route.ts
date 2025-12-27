@@ -32,28 +32,52 @@ export async function POST(request: NextRequest) {
 
     const data: CreateLeadInput = validationResult.data;
 
-    // Create the user lead
+    // Check if lead with this email already exists
+    const existingLead = await prisma.userLead.findFirst({
+      where: { email: data.email },
+    });
+
+    if (existingLead) {
+      // Update existing lead instead of creating duplicate
+      const updatedLead = await prisma.userLead.update({
+        where: { id: existingLead.id },
+        data: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          leadSource: data.leadSource,
+          rmReference: data.rmReference || null,
+          status: 'NEW', // Reset to NEW on resubmission
+        },
+      });
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: 'Lead information updated successfully',
+          data: { id: updatedLead.id },
+        },
+        { status: 200 }
+      );
+    }
+
+    // Create new lead
     const lead = await prisma.userLead.create({
       data: {
-        fullName: data.fullName,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
-        phone: data.phone,
-        age: data.age,
-        monthlyIncome: data.monthlyIncome,
-        monthlyExpenses: data.monthlyExpenses,
-        familyExpenses: data.familyExpenses,
-        financialGoals: data.financialGoals,
-        currentSavings: data.currentSavings ?? null,
-        investmentExperience: data.investmentExperience ?? null,
-        riskTolerance: data.riskTolerance ?? null,
-        investmentHorizon: data.investmentHorizon ?? null,
+        phoneNumber: data.phoneNumber,
+        leadSource: data.leadSource,
+        rmReference: data.rmReference || null,
+        status: 'NEW',
       },
     });
 
     return NextResponse.json(
       {
         success: true,
-        message: 'Form submitted successfully',
+        message: 'Lead submitted successfully',
         data: { id: lead.id },
       },
       { status: 201 }
