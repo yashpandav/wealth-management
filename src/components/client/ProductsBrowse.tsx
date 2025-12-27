@@ -60,6 +60,41 @@ async function fetchProducts(): Promise<ProductsResponse> {
   return response.json();
 }
 
+async function fetchKYCStatus(): Promise<{
+  success: boolean;
+  data: {
+    identityProofVerified: boolean;
+    addressProofVerified: boolean;
+    canSubmitRequests: boolean;
+    identityProofStatus?: string;
+    addressProofStatus?: string;
+  };
+}> {
+  const response = await fetch('/api/documents');
+  if (!response.ok) {
+    throw new Error('Failed to fetch KYC status');
+  }
+  const result = await response.json();
+
+  const documents = result.data?.documents || [];
+  const identityProof = documents.find((d: any) => d.documentType === 'IDENTITY_PROOF');
+  const addressProof = documents.find((d: any) => d.documentType === 'ADDRESS_PROOF');
+
+  const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
+  const addressProofVerified = addressProof?.verificationStatus === 'VERIFIED';
+
+  return {
+    success: true,
+    data: {
+      identityProofVerified,
+      addressProofVerified,
+      canSubmitRequests: identityProofVerified && addressProofVerified,
+      identityProofStatus: identityProof?.verificationStatus,
+      addressProofStatus: addressProof?.verificationStatus,
+    },
+  };
+}
+
 type ViewMode = 'grid' | 'list';
 
 export function ProductsBrowse() {
@@ -68,6 +103,11 @@ export function ProductsBrowse() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['client-products'],
     queryFn: fetchProducts,
+  });
+
+  const { data: kycStatus } = useQuery({
+    queryKey: ['client-kyc-status'],
+    queryFn: fetchKYCStatus,
   });
 
   const getProductBadgeColor = (name: string) => {
@@ -140,6 +180,49 @@ export function ProductsBrowse() {
           </Button>
         </div>
       </div>
+
+      {/* KYC Status Alert */}
+      {kycStatus && !kycStatus.data.canSubmitRequests && (
+        <Alert variant="destructive" className="border-orange-200 bg-orange-50">
+          <AlertCircle className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-900">
+            <strong>KYC Verification Required:</strong> You must complete your KYC verification before submitting product requests.
+            <div className="mt-2 space-y-1 text-sm">
+              {!kycStatus.data.identityProofVerified && (
+                <div className="flex items-center gap-2">
+                  <span className="text-orange-700">
+                    ❌ Identity Proof {kycStatus.data.identityProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                  </span>
+                </div>
+              )}
+              {!kycStatus.data.addressProofVerified && (
+                <div className="flex items-center gap-2">
+                  <span className="text-orange-700">
+                    ❌ Address Proof {kycStatus.data.addressProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                  </span>
+                </div>
+              )}
+              <div className="mt-3">
+                <Link
+                  href="/upload-documents"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm font-medium"
+                >
+                  Upload & Verify Documents
+                </Link>
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {kycStatus && kycStatus.data.canSubmitRequests && (
+        <Alert className="border-green-200 bg-green-50">
+          <AlertCircle className="h-4 w-4 text-green-600" />
+          <AlertDescription className="text-green-900">
+            <strong>✓ KYC Verified:</strong> Your documents are verified. You can now submit product requests.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Products Grid/List */}
       {products.length > 0 ? (

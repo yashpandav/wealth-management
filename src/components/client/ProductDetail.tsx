@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -72,6 +72,14 @@ interface ProductDetailProps {
   rmLoading: boolean;
 }
 
+interface KYCStatus {
+  identityProofVerified: boolean;
+  addressProofVerified: boolean;
+  canSubmitRequests: boolean;
+  identityProofStatus?: string;
+  addressProofStatus?: string;
+}
+
 export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailProps) {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState<ProductOption | null>(null);
@@ -79,6 +87,48 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
   const [notes, setNotes] = useState<string>('');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [kycStatus, setKycStatus] = useState<KYCStatus | null>(null);
+  const [kycLoading, setKycLoading] = useState(true);
+
+  // Fetch KYC status on component mount
+  useEffect(() => {
+    fetchKYCStatus();
+  }, []);
+
+  const fetchKYCStatus = async () => {
+    try {
+      setKycLoading(true);
+      const response = await fetch('/api/documents');
+      if (!response.ok) {
+        throw new Error('Failed to fetch KYC status');
+      }
+      const result = await response.json();
+      const documents = result.data?.documents || [];
+
+      const identityProof = documents.find((d: any) => d.documentType === 'IDENTITY_PROOF');
+      const addressProof = documents.find((d: any) => d.documentType === 'ADDRESS_PROOF');
+
+      const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
+      const addressProofVerified = addressProof?.verificationStatus === 'VERIFIED';
+
+      setKycStatus({
+        identityProofVerified,
+        addressProofVerified,
+        canSubmitRequests: identityProofVerified && addressProofVerified,
+        identityProofStatus: identityProof?.verificationStatus,
+        addressProofStatus: addressProof?.verificationStatus,
+      });
+    } catch (error) {
+      console.error('Error fetching KYC status:', error);
+      setKycStatus({
+        identityProofVerified: false,
+        addressProofVerified: false,
+        canSubmitRequests: false,
+      });
+    } finally {
+      setKycLoading(false);
+    }
+  };
 
   const getProductBadgeColor = (name: string) => {
     if (name.includes('A')) {
@@ -128,6 +178,10 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       toast.error('You must have an assigned Relationship Manager to request a product');
       return;
     }
+    if (!kycStatus?.canSubmitRequests) {
+      toast.error('Your KYC documents must be verified before submitting product requests. Please upload and verify your documents.');
+      return;
+    }
     setShowConfirmDialog(true);
   };
 
@@ -156,6 +210,10 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       } else {
         if (data.code === 'NO_RM_ASSIGNED') {
           toast.error('You must have an assigned Relationship Manager to request a product');
+        } else if (data.code === 'IDENTITY_PROOF_NOT_VERIFIED') {
+          toast.error('Your Identity Proof document must be verified. Please upload and verify your documents.');
+        } else if (data.code === 'ADDRESS_PROOF_NOT_VERIFIED') {
+          toast.error('Your Address Proof document must be verified. Please upload and verify your documents.');
         } else {
           toast.error(data.error || 'Failed to submit request');
         }
@@ -200,6 +258,43 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
               <p className="text-sm text-yellow-700">
                 You must have an assigned RM to request product purchases. Please contact support.
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* KYC Verification Warning */}
+        {!kycLoading && kycStatus && !kycStatus.canSubmitRequests && (
+          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-medium text-orange-800">KYC Verification Required</p>
+                <p className="text-sm text-orange-700 mt-1">
+                  You must complete your KYC verification before submitting product requests.
+                </p>
+                <div className="mt-3 space-y-1 text-sm">
+                  {!kycStatus.identityProofVerified && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-orange-700">
+                        ❌ Identity Proof {kycStatus.identityProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                      </span>
+                    </div>
+                  )}
+                  {!kycStatus.addressProofVerified && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-orange-700">
+                        ❌ Address Proof {kycStatus.addressProofStatus === 'REJECTED' ? 'rejected - please re-upload' : 'not verified'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <Link
+                  href="/upload-documents"
+                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm font-medium"
+                >
+                  Upload & Verify Documents
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -426,7 +521,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                   className="w-full"
                   size="lg"
                   onClick={handleRequestPurchase}
-                  disabled={!selectedOption || !validateAmount() || !clientRM?.hasRM || rmLoading}
+                  disabled={!selectedOption || !validateAmount() || !clientRM?.hasRM || !kycStatus?.canSubmitRequests || rmLoading || kycLoading}
                 >
                   Request Purchase
                 </Button>
@@ -434,6 +529,12 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                 {!clientRM?.hasRM && !rmLoading && (
                   <p className="text-xs text-center text-red-600">
                     RM assignment required to proceed
+                  </p>
+                )}
+
+                {!kycStatus?.canSubmitRequests && !kycLoading && (
+                  <p className="text-xs text-center text-red-600">
+                    KYC verification required to proceed
                   </p>
                 )}
 
