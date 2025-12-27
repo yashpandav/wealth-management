@@ -14,6 +14,11 @@ interface ClientStatusBannerClientProps {
   className?: string;
 }
 
+/**
+ * Render a client status banner for authenticated users with role "CLIENT" once session and RM assignment are resolved.
+ *
+ * @returns A JSX element containing the ClientStatusBanner populated with the client's RM assignment and verification status, or `null` while loading, when the user is not an authenticated CLIENT, or when the RM state is undetermined.
+ */
 export function ClientStatusBannerClient({ className = '' }: ClientStatusBannerClientProps) {
   const { data: session, status: sessionStatus } = useSession();
   const [hasRM, setHasRM] = useState<boolean | null>(null);

@@ -9,6 +9,16 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { Prisma } from '@prisma/client';
 
+/**
+ * Fetches unregistered leads assigned to the authenticated relationship manager (RM), with pagination and optional search and source filters.
+ *
+ * @param request - Incoming Next.js request containing query parameters: `page`, `limit`, `search`, and `source`
+ * @returns On success, JSON with `data` containing `leads` (selected lead fields) and `pagination` (page, limit, totalCount, totalPages, hasMore). On failure, JSON with an `error` message and one of:
+ * - 401 Unauthorized when the user is not signed in
+ * - 403 Forbidden when the user is not an RM
+ * - 404 Not Found when the RM profile does not exist
+ * - 500 Internal Server Error on unexpected failures
+ */
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

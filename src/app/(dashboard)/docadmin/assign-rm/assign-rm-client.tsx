@@ -69,6 +69,15 @@ interface AssignRMClientProps {
   relationshipManagers: RelationshipManager[];
 }
 
+/**
+ * Renders the Assign RM dashboard for viewing clients pending assignment and assigning a Relationship Manager to a client.
+ *
+ * Displays summary stats, a table of verified clients awaiting assignment, an RM workload overview, and a dialog to select and assign an RM to a client.
+ *
+ * @param clients - Array of clients eligible for RM assignment; each client includes identification, contact, document count, registration date, and optional verification timestamp.
+ * @param relationshipManagers - Array of relationship managers with their current client counts used for selection and workload display.
+ * @returns The rendered React element for the Assign RM Client dashboard.
+ */
 export function AssignRMClient({ clients, relationshipManagers }: AssignRMClientProps) {
   const router = useRouter();
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);

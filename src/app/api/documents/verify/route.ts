@@ -17,6 +17,12 @@ import { sendDocumentVerificationResult } from '@/lib/email';
 import { config } from '@/lib/config';
 import { documentVerificationSchema } from '@/lib/validation/document.validation';
 
+/**
+ * Handle document verification requests: verify or reject a document, update the document and client verification statuses, create an audit log when enabled, and trigger a notification email to the document owner.
+ *
+ * @param request - Incoming request with a JSON body validated against `documentVerificationSchema`. Expected fields: `documentId` (string), `action` (`VERIFY` or `REJECT`), and `rejectionReason` (string) when `action` is `REJECT`.
+ * @returns A JSON response object. On success: `{ success: true, message: string, document: { id, documentType, verificationStatus, verifiedAt }, clientVerificationStatus }`. On validation or business errors: `{ success: false, error: string, details?: any }`. HTTP status codes reflect the outcome (e.g., 200, 400, 401, 403, 404, 500).
+ */
 export async function POST(request: NextRequest) {
   try {
     // Check authentication

@@ -14,6 +14,15 @@ export const metadata = {
   description: 'Manage clients with verified KYC awaiting RM assignment',
 };
 
+/**
+ * Retrieve clients whose KYC verification status is VERIFIED and who do not have an assigned relationship manager.
+ *
+ * The returned client records include nested `user` and `documents` data:
+ * - `user`: id, firstName, lastName, email, phone, createdAt
+ * - `documents`: id, documentType, verificationStatus, verifiedAt (ordered by `verifiedAt` descending)
+ *
+ * @returns An array of client records with nested `user` and `documents`; clients are ordered by `user.createdAt` descending.
+ */
 async function getVerifiedClientsWithoutRM() {
   // Get all clients with VERIFIED KYC status but no RM assigned
   // KYC verification must be complete BEFORE RM assignment is allowed
@@ -55,6 +64,11 @@ async function getVerifiedClientsWithoutRM() {
   return clients;
 }
 
+/**
+ * Fetches active relationship managers along with their user details and assigned-client counts.
+ *
+ * @returns An array of relationship manager records, each including the related `user` (id, firstName, lastName, email) and `_count.assignedClients` indicating how many clients are assigned to that manager.
+ */
 async function getRelationshipManagers() {
   return prisma.relationshipManager.findMany({
     where: {
@@ -86,6 +100,16 @@ async function getRelationshipManagers() {
   });
 }
 
+/**
+ * Page that displays verified clients without an assigned Relationship Manager and enables RM assignment.
+ *
+ * This server-rendered page fetches verified clients who lack an assigned RM and active relationship managers,
+ * formats both datasets for the UI, and renders a header and the AssignRMClient component with those lists.
+ *
+ * Redirects to `/login` when the current session is missing or the user is not in the `DOCADMIN` role.
+ *
+ * @returns A React element containing the page header and the AssignRMClient component populated with formatted clients and relationship managers.
+ */
 export default async function AssignRMPage() {
   const session = await getServerSession(authOptions);
 

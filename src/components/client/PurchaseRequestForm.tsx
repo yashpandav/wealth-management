@@ -45,6 +45,14 @@ interface PurchaseRequestFormProps {
   onSuccess?: (trackingNumber: string) => void;
 }
 
+/**
+ * Renders a purchase request form for selecting an instrument, entering an investment amount, and submitting a purchase request.
+ *
+ * The component manages instrument loading, client transaction eligibility, minimum-investment validation, and request submission. On successful submission it either invokes the optional `onSuccess` callback with the returned tracking number or navigates to a confirmation page.
+ *
+ * @param onSuccess - Optional callback invoked with the tracking number when the purchase request is submitted successfully
+ * @returns The purchase request form component
+ */
 export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
   const router = useRouter();
   const { data: session } = useSession();

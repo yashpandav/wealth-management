@@ -78,6 +78,11 @@ interface RM {
   clientCount: number;
 }
 
+/**
+ * Renders the lead enquiries management UI, including search and filters, stats, sortable/paginated leads table, lead details dialog, and RM assignment dialog.
+ *
+ * @returns The rendered React element for the leads management interface.
+ */
 export function LeadsTable() {
   // State
   const [leads, setLeads] = useState<UserLead[]>([]);

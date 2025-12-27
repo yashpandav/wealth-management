@@ -41,6 +41,17 @@ interface ApiResponse {
   details?: unknown;
 }
 
+/**
+ * Renders the client withdrawal request page and manages its full UI and interaction flow.
+ *
+ * The component fetches the client's portfolio and RM assignment, derives transaction eligibility,
+ * provides a validated withdrawal form with bank details, shows a confirmation dialog, and submits
+ * withdrawal requests to the API. It also enforces routing rules (redirects unauthenticated users
+ * to login and non-client users to the dashboard) and disables submission when the user is not
+ * eligible, the amount is invalid, or the balance is insufficient.
+ *
+ * @returns The React element for the Withdraw Funds page.
+ */
 export default function WithdrawPage() {
   const { data: session, status } = useSession();
   const router = useRouter();

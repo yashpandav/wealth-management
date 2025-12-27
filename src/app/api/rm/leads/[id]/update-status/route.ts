@@ -13,6 +13,19 @@ const updateStatusSchema = z.object({
   status: z.enum(['NEW', 'CONTACTED', 'INTERESTED', 'NOT_INTERESTED', 'CONVERTED', 'LOST']),
 });
 
+/**
+ * Handles PATCH requests to update the status of a lead assigned to the authenticated Relationship Manager.
+ *
+ * Validates the session and RM role, ensures the RM profile exists, validates the request body against the status schema,
+ * verifies the lead is assigned to the RM, updates the lead's status, and returns the updated lead metadata.
+ *
+ * @param _request - The incoming NextRequest (body contains `{ status }`).
+ * @param params - Route parameters promise resolving to an object with `id` (the lead id to update).
+ * @returns A NextResponse with JSON:
+ * - Success: `{ success: true, message: string, data: { lead: { id: string, status: string, updatedAt: string } } }`
+ * - Error: `{ success: false, error: string, details?: any }`
+ * Appropriate HTTP status codes are used for unauthorized (401), forbidden (403), not found (404), validation failure (400), and internal errors (500).
+ */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
