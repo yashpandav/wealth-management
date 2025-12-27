@@ -236,6 +236,9 @@ model User {
   client               Client?
   relationshipManager  RelationshipManager?
 
+  // User lead (if user was converted from a lead)
+  userLead             UserLead?
+
   // Activity logs
   auditLogs     AuditLog[]
   notifications Notification[]
@@ -308,6 +311,7 @@ model RelationshipManager {
   processedWithdrawals      WithdrawalRequest[] @relation("RMProcessor")
   processedTransactions     Transaction[]       @relation("RMProcessor")
   productPurchaseRequests   ProductPurchaseRequest[]
+  assignedLeads             UserLead[]
 
   @@map("relationship_managers")
 }
@@ -812,15 +816,23 @@ model UserLead {
   // Personal Information
   firstName String @db.VarChar(255)
   lastName  String @db.VarChar(255)
-  email     String @db.VarChar(255)
+  email     String @unique @db.VarChar(255)
   phoneNumber String @db.VarChar(50)
 
   // Lead Source & RM Reference
   leadSource  LeadSource
-  rmReference String?    @db.VarChar(255) // Optional RM name or code reference
+  rmReference String?    @db.VarChar(255) // Optional RM name or code reference from user input
 
   // Lead Status
   status LeadStatus @default(NEW)
+
+  // Assigned Relationship Manager (set by DocAdmin)
+  assignedRMId String?
+  assignedRM   RelationshipManager? @relation(fields: [assignedRMId], references: [id])
+
+  // Link to registered user (set when lead converts to registered user)
+  userId String? @unique
+  user   User?   @relation(fields: [userId], references: [id])
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -830,6 +842,7 @@ model UserLead {
   @@index([email])
   @@index([leadSource])
   @@index([status])
+  @@index([assignedRMId])
   @@index([createdAt])
   @@map("user_leads")
 }

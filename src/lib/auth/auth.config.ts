@@ -191,21 +191,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Please verify your email address before logging in.');
         }
 
-        // Check document verification status for CLIENT users
-        // Block login only if documents are pending review (waiting for admin verification)
-        // Allow login for NOT_SUBMITTED, REJECTED, EXPIRED so users can upload/resubmit
-        if (user.role === 'CLIENT' && user.client?.verificationStatus) {
-          const blockedStatuses: VerificationStatus[] = [
-            'PENDING',
-            'UNDER_REVIEW',
-          ];
-
-          if (blockedStatuses.includes(user.client.verificationStatus)) {
-            throw new Error(
-              "Your documents are under verification. You'll receive an email once verified."
-            );
-          }
-        }
+        // Note: KYC verification status no longer blocks login
+        // Clients can log in regardless of verification status to browse products
+        // Transaction restrictions (purchase/withdrawal) are enforced at the API level
 
         // Reset failed attempts on successful login
         await resetFailedAttempts(user.id);

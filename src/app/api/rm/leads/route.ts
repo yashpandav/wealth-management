@@ -55,28 +55,23 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const source = searchParams.get('source');
 
-    // Build rmReference string to match
-    const rmReference = `${rm.user.firstName} ${rm.user.lastName} (${rm.id})`;
-
-    // Build where clause - leads assigned to this RM
+    // Build where clause - leads assigned to this RM that are NOT yet registered (userId is null)
     const where: Prisma.UserLeadWhereInput = {
-      rmReference,
+      assignedRMId: rm.id, // Filter by actual RM ID (not text reference)
+      userId: null, // Only leads not yet converted to registered users
+      status: { notIn: ['CONVERTED', 'LOST'] }, // Exclude converted and lost leads
+      // Search filter
+      ...(search && {
+        OR: [
+          { firstName: { contains: search, mode: 'insensitive' } },
+          { lastName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { phoneNumber: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
+      // Source filter
+      ...(source && source !== 'ALL' && { leadSource: source as any }),
     };
-
-    // Search filter
-    if (search) {
-      where.OR = [
-        { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { phoneNumber: { contains: search, mode: 'insensitive' } },
-      ];
-    }
-
-    // Source filter
-    if (source && source !== 'ALL') {
-      where.leadSource = source as any;
-    }
 
     // Pagination
     const skip = (page - 1) * limit;

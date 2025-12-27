@@ -9,10 +9,7 @@ import { getToken } from 'next-auth/jwt';
 import { applySecurityHeaders, generateNonce } from '@/lib/security/headers';
 
 // Define public routes that don't require authentication
-const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/instruments', '/user-form'];
-
-// Routes that clients with NOT_SUBMITTED status can access
-const documentUploadRoutes = ['/upload-documents', '/client/documents', '/client/verification', '/api/documents/upload'];
+const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/instruments', '/user-form', '/upload-documents'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -46,42 +43,17 @@ export async function middleware(request: NextRequest) {
     } else {
       // Check role-based access
       const userRole = token.role as string;
-      const verificationStatus = token.verificationStatus as string | undefined;
 
-      // Check if current route is a document upload route
-      const isDocumentUploadRoute = documentUploadRoutes.some(
-        (route) => pathname === route || pathname.startsWith(route + '/')
-      );
+      // Note: Clients can now log in regardless of KYC verification status
+      // Transaction restrictions (purchase/withdrawal) are enforced at the API level
+      // and in the UI via disabled buttons and banners
 
-      // For CLIENT users, check verification status first (before other route checks)
+      // Role-based route protection
       if (userRole === 'CLIENT') {
-        // If documents not submitted or need resubmission, redirect to upload page
-        if (
-          verificationStatus === 'NOT_SUBMITTED' ||
-          verificationStatus === 'REJECTED' ||
-          verificationStatus === 'EXPIRED'
-        ) {
-          if (!isDocumentUploadRoute) {
-            response = NextResponse.redirect(new URL('/upload-documents', request.url));
-          } else {
-            response = NextResponse.next();
-          }
-        } else if (verificationStatus === 'PENDING' || verificationStatus === 'UNDER_REVIEW') {
-          // Documents under review - show pending status page
-          if (!isDocumentUploadRoute) {
-            response = NextResponse.redirect(new URL('/upload-documents', request.url));
-          } else {
-            response = NextResponse.next();
-          }
-        } else if (verificationStatus === 'VERIFIED') {
-          // Verified clients can access client routes
-          if (pathname.startsWith('/admin') || pathname.startsWith('/rm') || pathname.startsWith('/docadmin')) {
-            response = NextResponse.redirect(new URL('/error?error=AccessDenied', request.url));
-          } else {
-            response = NextResponse.next();
-          }
+        // Clients can access client routes and document upload routes
+        if (pathname.startsWith('/admin') || pathname.startsWith('/rm') || pathname.startsWith('/docadmin')) {
+          response = NextResponse.redirect(new URL('/error?error=AccessDenied', request.url));
         } else {
-          // Default: allow access
           response = NextResponse.next();
         }
       } else if (userRole === 'ADMIN') {

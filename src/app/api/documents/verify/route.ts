@@ -16,12 +16,6 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { sendDocumentVerificationResult } from '@/lib/email';
 import { config } from '@/lib/config';
 import { documentVerificationSchema } from '@/lib/validation/document.validation';
-import { z } from 'zod';
-
-// Extended schema to include optional RM assignment
-const verifyDocumentSchema = documentVerificationSchema.extend({
-  assignRMId: z.string().uuid('Invalid RM ID').optional(),
-});
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Parse and validate request body
     const body = await request.json();
-    const validationResult = verifyDocumentSchema.safeParse(body);
+    const validationResult = documentVerificationSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -57,7 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { documentId, action, rejectionReason, assignRMId } = validationResult.data;
+    const { documentId, action, rejectionReason } = validationResult.data;
 
     // Validate rejection reason is provided for rejections
     if (action === 'REJECT' && !rejectionReason) {
@@ -104,39 +98,6 @@ export async function POST(request: NextRequest) {
     // Determine new verification status
     const newStatus = action === 'VERIFY' ? 'VERIFIED' : 'REJECTED';
 
-    // If assigning RM, validate the RM exists
-    let assignedRM = null;
-    if (assignRMId && action === 'VERIFY') {
-      assignedRM = await prisma.relationshipManager.findUnique({
-        where: { id: assignRMId },
-        include: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-              email: true,
-              status: true,
-              isActive: true,
-            },
-          },
-        },
-      });
-
-      if (!assignedRM) {
-        return NextResponse.json(
-          { success: false, error: 'Relationship Manager not found' },
-          { status: 404 }
-        );
-      }
-
-      if (!assignedRM.user.isActive || assignedRM.user.status !== 'ACTIVE') {
-        return NextResponse.json(
-          { success: false, error: 'Selected Relationship Manager is not active' },
-          { status: 400 }
-        );
-      }
-    }
-
     // Perform updates in a transaction
     const result = await prisma.$transaction(async (tx) => {
       // Update document status
@@ -149,17 +110,6 @@ export async function POST(request: NextRequest) {
           rejectionReason: action === 'REJECT' ? rejectionReason : null,
         },
       });
-
-      // If verifying and assigning RM
-      if (action === 'VERIFY' && assignRMId) {
-        await tx.client.update({
-          where: { id: document.clientId },
-          data: {
-            assignedRMId: assignRMId,
-            assignedAt: new Date(),
-          },
-        });
-      }
 
       // Update client verification status based on all documents
       const allClientDocs = await tx.document.findMany({
@@ -203,7 +153,6 @@ export async function POST(request: NextRequest) {
               clientId: document.clientId,
               clientEmail: document.client.user.email,
               rejectionReason: rejectionReason || null,
-              assignedRMId: assignRMId || null,
             },
             ipAddress:
               request.headers.get('x-forwarded-for') ||
@@ -213,29 +162,6 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        // Log RM assignment if applicable
-        if (action === 'VERIFY' && assignRMId) {
-          await tx.auditLog.create({
-            data: {
-              userId: user.id,
-              action: 'CLIENT_ASSIGN',
-              entityType: 'Client',
-              entityId: document.clientId,
-              description: `Client assigned to RM: ${assignedRM?.user.firstName} ${assignedRM?.user.lastName}`,
-              metadata: {
-                clientId: document.clientId,
-                clientEmail: document.client.user.email,
-                rmId: assignRMId,
-                rmEmail: assignedRM?.user.email,
-              },
-              ipAddress:
-                request.headers.get('x-forwarded-for') ||
-                request.headers.get('x-real-ip') ||
-                '',
-              userAgent: request.headers.get('user-agent') || '',
-            },
-          });
-        }
       }
 
       return {
@@ -266,15 +192,6 @@ export async function POST(request: NextRequest) {
           verifiedAt: result.document.verifiedAt,
         },
         clientVerificationStatus: result.clientVerificationStatus,
-        ...(assignRMId && assignedRM
-          ? {
-              assignedRM: {
-                id: assignRMId,
-                name: `${assignedRM.user.firstName} ${assignedRM.user.lastName}`,
-                email: assignedRM.user.email,
-              },
-            }
-          : {}),
       },
       { status: 200 }
     );

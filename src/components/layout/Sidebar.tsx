@@ -1,6 +1,7 @@
 /**
  * Sidebar Component
  * Side navigation with role-based menu items and responsive behavior
+ * Dynamically shows/hides KYC Documents based on verification status
  */
 
 'use client';
@@ -9,6 +10,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { shouldShowKycUpload } from '@/lib/utils/client-utils';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -21,6 +23,8 @@ interface NavItem {
   icon: React.ReactNode;
   roles: string[];
   disabled?: boolean;
+  /** If true, this item is only shown when KYC upload is needed */
+  kycUploadOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -178,7 +182,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/docadmin/assign-rm',
-    label: 'Assign RM',
+    label: 'RM Assignment Pending',
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -418,6 +422,22 @@ const navItems: NavItem[] = [
     ),
     roles: ['CLIENT'],
   },
+  {
+    href: '/upload-documents',
+    label: 'KYC Documents',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
+      </svg>
+    ),
+    roles: ['CLIENT'],
+    kycUploadOnly: true, // Only show when KYC is not yet verified
+  },
 ];
 
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
@@ -425,9 +445,22 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   const userRole = session?.user?.role || '';
-  const filteredNavItems = navItems.filter((item) =>
-    item.roles.includes(userRole)
-  );
+  const verificationStatus = session?.user?.verificationStatus || null;
+
+  // Filter nav items based on role and KYC status
+  const filteredNavItems = navItems.filter((item) => {
+    // First check role
+    if (!item.roles.includes(userRole)) {
+      return false;
+    }
+
+    // For KYC-only items, hide if KYC is already verified
+    if (item.kycUploadOnly && !shouldShowKycUpload(verificationStatus)) {
+      return false;
+    }
+
+    return true;
+  });
 
   return (
     <>

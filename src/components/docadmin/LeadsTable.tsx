@@ -46,6 +46,15 @@ type LeadSource =
 
 type LeadStatus = 'NEW' | 'CONTACTED' | 'INTERESTED' | 'NOT_INTERESTED' | 'CONVERTED' | 'LOST';
 
+interface AssignedRM {
+  id: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
 interface UserLead {
   id: string;
   firstName: string;
@@ -55,6 +64,9 @@ interface UserLead {
   leadSource: LeadSource;
   status: LeadStatus;
   rmReference: string | null;
+  assignedRMId: string | null;
+  userId: string | null;
+  assignedRM: AssignedRM | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -335,7 +347,7 @@ export function LeadsTable() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {leads.filter((l) => l.rmReference).length}
+              {leads.filter((l) => l.assignedRMId).length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Have assigned managers</p>
           </CardContent>
@@ -348,7 +360,7 @@ export function LeadsTable() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {leads.filter((l) => !l.rmReference).length}
+              {leads.filter((l) => !l.assignedRMId).length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">Need RM assignment</p>
           </CardContent>
@@ -422,8 +434,10 @@ export function LeadsTable() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm">
-                    {lead.rmReference ? (
-                      <span className="text-foreground">{lead.rmReference.split(' (')[0]}</span>
+                    {lead.assignedRM ? (
+                      <span className="text-foreground">
+                        {lead.assignedRM.user.firstName} {lead.assignedRM.user.lastName}
+                      </span>
                     ) : (
                       <span className="text-muted-foreground italic">Not assigned</span>
                     )}
@@ -549,8 +563,8 @@ export function LeadsTable() {
                   <div className="flex justify-between py-2 border-b">
                     <span className="text-sm text-muted-foreground">Assigned RM</span>
                     <span className="text-sm font-medium">
-                      {selectedLead.rmReference ? (
-                        selectedLead.rmReference.split(' (')[0]
+                      {selectedLead.assignedRM ? (
+                        `${selectedLead.assignedRM.user.firstName} ${selectedLead.assignedRM.user.lastName}`
                       ) : (
                         <span className="italic text-muted-foreground">Not assigned</span>
                       )}
@@ -570,7 +584,7 @@ export function LeadsTable() {
                   className="flex-1"
                   size="default"
                 >
-                  {selectedLead.rmReference ? 'Reassign RM' : 'Assign RM'}
+                  {selectedLead.assignedRMId ? 'Reassign RM' : 'Assign RM'}
                 </Button>
                 <Button
                   variant="outline"
@@ -606,9 +620,9 @@ export function LeadsTable() {
                     </p>
                     <p className="text-sm text-muted-foreground">{selectedLead.email}</p>
                   </div>
-                  {selectedLead.rmReference && (
+                  {selectedLead.assignedRM && (
                     <Badge variant="secondary" className="text-xs">
-                      Currently: {selectedLead.rmReference.split(' (')[0]}
+                      Currently: {selectedLead.assignedRM.user.firstName} {selectedLead.assignedRM.user.lastName}
                     </Badge>
                   )}
                 </div>
