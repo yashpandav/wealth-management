@@ -14,6 +14,7 @@ import {
 } from '@/lib/validation/purchase-request.validation';
 import { RequestStatus } from '@prisma/client';
 import { checkTransactionEligibility } from '@/lib/utils/client-utils';
+import { sendPurchaseRequestSubmittedEmail, sendRMPurchaseRequestNotification } from '@/lib/email';
 
 /**
  * Generate unique tracking number
@@ -194,8 +195,41 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Send notification to RM (will be implemented in later task)
-    // TODO: Send confirmation email to client (will be implemented in later task)
+    // Get client user details for email
+    const clientUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { firstName: true, email: true, lastName: true },
+    });
+
+    // Send confirmation email to client
+    if (clientUser) {
+      sendPurchaseRequestSubmittedEmail(
+        clientUser.email,
+        clientUser.firstName,
+        purchaseRequest.trackingNumber!,
+        instrument.name,
+        instrument.symbol,
+        data.amount,
+        instrument.currency
+      ).catch(err => console.error('Failed to send client confirmation email:', err));
+    }
+
+    // Send notification to RM (if assigned)
+    if (client.assignedRM) {
+      const rmName = `${client.assignedRM.user.firstName} ${client.assignedRM.user.lastName}`;
+      const clientName = `${clientUser?.firstName || ''} ${clientUser?.lastName || ''}`.trim();
+
+      sendRMPurchaseRequestNotification(
+        client.assignedRM.user.email,
+        rmName,
+        clientName,
+        purchaseRequest.trackingNumber!,
+        instrument.name,
+        instrument.symbol,
+        data.amount,
+        instrument.currency
+      ).catch(err => console.error('Failed to send RM notification email:', err));
+    }
 
     return NextResponse.json({
       success: true,

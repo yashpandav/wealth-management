@@ -20,6 +20,7 @@ import { getCurrentUser } from '@/lib/auth/session';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { config } from '@/lib/config';
+import { sendContractUploadedEmail } from '@/lib/email';
 
 export async function POST(
   request: NextRequest,
@@ -281,8 +282,16 @@ export async function POST(
       };
     });
 
-    // TODO: Send email notification to client (non-blocking)
-    // await sendProductPurchaseCompletedEmail(...)
+    // Send email notification to client (non-blocking)
+    const contractUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/client/product-requests/${requestId}/contract`;
+
+    sendContractUploadedEmail(
+      productRequest.client.user.email,
+      productRequest.client.user.firstName,
+      productRequest.product.name,
+      productRequest.trackingNumber,
+      contractUrl
+    ).catch(err => console.error('Failed to send contract uploaded email:', err));
 
     return NextResponse.json({
       success: true,

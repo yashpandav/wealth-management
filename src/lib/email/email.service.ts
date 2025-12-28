@@ -1257,3 +1257,1304 @@ This is an automated message. Please do not reply directly to this email.
     text,
   });
 }
+
+/**
+ * Send purchase request submitted confirmation to client
+ * Triggered when client submits a purchase request
+ */
+export async function sendPurchaseRequestSubmittedEmail(
+  email: string,
+  firstName: string,
+  trackingNumber: string,
+  instrumentName: string,
+  instrumentSymbol: string,
+  amount: number,
+  currency: string
+): Promise<boolean> {
+  const dashboardUrl = `${config.app.url}/client/requests`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Purchase Request Received</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Purchase Request Received</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            Thank you for your interest. We've received your purchase request and your Relationship Manager is now reviewing it.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Tracking Number:</strong> ${trackingNumber}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Instrument:</strong> ${instrumentSymbol} - ${instrumentName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Amount:</strong> ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          </div>
+
+          <div style="background: #dbeafe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #1e40af;">
+              <strong>What's Next?</strong><br>
+              Your Relationship Manager will verify your bank statement and review your request. You'll receive an email notification once a decision is made.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${dashboardUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Track Your Request
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            If you have questions, please contact your Relationship Manager.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+Thank you for your interest. We've received your purchase request and your Relationship Manager is now reviewing it.
+
+Request Details:
+- Tracking Number: ${trackingNumber}
+- Instrument: ${instrumentSymbol} - ${instrumentName}
+- Amount: ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+What's Next?
+Your Relationship Manager will verify your bank statement and review your request. You'll receive an email notification once a decision is made.
+
+Track your request: ${dashboardUrl}
+
+If you have questions, please contact your Relationship Manager.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: `Purchase Request Received - ${trackingNumber}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send product request submitted confirmation to client
+ * Triggered when client submits a product purchase request
+ */
+export async function sendProductRequestSubmittedEmail(
+  email: string,
+  firstName: string,
+  trackingNumber: string,
+  productName: string,
+  amount: number,
+  currency: string,
+  duration: string,
+  roi: number
+): Promise<boolean> {
+  const dashboardUrl = `${config.app.url}/client/product-requests`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Product Request Received</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Product Request Received</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            Thank you for choosing to invest with us. We've received your product request and your Relationship Manager is now reviewing it.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8b5cf6;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Tracking Number:</strong> ${trackingNumber}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Product:</strong> ${productName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Amount:</strong> ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Duration:</strong> ${duration}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Expected ROI:</strong> ${roi}%
+            </p>
+          </div>
+
+          <div style="background: #ede9fe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #5b21b6;">
+              <strong>What Happens Next?</strong><br>
+              1. Your RM will review and approve your request<br>
+              2. Our team will prepare the investment contract<br>
+              3. You'll review and sign the contract<br>
+              4. Your investment will be activated
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${dashboardUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Track Your Request
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            We'll notify you at each step of the process. If you have questions, please contact your Relationship Manager.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+Thank you for choosing to invest with us. We've received your product request and your Relationship Manager is now reviewing it.
+
+Request Details:
+- Tracking Number: ${trackingNumber}
+- Product: ${productName}
+- Amount: ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+- Duration: ${duration}
+- Expected ROI: ${roi}%
+
+What Happens Next?
+1. Your RM will review and approve your request
+2. Our team will prepare the investment contract
+3. You'll review and sign the contract
+4. Your investment will be activated
+
+Track your request: ${dashboardUrl}
+
+We'll notify you at each step of the process. If you have questions, please contact your Relationship Manager.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: `Product Request Received - ${trackingNumber}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send KYC reminder - Day 3 after email verification
+ * Triggered by cron job
+ */
+export async function sendKYCReminderDay3(
+  email: string,
+  firstName: string
+): Promise<boolean> {
+  const documentsUrl = `${config.app.url}/client/documents`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Complete Your KYC Verification</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Complete Your KYC</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            We noticed you haven't completed your KYC verification yet. To unlock all investment features and start growing your wealth, please upload your verification documents.
+          </p>
+
+          <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+            <p style="margin: 0 0 10px 0; font-size: 16px; color: #92400e; font-weight: bold;">
+              What You Need:
+            </p>
+            <ul style="margin: 10px 0; padding-left: 20px; color: #78350f;">
+              <li>Identity Proof (Government ID, Passport, or Driver's License)</li>
+              <li>Address Proof (Utility bill or Bank statement from last 3 months)</li>
+              <li>Income Proof (Salary slip, Tax return, or Employment letter)</li>
+              <li>Bank Details (Account information for transactions)</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${documentsUrl}"
+               style="background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Upload Documents Now
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            Verification usually takes 1-2 business days. The sooner you submit, the faster you can start investing.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+We noticed you haven't completed your KYC verification yet. To unlock all investment features and start growing your wealth, please upload your verification documents.
+
+What You Need:
+- Identity Proof (Government ID, Passport, or Driver's License)
+- Address Proof (Utility bill or Bank statement from last 3 months)
+- Income Proof (Salary slip, Tax return, or Employment letter)
+- Bank Details (Account information for transactions)
+
+Upload documents now: ${documentsUrl}
+
+Verification usually takes 1-2 business days. The sooner you submit, the faster you can start investing.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: 'Complete Your KYC Verification - Wealth Management CRM',
+    html,
+    text,
+  });
+}
+
+/**
+ * Send KYC reminder - Day 6 with deactivation warning
+ * Triggered by cron job
+ */
+export async function sendKYCReminderDay6(
+  email: string,
+  firstName: string
+): Promise<boolean> {
+  const documentsUrl = `${config.app.url}/client/documents`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Urgent: Complete KYC to Avoid Deactivation</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">⚠️ Action Required</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            This is your final reminder. Your account will be deactivated in 24 hours if you don't complete your KYC verification.
+          </p>
+
+          <div style="background: #fee2e2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444;">
+            <p style="margin: 0 0 10px 0; font-size: 16px; color: #991b1b; font-weight: bold;">
+              ⏰ Time Remaining: 24 Hours
+            </p>
+            <p style="margin: 0; font-size: 14px; color: #7f1d1d;">
+              Without verified KYC documents, we cannot activate your account for investments. Please submit your documents today to avoid account deactivation.
+            </p>
+          </div>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e5e7eb;">
+            <h3 style="color: #1f2937; margin-top: 0; font-size: 16px;">Required Documents:</h3>
+            <ul style="margin: 10px 0; padding-left: 20px; color: #4b5563;">
+              <li>Identity Proof (Government ID, Passport, or Driver's License)</li>
+              <li>Address Proof (Recent utility bill or Bank statement)</li>
+              <li>Income Proof (Salary slip, Tax return, or Employment letter)</li>
+              <li>Bank Details (For fund transfers)</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${documentsUrl}"
+               style="background: #ef4444; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Upload Now to Keep Account Active
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            Need help? Contact our support team or your Relationship Manager.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+⚠️ ACTION REQUIRED
+
+This is your final reminder. Your account will be deactivated in 24 hours if you don't complete your KYC verification.
+
+Time Remaining: 24 Hours
+
+Without verified KYC documents, we cannot activate your account for investments. Please submit your documents today to avoid account deactivation.
+
+Required Documents:
+- Identity Proof (Government ID, Passport, or Driver's License)
+- Address Proof (Recent utility bill or Bank statement)
+- Income Proof (Salary slip, Tax return, or Employment letter)
+- Bank Details (For fund transfers)
+
+Upload now: ${documentsUrl}
+
+Need help? Contact our support team or your Relationship Manager.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: '⚠️ Urgent: Complete KYC to Avoid Deactivation - Wealth Management CRM',
+    html,
+    text,
+  });
+}
+
+/**
+ * Send KYC expired notification - Day 7
+ * Triggered by cron job
+ */
+export async function sendKYCExpiredEmail(
+  email: string,
+  firstName: string
+): Promise<boolean> {
+  const supportUrl = `${config.app.url}/support`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Account Deactivated - KYC Not Completed</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Account Deactivated</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            Your account has been deactivated because KYC verification was not completed within the required timeframe.
+          </p>
+
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #6b7280;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #1f2937;">
+              As per regulatory requirements, we cannot activate investment accounts without verified KYC documents. Your account access has been temporarily suspended.
+            </p>
+          </div>
+
+          <div style="background: #dbeafe; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0 0 10px 0; font-size: 16px; color: #1e40af; font-weight: bold;">
+              Want to Reactivate Your Account?
+            </p>
+            <p style="margin: 0; font-size: 14px; color: #1e3a8a;">
+              Contact our support team to restart the verification process. We're here to help you get back on track.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${supportUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Contact Support
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280; text-align: center;">
+            We appreciate your understanding and look forward to serving you.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+Your account has been deactivated because KYC verification was not completed within the required timeframe.
+
+As per regulatory requirements, we cannot activate investment accounts without verified KYC documents. Your account access has been temporarily suspended.
+
+WANT TO REACTIVATE YOUR ACCOUNT?
+
+Contact our support team to restart the verification process. We're here to help you get back on track.
+
+Contact support: ${supportUrl}
+
+We appreciate your understanding and look forward to serving you.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: 'Account Deactivated - KYC Not Completed - Wealth Management CRM',
+    html,
+    text,
+  });
+}
+
+/**
+ * Send RM notification when new lead is assigned
+ * Triggered when DocAdmin or Admin assigns RM to lead
+ */
+export async function sendRMNewLeadAssignedEmail(
+  rmEmail: string,
+  rmName: string,
+  leadName: string,
+  leadEmail: string,
+  leadPhone: string
+): Promise<boolean> {
+  const leadsUrl = `${config.app.url}/rm/leads`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Lead Assigned</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">New Lead Assigned</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${rmName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            A new lead has been assigned to you for follow-up.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Lead Name:</strong> ${leadName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Email:</strong> ${leadEmail}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Phone:</strong> ${leadPhone}
+            </p>
+          </div>
+
+          <div style="background: #d1fae5; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #065f46;">
+              <strong>Next Steps:</strong><br>
+              Please reach out to the lead within 24 hours to introduce yourself and understand their investment requirements.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${leadsUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              View Lead Details
+            </a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${rmName},
+
+A new lead has been assigned to you for follow-up.
+
+Lead Details:
+- Name: ${leadName}
+- Email: ${leadEmail}
+- Phone: ${leadPhone}
+
+Next Steps:
+Please reach out to the lead within 24 hours to introduce yourself and understand their investment requirements.
+
+View lead details: ${leadsUrl}
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: rmEmail,
+    subject: `New Lead Assigned - ${leadName}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send RM notification when client submits purchase request
+ * Triggered when client submits purchase request
+ */
+export async function sendRMPurchaseRequestNotification(
+  rmEmail: string,
+  rmName: string,
+  clientName: string,
+  trackingNumber: string,
+  instrumentName: string,
+  instrumentSymbol: string,
+  amount: number,
+  currency: string
+): Promise<boolean> {
+  const reviewUrl = `${config.app.url}/rm/purchase-requests`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Purchase Request to Review</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">New Purchase Request</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${rmName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            One of your clients has submitted a new purchase request that requires your review.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Client Name:</strong> ${clientName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Tracking Number:</strong> ${trackingNumber}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Instrument:</strong> ${instrumentSymbol} - ${instrumentName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Amount:</strong> ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          </div>
+
+          <div style="background: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #92400e;">
+              <strong>Action Required:</strong> Please review the client's bank statement and approve or reject this request.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${reviewUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Review Request
+            </a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${rmName},
+
+One of your clients has submitted a new purchase request that requires your review.
+
+Request Details:
+- Client Name: ${clientName}
+- Tracking Number: ${trackingNumber}
+- Instrument: ${instrumentSymbol} - ${instrumentName}
+- Amount: ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+Action Required: Please review the client's bank statement and approve or reject this request.
+
+Review request: ${reviewUrl}
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: rmEmail,
+    subject: `New Purchase Request - ${trackingNumber}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send RM notification when client submits withdrawal request
+ * Triggered when client submits withdrawal request
+ */
+export async function sendRMWithdrawalRequestNotification(
+  rmEmail: string,
+  rmName: string,
+  clientName: string,
+  trackingNumber: string,
+  amount: number,
+  currency: string
+): Promise<boolean> {
+  const reviewUrl = `${config.app.url}/rm/withdrawal-requests`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Withdrawal Request to Review</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Withdrawal Request Pending</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${rmName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            One of your clients has requested a withdrawal that requires your review.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ef4444;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Client Name:</strong> ${clientName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Tracking Number:</strong> ${trackingNumber}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Withdrawal Amount:</strong> ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          </div>
+
+          <div style="background: #fee2e2; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #991b1b;">
+              <strong>Action Required:</strong> Please verify the client's portfolio balance and approve or reject this withdrawal request. If approved, it will be sent to Admin for final approval.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${reviewUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Review Withdrawal
+            </a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${rmName},
+
+One of your clients has requested a withdrawal that requires your review.
+
+Request Details:
+- Client Name: ${clientName}
+- Tracking Number: ${trackingNumber}
+- Withdrawal Amount: ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+Action Required: Please verify the client's portfolio balance and approve or reject this withdrawal request. If approved, it will be sent to Admin for final approval.
+
+Review withdrawal: ${reviewUrl}
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: rmEmail,
+    subject: `Withdrawal Request Pending - ${trackingNumber}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send Admin notification when RM approves withdrawal (escalation)
+ * Triggered when RM approves a withdrawal request
+ */
+export async function sendAdminWithdrawalEscalationEmail(
+  adminEmail: string,
+  adminName: string,
+  clientName: string,
+  trackingNumber: string,
+  amount: number,
+  currency: string,
+  rmName: string
+): Promise<boolean> {
+  const reviewUrl = `${config.app.url}/admin/withdrawal-requests`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Withdrawal Request Awaiting Final Approval</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Withdrawal Awaits Approval</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${adminName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            A withdrawal request has been approved by the RM and requires your final approval to proceed.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #8b5cf6;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Client Name:</strong> ${clientName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Tracking Number:</strong> ${trackingNumber}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Withdrawal Amount:</strong> ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Approved By RM:</strong> ${rmName}
+            </p>
+          </div>
+
+          <div style="background: #ede9fe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #5b21b6;">
+              <strong>Action Required:</strong> Please review this withdrawal request and provide final approval or rejection. Once approved, funds will be transferred to the client's bank account.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${reviewUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Review Withdrawal
+            </a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${adminName},
+
+A withdrawal request has been approved by the RM and requires your final approval to proceed.
+
+Request Details:
+- Client Name: ${clientName}
+- Tracking Number: ${trackingNumber}
+- Withdrawal Amount: ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+- Approved By RM: ${rmName}
+
+Action Required: Please review this withdrawal request and provide final approval or rejection. Once approved, funds will be transferred to the client's bank account.
+
+Review withdrawal: ${reviewUrl}
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: adminEmail,
+    subject: `Withdrawal Awaiting Final Approval - ${trackingNumber}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send DocAdmin notification when product request is approved - contract upload needed
+ * Triggered when RM approves product purchase request
+ */
+export async function sendDocAdminContractUploadRequiredEmail(
+  docAdminEmail: string,
+  docAdminName: string,
+  clientName: string,
+  productName: string,
+  trackingNumber: string,
+  amount: number,
+  currency: string
+): Promise<boolean> {
+  const contractUploadUrl = `${config.app.url}/docadmin/product-requests`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Contract Upload Required</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Contract Upload Required</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${docAdminName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            A product purchase request has been approved by the RM. Please prepare and upload the investment contract for the client to review.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #6366f1;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Client Name:</strong> ${clientName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Product:</strong> ${productName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Tracking Number:</strong> ${trackingNumber}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Investment Amount:</strong> ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          </div>
+
+          <div style="background: #e0e7ff; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #3730a3;">
+              <strong>Action Required:</strong> Please prepare the investment contract with all relevant terms and upload it to the system. The client will be notified once the contract is ready for review.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${contractUploadUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Upload Contract
+            </a>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${docAdminName},
+
+A product purchase request has been approved by the RM. Please prepare and upload the investment contract for the client to review.
+
+Request Details:
+- Client Name: ${clientName}
+- Product: ${productName}
+- Tracking Number: ${trackingNumber}
+- Investment Amount: ${currency} ${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+Action Required: Please prepare the investment contract with all relevant terms and upload it to the system. The client will be notified once the contract is ready for review.
+
+Upload contract: ${contractUploadUrl}
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: docAdminEmail,
+    subject: `Contract Upload Required - ${trackingNumber}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send client notification when contract is uploaded
+ * Triggered when DocAdmin uploads contract for product request
+ */
+export async function sendContractUploadedEmail(
+  email: string,
+  firstName: string,
+  productName: string,
+  trackingNumber: string,
+  contractUrl: string
+): Promise<boolean> {
+  const dashboardUrl = `${config.app.url}/client/product-requests`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Investment Contract Ready for Review</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Contract Ready for Review</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            Excellent news! Your investment contract has been prepared and is ready for your review.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Product:</strong> ${productName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Tracking Number:</strong> ${trackingNumber}
+            </p>
+          </div>
+
+          <div style="background: #d1fae5; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #065f46;">
+              <strong>Next Steps:</strong><br>
+              1. Review the contract carefully<br>
+              2. Contact your RM if you have questions<br>
+              3. Sign and submit when ready<br>
+              4. Your investment will be activated upon contract completion
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${contractUrl}"
+               style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px; margin-right: 10px;">
+              View Contract
+            </a>
+            <a href="${dashboardUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Go to Dashboard
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            Take your time to review all terms. If you have questions, your Relationship Manager is here to help.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+Excellent news! Your investment contract has been prepared and is ready for your review.
+
+Contract Details:
+- Product: ${productName}
+- Tracking Number: ${trackingNumber}
+
+Next Steps:
+1. Review the contract carefully
+2. Contact your RM if you have questions
+3. Sign and submit when ready
+4. Your investment will be activated upon contract completion
+
+View contract: ${contractUrl}
+Go to dashboard: ${dashboardUrl}
+
+Take your time to review all terms. If you have questions, your Relationship Manager is here to help.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: `Investment Contract Ready - ${trackingNumber}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send monthly payout reminder - 15th of month
+ * Triggered by cron job
+ */
+export async function sendMonthlyPayoutReminderEmail(
+  email: string,
+  firstName: string,
+  expectedPayout: number,
+  currency: string,
+  payoutDate: string
+): Promise<boolean> {
+  const dashboardUrl = `${config.app.url}/client/portfolio`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Monthly Payout Reminder</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Monthly Payout Reminder</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            This is a reminder that your monthly investment payout is scheduled for processing.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Expected Payout:</strong> ${currency} ${expectedPayout.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Payout Date:</strong> ${payoutDate}
+            </p>
+          </div>
+
+          <div style="background: #dbeafe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #1e40af;">
+              <strong>Important:</strong> Payouts are typically processed within 2-3 business days of the scheduled date. Please ensure your bank details are up to date.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${dashboardUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              View Portfolio
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            If you have questions about your payout, please contact your Relationship Manager.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+This is a reminder that your monthly investment payout is scheduled for processing.
+
+Payout Details:
+- Expected Payout: ${currency} ${expectedPayout.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+- Payout Date: ${payoutDate}
+
+Important: Payouts are typically processed within 2-3 business days of the scheduled date. Please ensure your bank details are up to date.
+
+View portfolio: ${dashboardUrl}
+
+If you have questions about your payout, please contact your Relationship Manager.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: 'Monthly Payout Reminder - Wealth Management CRM',
+    html,
+    text,
+  });
+}
+
+/**
+ * Send contract renewal reminder - 60 days before expiry
+ * Triggered by cron job
+ */
+export async function sendContractRenewalReminderEmail(
+  email: string,
+  firstName: string,
+  productName: string,
+  contractExpiryDate: string,
+  daysRemaining: number
+): Promise<boolean> {
+  const contactUrl = `${config.app.url}/client/contact`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Contract Renewal Reminder</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">Contract Renewal Reminder</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            Your investment contract is approaching its expiry date. We wanted to remind you to plan ahead for renewal or withdrawal.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Product:</strong> ${productName}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Contract Expiry Date:</strong> ${contractExpiryDate}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Days Remaining:</strong> ${daysRemaining} days
+            </p>
+          </div>
+
+          <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0 0 10px 0; font-size: 16px; color: #92400e; font-weight: bold;">
+              Your Options:
+            </p>
+            <ul style="margin: 10px 0; padding-left: 20px; color: #78350f;">
+              <li><strong>Renew:</strong> Continue your investment with updated terms</li>
+              <li><strong>Withdraw:</strong> Request full withdrawal of your investment</li>
+              <li><strong>Partial Withdrawal:</strong> Withdraw part and reinvest the rest</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${contactUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Contact Your RM
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            We recommend contacting your Relationship Manager well before the expiry date to discuss your options and plan your next steps.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+Your investment contract is approaching its expiry date. We wanted to remind you to plan ahead for renewal or withdrawal.
+
+Contract Details:
+- Product: ${productName}
+- Contract Expiry Date: ${contractExpiryDate}
+- Days Remaining: ${daysRemaining} days
+
+Your Options:
+- Renew: Continue your investment with updated terms
+- Withdraw: Request full withdrawal of your investment
+- Partial Withdrawal: Withdraw part and reinvest the rest
+
+Contact your RM: ${contactUrl}
+
+We recommend contacting your Relationship Manager well before the expiry date to discuss your options and plan your next steps.
+
+&copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: `Contract Renewal Reminder - ${productName}`,
+    html,
+    text,
+  });
+}

@@ -13,7 +13,7 @@ import {
   type CreateWithdrawalRequestInput,
 } from '@/lib/validation/withdrawal-request.validation';
 import { WithdrawalStatus } from '@prisma/client';
-import { sendWithdrawalRequestSubmittedEmail } from '@/lib/email/email.service';
+import { sendWithdrawalRequestSubmittedEmail, sendRMWithdrawalRequestNotification } from '@/lib/email/email.service';
 import { checkTransactionEligibility } from '@/lib/utils/client-utils';
 
 /**
@@ -192,6 +192,21 @@ export async function POST(request: NextRequest) {
       data.amount,
       'USD'
     );
+
+    // Send notification to RM (if assigned)
+    if (client.assignedRM) {
+      const rmName = `${client.assignedRM.user.firstName} ${client.assignedRM.user.lastName}`;
+      const clientName = `${client.user.firstName} ${client.user.lastName}`;
+
+      sendRMWithdrawalRequestNotification(
+        client.assignedRM.user.email,
+        rmName,
+        clientName,
+        trackingNumber!,
+        data.amount,
+        'USD'
+      ).catch(err => console.error('Failed to send RM notification email:', err));
+    }
 
     return NextResponse.json({
       success: true,
