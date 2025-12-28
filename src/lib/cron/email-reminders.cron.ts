@@ -19,7 +19,7 @@ import {
   sendMonthlyPayoutReminderEmail,
   sendContractRenewalReminderEmail,
 } from '@/lib/email';
-// import cron from 'node-cron'; // Uncomment after installing node-cron
+import cron from 'node-cron';
 
 /**
  * Send KYC reminder to users 3 days after email verification
@@ -36,7 +36,6 @@ export async function sendKYCDay3Reminders() {
     fourDaysAgo.setDate(fourDaysAgo.getDate() - 1);
 
     // Find users who registered exactly 3 days ago, verified email, and haven't submitted KYC
-    // NOTE: Using createdAt as proxy for email verification date
     const users = await prisma.user.findMany({
       where: {
         emailVerified: true,
@@ -88,7 +87,6 @@ export async function sendKYCDay6Reminders() {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 1);
 
     // Find users who registered exactly 6 days ago, verified email, and haven't submitted KYC
-    // NOTE: Using createdAt as proxy for email verification date
     const users = await prisma.user.findMany({
       where: {
         emailVerified: true,
@@ -140,7 +138,6 @@ export async function handleKYCExpiry() {
     eightDaysAgo.setDate(eightDaysAgo.getDate() - 1);
 
     // Find users who registered exactly 7 days ago, verified email, and haven't submitted KYC
-    // NOTE: Using createdAt as proxy for email verification date
     const users = await prisma.user.findMany({
       where: {
         emailVerified: true,
@@ -347,37 +344,35 @@ export async function sendContractRenewalReminders() {
  * Call this function in your server startup (e.g., in a Next.js API route or standalone server)
  */
 export function initializeEmailCronJobs() {
-  // Uncomment and configure after installing node-cron
+  // KYC reminders - Run daily at 9:00 AM
+  cron.schedule('0 9 * * *', async () => {
+    console.log('Running KYC Day 3 reminders...');
+    await sendKYCDay3Reminders();
+  });
 
-  // // KYC reminders - Run daily at 9:00 AM
-  // cron.schedule('0 9 * * *', async () => {
-  //   console.log('Running KYC Day 3 reminders...');
-  //   await sendKYCDay3Reminders();
-  // });
+  cron.schedule('0 9 * * *', async () => {
+    console.log('Running KYC Day 6 reminders...');
+    await sendKYCDay6Reminders();
+  });
 
-  // cron.schedule('0 9 * * *', async () => {
-  //   console.log('Running KYC Day 6 reminders...');
-  //   await sendKYCDay6Reminders();
-  // });
+  cron.schedule('0 9 * * *', async () => {
+    console.log('Running KYC expiry checks...');
+    await handleKYCExpiry();
+  });
 
-  // cron.schedule('0 9 * * *', async () => {
-  //   console.log('Running KYC expiry checks...');
-  //   await handleKYCExpiry();
-  // });
+  // Monthly payout reminder - Run on 15th of every month at 9:00 AM
+  cron.schedule('0 9 15 * *', async () => {
+    console.log('Running monthly payout reminders...');
+    await sendMonthlyPayoutReminders();
+  });
 
-  // // Monthly payout reminder - Run on 15th of every month at 9:00 AM
-  // cron.schedule('0 9 15 * *', async () => {
-  //   console.log('Running monthly payout reminders...');
-  //   await sendMonthlyPayoutReminders();
-  // });
+  // Contract renewal reminders - Run daily at 9:00 AM
+  cron.schedule('0 9 * * *', async () => {
+    console.log('Running contract renewal reminders...');
+    await sendContractRenewalReminders();
+  });
 
-  // // Contract renewal reminders - Run daily at 9:00 AM
-  // cron.schedule('0 9 * * *', async () => {
-  //   console.log('Running contract renewal reminders...');
-  //   await sendContractRenewalReminders();
-  // });
-
-  console.log('Email cron jobs initialized (currently commented out - configure scheduler first)');
+  console.log('Email cron jobs initialized successfully');
 }
 
 // Example: Manual trigger endpoints for testing
