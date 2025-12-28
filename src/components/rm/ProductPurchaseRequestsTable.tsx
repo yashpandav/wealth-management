@@ -73,7 +73,7 @@ interface ProductRequest {
     annualReturn: number;
   };
   amount: number;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
   clientNotes: string | null;
   rmNotes: string | null;
   rejectionReason: string | null;
@@ -240,6 +240,8 @@ export function ProductPurchaseRequestsTable() {
         return <Badge variant="outline" className="bg-green-500/10 text-green-700">Approved</Badge>;
       case 'REJECTED':
         return <Badge variant="outline" className="bg-red-500/10 text-red-700">Rejected</Badge>;
+      case 'COMPLETED':
+        return <Badge variant="outline" className="bg-blue-500/10 text-blue-700">Completed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -314,6 +316,7 @@ export function ProductPurchaseRequestsTable() {
             <SelectItem value="PENDING">Pending</SelectItem>
             <SelectItem value="APPROVED">Approved</SelectItem>
             <SelectItem value="REJECTED">Rejected</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
           </SelectContent>
         </Select>
         <div className="text-sm text-muted-foreground">

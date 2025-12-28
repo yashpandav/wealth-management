@@ -50,12 +50,9 @@ export async function GET() {
     // Fetch all statistics in parallel
     const [
       totalClients,
-      pendingPurchaseRequests,
       pendingWithdrawalRequests,
       pendingProductRequests,
       totalAUM,
-      recentActivities,
-      allPurchaseRequests,
       allWithdrawalRequests,
       allProductPurchaseRequests,
       clientsWithPortfolios,
@@ -63,14 +60,6 @@ export async function GET() {
       // Total assigned clients
       prisma.client.count({
         where: { id: { in: clientIds } },
-      }),
-
-      // Pending purchase requests
-      prisma.purchaseRequest.count({
-        where: {
-          clientId: { in: clientIds },
-          status: 'PENDING',
-        },
       }),
 
       // Pending withdrawal requests
@@ -93,42 +82,6 @@ export async function GET() {
       prisma.portfolio.aggregate({
         where: { clientId: { in: clientIds } },
         _sum: { totalValue: true },
-      }),
-
-      // Recent activities (last 10 requests)
-      prisma.purchaseRequest.findMany({
-        where: { clientId: { in: clientIds } },
-        take: 5,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          client: {
-            include: {
-              user: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-          instrument: {
-            select: {
-              symbol: true,
-              name: true,
-            },
-          },
-        },
-      }),
-
-      // All purchase requests for stats
-      prisma.purchaseRequest.findMany({
-        where: { clientId: { in: clientIds } },
-        select: {
-          id: true,
-          status: true,
-          createdAt: true,
-          amount: true,
-        },
       }),
 
       // All withdrawal requests for stats
@@ -224,16 +177,6 @@ export async function GET() {
 
     // Combine and sort activities
     const combinedActivities = [
-      ...recentActivities.map((req) => ({
-        id: req.id,
-        type: 'PURCHASE' as const,
-        clientName: `${req.client.user.firstName} ${req.client.user.lastName}`,
-        instrumentName: req.instrument?.name || 'Unknown',
-        instrumentSymbol: req.instrument?.symbol || '',
-        amount: Number(req.amount),
-        status: req.status,
-        createdAt: req.createdAt.toISOString(),
-      })),
       ...recentWithdrawalActivities.map((req) => ({
         id: req.id,
         type: 'WITHDRAWAL' as const,
@@ -259,11 +202,6 @@ export async function GET() {
       .slice(0, 10);
 
     // Calculate request status distribution
-    const purchaseStatusCounts = allPurchaseRequests.reduce((acc, req) => {
-      acc[req.status] = (acc[req.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
     const withdrawalStatusCounts = allWithdrawalRequests.reduce((acc, req) => {
       acc[req.status] = (acc[req.status] || 0) + 1;
       return acc;
@@ -275,9 +213,6 @@ export async function GET() {
     }, {} as Record<string, number>);
 
     const requestStatusData = [
-      { name: 'Purchase - Pending', value: purchaseStatusCounts['PENDING'] || 0, fill: '#fbbf24' },
-      { name: 'Purchase - Approved', value: purchaseStatusCounts['APPROVED'] || 0, fill: '#10b981' },
-      { name: 'Purchase - Rejected', value: purchaseStatusCounts['REJECTED'] || 0, fill: '#ef4444' },
       { name: 'Withdrawal - Pending', value: withdrawalStatusCounts['RM_REVIEW'] || 0, fill: '#f97316' },
       {
         name: 'Withdrawal - Approved',
@@ -313,11 +248,6 @@ export async function GET() {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
 
-      const purchaseCount = allPurchaseRequests.filter((req) => {
-        const reqDate = new Date(req.createdAt).toISOString().split('T')[0];
-        return reqDate === dateStr;
-      }).length;
-
       const withdrawalCount = allWithdrawalRequests.filter((req) => {
         const reqDate = new Date(req.createdAt).toISOString().split('T')[0];
         return reqDate === dateStr;
@@ -330,23 +260,22 @@ export async function GET() {
 
       activityTrend.push({
         date: dateStr,
-        purchases: purchaseCount,
         withdrawals: withdrawalCount,
         products: productCount,
       });
     }
 
     // Approval rates
-    const totalPurchaseRequests = allPurchaseRequests.length;
-    const approvedPurchases = allPurchaseRequests.filter((r) => r.status === 'APPROVED').length;
     const totalWithdrawalRequests = allWithdrawalRequests.length;
     const approvedWithdrawals = allWithdrawalRequests.filter((r) =>
       ['RM_APPROVED', 'ADMIN_APPROVED', 'COMPLETED'].includes(r.status)
     ).length;
+    const totalProductRequests = allProductPurchaseRequests.length;
+    const approvedProducts = allProductPurchaseRequests.filter((r) => r.status === 'APPROVED').length;
 
     const approvalRates = {
-      purchaseApprovalRate: totalPurchaseRequests > 0 ? (approvedPurchases / totalPurchaseRequests) * 100 : 0,
       withdrawalApprovalRate: totalWithdrawalRequests > 0 ? (approvedWithdrawals / totalWithdrawalRequests) * 100 : 0,
+      productApprovalRate: totalProductRequests > 0 ? (approvedProducts / totalProductRequests) * 100 : 0,
     };
 
     return NextResponse.json({
@@ -354,7 +283,6 @@ export async function GET() {
       data: {
         stats: {
           totalClients,
-          pendingPurchaseRequests,
           pendingWithdrawalRequests,
           pendingProductRequests,
           totalAUM: Number(totalAUM._sum.totalValue || 0),

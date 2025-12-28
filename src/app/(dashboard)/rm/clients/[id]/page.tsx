@@ -154,21 +154,6 @@ export default function RMClientDetailPage() {
     return phone.replace(/\D/g, '');
   };
 
-  // Status badge component for purchase requests
-  const PurchaseStatusBadge = ({ status }: { status: RequestStatus }) => {
-    const config: Record<RequestStatus, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; label: string }> = {
-      PENDING: { variant: 'outline', label: 'Pending' },
-      PROCESSING: { variant: 'secondary', label: 'Processing' },
-      APPROVED: { variant: 'default', label: 'Approved' },
-      REJECTED: { variant: 'destructive', label: 'Rejected' },
-      COMPLETED: { variant: 'default', label: 'Completed' },
-      CANCELLED: { variant: 'outline', label: 'Cancelled' },
-    };
-
-    const { variant, label } = config[status];
-    return <Badge variant={variant}>{label}</Badge>;
-  };
-
   // Status badge component for withdrawal requests
   const WithdrawalStatusBadge = ({ status }: { status: WithdrawalStatus }) => {
     const statusLabels: Record<WithdrawalStatus, string> = {
@@ -387,62 +372,6 @@ export default function RMClientDetailPage() {
                         </TableRow>
                       );
                     })}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Recent Purchase Requests */}
-          {client.purchaseRequests.length > 0 && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Recent Purchase Requests</CardTitle>
-                    <CardDescription>Last 10 purchase requests</CardDescription>
-                  </div>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="/rm/purchase-requests">View All</Link>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Tracking #</TableHead>
-                      <TableHead>Instrument</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {client.purchaseRequests.slice(0, 5).map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-mono text-sm">{request.trackingNumber}</TableCell>
-                        <TableCell>
-                          <div className="font-medium">{request.instrument.symbol}</div>
-                          <div className="text-sm text-gray-500">{request.instrument.name}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        </TableCell>
-                        <TableCell>
-                          <PurchaseStatusBadge status={request.status} />
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {format(new Date(request.createdAt), 'MMM dd, yyyy')}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/rm/purchase-requests/${request.id}`}>View</Link>
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
                   </TableBody>
                 </Table>
               </CardContent>
