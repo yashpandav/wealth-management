@@ -10,7 +10,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { RequestStatus } from '@prisma/client';
-import { sendEmail } from '@/lib/email';
+import { sendEmail, sendDocAdminContractUploadRequiredEmail } from '@/lib/email';
 
 // Validation schema for updating a product purchase request
 const updateProductRequestSchema = z.object({
@@ -383,6 +383,28 @@ export async function PATCH(
     }).catch((err) => {
       console.error('Failed to send client notification email:', err);
     });
+
+    // If approved, notify all DocAdmins for contract upload
+    if (action === 'APPROVE') {
+      const docAdmins = await prisma.user.findMany({
+        where: { role: 'DOCADMIN', status: 'ACTIVE' },
+        select: { email: true, firstName: true, lastName: true },
+      });
+
+      for (const docAdmin of docAdmins) {
+        const docAdminName = `${docAdmin.firstName} ${docAdmin.lastName}`;
+
+        sendDocAdminContractUploadRequiredEmail(
+          docAdmin.email,
+          docAdminName,
+          clientName,
+          productName,
+          productRequest.trackingNumber,
+          amount,
+          currency
+        ).catch(err => console.error('Failed to send DocAdmin notification email:', err));
+      }
+    }
 
     return NextResponse.json({
       success: true,

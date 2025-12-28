@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
+import { sendRMNewLeadAssignedEmail } from '@/lib/email';
 
 const assignRmSchema = z.object({
   rmId: z.string().uuid('Invalid RM ID format'),
@@ -59,6 +60,7 @@ export async function PATCH(
         firstName: true,
         lastName: true,
         email: true,
+        phoneNumber: true,
         rmReference: true,
         status: true,
       },
@@ -150,8 +152,17 @@ export async function PATCH(
       },
     });
 
-    // TODO: Send notification email to RM about new lead assignment
-    // await sendLeadAssignmentEmail(rm.user.email, lead, notes);
+    // Send notification email to RM about new lead assignment
+    const rmName = `${rm.user.firstName} ${rm.user.lastName}`;
+    const leadName = `${lead.firstName} ${lead.lastName}`;
+
+    sendRMNewLeadAssignedEmail(
+      rm.user.email,
+      rmName,
+      leadName,
+      lead.email,
+      lead.phoneNumber || 'N/A'
+    ).catch(err => console.error('Failed to send RM lead assignment email:', err));
 
     return NextResponse.json({
       success: true,

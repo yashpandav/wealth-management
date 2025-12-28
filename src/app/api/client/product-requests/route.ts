@@ -10,7 +10,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { RequestStatus } from '@prisma/client';
-import { sendEmail } from '@/lib/email';
+import { sendEmail, sendProductRequestSubmittedEmail } from '@/lib/email';
 
 // Validation schema for creating a product purchase request
 const createProductPurchaseRequestSchema = z.object({
@@ -282,6 +282,18 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Send confirmation email to client
+    sendProductRequestSubmittedEmail(
+      client.user.email,
+      client.user.firstName,
+      purchaseRequest.trackingNumber!,
+      product.name,
+      data.amount,
+      product.currency,
+      productOption.duration,
+      Number(productOption.roi)
+    ).catch(err => console.error('Failed to send client confirmation email:', err));
 
     // Get RM user ID and details for notifications
     const rmUserId = client.assignedRM.userId;

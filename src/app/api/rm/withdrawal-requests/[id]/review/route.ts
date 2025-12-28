@@ -16,6 +16,7 @@ import {
 import {
   sendWithdrawalRequestRMApprovedEmail,
   sendWithdrawalRequestRejectedEmail,
+  sendAdminWithdrawalEscalationEmail,
 } from '@/lib/email/email.service';
 
 interface RouteContext {
@@ -229,6 +230,28 @@ export async function POST(
         'USD',
         rmName
       );
+
+      // Send escalation notification to all admins
+      const admins = await prisma.user.findMany({
+        where: { role: 'ADMIN', status: 'ACTIVE' },
+        select: { email: true, firstName: true, lastName: true },
+      });
+
+      const clientName = `${updatedRequest.client.user.firstName} ${updatedRequest.client.user.lastName}`;
+
+      for (const admin of admins) {
+        const adminName = `${admin.firstName} ${admin.lastName}`;
+
+        sendAdminWithdrawalEscalationEmail(
+          admin.email,
+          adminName,
+          clientName,
+          updatedRequest.trackingNumber,
+          Number(updatedRequest.amount),
+          'USD',
+          rmName
+        ).catch(err => console.error('Failed to send admin notification email:', err));
+      }
     } else {
       await sendWithdrawalRequestRejectedEmail(
         updatedRequest.client.user.email,
