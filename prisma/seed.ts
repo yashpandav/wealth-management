@@ -132,7 +132,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Created 7 users (1 admin, 1 docadmin, 2 RMs, 3 clients)');
+  console.log('✅ Created 7 base users (1 admin, 1 docadmin, 2 RMs, 3 clients)');
 
   // ========================================
   // RELATIONSHIP MANAGERS
@@ -200,6 +200,191 @@ async function main() {
   });
 
   console.log('✅ Created 3 clients');
+
+  // ========================================
+  // TEST USERS FOR EMAIL CRON JOBS
+  // ========================================
+  console.log('📧 Creating test users for email cron jobs...');
+
+  // Calculate test dates for cron matching
+  // CRITICAL: Cron queries check: createdAt >= (N+1 days ago 00:00) AND < (N days ago 00:00)
+  // Example for Day 7: createdAt >= (8 days ago 00:00) AND < (7 days ago 00:00)
+  // This means we need to create users at noon on day 7-8 (the EARLIER boundary)
+
+  const now = new Date();
+
+  // Day 3 cron looks for: createdAt >= (4 days ago 00:00) AND < (3 days ago 00:00)
+  // So create user at noon 3.5 days ago (between the boundaries)
+  const day3TestDate = new Date();
+  day3TestDate.setDate(day3TestDate.getDate() - 4); // Go back 4 days
+  day3TestDate.setHours(12, 0, 0, 0); // Set to noon (middle of the 24hr window)
+
+  // Day 6 cron looks for: createdAt >= (7 days ago 00:00) AND < (6 days ago 00:00)
+  const day6TestDate = new Date();
+  day6TestDate.setDate(day6TestDate.getDate() - 7); // Go back 7 days
+  day6TestDate.setHours(12, 0, 0, 0); // Set to noon
+
+  // Day 7 cron looks for: createdAt >= (8 days ago 00:00) AND < (7 days ago 00:00)
+  const day7TestDate = new Date();
+  day7TestDate.setDate(day7TestDate.getDate() - 8); // Go back 8 days
+  day7TestDate.setHours(12, 0, 0, 0); // Set to noon
+
+  // Already archived user (created 9 days ago, archived 8 days ago)
+  const day8TestDate = new Date();
+  day8TestDate.setDate(day8TestDate.getDate() - 9);
+  day8TestDate.setHours(12, 0, 0, 0);
+
+  // Test User 1: Day 3 Reminder (created 3 days ago, should receive Day 3 KYC reminder)
+  const testUser1 = await prisma.user.create({
+    data: {
+      email: 'test.day3@example.com',
+      password: hashedPassword,
+      role: 'CLIENT',
+      firstName: 'TestDay3',
+      lastName: 'User',
+      phone: '+1234567896',
+      status: 'ACTIVE',
+      emailVerified: true,
+      createdAt: day3TestDate,
+    },
+  });
+
+  await prisma.client.create({
+    data: {
+      userId: testUser1.id,
+      verificationStatus: 'NOT_SUBMITTED',
+      kycVerified: false,
+    },
+  });
+
+  // Test User 2: Day 6 Warning (created 6 days ago, should receive Day 6 KYC warning)
+  const testUser2 = await prisma.user.create({
+    data: {
+      email: 'test.day6@example.com',
+      password: hashedPassword,
+      role: 'CLIENT',
+      firstName: 'TestDay6',
+      lastName: 'User',
+      phone: '+1234567897',
+      status: 'ACTIVE',
+      emailVerified: true,
+      createdAt: day6TestDate,
+    },
+  });
+
+  await prisma.client.create({
+    data: {
+      userId: testUser2.id,
+      verificationStatus: 'NOT_SUBMITTED',
+      kycVerified: false,
+    },
+  });
+
+  // Test User 3: Day 7 Archival (created 7 days ago, should be archived by KYC expiry cron)
+  const testUser3 = await prisma.user.create({
+    data: {
+      email: 'test.day7@example.com',
+      password: hashedPassword,
+      role: 'CLIENT',
+      firstName: 'TestDay7',
+      lastName: 'User',
+      phone: '+1234567898',
+      status: 'ACTIVE',
+      emailVerified: true,
+      createdAt: day7TestDate,
+    },
+  });
+
+  await prisma.client.create({
+    data: {
+      userId: testUser3.id,
+      verificationStatus: 'NOT_SUBMITTED',
+      kycVerified: false,
+    },
+  });
+
+  // Test User 4: Already Archived (created 8 days ago, already archived - to test idempotency)
+  const testUser4 = await prisma.user.create({
+    data: {
+      email: 'test.archived@example.com',
+      password: hashedPassword,
+      role: 'CLIENT',
+      firstName: 'TestArchived',
+      lastName: 'User',
+      phone: '+1234567899',
+      status: 'INACTIVE',
+      emailVerified: true,
+      isArchived: true,
+      archivedAt: new Date(day8TestDate.getTime() + 24 * 60 * 60 * 1000), // Archived 1 day after creation
+      createdAt: day8TestDate,
+    },
+  });
+
+  await prisma.client.create({
+    data: {
+      userId: testUser4.id,
+      verificationStatus: 'EXPIRED',
+      kycVerified: false,
+      archivedReason: 'KYC_EXPIRED_DAY_7',
+    },
+  });
+
+  // Test User 5: Normal Active User (created today, should NOT receive any emails yet)
+  const testUser5 = await prisma.user.create({
+    data: {
+      email: 'test.active@example.com',
+      password: hashedPassword,
+      role: 'CLIENT',
+      firstName: 'TestActive',
+      lastName: 'User',
+      phone: '+1234567900',
+      status: 'ACTIVE',
+      emailVerified: true,
+      createdAt: now,
+    },
+  });
+
+  await prisma.client.create({
+    data: {
+      userId: testUser5.id,
+      verificationStatus: 'NOT_SUBMITTED',
+      kycVerified: false,
+    },
+  });
+
+  // Test User 6: KYC Verified User (created 5 days ago but KYC verified - should NOT receive emails)
+  const testUser6 = await prisma.user.create({
+    data: {
+      email: 'test.verified@example.com',
+      password: hashedPassword,
+      role: 'CLIENT',
+      firstName: 'TestVerified',
+      lastName: 'User',
+      phone: '+1234567901',
+      status: 'ACTIVE',
+      emailVerified: true,
+      createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.client.create({
+    data: {
+      userId: testUser6.id,
+      assignedRMId: rm1.id,
+      verificationStatus: 'VERIFIED',
+      kycVerified: true,
+      kycDocuments: JSON.stringify(['/docs/kyc-verified-1.pdf']),
+    },
+  });
+
+  console.log('✅ Created 6 test users for email cron jobs:');
+  console.log('  - test.day3@example.com (Day 3 reminder)');
+  console.log('  - test.day6@example.com (Day 6 warning)');
+  console.log('  - test.day7@example.com (Day 7 archival)');
+  console.log('  - test.archived@example.com (Already archived)');
+  console.log('  - test.active@example.com (Active, no emails yet)');
+  console.log('  - test.verified@example.com (KYC verified, no emails)');
+  console.log('  - All test users use password: Password123!');
 
   // ========================================
   // PORTFOLIOS
