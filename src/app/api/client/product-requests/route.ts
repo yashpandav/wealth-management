@@ -423,6 +423,42 @@ Please log in to your dashboard to review and process this request.
       console.error('Failed to send RM notification email:', err);
     });
 
+    // Create audit log for product request creation
+    await prisma.auditLog.create({
+      data: {
+        userId: session.user.id,
+        action: 'PURCHASE_REQUEST_CREATE',
+        entityType: 'ProductPurchaseRequest',
+        entityId: purchaseRequest.id,
+        description: `Client ${clientName} submitted product purchase request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
+        metadata: {
+          trackingNumber: purchaseRequest.trackingNumber,
+          clientId: client.id,
+          clientName,
+          clientEmail: client.user.email,
+          productId: data.productId,
+          productName: product.name,
+          productOptionId: data.productOptionId,
+          amount: data.amount,
+          currency: product.currency,
+          duration: productOption.duration,
+          roi: Number(productOption.roi),
+          annualReturn: Number(productOption.annualReturn),
+          assignedRMId: client.assignedRM.id,
+          rmName,
+          rmEmail,
+          clientNotes: data.clientNotes || null,
+        },
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: 'INFO',
+        success: true,
+      },
+    }).catch((err) => {
+      console.error('Failed to create audit log:', err);
+      // Don't fail the request if audit log creation fails
+    });
+
     return NextResponse.json({
       success: true,
       message: 'Product purchase request submitted successfully',

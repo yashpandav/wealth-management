@@ -80,6 +80,18 @@ export async function archiveUser(
 
     const now = new Date();
 
+    // CRITICAL: Send email BEFORE archiving to avoid email blocking
+    // The email service blocks emails to archived users, so we must send first
+    if (sendEmail) {
+      try {
+        await sendKYCExpiredEmail(user.email, user.firstName);
+        console.log(`[ARCHIVAL] Final email sent to: ${user.email}`);
+      } catch (emailError) {
+        console.error(`[ARCHIVAL] Failed to send email to ${user.email}:`, emailError);
+        // Continue with archival even if email fails
+      }
+    }
+
     // Execute archival in a transaction
     await prisma.$transaction(async (tx) => {
       // 1. Update User
@@ -134,17 +146,6 @@ export async function archiveUser(
         },
       });
     });
-
-    // 5. Send final notification email (outside transaction)
-    if (sendEmail) {
-      try {
-        await sendKYCExpiredEmail(user.email, user.firstName);
-        console.log(`[ARCHIVAL] Final email sent to: ${user.email}`);
-      } catch (emailError) {
-        console.error(`[ARCHIVAL] Failed to send email to ${user.email}:`, emailError);
-        // Don't fail archival if email fails
-      }
-    }
 
     const archivalDetails: ArchivalDetails = {
       userId: user.id,

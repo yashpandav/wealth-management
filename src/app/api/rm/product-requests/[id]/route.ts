@@ -384,6 +384,47 @@ export async function PATCH(
       console.error('Failed to send client notification email:', err);
     });
 
+    // Create audit log for approval/rejection
+    const auditAction = action === 'APPROVE' ? 'PURCHASE_REQUEST_APPROVE' : 'PURCHASE_REQUEST_REJECT';
+    await prisma.auditLog.create({
+      data: {
+        userId: session.user.id,
+        action: auditAction,
+        entityType: 'ProductPurchaseRequest',
+        entityId: productRequest.id,
+        description: `RM ${action === 'APPROVE' ? 'approved' : 'rejected'} product purchase request ${productRequest.trackingNumber} for client ${clientName}`,
+        metadata: {
+          trackingNumber: productRequest.trackingNumber,
+          clientId: productRequest.clientId,
+          clientName,
+          clientEmail,
+          productId: productRequest.productId,
+          productName,
+          productOptionId: productRequest.productOptionId,
+          amount,
+          currency,
+          duration: productRequest.productOption.duration,
+          roi: Number(productRequest.productOption.roi),
+          annualReturn: Number(productRequest.productOption.annualReturn),
+          rmId: rm.id,
+          rmUserId: session.user.id,
+          rmName: `${session.user.firstName} ${session.user.lastName}`,
+          rmEmail: session.user.email,
+          previousStatus: 'PENDING',
+          newStatus: newStatus,
+          rmNotes: rmNotes || null,
+          rejectionReason: action === 'REJECT' ? rejectionReason : null,
+        },
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+        userAgent: request.headers.get('user-agent') || 'unknown',
+        severity: action === 'APPROVE' ? 'INFO' : 'WARNING',
+        success: true,
+      },
+    }).catch((err) => {
+      console.error('Failed to create audit log:', err);
+      // Don't fail the request if audit log creation fails
+    });
+
     // If approved, notify all DocAdmins for contract upload
     if (action === 'APPROVE') {
       const docAdmins = await prisma.user.findMany({
