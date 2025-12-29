@@ -45,10 +45,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const search = searchParams.get('search');
 
-    // Build where clause - assigned to RM and NOT_SUBMITTED status
+    // Build where clause - assigned to RM and NOT_SUBMITTED, REJECTED, or EXPIRED status
+    // These are clients who need to submit or resubmit KYC documents
     const where: Prisma.ClientWhereInput = {
       assignedRMId: rm.id,
-      verificationStatus: 'NOT_SUBMITTED',
+      verificationStatus: { in: ['NOT_SUBMITTED', 'REJECTED', 'EXPIRED'] },
     };
 
     // Search filter

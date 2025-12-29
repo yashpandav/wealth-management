@@ -111,26 +111,47 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Update client verification status based on all documents
+      // Update client verification status based on mandatory documents
       const allClientDocs = await tx.document.findMany({
         where: { clientId: document.clientId },
-        select: { verificationStatus: true },
+        select: {
+          documentType: true,
+          verificationStatus: true
+        },
       });
+
+      // Define mandatory document types
+      const MANDATORY_DOCUMENTS = ['IDENTITY_PROOF', 'ADDRESS_PROOF'] as const;
 
       // Determine overall client verification status
       let clientVerificationStatus: 'PENDING' | 'UNDER_REVIEW' | 'VERIFIED' | 'REJECTED' = 'PENDING';
 
+      // Check if any document is rejected
       const hasRejected = allClientDocs.some((d) => d.verificationStatus === 'REJECTED');
-      const allVerified = allClientDocs.every((d) => d.verificationStatus === 'VERIFIED');
+
+      // Check if all mandatory documents are verified
+      const mandatoryDocs = allClientDocs.filter((d) =>
+        MANDATORY_DOCUMENTS.includes(d.documentType as typeof MANDATORY_DOCUMENTS[number])
+      );
+      const allMandatoryVerified = MANDATORY_DOCUMENTS.every(mandatoryType =>
+        mandatoryDocs.some(d =>
+          d.documentType === mandatoryType && d.verificationStatus === 'VERIFIED'
+        )
+      );
+
+      // Check if any document is pending or under review
       const hasPending = allClientDocs.some(
         (d) => d.verificationStatus === 'PENDING' || d.verificationStatus === 'UNDER_REVIEW'
       );
 
       if (hasRejected) {
+        // If any document is rejected, status is REJECTED
         clientVerificationStatus = 'REJECTED';
-      } else if (allVerified && allClientDocs.length > 0) {
+      } else if (allMandatoryVerified) {
+        // If both mandatory documents are verified, status is VERIFIED
         clientVerificationStatus = 'VERIFIED';
       } else if (hasPending) {
+        // If mandatory docs not complete but some docs are pending/under review
         clientVerificationStatus = 'UNDER_REVIEW';
       }
 
