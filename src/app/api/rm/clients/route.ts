@@ -52,13 +52,18 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
     // Build where clause for assigned clients only
+    // CRITICAL: Exclude archived users (KYC expired)
     const where: Prisma.ClientWhereInput = {
       assignedRMId: rm.id,
+      user: {
+        isArchived: false, // Exclude archived users
+      },
     };
 
     // Search filter (name or email)
     if (search) {
       where.user = {
+        isArchived: false, // Maintain archived exclusion
         OR: [
           { firstName: { contains: search, mode: 'insensitive' } },
           { lastName: { contains: search, mode: 'insensitive' } },

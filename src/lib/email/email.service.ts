@@ -5,6 +5,7 @@
 
 import nodemailer from 'nodemailer';
 import { config } from '@/lib/config';
+import { prisma } from '@/lib/db/prisma';
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport({
@@ -26,8 +27,26 @@ export interface SendEmailOptions {
 
 /**
  * Send an email
+ *
+ * IMPORTANT: Automatically prevents emails from being sent to archived users
  */
 export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
+  // CRITICAL: Check if recipient is archived (prevents emails to expired KYC users)
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: options.to },
+      select: { isArchived: true, email: true },
+    });
+
+    if (user?.isArchived) {
+      console.log(`[Email] Blocked: User is archived (${options.to}). Subject: ${options.subject}`);
+      return false; // Do not send email to archived users
+    }
+  } catch (error) {
+    console.error('[Email] Error checking archived status:', error);
+    // Continue with email send if check fails (fail open for non-critical path)
+  }
+
   // Skip email sending in development if configured
   if (config.email.skip) {
     // eslint-disable-next-line no-console

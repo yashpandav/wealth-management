@@ -140,6 +140,10 @@ enum AuditAction {
   DOCUMENT_DELETE
   CLIENT_VERIFICATION_STATUS_UPDATE
 
+  // Archival
+  CLIENT_ARCHIVE
+  CLIENT_RESTORE
+
   // System
   SYSTEM_CONFIG_CHANGE
   DATA_EXPORT
@@ -232,6 +236,10 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Soft delete
 
+  // Archival (for KYC expired users)
+  isArchived Boolean   @default(false)
+  archivedAt DateTime?
+
   // Relationships based on role
   client               Client?
   relationshipManager  RelationshipManager?
@@ -256,6 +264,7 @@ model User {
   @@index([email])
   @@index([role])
   @@index([status])
+  @@index([isArchived])
   @@map("users")
 }
 
@@ -280,6 +289,9 @@ model Client {
 
   // Assignment tracking
   assignedAt DateTime @default(now())
+
+  // Archival metadata (for compliance and audit)
+  archivedReason String? @db.Text // Reason for archival (e.g., "KYC_EXPIRED_DAY_7")
 
   // Relationships
   portfolio               Portfolio?

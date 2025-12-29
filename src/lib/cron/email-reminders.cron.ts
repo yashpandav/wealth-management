@@ -15,10 +15,13 @@ import { prisma } from '@/lib/db/prisma';
 import {
   sendKYCReminderDay3,
   sendKYCReminderDay6,
-  sendKYCExpiredEmail,
   sendMonthlyPayoutReminderEmail,
   sendContractRenewalReminderEmail,
 } from '@/lib/email';
+import {
+  getEligibleUsersForArchival,
+  archiveUsersBatch,
+} from '@/lib/services/archival.service';
 import cron from 'node-cron';
 
 /**
@@ -124,71 +127,53 @@ export async function sendKYCDay6Reminders() {
 }
 
 /**
- * Deactivate accounts and send expiry emails 7 days after email verification
+ * Archive accounts and send expiry emails 7 days after email verification
  * Runs daily at 9:00 AM
+ *
+ * Enhanced with full archival workflow:
+ * - Archives user and client data (read-only, not deleted)
+ * - Marks associated UserLead as LOST
+ * - Sends final notification email
+ * - Creates comprehensive audit trail
+ * - Prevents future emails and transactions
  */
 export async function handleKYCExpiry() {
   try {
-    // Calculate date 7 days ago
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
+    console.log('[CRON] Starting KYC expiry archival process...');
 
-    const eightDaysAgo = new Date(sevenDaysAgo);
-    eightDaysAgo.setDate(eightDaysAgo.getDate() - 1);
+    // Get eligible users for archival
+    const eligibleUserIds = await getEligibleUsersForArchival();
 
-    // Find users who registered exactly 7 days ago, verified email, and haven't submitted KYC
-    const users = await prisma.user.findMany({
-      where: {
-        emailVerified: true,
-        createdAt: {
-          gte: eightDaysAgo,
-          lt: sevenDaysAgo,
-        },
-        client: {
-          verificationStatus: 'NOT_SUBMITTED',
-        },
-        status: 'ACTIVE', // Only deactivate active accounts
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        client: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
+    if (eligibleUserIds.length === 0) {
+      console.log('[CRON] No users eligible for archival today');
+      return {
+        success: true,
+        count: 0,
+        message: 'No users eligible for archival',
+      };
+    }
 
-    console.log(`Deactivating ${users.length} accounts for KYC expiry`);
+    console.log(`[CRON] Found ${eligibleUserIds.length} users eligible for archival`);
 
-    for (const user of users) {
-      // Update user status to INACTIVE and client verification to EXPIRED
-      await prisma.$transaction([
-        prisma.user.update({
-          where: { id: user.id },
-          data: { status: 'INACTIVE' },
-        }),
-        prisma.client.update({
-          where: { id: user.client!.id },
-          data: { verificationStatus: 'EXPIRED' },
-        }),
-      ]);
+    // Archive users in batch
+    const result = await archiveUsersBatch(eligibleUserIds, 'KYC_EXPIRED_DAY_7');
 
-      // Send expiry email
-      await sendKYCExpiredEmail(user.email, user.firstName);
+    console.log(`[CRON] Archival complete: ${result.archivedCount} archived, ${result.errors.length} errors`);
+
+    if (result.errors.length > 0) {
+      console.error('[CRON] Archival errors:', result.errors);
     }
 
     return {
-      success: true,
-      count: users.length,
+      success: result.success,
+      count: result.archivedCount,
+      errors: result.errors,
     };
   } catch (error) {
-    console.error('Error handling KYC expiry:', error);
+    console.error('[CRON] Error handling KYC expiry:', error);
     return {
       success: false,
+      count: 0,
       error,
     };
   }

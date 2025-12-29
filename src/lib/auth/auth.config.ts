@@ -142,6 +142,7 @@ export const authOptions: NextAuthOptions = {
             emailVerified: true,
             accountLockedUntil: true,
             failedLoginAttempts: true,
+            isArchived: true, // Check if user is archived
             client: {
               select: {
                 verificationStatus: true,
@@ -153,6 +154,11 @@ export const authOptions: NextAuthOptions = {
         // User not found
         if (!user) {
           throw new Error('Invalid email or password');
+        }
+
+        // CRITICAL: Block login for archived users (KYC expired)
+        if (user.isArchived) {
+          throw new Error('Your account is no longer active due to incomplete KYC. Please register again to reactivate.');
         }
 
         // Check if account is locked

@@ -48,14 +48,19 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
     // Build where clause - assigned to RM and VERIFIED status
+    // CRITICAL: Exclude archived users (KYC expired)
     const where: Prisma.ClientWhereInput = {
       assignedRMId: rm.id,
       verificationStatus: 'VERIFIED',
+      user: {
+        isArchived: false, // Exclude archived users
+      },
     };
 
     // Search filter
     if (search) {
       where.user = {
+        isArchived: false, // Maintain archived exclusion
         OR: [
           { firstName: { contains: search, mode: 'insensitive' } },
           { lastName: { contains: search, mode: 'insensitive' } },

@@ -10,6 +10,7 @@ import { registerSchema } from '@/lib/validation/auth.validation';
 import { sendVerificationEmail } from '@/lib/email';
 import { config } from '@/lib/config';
 import { randomBytes } from 'crypto';
+import { restoreArchivedUser } from '@/lib/services/archival.service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,11 +31,82 @@ export async function POST(request: NextRequest) {
 
     const { email, password, firstName, lastName, phone, role } = validationResult.data;
 
-    // Check if user already exists
+    // Check if user already exists (including archived users)
     const existingUser = await prisma.user.findUnique({
       where: { email },
+      select: {
+        id: true,
+        isArchived: true,
+        email: true,
+        client: {
+          select: {
+            id: true,
+            archivedReason: true,
+          },
+        },
+      },
     });
 
+    // REACTIVATION WORKFLOW: If user was archived, restore their account
+    if (existingUser?.isArchived) {
+      console.log(`[REACTIVATION] Restoring archived user: ${email}`);
+
+      const restorationResult = await restoreArchivedUser(existingUser.id);
+
+      if (restorationResult.success) {
+        // Update password to new one
+        const hashedPassword = await hash(password, config.security.bcryptRounds);
+        await prisma.user.update({
+          where: { id: existingUser.id },
+          data: { password: hashedPassword },
+        });
+
+        // Generate new verification token
+        if (config.features.emailVerification) {
+          const token = randomBytes(32).toString('hex');
+          const expiresAt = new Date();
+          expiresAt.setHours(expiresAt.getHours() + 24);
+
+          await prisma.verificationToken.create({
+            data: {
+              email,
+              token,
+              expiresAt,
+              type: 'EMAIL_VERIFICATION',
+            },
+          });
+
+          // Send verification email
+          await sendVerificationEmail(email, token, firstName);
+
+          return NextResponse.json(
+            {
+              success: true,
+              message: 'Welcome back! Your account has been reactivated. Please verify your email and complete KYC again.',
+              isReactivation: true,
+              user: {
+                id: existingUser.id,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+              },
+            },
+            { status: 200 }
+          );
+        }
+      } else {
+        console.error('[REACTIVATION] Failed to restore user:', restorationResult.message);
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Failed to reactivate account. Please contact support.',
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    // If user exists but is NOT archived, reject registration
     if (existingUser) {
       return NextResponse.json(
         {

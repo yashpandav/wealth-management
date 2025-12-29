@@ -29,10 +29,16 @@ export async function GET() {
     }
 
     // Get RM's assigned client IDs
+    // CRITICAL: Exclude archived users from dashboard stats
     const rm = await prisma.relationshipManager.findUnique({
       where: { userId: session.user.id },
       include: {
         assignedClients: {
+          where: {
+            user: {
+              isArchived: false, // Exclude archived users
+            },
+          },
           select: { id: true },
         },
       },
