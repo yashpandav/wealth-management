@@ -178,8 +178,64 @@ export async function PATCH(
       });
     }
 
-    // TODO: Send notification email to client about RM assignment
-    // TODO: Send notification email to RM about new client
+    // Create in-app notifications
+    const clientUserId = await prisma.user.findUnique({
+      where: { email: client.user.email },
+      select: { id: true },
+    });
+
+    // Notify client about RM assignment
+    if (clientUserId) {
+      await prisma.notification.create({
+        data: {
+          userId: clientUserId.id,
+          type: 'SUCCESS',
+          category: 'ASSIGNMENT',
+          title: 'Relationship Manager Assigned',
+          message: `You have been assigned to relationship manager ${rm.user.firstName} ${rm.user.lastName}. They will be your primary point of contact.`,
+          isRead: false,
+          actionUrl: '/client/my-rm',
+          actionText: 'View RM Details',
+          entityType: 'Client',
+          entityId: clientId,
+          priority: 'HIGH',
+          metadata: {
+            rmId,
+            rmName: `${rm.user.firstName} ${rm.user.lastName}`,
+            rmEmail: rm.user.email,
+            assignedBy: docAdmin.email,
+            notes: notes || null,
+          },
+        },
+      }).catch(err => console.error('Failed to create client notification:', err));
+    }
+
+    // Notify RM about new client assignment
+    await prisma.notification.create({
+      data: {
+        userId: rm.userId,
+        type: 'INFO',
+        category: 'ASSIGNMENT',
+        title: 'New Client Assigned',
+        message: `Client ${client.user.firstName} ${client.user.lastName} has been assigned to you. Please review their profile and reach out.`,
+        isRead: false,
+        actionUrl: '/rm/clients',
+        actionText: 'View Client',
+        entityType: 'Client',
+        entityId: clientId,
+        priority: 'HIGH',
+        metadata: {
+          clientId,
+          clientName: `${client.user.firstName} ${client.user.lastName}`,
+          clientEmail: client.user.email,
+          verificationStatus: client.verificationStatus,
+          assignedBy: docAdmin.email,
+          notes: notes || null,
+        },
+      },
+    }).catch(err => console.error('Failed to create RM notification:', err));
+
+    // TODO: Send notification emails (email notifications for assignment)
 
     return NextResponse.json({
       success: true,
