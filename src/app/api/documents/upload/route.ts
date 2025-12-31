@@ -155,22 +155,55 @@ export async function POST(request: NextRequest) {
     // Relative path for storage in DB (accessible via URL)
     const relativePath = `/documents/${user.id}/${storageFilename}`;
 
-    // Create document record in database
-    const document = await prisma.document.create({
-      data: {
+    // Check if a document of the same type already exists for this client
+    const existingDocument = await prisma.document.findFirst({
+      where: {
         clientId: client.id,
         documentType: validationResult.data.documentType,
-        filePath: relativePath,
-        fileName: sanitizedOriginalName,
-        fileSize: file.size,
-        mimeType: file.type,
-        description: validationResult.data.description,
-        expiryDate: validationResult.data.expiryDate
-          ? new Date(validationResult.data.expiryDate)
-          : null,
-        verificationStatus: 'PENDING',
       },
     });
+
+    let document;
+    if (existingDocument) {
+      // Update existing document instead of creating a new one
+      document = await prisma.document.update({
+        where: { id: existingDocument.id },
+        data: {
+          filePath: relativePath,
+          fileName: sanitizedOriginalName,
+          fileSize: file.size,
+          mimeType: file.type,
+          description: validationResult.data.description,
+          expiryDate: validationResult.data.expiryDate
+            ? new Date(validationResult.data.expiryDate)
+            : null,
+          verificationStatus: 'PENDING',
+          // Reset verification fields
+          verifiedById: null,
+          verifiedAt: null,
+          rejectionReason: null,
+          // Update upload timestamp
+          uploadedAt: new Date(),
+        },
+      });
+    } else {
+      // Create new document record in database
+      document = await prisma.document.create({
+        data: {
+          clientId: client.id,
+          documentType: validationResult.data.documentType,
+          filePath: relativePath,
+          fileName: sanitizedOriginalName,
+          fileSize: file.size,
+          mimeType: file.type,
+          description: validationResult.data.description,
+          expiryDate: validationResult.data.expiryDate
+            ? new Date(validationResult.data.expiryDate)
+            : null,
+          verificationStatus: 'PENDING',
+        },
+      });
+    }
 
     // Update client verification status to PENDING if not already verified
     if (client.verificationStatus === 'NOT_SUBMITTED') {
@@ -188,12 +221,15 @@ export async function POST(request: NextRequest) {
           action: 'DOCUMENT_UPLOAD',
           entityType: 'Document',
           entityId: document.id,
-          description: `Document uploaded: ${validationResult.data.documentType}`,
+          description: existingDocument
+            ? `Document re-uploaded: ${validationResult.data.documentType}`
+            : `Document uploaded: ${validationResult.data.documentType}`,
           metadata: {
             documentType: validationResult.data.documentType,
             fileName: sanitizedOriginalName,
             fileSize: file.size,
             mimeType: file.type,
+            isReupload: !!existingDocument,
           },
           ipAddress:
             request.headers.get('x-forwarded-for') ||
@@ -216,7 +252,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: 'Document uploaded successfully',
+        message: existingDocument
+          ? 'Document updated successfully'
+          : 'Document uploaded successfully',
         document: {
           id: document.id,
           documentType: document.documentType,
@@ -226,7 +264,7 @@ export async function POST(request: NextRequest) {
           uploadedAt: document.uploadedAt,
         },
       },
-      { status: 201 }
+      { status: existingDocument ? 200 : 201 }
     );
   } catch (error) {
     console.error('Document upload error:', error);
