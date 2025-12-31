@@ -104,7 +104,7 @@ async function uploadContract(data: {
   file: File;
   contractStartDate: string;
   notes: string;
-}): Promise<any> {
+}): Promise<{ success: boolean; message?: string; error?: string }> {
   const formData = new FormData();
   formData.append('file', data.file);
   formData.append('contractStartDate', data.contractStartDate);

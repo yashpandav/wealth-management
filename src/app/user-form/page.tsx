@@ -109,7 +109,7 @@ export default function UserFormPage() {
         <Card>
           <CardHeader>
             <CardTitle>Get Started</CardTitle>
-            <CardDescription>Tell us about yourself and we'll get in touch</CardDescription>
+            <CardDescription>Tell us about yourself and we&apos;ll get in touch</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">

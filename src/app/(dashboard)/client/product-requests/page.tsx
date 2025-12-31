@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,13 +57,8 @@ interface ApiResponse {
   error?: string;
 }
 
-export default function ClientProductRequestsPage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+function SearchParamsHandler({ router }: { router: ReturnType<typeof useRouter> }) {
   const searchParams = useSearchParams();
-  const [requests, setRequests] = useState<ProductPurchaseRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<RequestStatus | 'ALL'>('ALL');
 
   // Check for new tracking number in URL
   useEffect(() => {
@@ -74,6 +69,16 @@ export default function ClientProductRequestsPage() {
       router.replace('/client/product-requests');
     }
   }, [searchParams, router]);
+
+  return null;
+}
+
+function ClientProductRequestsContent() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [requests, setRequests] = useState<ProductPurchaseRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState<RequestStatus | 'ALL'>('ALL');
 
   // Redirect if not authenticated or not a client
   useEffect(() => {
@@ -187,8 +192,12 @@ export default function ClientProductRequestsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex items-start justify-between">
+    <>
+      <Suspense fallback={null}>
+        <SearchParamsHandler router={router} />
+      </Suspense>
+      <div className="container mx-auto py-8">
+        <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Product Requests</h1>
           <p className="mt-2 text-muted-foreground">
@@ -457,5 +466,20 @@ export default function ClientProductRequestsPage() {
         )}
       </div>
     </div>
+    </>
+  );
+}
+
+export default function ClientProductRequestsPage() {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center py-12">
+          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    }>
+      <ClientProductRequestsContent />
+    </Suspense>
   );
 }

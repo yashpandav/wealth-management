@@ -268,7 +268,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where clause
-    const whereClause = status === 'ALL' ? {} : { verificationStatus: status as any };
+    type VerificationStatus = 'PENDING' | 'UNDER_REVIEW' | 'VERIFIED' | 'REJECTED';
+    const whereClause = status === 'ALL' ? {} : { verificationStatus: status as VerificationStatus };
 
     // Get documents with pagination
     const [documents, total] = await Promise.all([

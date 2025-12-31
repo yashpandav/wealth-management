@@ -26,7 +26,7 @@ export default async function RegisteredClientsPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Registered Clients (No KYC)</h1>
         <p className="text-muted-foreground">
-          Clients who completed registration but haven't submitted KYC documents yet
+          Clients who completed registration but haven&apos;t submitted KYC documents yet
         </p>
       </div>
 

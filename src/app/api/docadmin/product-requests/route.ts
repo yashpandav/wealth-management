@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build where clause based on status filter
-    let whereClause: any = {};
+    const whereClause: Record<string, unknown> = {};
 
     if (status === 'PENDING') {
       // Product Requested - waiting for RM approval

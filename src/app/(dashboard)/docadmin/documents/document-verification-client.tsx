@@ -62,7 +62,24 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
         // Group documents by client
         const clientMap = new Map<string, ClientWithDocuments>();
 
-        data.documents.forEach((doc: any) => {
+        data.documents.forEach((doc: {
+          id: string;
+          documentType: string;
+          fileName: string;
+          fileSize: number;
+          filePath: string;
+          verificationStatus: string;
+          uploadedAt: string;
+          verifiedAt: string | null;
+          rejectionReason: string | null;
+          verifiedBy: string | null;
+          client: {
+            id: string;
+            name: string;
+            email: string;
+            assignedRM: string | null;
+          };
+        }) => {
           const clientId = doc.client.id;
           if (!clientMap.has(clientId)) {
             clientMap.set(clientId, {

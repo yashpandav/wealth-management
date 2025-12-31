@@ -138,8 +138,8 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       const result = await response.json();
       const documents = result.data?.documents || [];
 
-      const identityProof = documents.find((d: any) => d.documentType === 'IDENTITY_PROOF');
-      const addressProof = documents.find((d: any) => d.documentType === 'ADDRESS_PROOF');
+      const identityProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'IDENTITY_PROOF');
+      const addressProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'ADDRESS_PROOF');
 
       const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
       const addressProofVerified = addressProof?.verificationStatus === 'VERIFIED';

@@ -100,7 +100,7 @@ async function uploadDocument(
   file: File,
   documentType: string,
   description: string
-): Promise<any> {
+): Promise<{ success: boolean; message?: string; error?: string }> {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('documentType', documentType);

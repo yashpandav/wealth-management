@@ -168,7 +168,7 @@ export function RegisteredClientsTable() {
                   <div className="flex flex-col items-center justify-center gap-2">
                     <p className="text-muted-foreground">No registered clients without KYC</p>
                     <p className="text-sm text-muted-foreground">
-                      Clients who register but haven't submitted KYC documents will appear here
+                      Clients who register but haven&apos;t submitted KYC documents will appear here
                     </p>
                   </div>
                 </TableCell>
