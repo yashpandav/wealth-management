@@ -273,7 +273,7 @@ export function ProductPurchaseRequestsTable() {
     <div className="space-y-4">
       {/* Summary Stats */}
       {summary && summary.byStatus.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg border">
             <p className="text-sm text-muted-foreground">Total Requests</p>
             <p className="text-2xl font-bold">{summary.total}</p>
@@ -432,7 +432,7 @@ export function ProductPurchaseRequestsTable() {
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
             Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
             {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
@@ -551,7 +551,7 @@ export function ProductPurchaseRequestsTable() {
           </DialogHeader>
           {detailDialog.request && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Tracking Number</p>
                   <p className="font-mono">{detailDialog.request.trackingNumber}</p>
@@ -566,7 +566,7 @@ export function ProductPurchaseRequestsTable() {
                 <p className="font-medium">{detailDialog.request.client.firstName} {detailDialog.request.client.lastName}</p>
                 <p className="text-sm text-muted-foreground">{detailDialog.request.client.email}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Product</p>
                   <p className="font-medium">{detailDialog.request.product.name}</p>
@@ -576,7 +576,7 @@ export function ProductPurchaseRequestsTable() {
                   <p className="font-medium">{detailDialog.request.product.currency} {detailDialog.request.amount.toLocaleString()}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Duration</p>
                   <p>{detailDialog.request.productOption.duration}</p>
@@ -586,7 +586,7 @@ export function ProductPurchaseRequestsTable() {
                   <p>{detailDialog.request.productOption.withdrawalFrequency}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">ROI</p>
                   <p>{detailDialog.request.productOption.roi}%</p>
@@ -596,7 +596,7 @@ export function ProductPurchaseRequestsTable() {
                   <p className="text-green-600 font-medium">{detailDialog.request.productOption.annualReturn}%</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Submitted</p>
                   <p>{format(new Date(detailDialog.request.createdAt), 'PPp')}</p>

@@ -38,7 +38,7 @@ export default async function ConfirmationPage({ searchParams }: ConfirmationPag
   }
 
   return (
-    <div className="container mx-auto max-w-3xl py-8">
+    <div className="container mx-auto max-w-3xl py-4 md:py-6 lg:py-8">
       {/* Success Header */}
       <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
@@ -56,7 +56,7 @@ export default async function ConfirmationPage({ searchParams }: ConfirmationPag
             />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">Request Submitted Successfully!</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Request Submitted Successfully!</h1>
         <p className="mt-2 text-muted-foreground">
           Your purchase request has been submitted for review
         </p>
@@ -88,7 +88,7 @@ export default async function ConfirmationPage({ searchParams }: ConfirmationPag
         <CardContent>
           <div className="space-y-4">
             {/* Step 1 */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 1
               </div>
@@ -102,7 +102,7 @@ export default async function ConfirmationPage({ searchParams }: ConfirmationPag
             </div>
 
             {/* Step 2 */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 2
               </div>
@@ -116,7 +116,7 @@ export default async function ConfirmationPage({ searchParams }: ConfirmationPag
             </div>
 
             {/* Step 3 */}
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 3
               </div>

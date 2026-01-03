@@ -306,11 +306,11 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
       {/* Clients List */}
       <div className="space-y-4">
         {loading ? (
-          <div className="bg-white border rounded-lg p-8 text-center text-gray-500">
+          <div className="bg-white border rounded-lg p-4 md:p-4 md:p-6 lg:p-8 text-center text-gray-500">
             Loading documents...
           </div>
         ) : clients.length === 0 ? (
-          <div className="bg-white border rounded-lg p-8 text-center text-gray-500">
+          <div className="bg-white border rounded-lg p-4 md:p-4 md:p-6 lg:p-8 text-center text-gray-500">
             No clients with documents found
           </div>
         ) : (
@@ -383,9 +383,9 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
               {/* Documents List - Expanded */}
               {expandedClient === client.clientId && (
                 <div className="border-t bg-gray-50 p-4">
-                  <table className="min-w-full">
+                  <table className="text-sm min-w-full">
                     <thead>
-                      <tr className="text-left text-xs font-medium text-gray-500 uppercase">
+                      <tr className="text-left text-xs font-medium text-gray-500 uppercase min-h-[44px]">
                         <th className="pb-2">Document Type</th>
                         <th className="pb-2">File</th>
                         <th className="pb-2">Uploaded</th>
@@ -465,9 +465,9 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
       {showDocModal && selectedDocument && selectedClient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="font-optima text-xl font-bold text-brand-blue">
                   {actionType === 'VERIFY' ? 'Verify Document' : 'Reject Document'}
                 </h2>
                 <button onClick={closeDocModal} className="text-gray-400 hover:text-brand-blue text-2xl">
@@ -478,7 +478,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
               {/* Document Preview */}
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-medium mb-2">Document Details</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Client:</span>
                     <p className="font-medium">{selectedClient.clientName}</p>
@@ -563,9 +563,9 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
       {showAssignModal && selectedClient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4">
-            <div className="p-6">
+            <div className="p-4 md:p-6">
               <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Assign Relationship Manager</h2>
+                <h2 className="font-optima text-xl font-bold text-brand-blue">Assign Relationship Manager</h2>
                 <button onClick={closeAssignModal} className="text-gray-400 hover:text-brand-blue text-2xl">
                   ×
                 </button>

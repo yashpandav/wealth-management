@@ -182,7 +182,7 @@ export function ProductsBrowse() {
   const products = data?.data.products || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-brand-grey/20">
         <div>
@@ -353,7 +353,7 @@ export function ProductsBrowse() {
                   >
                     <div className="flex flex-col md:flex-row">
                       {/* Left Section - Product Info */}
-                      <div className={`${colors.gradient} text-white p-6 md:w-72 flex-shrink-0`}>
+                      <div className={`${colors.gradient} text-white p-4 md:p-6 md:w-72 flex-shrink-0`}>
                         <h3 className="font-optima text-2xl font-bold mb-2">{product.name}</h3>
                         <p className="text-white/95 font-georgia text-comments font-medium mb-4">
                           {formatAmountRange(product)}
@@ -369,7 +369,7 @@ export function ProductsBrowse() {
                       </div>
 
                       {/* Right Section - Details & Options */}
-                      <div className="flex-1 p-6">
+                      <div className="flex-1 p-4 md:p-6">
                         <p className="font-georgia text-brand-grey text-comments mb-5 leading-relaxed">
                           {product.description ||
                             'Secure investment opportunity with competitive returns and flexible terms'}

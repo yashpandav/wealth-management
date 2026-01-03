@@ -204,10 +204,10 @@ export default function ClientWithdrawalRequestsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4 max-w-full sm:max-w-7xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-optima text-3xl font-bold text-brand-blue">My Withdrawal Requests</h1>
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Withdrawal Requests</h1>
           <p className="font-georgia text-brand-grey mt-2">Track the status of your withdrawal requests</p>
         </div>
         <Button onClick={() => router.push('/client/withdraw')} className="font-optima">
@@ -217,29 +217,29 @@ export default function ClientWithdrawalRequestsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 mb-6">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Pending</CardDescription>
-            <CardTitle className="text-3xl text-orange-600">{pending}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-orange-600">{pending}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>In Review</CardDescription>
-            <CardTitle className="text-3xl text-brand-blue">{inReview}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-brand-blue">{inReview}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Approved</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{approved}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-green-600">{approved}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Rejected</CardDescription>
-            <CardTitle className="text-3xl text-red-600">{rejected}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-red-600">{rejected}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -301,7 +301,7 @@ export default function ClientWithdrawalRequestsPage() {
               {requests.map((request) => (
                 <Card key={request.id} className="border-2">
                   <CardContent className="pt-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                       {/* Left Column */}
                       <div className="space-y-4">
                         <div>

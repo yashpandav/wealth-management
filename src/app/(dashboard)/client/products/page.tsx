@@ -45,7 +45,7 @@ export default function ClientProductsPage() {
     <div className="min-h-screen">
       {/* Header */}
       <div className="bg-brand-blue text-white py-12 px-4">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-full sm:max-w-7xl mx-auto">
           <Link
             href="/client/portfolio"
             className="inline-flex items-center text-brand-grey hover:text-white mb-4 transition-colors font-georgia text-comments"
@@ -73,7 +73,7 @@ export default function ClientProductsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-full sm:max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
         <ProductsBrowse />
       </div>
 
@@ -81,7 +81,7 @@ export default function ClientProductsPage() {
       <div className="bg-white py-12 px-4 border-t border-brand-grey/20">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-optima text-subheading font-bold text-center text-brand-blue mb-10">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4 sm:gap-6 lg:gap-8">
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
                 <span className="font-optima text-2xl font-bold">1</span>

@@ -236,11 +236,11 @@ function AdminUsersContent() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">User Management</h1>
           <p className="mt-2 text-sm text-gray-600">
             Manage all users, roles, and permissions
           </p>
@@ -399,13 +399,13 @@ function AdminUsersContent() {
           </div>
         </div>
       ) : users.length === 0 ? (
-        <div className="rounded-lg bg-white p-8 text-center shadow">
+        <div className="rounded-lg bg-white p-4 md:p-4 md:p-6 lg:p-8 text-center shadow">
           <p className="text-gray-600">No users found</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg bg-white shadow">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0">
+            <table className="text-sm min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left">

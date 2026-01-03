@@ -129,48 +129,49 @@ export function RMDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         {/* Total Clients */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assigned Clients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Clients</CardTitle>
+            <Users className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.totalClients || 0}</div>
-            <p className="text-xs text-muted-foreground">Total clients under management</p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-brand-blue">{stats?.totalClients || 0}</div>
           </CardContent>
         </Card>
 
         {/* Total AUM */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Assets Under Management</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Total AUM</CardTitle>
+            <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${stats?.totalAUM.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-brand-blue">
+              ${stats && stats.totalAUM >= 1000000
+                ? `${(stats.totalAUM / 1000000).toFixed(2)}M`
+                : stats && stats.totalAUM >= 1000
+                ? `${(stats.totalAUM / 1000).toFixed(1)}K`
+                : stats?.totalAUM.toFixed(0) || '0'}
             </div>
-            <p className="text-xs text-muted-foreground">Total portfolio value managed</p>
           </CardContent>
         </Card>
 
         {/* Pending Withdrawal Requests */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Withdrawal Requests</CardTitle>
-            <ArrowDownToLine className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Withdrawals</CardTitle>
+            <ArrowDownToLine className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.pendingWithdrawalRequests || 0}</div>
-            <p className="text-xs text-muted-foreground">Awaiting your review</p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-orange-600">{stats?.pendingWithdrawalRequests || 0}</div>
             {stats && stats.pendingWithdrawalRequests > 0 && (
               <Link href="/rm/withdrawal-requests">
-                <Button variant="link" size="sm" className="mt-2 h-auto p-0">
-                  Review requests →
+                <Button variant="link" size="sm" className="h-auto p-0 text-xs mt-0.5">
+                  Review →
                 </Button>
               </Link>
             )}
@@ -178,18 +179,17 @@ export function RMDashboard() {
         </Card>
 
         {/* Pending Product Requests */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Product Requests</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Products</CardTitle>
+            <Package className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.pendingProductRequests || 0}</div>
-            <p className="text-xs text-muted-foreground">Awaiting your review</p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-purple-600">{stats?.pendingProductRequests || 0}</div>
             {stats && stats.pendingProductRequests > 0 && (
               <Link href="/rm/product-requests">
-                <Button variant="link" size="sm" className="mt-2 h-auto p-0">
-                  Review requests →
+                <Button variant="link" size="sm" className="h-auto p-0 text-xs mt-0.5">
+                  Review →
                 </Button>
               </Link>
             )}
@@ -201,58 +201,54 @@ export function RMDashboard() {
       {charts && (
         <>
           {/* Approval Rates Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Approval Performance</CardTitle>
+          <Card className="border-gray-200">
+            <CardHeader className="pb-2 px-3 pt-3">
+              <CardTitle className="text-sm font-medium">Approval Performance</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="space-y-2">
+            <CardContent className="px-3 pb-3">
+              <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
+                <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Withdrawal Requests</span>
-                    <span className="text-lg font-bold text-brand-blue">
-                      {charts.approvalRates.withdrawalApprovalRate.toFixed(1)}%
+                    <span className="text-xs text-gray-600">Withdrawals</span>
+                    <span className="text-sm font-bold text-brand-blue">
+                      {charts.approvalRates.withdrawalApprovalRate.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-brand-blue rounded-full"
                       style={{ width: `${charts.approvalRates.withdrawalApprovalRate}%` }}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Approval rate for withdrawal requests
-                  </p>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Product Requests</span>
-                    <span className="text-lg font-bold text-purple-600">
-                      {charts.approvalRates.productApprovalRate.toFixed(1)}%
+                    <span className="text-xs text-gray-600">Products</span>
+                    <span className="text-sm font-bold text-purple-600">
+                      {charts.approvalRates.productApprovalRate.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-purple-600 rounded-full"
                       style={{ width: `${charts.approvalRates.productApprovalRate}%` }}
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">Approval rate for product requests</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Charts Grid */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-2">
             {/* Request Status Distribution - Pie Chart */}
             {charts.requestStatusData.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Request Status Distribution</CardTitle>
+              <Card className="border-gray-200">
+                <CardHeader className="pb-2 px-3 pt-3">
+                  <CardTitle className="text-sm font-medium">Request Status</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                <CardContent className="px-3 pb-3">
+                  <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
                       <Pie
                         data={charts.requestStatusData}
@@ -260,7 +256,7 @@ export function RMDashboard() {
                         cy="50%"
                         labelLine={false}
                         label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={80}
+                        outerRadius={70}
                         fill="#8884d8"
                         dataKey="value"
                       >
@@ -278,23 +274,23 @@ export function RMDashboard() {
 
             {/* Top Clients by AUM - Bar Chart */}
             {charts.topClientsByAUM.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top Clients by AUM</CardTitle>
+              <Card className="border-gray-200">
+                <CardHeader className="pb-2 px-3 pt-3">
+                  <CardTitle className="text-sm font-medium">Top Clients</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
+                <CardContent className="px-3 pb-3">
+                  <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={charts.topClientsByAUM} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis
                         type="number"
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: 11 }}
                         tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                       />
                       <YAxis
                         type="category"
                         dataKey="name"
-                        width={100}
+                        width={90}
                         tick={{ fontSize: 10 }}
                       />
                       <Tooltip
@@ -312,12 +308,12 @@ export function RMDashboard() {
 
           {/* Activity Trend - Line Chart */}
           {charts.activityTrend.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Activity Trend (Last 30 Days)</CardTitle>
+            <Card className="border-gray-200">
+              <CardHeader className="pb-2 px-3 pt-3">
+                <CardTitle className="text-sm font-medium">Activity Trend (30 Days)</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="px-3 pb-3">
+                <ResponsiveContainer width="100%" height={250}>
                   <LineChart data={charts.activityTrend}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis
@@ -328,7 +324,7 @@ export function RMDashboard() {
                         return `${date.getMonth() + 1}/${date.getDate()}`;
                       }}
                     />
-                    <YAxis tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip
                       labelFormatter={(value) => {
                         const date = new Date(value);
@@ -341,14 +337,14 @@ export function RMDashboard() {
                       dataKey="withdrawals"
                       stroke="#f97316"
                       strokeWidth={2}
-                      name="Withdrawal Requests"
+                      name="Withdrawals"
                     />
                     <Line
                       type="monotone"
                       dataKey="products"
                       stroke="#8b5cf6"
                       strokeWidth={2}
-                      name="Product Requests"
+                      name="Products"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -359,60 +355,52 @@ export function RMDashboard() {
       )}
 
       {/* Recent Activities */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activities</CardTitle>
+      <Card className="border-gray-200">
+        <CardHeader className="pb-2 px-3 pt-3">
+          <CardTitle className="text-sm font-medium">Recent Activities</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 pb-3">
           {activities.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No recent activities</p>
+            <p className="text-center text-muted-foreground py-4 text-xs">No recent activities</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2.5">
               {activities.map((activity) => (
                 <div
                   key={activity.id}
-                  className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
+                  className="flex items-center justify-between border-b border-gray-100 pb-2.5 last:border-0 last:pb-0"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className={`rounded-full p-2 ${
+                  <div className="flex items-start gap-2.5">
+                    <div className={`rounded-full p-1.5 ${
                       activity.type === 'PRODUCT'
                         ? 'bg-purple-500/10'
                         : 'bg-orange-500/10'
                     }`}>
                       {activity.type === 'PRODUCT' ? (
-                        <Package className="h-4 w-4 text-purple-600" />
+                        <Package className="h-3 w-3 text-purple-600" />
                       ) : (
-                        <DollarSign className="h-4 w-4 text-orange-600" />
+                        <DollarSign className="h-3 w-3 text-orange-600" />
                       )}
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium">{activity.clientName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.type === 'PRODUCT' ? (
-                          <>
-                            Product request for {activity.instrumentName} ({activity.instrumentSymbol})
-                          </>
-                        ) : (
-                          <>
-                            Withdrawal request
-                          </>
-                        )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-xs truncate">{activity.clientName}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {activity.type === 'PRODUCT' ? activity.instrumentName : 'Withdrawal'}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {format(new Date(activity.createdAt), 'PPp')}
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {format(new Date(activity.createdAt), 'MMM dd, h:mm a')}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <div className="text-right">
-                      <p className="font-medium">
+                      <p className="font-medium text-xs">
                         {activity.type === 'PRODUCT'
-                          ? `${activity.instrumentSymbol} ${activity.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                          : `$${activity.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          ? `${activity.instrumentSymbol} ${activity.amount.toFixed(0)}`
+                          : `$${(activity.amount / 1000).toFixed(1)}K`
                         }
                       </p>
                     </div>
-                    <Badge variant="outline" className={getStatusColor(activity.status)}>
+                    <Badge variant="outline" className={`${getStatusColor(activity.status)} text-[10px] px-1.5 py-0`}>
                       {activity.status.replace('_', ' ')}
                     </Badge>
                   </div>

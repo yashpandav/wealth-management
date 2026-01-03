@@ -94,7 +94,7 @@ export default function NotificationsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -107,10 +107,10 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Notifications</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Notifications</h1>
           <p className="mt-2 text-muted-foreground">
             Stay updated with your latest activities and updates
           </p>

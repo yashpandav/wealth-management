@@ -125,7 +125,7 @@ function ProfileContent() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl px-8 py-8">
+    <div className="container mx-auto max-w-4xl px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
       {/* Header with Logo */}
       <div className="mb-8 flex flex-col items-center">
         <img
@@ -140,7 +140,7 @@ function ProfileContent() {
       </div>
 
       <div className="mb-8 text-center">
-        <h1 className="font-optima text-3xl font-bold text-brand-blue tracking-wide leading-tight">My Profile</h1>
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue tracking-wide leading-tight">My Profile</h1>
         <p className="font-georgia text-comments text-brand-grey mt-2 leading-relaxed">View and manage your profile information</p>
       </div>
 
@@ -176,7 +176,7 @@ function ProfileContent() {
         <div className="px-6 py-6">
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div>
                   <label htmlFor="firstName" className="font-optima block text-comments font-medium text-brand-blue tracking-wide">
                     First Name <span className="text-red-500">*</span>
@@ -252,7 +252,7 @@ function ProfileContent() {
               </div>
             </form>
           ) : (
-            <dl className="grid gap-6 md:grid-cols-2">
+            <dl className="grid gap-4 sm:gap-6 md:grid-cols-2">
               <div>
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">First Name</dt>
                 <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">{profile.firstName}</dd>

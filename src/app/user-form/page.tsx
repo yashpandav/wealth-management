@@ -90,7 +90,7 @@ export default function UserFormPage() {
   };
 
   return (
-    <div className="min-h-screen bg-brand-white py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brand-white py-12 px-4 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <Toaster position="top-right" />
       <div className="max-w-2xl mx-auto">
         {/* Header with Logo */}

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-white px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-brand-white px-4 py-12 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         {/* EMDEE VENTURES Branding */}
         <div className="flex flex-col items-center">

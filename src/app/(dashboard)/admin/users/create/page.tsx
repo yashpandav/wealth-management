@@ -166,7 +166,7 @@ function CreateUserContent() {
         </DialogContent>
       </Dialog>
 
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-3xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-4">
@@ -177,7 +177,7 @@ function CreateUserContent() {
             ← Back
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Create New User</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Create New User</h1>
             <p className="mt-2 text-sm text-gray-600">
               Add a new user to the system with a specific role
             </p>
@@ -234,8 +234,8 @@ function CreateUserContent() {
 
       {/* Form */}
       <div className="rounded-lg bg-white shadow">
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             {/* Email */}
             <div className="md:col-span-2">
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">

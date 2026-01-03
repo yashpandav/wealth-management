@@ -170,7 +170,7 @@ export default function WithdrawPage() {
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -183,9 +183,9 @@ export default function WithdrawPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-4xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Withdraw Funds</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Withdraw Funds</h1>
         <p className="mt-2 text-muted-foreground">
           Submit a withdrawal request from your portfolio
         </p>
@@ -194,7 +194,7 @@ export default function WithdrawPage() {
       {/* Show status banner if client cannot transact */}
       <ClientStatusBannerClient className="mt-6" />
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
+      <div className="mt-8 grid gap-4 sm:gap-6 md:grid-cols-2">
         {/* Portfolio Balance Card */}
         <Card>
           <CardHeader>
@@ -207,7 +207,7 @@ export default function WithdrawPage() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Total Portfolio Value</p>
-                <p className="text-3xl font-bold">
+                <p className="text-2xl md:text-3xl font-bold">
                   ${availableBalance.toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -256,7 +256,7 @@ export default function WithdrawPage() {
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Withdrawal Amount</p>
-                <p className="text-3xl font-bold">
+                <p className="text-2xl md:text-3xl font-bold">
                   ${requestedAmount.toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,

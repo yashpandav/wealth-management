@@ -209,7 +209,7 @@ export function FileUpload({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           className={`
-            relative rounded-lg border-2 border-dashed p-8 text-center transition-colors
+            relative rounded-lg border-2 border-dashed p-4 md:p-4 md:p-6 lg:p-8 text-center transition-colors
             ${isDragging ? 'border-primary bg-primary/5' : 'border-input'}
             ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-primary/50'}
           `}

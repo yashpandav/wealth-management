@@ -224,7 +224,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
     request.status === WithdrawalStatus.ADMIN_REVIEW;
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"
@@ -241,7 +241,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
         </div>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">Withdrawal Request Review</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-2">Withdrawal Request Review</h1>
       <p className="text-gray-600 mb-6">Tracking Number: {request.trackingNumber}</p>
 
       {/* Client Information */}
@@ -294,7 +294,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
         </CardHeader>
         <CardContent>
           {request.client.portfolio ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <Label className="text-gray-600">Available Balance</Label>
                 <p className="text-2xl font-bold">
@@ -350,7 +350,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
         <CardContent className="space-y-4">
           <div>
             <Label className="text-gray-600">Withdrawal Amount</Label>
-            <p className="text-3xl font-bold text-brand-blue">
+            <p className="text-2xl md:text-3xl font-bold text-brand-blue">
               ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </p>
             {request.client.portfolio && (

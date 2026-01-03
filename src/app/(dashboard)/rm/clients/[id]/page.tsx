@@ -186,20 +186,20 @@ export default function RMClientDetailPage() {
   const isPositiveGain = client.portfolio ? client.portfolio.totalGainLoss >= 0 : true;
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
       {/* Header */}
       <div className="mb-6">
         <Button variant="ghost" onClick={() => router.back()} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Clients
         </Button>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Client Details</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Client Details</h1>
         <p className="text-gray-600">
           Comprehensive view of client profile and portfolio
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Client Profile */}
         <div className="lg:col-span-1 space-y-6">
           {/* Profile Card */}

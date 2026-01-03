@@ -22,9 +22,9 @@ export default async function RegisteredClientsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Registered Clients (No KYC)</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Registered Clients (No KYC)</h1>
         <p className="text-muted-foreground">
           Clients who completed registration but haven&apos;t submitted KYC documents yet
         </p>

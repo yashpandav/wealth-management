@@ -331,7 +331,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 lg:py-8">
         {/* RM Warning */}
         {!rmLoading && !clientRM?.hasRM && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3">
@@ -392,7 +392,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
               <div className="flex items-center gap-3">
                 <p className="text-xl text-gray-600 font-mono flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
@@ -418,7 +418,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Column - Product Options & FAQ */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Product Options */}
             <Card>
               <CardHeader>
@@ -567,7 +567,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           </div>
 
           {/* Sidebar - Investment Form */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Investment Info */}
             <Card>
               <CardHeader>
@@ -757,7 +757,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-600">Product</p>
                 <p className="font-semibold">{product.name}</p>

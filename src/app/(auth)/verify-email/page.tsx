@@ -72,10 +72,10 @@ function VerifyEmailContent() {
   }, [state, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-center text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
             Email Verification
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
@@ -83,7 +83,7 @@ function VerifyEmailContent() {
           </p>
         </div>
 
-        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="mt-8 bg-white py-4 md:py-6 lg:py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {state === 'loading' && (
             <div className="text-center py-4">
               <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
@@ -182,17 +182,17 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-4 md:px-6 lg:px-8">
           <div className="w-full max-w-md space-y-8">
             <div>
-              <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+              <h2 className="mt-6 text-center text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
                 Email Verification
               </h2>
               <p className="mt-2 text-center text-sm text-gray-600">
                 Wealth Management CRM Platform
               </p>
             </div>
-            <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="mt-8 bg-white py-4 md:py-6 lg:py-8 px-4 shadow sm:rounded-lg sm:px-10">
               <div className="text-center py-4">
                 <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
                 <p className="mt-4 text-sm text-gray-600">Loading...</p>

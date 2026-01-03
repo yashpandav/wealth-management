@@ -148,7 +148,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
     return (
       <div className="relative">
         {timeline.map((item, index) => (
-          <div key={index} className="flex gap-4 pb-8 last:pb-0">
+          <div key={index} className="flex flex-col sm:flex-row gap-4 pb-8 last:pb-0">
             {/* Timeline Line */}
             <div className="flex flex-col items-center">
               <div
@@ -230,7 +230,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
   const isPending = !isRejected && !isApproved;
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"
@@ -247,10 +247,10 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
         </Button>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">Withdrawal Request Details</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-2">Withdrawal Request Details</h1>
       <p className="text-gray-600 mb-6">Tracking Number: {request.trackingNumber}</p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Status Timeline */}
         <div className="lg:col-span-1">
           <Card>
@@ -328,7 +328,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
               <CardTitle>Withdrawal Amount</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-4xl font-bold text-brand-blue">
+              <p className="text-3xl md:text-4xl font-bold text-brand-blue">
                 ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </p>
             </CardContent>

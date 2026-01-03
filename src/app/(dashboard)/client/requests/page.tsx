@@ -161,7 +161,7 @@ export default function ClientRequestsPage() {
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
     return (
-      <div className="container mx-auto py-8 px-4">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-brand-blue" />
         </div>
@@ -174,10 +174,10 @@ export default function ClientRequestsPage() {
   }
 
   return (
-    <div className="container px-8 py-8">
+    <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-optima text-3xl font-bold text-brand-blue">My Purchase Requests</h1>
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Purchase Requests</h1>
           <p className="font-georgia text-brand-grey mt-2">
             Track the status of your investment purchase requests
           </p>
@@ -300,7 +300,7 @@ export default function ClientRequestsPage() {
                 </div>
 
                 {/* Request Details */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
                     <p className="mt-1 text-2xl font-bold">

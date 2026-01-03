@@ -179,7 +179,7 @@ function ClientProductRequestsContent() {
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -196,10 +196,10 @@ function ClientProductRequestsContent() {
       <Suspense fallback={null}>
         <SearchParamsHandler router={router} />
       </Suspense>
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Product Requests</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">My Product Requests</h1>
           <p className="mt-2 text-muted-foreground">
             Track the status of your product purchase requests
           </p>
@@ -327,7 +327,7 @@ function ClientProductRequestsContent() {
                 </div>
 
                 {/* Request Details */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
                     <p className="mt-1 text-2xl font-bold">
@@ -473,7 +473,7 @@ function ClientProductRequestsContent() {
 export default function ClientProductRequestsPage() {
   return (
     <Suspense fallback={
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>

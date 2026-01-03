@@ -301,7 +301,7 @@ export function KYCDocumentsPanel() {
 
   // Upload interface - show document types with upload buttons
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">KYC Documents</h2>
         <p className="text-muted-foreground mt-1">

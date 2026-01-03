@@ -140,7 +140,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-3xl px-4 py-4 md:py-6 lg:py-8">
         <div className="rounded-md bg-red-50 p-4">
           <p className="text-sm text-red-800">User not found</p>
         </div>
@@ -149,7 +149,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-4">
@@ -160,7 +160,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
             ← Back
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Edit User</h1>
             <p className="mt-2 text-sm text-gray-600">
               Update user details, role, and account status
             </p>
@@ -271,8 +271,8 @@ function EditUserContent({ params }: { params: { id: string } }) {
 
       {/* Edit Form */}
       <div className="rounded-lg bg-white shadow">
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             {/* First Name */}
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">

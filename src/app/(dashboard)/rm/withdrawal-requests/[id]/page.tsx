@@ -202,7 +202,7 @@ export default function RMWithdrawalRequestDetailPage({
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'RM' && loading)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -219,7 +219,7 @@ export default function RMWithdrawalRequestDetailPage({
   const canReview = request.status === WithdrawalStatus.PENDING || request.status === WithdrawalStatus.RM_REVIEW;
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"
@@ -234,13 +234,13 @@ export default function RMWithdrawalRequestDetailPage({
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Withdrawal Request Review</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Withdrawal Request Review</h1>
         <p className="mt-2 text-muted-foreground font-mono">
           Tracking: {request.trackingNumber}
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
         {/* Client Information */}
         <Card>
           <CardHeader>
@@ -332,7 +332,7 @@ export default function RMWithdrawalRequestDetailPage({
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Withdrawal Amount</p>
-              <p className="text-3xl font-bold">
+              <p className="text-2xl md:text-3xl font-bold">
                 ${request.amount.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -342,7 +342,7 @@ export default function RMWithdrawalRequestDetailPage({
 
             <div>
               <p className="text-sm font-medium text-muted-foreground">Remaining Balance</p>
-              <p className={`text-3xl font-bold ${insufficientBalance ? 'text-red-600' : ''}`}>
+              <p className={`text-2xl md:text-3xl font-bold ${insufficientBalance ? 'text-red-600' : ''}`}>
                 ${(availableBalance - request.amount).toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,

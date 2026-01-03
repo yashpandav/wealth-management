@@ -265,30 +265,30 @@ function AssignmentsContent() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Client-RM Assignments</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Client-RM Assignments</h1>
         <p className="mt-2 text-sm text-gray-600">
           Manage client assignments to relationship managers
         </p>
       </div>
 
       {/* RM Workload Summary */}
-      <div className="mb-6 grid gap-4 md:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">Total RMs</div>
-          <div className="mt-2 text-2xl font-bold text-gray-900">{rms.length}</div>
+      <div className="mb-6 grid gap-3 grid-cols-2 md:grid-cols-4">
+        <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
+          <div className="text-xs font-medium text-gray-600">Relationship Managers</div>
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue">{rms.length}</div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">Active Clients</div>
-          <div className="mt-2 text-2xl font-bold text-gray-900">
+        <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
+          <div className="text-xs font-medium text-gray-600">Assigned Clients</div>
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue">
             {rms.reduce((sum, rm) => sum + rm.assignedClientsCount, 0)}
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">Avg Clients per RM</div>
-          <div className="mt-2 text-2xl font-bold text-gray-900">
+        <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
+          <div className="text-xs font-medium text-gray-600">Clients per RM</div>
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue">
             {rms.length > 0
               ? Math.round(
                   rms.reduce((sum, rm) => sum + rm.assignedClientsCount, 0) / rms.length
@@ -296,9 +296,9 @@ function AssignmentsContent() {
               : 0}
           </div>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow">
-          <div className="text-sm font-medium text-gray-500">Total Capacity</div>
-          <div className="mt-2 text-2xl font-bold text-gray-900">
+        <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
+          <div className="text-xs font-medium text-gray-600">Total Capacity</div>
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue">
             {rms
               .filter((rm) => rm.maxClientLimit !== null)
               .reduce((sum, rm) => sum + (rm.maxClientLimit || 0), 0)}
@@ -439,13 +439,13 @@ function AssignmentsContent() {
           </div>
         </div>
       ) : clients.length === 0 ? (
-        <div className="rounded-lg bg-white p-8 text-center shadow">
+        <div className="rounded-lg bg-white p-4 md:p-4 md:p-6 lg:p-8 text-center shadow">
           <p className="text-gray-600">No clients found</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg bg-white shadow">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0">
+            <table className="text-sm min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left">
@@ -586,7 +586,7 @@ function AssignmentsContent() {
 
             {/* Modal */}
             <div className="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-4 md:p-6 sm:pb-4">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">
                   {selectedClient.isAssigned ? 'Reassign' : 'Assign'} Client to RM
                 </h3>
@@ -706,7 +706,7 @@ function AssignmentsContent() {
 
             {/* Modal */}
             <div className="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-4 md:p-6 sm:pb-4">
                 <h3 className="text-lg font-medium leading-6 text-gray-900">
                   Bulk Assign Clients to RM
                 </h3>

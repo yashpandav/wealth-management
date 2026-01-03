@@ -10,7 +10,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-4 md:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-3">
           {/* Company Info */}
           <div>

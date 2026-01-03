@@ -106,7 +106,7 @@ export default function MyRMPage() {
 
   if (!rm) {
     return (
-      <div className="container mx-auto py-8 px-4 max-w-4xl">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4 max-w-4xl">
         <Card>
           <CardHeader>
             <CardTitle className="font-optima text-brand-blue">No Relationship Manager Assigned</CardTitle>
@@ -120,9 +120,9 @@ export default function MyRMPage() {
   }
 
   return (
-    <div className="container max-w-4xl px-8 py-8">
+    <div className="container max-w-4xl px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
       <div className="mb-6">
-        <h1 className="font-optima text-3xl font-bold text-brand-blue">My Relationship Manager</h1>
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Relationship Manager</h1>
         <p className="font-georgia text-brand-grey mt-2">
           Your dedicated advisor for all investment needs
         </p>
@@ -221,7 +221,7 @@ export default function MyRMPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Total Clients */}
             <div className="flex items-start gap-4 p-4 rounded-lg bg-brand-blue/10">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">

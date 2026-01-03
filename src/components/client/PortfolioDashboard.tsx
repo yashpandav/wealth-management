@@ -102,7 +102,7 @@ export function PortfolioDashboard() {
   const isPositiveDayChange = portfolio.dayChange >= 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Welcome Section */}
       <div>
         <h2 className="text-2xl font-semibold">
@@ -114,79 +114,85 @@ export function PortfolioDashboard() {
       </div>
 
       {/* Summary Cards Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         {/* Total Portfolio Value */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">
               Portfolio Value
             </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <CardContent className="px-3 pb-3">
+            <div className="text-2xl font-bold text-brand-blue">
+              ${portfolio.totalValue >= 1000000
+                ? `${(portfolio.totalValue / 1000000).toFixed(2)}M`
+                : portfolio.totalValue >= 1000
+                ? `${(portfolio.totalValue / 1000).toFixed(1)}K`
+                : portfolio.totalValue.toFixed(0)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Current market value
-            </p>
           </CardContent>
         </Card>
 
         {/* Total Invested */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Invested
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">
+              Invested
             </CardTitle>
-            <PiggyBank className="h-4 w-4 text-muted-foreground" />
+            <PiggyBank className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${portfolio.totalInvested.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <CardContent className="px-3 pb-3">
+            <div className="text-2xl font-bold text-brand-blue">
+              ${portfolio.totalInvested >= 1000000
+                ? `${(portfolio.totalInvested / 1000000).toFixed(2)}M`
+                : portfolio.totalInvested >= 1000
+                ? `${(portfolio.totalInvested / 1000).toFixed(1)}K`
+                : portfolio.totalInvested.toFixed(0)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Total amount invested
-            </p>
           </CardContent>
         </Card>
 
         {/* Total Gain/Loss */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Gain/Loss
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">
+              Gain/Loss
             </CardTitle>
             {isPositiveGain ? (
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-3.5 w-3.5 text-green-600" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-red-600" />
+              <TrendingDown className="h-3.5 w-3.5 text-red-600" />
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 pb-3">
             <div className={`text-2xl font-bold ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveGain ? '+' : ''}${portfolio.totalGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {isPositiveGain ? '+' : ''}${Math.abs(portfolio.totalGainLoss) >= 1000
+                ? `${(portfolio.totalGainLoss / 1000).toFixed(1)}K`
+                : portfolio.totalGainLoss.toFixed(0)}
             </div>
-            <p className={`text-xs ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveGain ? '+' : ''}{portfolio.totalGainLossPercent.toFixed(2)}% all time
+            <p className={`text-xs mt-0.5 font-medium ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositiveGain ? '+' : ''}{portfolio.totalGainLossPercent.toFixed(1)}%
             </p>
           </CardContent>
         </Card>
 
         {/* Today's Change */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Today&apos;s Change
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">
+              Today
             </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <Activity className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 pb-3">
             <div className={`text-2xl font-bold ${isPositiveDayChange ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveDayChange ? '+' : ''}${portfolio.dayChange.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {isPositiveDayChange ? '+' : ''}${Math.abs(portfolio.dayChange) >= 1000
+                ? `${(portfolio.dayChange / 1000).toFixed(1)}K`
+                : portfolio.dayChange.toFixed(0)}
             </div>
-            <p className={`text-xs ${isPositiveDayChange ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveDayChange ? '+' : ''}{portfolio.dayChangePercent.toFixed(2)}% today
+            <p className={`text-xs mt-0.5 font-medium ${isPositiveDayChange ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositiveDayChange ? '+' : ''}{portfolio.dayChangePercent.toFixed(1)}%
             </p>
           </CardContent>
         </Card>

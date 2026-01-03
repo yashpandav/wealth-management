@@ -38,8 +38,8 @@ export default async function ClientPortfolioPage() {
   }
 
   return (
-    <div className="container px-8 py-8">
-      <h1 className="font-optima text-3xl font-bold text-brand-blue">My Portfolio</h1>
+    <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Portfolio</h1>
       <p className="font-georgia text-brand-grey mt-2 mb-6">
         View and manage your investment portfolio
       </p>

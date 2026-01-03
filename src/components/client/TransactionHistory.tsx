@@ -399,7 +399,7 @@ export function TransactionHistory() {
           </DialogHeader>
           {selectedTransaction && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Transaction ID</p>
                   <p className="font-mono text-sm">{selectedTransaction.id}</p>
@@ -430,7 +430,7 @@ export function TransactionHistory() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {selectedTransaction.quantity && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Quantity</p>

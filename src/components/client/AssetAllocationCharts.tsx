@@ -112,7 +112,7 @@ export function AssetAllocationCharts({ holdings }: AssetAllocationChartsProps) 
           <CardTitle className="text-lg">Allocation by Type</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <PieChart>
               <Pie
                 data={typeAllocation}
@@ -151,7 +151,7 @@ export function AssetAllocationCharts({ holdings }: AssetAllocationChartsProps) 
           <CardTitle className="text-lg">Allocation by Sector</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
             <PieChart>
               <Pie
                 data={sectorAllocation}

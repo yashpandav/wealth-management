@@ -175,7 +175,7 @@ export default function AdminPurchaseRequestDetailPage() {
     : request.amount;
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
       {/* Header */}
       <div className="mb-6">
         <Button variant="ghost" onClick={() => router.back()} className="mb-4">
@@ -184,14 +184,14 @@ export default function AdminPurchaseRequestDetailPage() {
         </Button>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Purchase Request Details</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Purchase Request Details</h1>
             <p className="text-gray-600">Tracking Number: {request.trackingNumber}</p>
           </div>
           <StatusBadge status={request.status} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Client & Instrument Info */}
         <div className="lg:col-span-2 space-y-6">
           {/* Instrument Details */}
@@ -203,7 +203,7 @@ export default function AdminPurchaseRequestDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600">Symbol</p>
                   <p className="text-lg font-semibold">{request.instrument.symbol}</p>
@@ -249,7 +249,7 @@ export default function AdminPurchaseRequestDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600">Purchase Amount</p>
                   <p className="text-2xl font-bold">

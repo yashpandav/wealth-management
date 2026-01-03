@@ -199,12 +199,12 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 lg:py-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                 {instrument.name}
               </h1>
               <div className="flex items-center gap-3">
@@ -226,7 +226,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
 
           {/* Current Price */}
           <div className="flex items-baseline gap-4">
-            <div className="text-4xl font-bold text-gray-900">
+            <div className="text-3xl md:text-4xl font-bold text-gray-900">
               {instrument.currency} {instrument.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
@@ -495,7 +495,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
       {/* CTA Section */}
       <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white py-16 px-4 mt-12">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold mb-4">
             Ready to Invest in {instrument.symbol}?
           </h2>
           <p className="text-xl text-blue-100 mb-8">

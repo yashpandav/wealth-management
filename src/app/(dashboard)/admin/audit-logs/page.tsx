@@ -137,10 +137,10 @@ function AuditLogsContent() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Audit Logs</h1>
         <p className="mt-2 text-sm text-gray-600">
           View and export comprehensive audit trail of all system actions
         </p>
@@ -291,13 +291,13 @@ function AuditLogsContent() {
           </div>
         </div>
       ) : logs.length === 0 ? (
-        <div className="rounded-lg bg-white p-8 text-center shadow">
+        <div className="rounded-lg bg-white p-4 md:p-4 md:p-6 lg:p-8 text-center shadow">
           <p className="text-gray-600">No audit logs found</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg bg-white shadow">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0">
+            <table className="text-sm min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">

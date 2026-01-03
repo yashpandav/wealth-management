@@ -384,7 +384,7 @@ export function DocumentUploadForm({
             </p>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button
               variant="outline"
               className="flex-1"
@@ -544,7 +544,7 @@ export function DocumentUploadForm({
           })}
 
           {/* Submit button */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <Button
               type="button"
               variant="outline"

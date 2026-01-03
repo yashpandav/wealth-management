@@ -288,7 +288,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
 
   if (holdings.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-8 text-center">
+      <div className="rounded-lg border border-dashed p-4 md:p-4 md:p-6 lg:p-8 text-center">
         <p className="text-muted-foreground">
           No holdings yet. Start investing to build your portfolio.
         </p>
