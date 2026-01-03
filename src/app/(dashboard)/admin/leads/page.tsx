@@ -29,7 +29,7 @@ export default async function AdminLeadsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-red-600">403 - Access Forbidden</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-red-600">403 - Access Forbidden</h1>
         <p className="text-gray-600 mt-2">
           Lead management is no longer available to Administrators
         </p>
@@ -43,7 +43,7 @@ export default async function AdminLeadsPage() {
           <p className="text-gray-700">
             As of the latest system update, <strong>lead management has been transferred exclusively to the DocAdmin role</strong>.
           </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+          <div className="bg-brand-blue/10 border border-blue-200 rounded-md p-4">
             <p className="text-sm text-blue-800">
               <strong>Note:</strong> All lead-related responsibilities (viewing, managing, and assigning RMs to leads)
               are now handled under the <strong>DocAdmin Dashboard → New Enquiries</strong> tab.

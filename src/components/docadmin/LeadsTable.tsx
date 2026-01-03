@@ -194,7 +194,7 @@ export function LeadsTable() {
   // Get status color
   const getStatusColor = (status: LeadStatus) => {
     const colors: Record<LeadStatus, string> = {
-      NEW: 'bg-blue-500/10 text-blue-700',
+      NEW: 'bg-brand-blue/10/10 text-brand-blue',
       CONTACTED: 'bg-purple-500/10 text-purple-700',
       INTERESTED: 'bg-green-500/10 text-green-700',
       NOT_INTERESTED: 'bg-orange-500/10 text-orange-700',
@@ -327,7 +327,7 @@ export function LeadsTable() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -458,7 +458,7 @@ export function LeadsTable() {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Label htmlFor="page-size">Per page:</Label>
           <Select

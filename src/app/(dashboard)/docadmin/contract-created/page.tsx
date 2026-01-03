@@ -21,10 +21,10 @@ export default async function ContractCreatedPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Contract Created</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Contract Created</h1>
+        <p className="font-georgia text-brand-grey mt-2">
           Completed product requests with contracts uploaded and finalized.
         </p>
       </div>

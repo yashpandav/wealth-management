@@ -154,9 +154,9 @@ export default function RMPerformancePage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">RM Performance Dashboard</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">RM Performance Dashboard</h1>
         <p className="text-gray-600">
           Comprehensive performance metrics for all Relationship Managers
         </p>
@@ -167,19 +167,19 @@ export default function RMPerformancePage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total RMs</CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{totalRMs}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-brand-blue">{totalRMs}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total Clients</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{totalClients}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-green-600">{totalClients}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total AUM</CardDescription>
-            <CardTitle className="text-3xl text-purple-600">
+            <CardTitle className="text-2xl md:text-3xl text-purple-600">
               ${(totalAUM / 1000000).toFixed(1)}M
             </CardTitle>
           </CardHeader>
@@ -187,7 +187,7 @@ export default function RMPerformancePage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Avg Clients/RM</CardDescription>
-            <CardTitle className="text-3xl text-orange-600">
+            <CardTitle className="text-2xl md:text-3xl text-orange-600">
               {avgClientsPerRM.toFixed(1)}
             </CardTitle>
           </CardHeader>
@@ -277,7 +277,7 @@ export default function RMPerformancePage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {/* Client Metrics */}
                         <div className="space-y-3">
                           <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">

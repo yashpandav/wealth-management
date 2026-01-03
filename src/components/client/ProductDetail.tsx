@@ -165,7 +165,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
 
   const getProductBadgeColor = (name: string) => {
     if (name.includes('A')) {
-      return 'bg-blue-500/10 text-blue-700 border-blue-200';
+      return 'bg-brand-blue/10/10 text-brand-blue border-blue-200';
     } else if (name.includes('B')) {
       return 'bg-purple-500/10 text-purple-700 border-purple-200';
     } else if (name.includes('C')) {
@@ -317,11 +317,11 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <nav className="flex items-center gap-2 text-sm text-gray-600">
-            <Link href="/client/portfolio" className="hover:text-gray-900">
+            <Link href="/client/portfolio" className="hover:text-brand-blue transition-colors duration-200">
               Dashboard
             </Link>
             <ChevronRight className="h-4 w-4" />
-            <Link href="/client/products" className="hover:text-gray-900">
+            <Link href="/client/products" className="hover:text-brand-blue transition-colors duration-200">
               Products
             </Link>
             <ChevronRight className="h-4 w-4" />
@@ -331,7 +331,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 lg:py-8">
         {/* RM Warning */}
         {!rmLoading && !clientRM?.hasRM && (
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3">
@@ -392,7 +392,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
         <div className="mb-8">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
+              <h1 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
               <div className="flex items-center gap-3">
                 <p className="text-xl text-gray-600 font-mono flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
@@ -418,7 +418,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Column - Product Options & FAQ */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Product Options */}
             <Card>
               <CardHeader>
@@ -431,10 +431,10 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                 {product.options.map((option) => (
                   <div
                     key={option.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all ${
+                    className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
                       selectedOption?.id === option.id
-                        ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-brand-blue bg-brand-blue/10 ring-2 ring-brand-blue/30'
+                        : 'border-gray-200 hover:border-brand-blue hover:bg-brand-blue/5'
                     }`}
                     onClick={() => setSelectedOption(option)}
                   >
@@ -443,7 +443,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                         <div
                           className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                             selectedOption?.id === option.id
-                              ? 'border-blue-500 bg-blue-500'
+                              ? 'border-brand-blue bg-brand-blue/10'
                               : 'border-gray-400'
                           }`}
                         >
@@ -546,7 +546,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                   <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
-                      className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+                      className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-brand-blue/10 transition-colors duration-200 text-left"
                     >
                       <span className="font-medium text-gray-900">{faq.question}</span>
                       {expandedFAQ === index ? (
@@ -567,7 +567,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           </div>
 
           {/* Sidebar - Investment Form */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Investment Info */}
             <Card>
               <CardHeader>
@@ -636,7 +636,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">ROI:</span>
-                        <span className="font-medium text-blue-600">{selectedOption.roi}%</span>
+                        <span className="font-medium text-brand-blue">{selectedOption.roi}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Annual Return:</span>
@@ -682,7 +682,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                 )}
 
                 <Button
-                  className="w-full bg-gray-900 hover:bg-gray-800 text-white group"
+                  className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white group transition-colors duration-200"
                   size="lg"
                   onClick={handleRequestPurchase}
                   disabled={
@@ -757,7 +757,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-600">Product</p>
                 <p className="font-semibold">{product.name}</p>
@@ -780,7 +780,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                   </div>
                   <div>
                     <p className="text-gray-600">ROI</p>
-                    <p className="font-semibold text-blue-600">{selectedOption.roi}%</p>
+                    <p className="font-semibold text-brand-blue">{selectedOption.roi}%</p>
                   </div>
                   <div>
                     <p className="text-gray-600">Annual Return</p>

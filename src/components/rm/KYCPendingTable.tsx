@@ -149,14 +149,14 @@ export function KYCPendingTable() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <a href={`mailto:${client.user.email}`} className="text-blue-600 hover:underline">
+                        <a href={`mailto:${client.user.email}`} className="text-brand-blue hover:underline">
                           {client.user.email}
                         </a>
                       </div>
                       {client.user.phone && (
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="h-3 w-3 text-muted-foreground" />
-                          <a href={`tel:${client.user.phone}`} className="text-blue-600 hover:underline">
+                          <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline">
                             {client.user.phone}
                           </a>
                         </div>
@@ -164,7 +164,7 @@ export function KYCPendingTable() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="bg-blue-500/10 text-blue-700">
+                    <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">
                       {client.verificationStatus === 'UNDER_REVIEW' ? 'Under Review' : 'Pending'}
                     </Badge>
                   </TableCell>
@@ -191,7 +191,7 @@ export function KYCPendingTable() {
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
             Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
             {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}

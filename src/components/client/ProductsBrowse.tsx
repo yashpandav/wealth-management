@@ -106,37 +106,42 @@ export function ProductsBrowse() {
   });
 
   const getProductAccentColor = (name: string) => {
+    // Use brand colors consistently - subtle variations for each venture
     if (name.includes('A')) {
       return {
-        gradient: 'from-blue-500 to-blue-600',
-        text: 'text-blue-700',
-        bg: 'bg-blue-50',
-        border: 'border-blue-200',
-        hover: 'hover:border-blue-300',
+        gradient: 'bg-brand-blue',
+        text: 'text-brand-blue',
+        bg: 'bg-brand-blue/5',
+        border: 'border-brand-blue/20',
+        hover: 'hover:border-brand-blue/40 hover:shadow-lg',
+        badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
       };
     } else if (name.includes('B')) {
       return {
-        gradient: 'from-purple-500 to-purple-600',
-        text: 'text-purple-700',
-        bg: 'bg-purple-50',
-        border: 'border-purple-200',
-        hover: 'hover:border-purple-300',
+        gradient: 'bg-brand-blue',
+        text: 'text-brand-blue',
+        bg: 'bg-brand-blue/5',
+        border: 'border-brand-blue/20',
+        hover: 'hover:border-brand-blue/40 hover:shadow-lg',
+        badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
       };
     } else if (name.includes('C')) {
       return {
-        gradient: 'from-emerald-500 to-emerald-600',
-        text: 'text-emerald-700',
-        bg: 'bg-emerald-50',
-        border: 'border-emerald-200',
-        hover: 'hover:border-emerald-300',
+        gradient: 'bg-brand-blue',
+        text: 'text-brand-blue',
+        bg: 'bg-brand-blue/5',
+        border: 'border-brand-blue/20',
+        hover: 'hover:border-brand-blue/40 hover:shadow-lg',
+        badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
       };
     }
     return {
-      gradient: 'from-gray-500 to-gray-600',
-      text: 'text-gray-700',
-      bg: 'bg-gray-50',
-      border: 'border-gray-200',
-      hover: 'hover:border-gray-300',
+      gradient: 'bg-brand-blue',
+      text: 'text-brand-blue',
+      bg: 'bg-brand-blue/5',
+      border: 'border-brand-blue/20',
+      hover: 'hover:border-brand-blue/40 hover:shadow-lg',
+      badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
     };
   };
 
@@ -156,18 +161,20 @@ export function ProductsBrowse() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-        <span className="ml-3 text-gray-600">Loading products...</span>
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+        <span className="ml-3 font-georgia text-brand-grey">Loading products...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="destructive" className="mx-auto max-w-2xl">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Failed to load products. Please try again later.</AlertDescription>
+      <Alert variant="destructive" className="mx-auto max-w-2xl border-red-200 bg-red-50">
+        <AlertCircle className="h-5 w-5" />
+        <AlertDescription className="font-georgia text-comments">
+          Failed to load products. Please try again later.
+        </AlertDescription>
       </Alert>
     );
   }
@@ -175,22 +182,22 @@ export function ProductsBrowse() {
   const products = data?.data.products || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-brand-grey/20">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Investment Products</h1>
-          <p className="text-sm text-gray-600 mt-1">
+          <h1 className="font-optima text-2xl font-bold text-brand-blue">Available Ventures</h1>
+          <p className="font-georgia text-comments text-brand-grey mt-1">
             {products.length} {products.length === 1 ? 'product' : 'products'} available
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+        <div className="flex items-center gap-2 bg-white border border-brand-grey/20 rounded-lg p-1 shadow-sm">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-2 rounded-md transition-colors ${
+            className={`p-2 rounded-md transition-all ${
               viewMode === 'grid'
-                ? 'bg-white shadow-sm text-gray-900'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-brand-blue text-white shadow-sm'
+                : 'text-brand-grey hover:text-brand-blue'
             }`}
             aria-label="Grid view"
           >
@@ -198,10 +205,10 @@ export function ProductsBrowse() {
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2 rounded-md transition-colors ${
+            className={`p-2 rounded-md transition-all ${
               viewMode === 'list'
-                ? 'bg-white shadow-sm text-gray-900'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-brand-blue text-white shadow-sm'
+                : 'text-brand-grey hover:text-brand-blue'
             }`}
             aria-label="List view"
           >
@@ -212,17 +219,17 @@ export function ProductsBrowse() {
 
       {/* KYC Status Alert */}
       {kycStatus && !kycStatus.data.canSubmitRequests && (
-        <Alert className="border-l-4 border-l-amber-500 bg-amber-50 border-amber-200">
-          <AlertCircle className="h-5 w-5 text-amber-600" />
-          <AlertDescription className="text-amber-900">
-            <div className="font-semibold mb-2">KYC Verification Required</div>
-            <p className="text-sm mb-3">
-              Complete your KYC verification to submit product requests and start investing.
+        <Alert className="border-l-4 border-l-brand-blue bg-brand-blue/5 border-brand-blue/30">
+          <AlertCircle className="h-5 w-5 text-brand-blue" />
+          <AlertDescription className="text-brand-blue">
+            <div className="font-optima font-semibold mb-3 text-lg">KYC Verification Required</div>
+            <p className="font-georgia text-comments mb-4 text-brand-grey">
+              Complete your KYC verification to submit product requests and begin investing.
             </p>
-            <div className="space-y-1 text-sm mb-4">
+            <div className="space-y-2 text-comments mb-5">
               {!kycStatus.data.identityProofVerified && (
-                <div className="flex items-center gap-2 text-amber-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                <div className="flex items-center gap-2 font-georgia text-brand-grey">
+                  <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
                   <span>
                     Identity Proof{' '}
                     {kycStatus.data.identityProofStatus === 'REJECTED'
@@ -232,8 +239,8 @@ export function ProductsBrowse() {
                 </div>
               )}
               {!kycStatus.data.addressProofVerified && (
-                <div className="flex items-center gap-2 text-amber-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                <div className="flex items-center gap-2 font-georgia text-brand-grey">
+                  <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
                   <span>
                     Address Proof{' '}
                     {kycStatus.data.addressProofStatus === 'REJECTED'
@@ -244,7 +251,7 @@ export function ProductsBrowse() {
               )}
             </div>
             <Link href="/upload-documents">
-              <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+              <Button className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima shadow-lg">
                 Upload Documents
               </Button>
             </Link>
@@ -264,54 +271,54 @@ export function ProductsBrowse() {
                 return (
                   <div
                     key={product.id}
-                    className={`bg-white border ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-200 shadow-sm hover:shadow-md`}
+                    className={`bg-white border-2 ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-300`}
                   >
-                    {/* Product Header with Gradient */}
-                    <div className={`bg-gradient-to-r ${colors.gradient} px-6 py-5 text-white`}>
+                    {/* Product Header */}
+                    <div className={`${colors.gradient} px-6 py-6 text-white`}>
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-bold">{product.name}</h3>
+                        <h3 className="font-optima text-xl font-bold">{product.name}</h3>
                         {highestReturn && (
-                          <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                            <p className="text-xs font-semibold">Up to {highestReturn}%</p>
+                          <div className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
+                            <p className="font-georgia text-xs font-semibold text-brand-blue">Up to {highestReturn}%</p>
                           </div>
                         )}
                       </div>
-                      <p className="text-white/90 text-sm font-medium">
+                      <p className="text-white/95 font-georgia text-comments font-medium">
                         {formatAmountRange(product)}
                       </p>
                     </div>
 
                     {/* Product Body */}
                     <div className="px-6 py-5">
-                      <p className="text-gray-700 text-sm mb-5 min-h-[40px]">
+                      <p className="font-georgia text-brand-grey text-comments mb-5 min-h-[50px] leading-relaxed">
                         {product.description ||
                           'Secure investment opportunity with competitive returns and flexible terms'}
                       </p>
 
                       {/* Investment Options */}
                       <div className="space-y-2 mb-5">
-                        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
+                        <p className="font-optima text-xs font-semibold text-brand-blue uppercase tracking-wider mb-3">
                           Investment Plans
                         </p>
                         {product.options.slice(0, 3).map((option) => (
                           <div
                             key={option.id}
-                            className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                            className="flex items-center justify-between py-2.5 px-3 bg-brand-blue/5 rounded-lg border border-brand-blue/10"
                           >
                             <div className="flex items-center gap-2">
-                              <TrendingUp className="h-3.5 w-3.5 text-gray-500" />
-                              <span className="text-sm text-gray-700">{option.duration}</span>
-                              <span className="text-xs text-gray-500">
+                              <TrendingUp className="h-3.5 w-3.5 text-brand-blue" />
+                              <span className="font-georgia text-comments text-brand-blue font-medium">{option.duration}</span>
+                              <span className="font-georgia text-xs text-brand-grey">
                                 {option.withdrawalFrequency}
                               </span>
                             </div>
-                            <span className="text-sm font-semibold text-green-600">
+                            <span className="font-optima text-comments font-bold text-brand-blue">
                               {option.annualReturn}%
                             </span>
                           </div>
                         ))}
                         {product.options.length > 3 && (
-                          <p className="text-xs text-gray-500 text-center pt-1">
+                          <p className="font-georgia text-xs text-brand-grey text-center pt-1">
                             +{product.options.length - 3} more plan
                             {product.options.length - 3 > 1 ? 's' : ''}
                           </p>
@@ -321,7 +328,7 @@ export function ProductsBrowse() {
                       {/* Action Button */}
                       <Link href={`/client/products/${product.id}`}>
                         <Button
-                          className="w-full bg-gray-900 hover:bg-gray-800 text-white group"
+                          className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white group font-optima shadow-lg hover:shadow-xl transition-all"
                           size="default"
                         >
                           <span>View Details</span>
@@ -334,7 +341,7 @@ export function ProductsBrowse() {
               })}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {products.map((product) => {
                 const highestReturn = getHighestReturn(product.options);
                 const colors = getProductAccentColor(product.name);
@@ -342,19 +349,19 @@ export function ProductsBrowse() {
                 return (
                   <div
                     key={product.id}
-                    className={`bg-white border ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-200 shadow-sm hover:shadow-md`}
+                    className={`bg-white border-2 ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-300`}
                   >
                     <div className="flex flex-col md:flex-row">
                       {/* Left Section - Product Info */}
-                      <div className={`bg-gradient-to-br ${colors.gradient} text-white p-6 md:w-64 flex-shrink-0`}>
-                        <h3 className="text-2xl font-bold mb-2">{product.name}</h3>
-                        <p className="text-white/90 text-sm font-medium mb-4">
+                      <div className={`${colors.gradient} text-white p-4 md:p-6 md:w-72 flex-shrink-0`}>
+                        <h3 className="font-optima text-2xl font-bold mb-2">{product.name}</h3>
+                        <p className="text-white/95 font-georgia text-comments font-medium mb-4">
                           {formatAmountRange(product)}
                         </p>
                         {highestReturn && (
-                          <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                            <TrendingUp className="h-4 w-4" />
-                            <span className="text-sm font-semibold">
+                          <div className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                            <TrendingUp className="h-3.5 w-3.5 text-brand-blue" />
+                            <span className="font-georgia text-xs font-semibold text-brand-blue">
                               Up to {highestReturn}% Annual
                             </span>
                           </div>
@@ -362,29 +369,29 @@ export function ProductsBrowse() {
                       </div>
 
                       {/* Right Section - Details & Options */}
-                      <div className="flex-1 p-6">
-                        <p className="text-gray-700 text-sm mb-5">
+                      <div className="flex-1 p-4 md:p-6">
+                        <p className="font-georgia text-brand-grey text-comments mb-5 leading-relaxed">
                           {product.description ||
                             'Secure investment opportunity with competitive returns and flexible terms'}
                         </p>
 
                         <div className="mb-5">
-                          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
+                          <p className="font-optima text-xs font-semibold text-brand-blue uppercase tracking-wider mb-3">
                             Available Investment Plans ({product.options.length})
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {product.options.map((option) => (
                               <div
                                 key={option.id}
-                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-lg text-sm"
+                                className="inline-flex items-center gap-2 px-3 py-2 bg-brand-blue/5 border border-brand-blue/20 rounded-lg font-georgia text-comments"
                               >
-                                <span className="text-gray-700">{option.duration}</span>
-                                <span className="text-gray-400">•</span>
-                                <span className="text-gray-600 text-xs">
+                                <span className="text-brand-blue font-medium">{option.duration}</span>
+                                <span className="text-brand-grey">•</span>
+                                <span className="text-brand-grey text-xs">
                                   {option.withdrawalFrequency}
                                 </span>
-                                <span className="text-gray-400">•</span>
-                                <span className="font-semibold text-green-600">
+                                <span className="text-brand-grey">•</span>
+                                <span className="font-optima font-bold text-brand-blue">
                                   {option.annualReturn}%
                                 </span>
                               </div>
@@ -394,7 +401,7 @@ export function ProductsBrowse() {
 
                         <Link href={`/client/products/${product.id}`}>
                           <Button
-                            className="bg-gray-900 hover:bg-gray-800 text-white group"
+                            className="bg-brand-blue hover:bg-brand-blue/90 text-white group font-optima shadow-lg hover:shadow-xl transition-all"
                             size="default"
                           >
                             <span>View Full Details & Apply</span>
@@ -410,13 +417,13 @@ export function ProductsBrowse() {
           )}
         </>
       ) : (
-        <div className="text-center py-16 bg-gray-50 rounded-xl border border-gray-200">
+        <div className="text-center py-16 bg-white rounded-xl border-2 border-brand-grey/20">
           <div className="max-w-md mx-auto">
-            <div className="mx-auto h-12 w-12 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-              <TrendingUp className="h-6 w-6 text-gray-400" />
+            <div className="mx-auto h-14 w-14 bg-brand-blue/10 rounded-full flex items-center justify-center mb-5 border-2 border-brand-blue/20">
+              <TrendingUp className="h-7 w-7 text-brand-blue" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Available</h3>
-            <p className="text-gray-600 text-sm">
+            <h3 className="font-optima text-lg font-semibold text-brand-blue mb-2">No Products Available</h3>
+            <p className="font-georgia text-brand-grey text-comments leading-relaxed">
               No investment products are currently available. Please check back later.
             </p>
           </div>

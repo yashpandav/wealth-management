@@ -153,7 +153,7 @@ export function TransactionHistory() {
       case 'REVERSED':
         return 'bg-orange-500/10 text-orange-700';
       case 'PENDING_SETTLEMENT':
-        return 'bg-blue-500/10 text-blue-700';
+        return 'bg-brand-blue/10/10 text-brand-blue';
       default:
         return 'bg-gray-500/10 text-gray-700';
     }
@@ -166,7 +166,7 @@ export function TransactionHistory() {
       case 'WITHDRAWAL':
         return 'bg-red-500/10 text-red-700';
       case 'DIVIDEND':
-        return 'bg-blue-500/10 text-blue-700';
+        return 'bg-brand-blue/10/10 text-brand-blue';
       case 'ADJUSTMENT':
         return 'bg-purple-500/10 text-purple-700';
       default:
@@ -399,7 +399,7 @@ export function TransactionHistory() {
           </DialogHeader>
           {selectedTransaction && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Transaction ID</p>
                   <p className="font-mono text-sm">{selectedTransaction.id}</p>
@@ -430,7 +430,7 @@ export function TransactionHistory() {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {selectedTransaction.quantity && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Quantity</p>

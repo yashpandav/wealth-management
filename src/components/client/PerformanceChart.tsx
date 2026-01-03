@@ -144,7 +144,7 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis
@@ -181,7 +181,7 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
         </ResponsiveContainer>
         <div className="mt-4 flex items-center justify-center gap-6 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-blue-500" />
+            <div className="h-3 w-3 rounded-full bg-brand-blue/10" />
             <span>Portfolio Value</span>
           </div>
           <div className="flex items-center gap-2">

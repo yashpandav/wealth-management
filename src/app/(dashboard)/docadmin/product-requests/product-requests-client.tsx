@@ -187,7 +187,7 @@ export function ProductRequestsClient({
       case 'PENDING':
         return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700">Pending</Badge>;
       case 'APPROVED':
-        return <Badge variant="outline" className="bg-blue-500/10 text-blue-700">Approved</Badge>;
+        return <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">Approved</Badge>;
       case 'COMPLETED':
         return <Badge variant="outline" className="bg-green-500/10 text-green-700">Completed</Badge>;
       case 'REJECTED':
@@ -223,7 +223,7 @@ export function ProductRequestsClient({
     <div className="space-y-6">
       {/* Summary Stats */}
       {summary && summary.byStatus.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Requests</CardTitle>
@@ -336,7 +336,7 @@ export function ProductRequestsClient({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          className="text-brand-blue hover:text-brand-blue/80 hover:bg-brand-blue/5"
                           onClick={() => setUploadDialog({ open: true, request: req })}
                         >
                           <Upload className="h-4 w-4" />
@@ -492,7 +492,7 @@ export function ProductRequestsClient({
           </DialogHeader>
           {detailDialog.request && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Tracking Number</p>
                   <p className="font-mono">{detailDialog.request.trackingNumber}</p>
@@ -507,7 +507,7 @@ export function ProductRequestsClient({
                 <p className="font-medium">{detailDialog.request.client.firstName} {detailDialog.request.client.lastName}</p>
                 <p className="text-sm text-muted-foreground">{detailDialog.request.client.email}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Product</p>
                   <p className="font-medium">{detailDialog.request.product.name}</p>
@@ -517,7 +517,7 @@ export function ProductRequestsClient({
                   <p className="font-medium">{detailDialog.request.product.currency} {Number(detailDialog.request.amount).toLocaleString()}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Duration</p>
                   <p>{detailDialog.request.productOption.duration}</p>

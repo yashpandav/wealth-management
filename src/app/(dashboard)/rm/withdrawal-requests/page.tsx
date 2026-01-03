@@ -163,7 +163,7 @@ export default function RMWithdrawalRequestsPage() {
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'RM' && loading)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -176,10 +176,10 @@ export default function RMWithdrawalRequestsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Withdrawal Requests</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Withdrawal Requests</h1>
           <p className="mt-2 text-muted-foreground">
             Review and process withdrawal requests from your assigned clients
           </p>

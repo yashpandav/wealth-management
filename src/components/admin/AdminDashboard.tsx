@@ -108,178 +108,136 @@ export function AdminDashboard() {
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Key Metrics Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         {/* Total AUM Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total AUM</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Total AUM</CardTitle>
+            <DollarSign className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              ${overview.totalAUM.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-brand-blue">
+              ${overview.totalAUM >= 1000000
+                ? `${(overview.totalAUM / 1000000).toFixed(2)}M`
+                : overview.totalAUM >= 1000
+                ? `${(overview.totalAUM / 1000).toFixed(1)}K`
+                : overview.totalAUM.toFixed(0)}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Assets Under Management</p>
           </CardContent>
         </Card>
 
         {/* Total Clients Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Clients</CardTitle>
+            <Users className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview.totalClients.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Active client accounts</p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-brand-blue">{overview.totalClients}</div>
           </CardContent>
         </Card>
 
         {/* Total RMs Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Relationship Managers</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">RMs</CardTitle>
+            <UserCheck className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview.totalRMs.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {overview.totalClients > 0
-                ? `Avg ${(overview.totalClients / overview.totalRMs).toFixed(1)} clients per RM`
-                : 'No clients assigned'}
-            </p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-brand-blue">{overview.totalRMs}</div>
           </CardContent>
         </Card>
 
         {/* Pending Requests Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Pending</CardTitle>
+            <Clock className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview.pendingRequests.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {overview.pendingPurchaseRequests} purchase, {overview.pendingWithdrawalRequests}{' '}
-              withdrawal
-            </p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-amber-600">{overview.pendingRequests}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Secondary Metrics Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {/* Total Instruments Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Instruments</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-3 grid-cols-3">
+        {/* Active Instruments Card */}
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Instruments</CardTitle>
+            <BarChart3 className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview.totalInstruments.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Available for investment</p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-brand-blue">{overview.totalInstruments}</div>
           </CardContent>
         </Card>
 
         {/* Total Transactions Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Transactions</CardTitle>
+            <FileText className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{overview.totalTransactions.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {overview.completedTransactions} completed
-            </p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-brand-blue">{overview.totalTransactions}</div>
           </CardContent>
         </Card>
 
         {/* Transaction Success Rate Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Success Rate</CardTitle>
+            <CheckCircle className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {overview.transactionSuccessRate.toFixed(1)}%
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Transaction completion rate</p>
+          <CardContent className="px-3 pb-3">
+            <div className="text-lg font-bold text-green-600">{overview.transactionSuccessRate.toFixed(0)}%</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions / Insights Section */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
+      {/* Quick Insights */}
+      <div className="grid gap-3 md:grid-cols-2">
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2 px-3 pt-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-1.5">
+              <TrendingUp className="h-4 w-4" />
               Platform Health
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="px-3 pb-3 space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Client-to-RM Ratio</span>
-              <span className="font-semibold">
-                {overview.totalRMs > 0
-                  ? `${(overview.totalClients / overview.totalRMs).toFixed(1)}:1`
-                  : 'N/A'}
+              <span className="text-xs text-gray-600">Client/RM Ratio</span>
+              <span className="text-sm font-semibold">
+                {overview.totalRMs > 0 ? `${(overview.totalClients / overview.totalRMs).toFixed(1)}:1` : 'N/A'}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Average AUM per Client</span>
-              <span className="font-semibold">
-                $
-                {overview.totalClients > 0
-                  ? (overview.totalAUM / overview.totalClients).toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  : '0.00'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Average AUM per RM</span>
-              <span className="font-semibold">
-                $
-                {overview.totalRMs > 0
-                  ? (overview.totalAUM / overview.totalRMs).toLocaleString('en-US', {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
-                  : '0.00'}
+              <span className="text-xs text-gray-600">Avg AUM/Client</span>
+              <span className="text-sm font-semibold">
+                ${overview.totalClients > 0 ? ((overview.totalAUM / overview.totalClients) / 1000).toFixed(1) + 'K' : '0'}
               </span>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2 px-3 pt-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-1.5">
+              <Clock className="h-4 w-4" />
               Pending Actions
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="px-3 pb-3 space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Purchase Requests</span>
-              <span className="font-semibold text-blue-600">
-                {overview.pendingPurchaseRequests}
-              </span>
+              <span className="text-xs text-gray-600">Purchase Requests</span>
+              <span className="text-sm font-semibold text-brand-blue">{overview.pendingPurchaseRequests}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Withdrawal Requests</span>
-              <span className="font-semibold text-orange-600">
-                {overview.pendingWithdrawalRequests}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Total Pending</span>
-              <span className="font-semibold">{overview.pendingRequests}</span>
+              <span className="text-xs text-gray-600">Withdrawal Requests</span>
+              <span className="text-sm font-semibold text-orange-600">{overview.pendingWithdrawalRequests}</span>
             </div>
           </CardContent>
         </Card>
@@ -290,16 +248,16 @@ export function AdminDashboard() {
         <>
           {/* User Growth Trend - Line Chart */}
           {charts.userGrowthTrend.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>User Growth Trend (Last 6 Months)</CardTitle>
+            <Card className="border-gray-200">
+              <CardHeader className="pb-2 px-3 pt-3">
+                <CardTitle className="text-sm font-medium">User Growth (6 Months)</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="px-3 pb-3">
+                <ResponsiveContainer width="100%" height={250}>
                   <LineChart data={charts.userGrowthTrend}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
+                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip />
                     <Legend />
                     <Line
@@ -307,14 +265,14 @@ export function AdminDashboard() {
                       dataKey="clients"
                       stroke="#3b82f6"
                       strokeWidth={2}
-                      name="New Clients"
+                      name="Clients"
                     />
                     <Line
                       type="monotone"
                       dataKey="rms"
                       stroke="#10b981"
                       strokeWidth={2}
-                      name="New RMs"
+                      name="RMs"
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -323,23 +281,23 @@ export function AdminDashboard() {
           )}
 
           {/* Charts Grid */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-3 lg:grid-cols-2">
             {/* RM Distribution - Bar Chart */}
             {charts.rmDistribution.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top RMs by AUM</CardTitle>
+              <Card className="border-gray-200">
+                <CardHeader className="pb-2 px-3 pt-3">
+                  <CardTitle className="text-sm font-medium">Top RMs</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={350}>
+                <CardContent className="px-3 pb-3">
+                  <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={charts.rmDistribution} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis
                         type="number"
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: 11 }}
                         tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                       />
-                      <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 10 }} />
+                      <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10 }} />
                       <Tooltip
                         formatter={(value: number, name: string) => {
                           if (name === 'aum') {
@@ -359,12 +317,12 @@ export function AdminDashboard() {
 
             {/* Instrument Distribution - Pie Chart */}
             {charts.instrumentDistribution.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Instrument Type Distribution</CardTitle>
+              <Card className="border-gray-200">
+                <CardHeader className="pb-2 px-3 pt-3">
+                  <CardTitle className="text-sm font-medium">Instrument Types</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={350}>
+                <CardContent className="px-3 pb-3">
+                  <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
                       <Pie
                         data={charts.instrumentDistribution}
@@ -372,7 +330,7 @@ export function AdminDashboard() {
                         cy="50%"
                         labelLine={false}
                         label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={100}
+                        outerRadius={70}
                         fill="#8884d8"
                         dataKey="value"
                       >
@@ -391,12 +349,12 @@ export function AdminDashboard() {
 
           {/* Transaction Volume Trend - Area Chart */}
           {charts.transactionTrend.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Transaction Volume Trend (Last 30 Days)</CardTitle>
+            <Card className="border-gray-200">
+              <CardHeader className="pb-2 px-3 pt-3">
+                <CardTitle className="text-sm font-medium">Transaction Volume (30 Days)</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="px-3 pb-3">
+                <ResponsiveContainer width="100%" height={250}>
                   <AreaChart data={charts.transactionTrend}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis
@@ -408,7 +366,7 @@ export function AdminDashboard() {
                       }}
                     />
                     <YAxis
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 11 }}
                       tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
@@ -428,7 +386,7 @@ export function AdminDashboard() {
                       stroke="#3b82f6"
                       fill="#3b82f6"
                       fillOpacity={0.6}
-                      name="Purchase Volume"
+                      name="Purchases"
                     />
                     <Area
                       type="monotone"
@@ -437,7 +395,7 @@ export function AdminDashboard() {
                       stroke="#f97316"
                       fill="#f97316"
                       fillOpacity={0.6}
-                      name="Withdrawal Volume"
+                      name="Withdrawals"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -447,12 +405,12 @@ export function AdminDashboard() {
 
           {/* Request Status Distribution - Pie Chart */}
           {charts.requestStatusDistribution.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Request Status Distribution</CardTitle>
+            <Card className="border-gray-200">
+              <CardHeader className="pb-2 px-3 pt-3">
+                <CardTitle className="text-sm font-medium">Request Status</CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={350}>
+              <CardContent className="px-3 pb-3">
+                <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
                       data={charts.requestStatusDistribution}
@@ -460,7 +418,7 @@ export function AdminDashboard() {
                       cy="50%"
                       labelLine={false}
                       label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={100}
+                      outerRadius={70}
                       fill="#8884d8"
                       dataKey="value"
                     >

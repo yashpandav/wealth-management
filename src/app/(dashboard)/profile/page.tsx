@@ -109,8 +109,8 @@ function ProfileContent() {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-          <p className="text-sm text-gray-600">Loading profile...</p>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-brand-blue/20 border-t-brand-blue"></div>
+          <p className="font-georgia text-comments text-brand-grey leading-relaxed">Loading profile...</p>
         </div>
       </div>
     );
@@ -118,41 +118,54 @@ function ProfileContent() {
 
   if (!profile) {
     return (
-      <div className="rounded-md bg-red-50 p-4">
-        <p className="text-sm text-red-800">Failed to load profile</p>
+      <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+        <p className="font-georgia text-comments text-red-800 leading-relaxed">Failed to load profile</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-        <p className="mt-2 text-sm text-gray-600">View and manage your profile information</p>
+    <div className="container mx-auto max-w-4xl px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      {/* Header with Logo */}
+      <div className="mb-8 flex flex-col items-center">
+        <img
+          src="/images/logo/primary-logo-1.png"
+          alt="EMDEE VENTURES"
+          className="h-16 w-auto object-contain"
+        />
+        <div className="mt-3 h-px w-32 bg-brand-grey/40" />
+        <p className="mt-2 text-xs font-optima tracking-wide text-brand-grey">
+          A Better Tomorrow
+        </p>
+      </div>
+
+      <div className="mb-8 text-center">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue tracking-wide leading-tight">My Profile</h1>
+        <p className="font-georgia text-comments text-brand-grey mt-2 leading-relaxed">View and manage your profile information</p>
       </div>
 
       {/* Success Message */}
       {success && (
-        <div className="mb-6 rounded-md bg-green-50 p-4">
-          <p className="text-sm text-green-800">{success}</p>
+        <div className="mb-6 rounded-lg bg-green-50 border border-green-200 p-4">
+          <p className="font-georgia text-comments text-green-800 leading-relaxed">{success}</p>
         </div>
       )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 rounded-md bg-red-50 p-4">
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="mb-6 rounded-lg bg-red-50 border border-red-200 p-4">
+          <p className="font-georgia text-comments text-red-800 leading-relaxed">{error}</p>
         </div>
       )}
 
-      <div className="rounded-lg bg-white shadow">
-        <div className="border-b border-gray-200 px-6 py-4">
+      <div className="rounded-xl bg-white shadow-lg border-2 border-brand-blue/20">
+        <div className="border-b border-brand-grey/20 px-6 py-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Profile Information</h2>
+            <h2 className="font-optima text-xl font-semibold text-brand-blue tracking-wide">Profile Information</h2>
             {!isEditing && (
               <button
                 onClick={() => setIsEditing(true)}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="rounded-lg bg-brand-blue px-6 py-2.5 font-optima text-comments font-medium text-white hover:bg-brand-blue/90 shadow-lg transition-all hover:shadow-xl tracking-wide"
               >
                 Edit Profile
               </button>
@@ -163,9 +176,9 @@ function ProfileContent() {
         <div className="px-6 py-6">
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="firstName" className="font-optima block text-comments font-medium text-brand-blue tracking-wide">
                     First Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -174,12 +187,12 @@ function ProfileContent() {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                    className="font-georgia mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 text-comments leading-relaxed shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="lastName" className="font-optima block text-comments font-medium text-brand-blue tracking-wide">
                     Last Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -188,12 +201,12 @@ function ProfileContent() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                    className="font-georgia mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 text-comments leading-relaxed shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="email" className="font-optima block text-comments font-medium text-brand-blue tracking-wide">
                     Email
                   </label>
                   <input
@@ -201,13 +214,13 @@ function ProfileContent() {
                     id="email"
                     value={profile.email}
                     disabled
-                    className="mt-1 block w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-500 shadow-sm"
+                    className="font-georgia mt-2 block w-full rounded-lg border-2 border-brand-grey/20 bg-brand-blue/5 px-4 py-2.5 text-comments text-brand-grey leading-relaxed shadow-sm"
                   />
-                  <p className="mt-1 text-xs text-gray-500">Email cannot be changed</p>
+                  <p className="font-georgia mt-1.5 text-xs text-brand-grey leading-relaxed">Email cannot be changed</p>
                 </div>
 
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="phone" className="font-optima block text-comments font-medium text-brand-blue tracking-wide">
                     Phone Number
                   </label>
                   <input
@@ -215,16 +228,16 @@ function ProfileContent() {
                     id="phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                    className="font-georgia mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 text-comments leading-relaxed shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                  className="rounded-lg bg-brand-blue px-6 py-2.5 font-optima text-comments font-medium text-white hover:bg-brand-blue/90 disabled:opacity-50 shadow-lg hover:shadow-xl transition-all tracking-wide"
                 >
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -232,50 +245,50 @@ function ProfileContent() {
                   type="button"
                   onClick={handleCancel}
                   disabled={isSaving}
-                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-lg border-2 border-brand-grey/30 bg-white px-6 py-2.5 font-optima text-comments font-medium text-brand-blue hover:bg-brand-blue/5 disabled:opacity-50 transition-all tracking-wide"
                 >
                   Cancel
                 </button>
               </div>
             </form>
           ) : (
-            <dl className="grid gap-6 md:grid-cols-2">
+            <dl className="grid gap-4 sm:gap-6 md:grid-cols-2">
               <div>
-                <dt className="text-sm font-medium text-gray-500">First Name</dt>
-                <dd className="mt-1 text-sm text-gray-900">{profile.firstName}</dd>
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">First Name</dt>
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">{profile.firstName}</dd>
               </div>
 
               <div>
-                <dt className="text-sm font-medium text-gray-500">Last Name</dt>
-                <dd className="mt-1 text-sm text-gray-900">{profile.lastName}</dd>
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Last Name</dt>
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">{profile.lastName}</dd>
               </div>
 
               <div>
-                <dt className="text-sm font-medium text-gray-500">Email</dt>
-                <dd className="mt-1 text-sm text-gray-900">{profile.email}</dd>
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Email</dt>
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed break-all">{profile.email}</dd>
               </div>
 
               <div>
-                <dt className="text-sm font-medium text-gray-500">Phone Number</dt>
-                <dd className="mt-1 text-sm text-gray-900">{profile.phone || 'Not provided'}</dd>
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Phone Number</dt>
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">{profile.phone || 'Not provided'}</dd>
               </div>
 
               <div>
-                <dt className="text-sm font-medium text-gray-500">Role</dt>
-                <dd className="mt-1">
-                  <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-800">
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Role</dt>
+                <dd className="mt-2">
+                  <span className="inline-flex rounded-full bg-brand-blue/10 border border-brand-blue/30 px-3 py-1 font-optima text-xs font-semibold text-brand-blue tracking-wide">
                     {profile.role}
                   </span>
                 </dd>
               </div>
 
               <div>
-                <dt className="text-sm font-medium text-gray-500">Account Status</dt>
-                <dd className="mt-1">
-                  <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
-                    profile.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
-                    profile.status === 'INACTIVE' ? 'bg-gray-100 text-gray-800' :
-                    'bg-red-100 text-red-800'
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Account Status</dt>
+                <dd className="mt-2">
+                  <span className={`inline-flex rounded-full px-3 py-1 font-optima text-xs font-semibold tracking-wide ${
+                    profile.status === 'ACTIVE' ? 'bg-green-50 border border-green-200 text-green-700' :
+                    profile.status === 'INACTIVE' ? 'bg-gray-50 border border-gray-200 text-gray-700' :
+                    'bg-red-50 border border-red-200 text-red-700'
                   }`}>
                     {profile.status}
                   </span>
@@ -283,8 +296,8 @@ function ProfileContent() {
               </div>
 
               <div>
-                <dt className="text-sm font-medium text-gray-500">Email Verified</dt>
-                <dd className="mt-1 text-sm text-gray-900">
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Email Verified</dt>
+                <dd className="font-georgia mt-2 text-comments font-medium leading-relaxed">
                   {profile.emailVerified ? (
                     <span className="text-green-600">✓ Verified</span>
                   ) : (
@@ -294,16 +307,16 @@ function ProfileContent() {
               </div>
 
               <div>
-                <dt className="text-sm font-medium text-gray-500">Member Since</dt>
-                <dd className="mt-1 text-sm text-gray-900">
+                <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Member Since</dt>
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">
                   {new Date(profile.createdAt).toLocaleDateString()}
                 </dd>
               </div>
 
               {profile.lastLogin && (
                 <div>
-                  <dt className="text-sm font-medium text-gray-500">Last Login</dt>
-                  <dd className="mt-1 text-sm text-gray-900">
+                  <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Last Login</dt>
+                  <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">
                     {new Date(profile.lastLogin).toLocaleString()}
                   </dd>
                 </div>
@@ -330,8 +343,8 @@ export default function ProfilePage() {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-          <p className="text-sm text-gray-600">Loading...</p>
+          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-brand-blue/20 border-t-brand-blue"></div>
+          <p className="font-georgia text-comments text-brand-grey leading-relaxed">Loading...</p>
         </div>
       </div>
     );

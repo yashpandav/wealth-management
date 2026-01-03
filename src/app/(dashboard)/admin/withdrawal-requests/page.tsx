@@ -154,9 +154,9 @@ export default function AdminWithdrawalRequestsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Withdrawal Requests - Admin</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Withdrawal Requests - Admin</h1>
         <p className="text-gray-600">
           Review and approve withdrawal requests recommended by Relationship Managers
         </p>
@@ -167,25 +167,25 @@ export default function AdminWithdrawalRequestsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Pending Approval</CardDescription>
-            <CardTitle className="text-3xl text-orange-600">{pendingApproval}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-orange-600">{pendingApproval}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Under Review</CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{underReview}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-brand-blue">{underReview}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Approved</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{approved}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-green-600">{approved}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Rejected</CardDescription>
-            <CardTitle className="text-3xl text-red-600">{rejected}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-red-600">{rejected}</CardTitle>
           </CardHeader>
         </Card>
       </div>

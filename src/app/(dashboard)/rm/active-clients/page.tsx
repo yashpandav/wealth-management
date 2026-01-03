@@ -22,9 +22,9 @@ export default async function ActiveClientsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Active Clients</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Active Clients</h1>
         <p className="text-muted-foreground">
           Verified clients with completed KYC - eligible for investments and transactions
         </p>

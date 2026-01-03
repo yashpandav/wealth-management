@@ -228,7 +228,7 @@ export function UserLeadsTable() {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Label htmlFor="page-size">Per page:</Label>
           <Select
@@ -352,7 +352,7 @@ export function UserLeadsTable() {
                 <CardHeader>
                   <CardTitle className="text-lg">Investment Profile</CardTitle>
                 </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-3">
+                <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                   <div>
                     <Label className="text-muted-foreground">Investment Experience</Label>
                     <p className="font-medium">{selectedLead.investmentExperience || 'Not provided'}</p>

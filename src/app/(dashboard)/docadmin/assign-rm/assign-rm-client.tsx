@@ -395,7 +395,7 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                   </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-2 gap-3 border-t pt-3">
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-3">
                   <div>
                     <div className="text-xs text-muted-foreground">KYC Status</div>
                     <Badge variant="default" className="mt-1 bg-green-600 hover:bg-green-600">

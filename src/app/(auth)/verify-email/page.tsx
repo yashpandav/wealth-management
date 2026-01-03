@@ -72,10 +72,10 @@ function VerifyEmailContent() {
   }, [state, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-center text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
             Email Verification
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
@@ -83,10 +83,10 @@ function VerifyEmailContent() {
           </p>
         </div>
 
-        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="mt-8 bg-white py-4 md:py-6 lg:py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {state === 'loading' && (
             <div className="text-center py-4">
-              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+              <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
               <p className="mt-4 text-sm text-gray-600">Verifying your email address...</p>
             </div>
           )}
@@ -106,7 +106,7 @@ function VerifyEmailContent() {
               <div className="mt-6">
                 <Link
                   href="/login"
-                  className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  className="inline-flex w-full justify-center rounded-md bg-brand-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-blue/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
                   Continue to Login
                 </Link>
@@ -132,13 +132,13 @@ function VerifyEmailContent() {
               <div className="mt-6">
                 <Link
                   href="/login"
-                  className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  className="inline-flex w-full justify-center rounded-md bg-brand-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-blue/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
                   Go to Login
                 </Link>
               </div>
               <p className="mt-4 text-xs text-gray-500">
-                Need help? <a href="mailto:support@example.com" className="text-blue-600 hover:text-blue-500">Contact Support</a>
+                Need help? <a href="mailto:support@example.com" className="text-brand-blue hover:text-brand-blue">Contact Support</a>
               </p>
             </div>
           )}
@@ -158,7 +158,7 @@ function VerifyEmailContent() {
               <div className="mt-6">
                 <Link
                   href="/login"
-                  className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                  className="inline-flex w-full justify-center rounded-md bg-brand-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-blue/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                 >
                   Go to Login
                 </Link>
@@ -169,7 +169,7 @@ function VerifyEmailContent() {
 
         <div className="text-center text-sm">
           <span className="text-gray-600">Already verified? </span>
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link href="/login" className="font-medium text-brand-blue hover:text-brand-blue">
             Sign in here
           </Link>
         </div>
@@ -182,19 +182,19 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-4 md:px-6 lg:px-8">
           <div className="w-full max-w-md space-y-8">
             <div>
-              <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+              <h2 className="mt-6 text-center text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
                 Email Verification
               </h2>
               <p className="mt-2 text-center text-sm text-gray-600">
                 Wealth Management CRM Platform
               </p>
             </div>
-            <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <div className="mt-8 bg-white py-4 md:py-6 lg:py-8 px-4 shadow sm:rounded-lg sm:px-10">
               <div className="text-center py-4">
-                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+                <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-brand-blue border-t-transparent" />
                 <p className="mt-4 text-sm text-gray-600">Loading...</p>
               </div>
             </div>

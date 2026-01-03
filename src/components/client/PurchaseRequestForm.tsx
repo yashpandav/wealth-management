@@ -180,7 +180,7 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
       {/* Instrument Selection */}
       <Card>
         <CardHeader>

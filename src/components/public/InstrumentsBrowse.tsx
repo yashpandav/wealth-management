@@ -145,7 +145,7 @@ export function InstrumentsBrowse() {
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case 'STOCK':
-        return 'bg-blue-500/10 text-blue-700 border-blue-200';
+        return 'bg-brand-blue/10/10 text-brand-blue border-blue-200';
       case 'BOND':
         return 'bg-purple-500/10 text-purple-700 border-purple-200';
       case 'MUTUAL_FUND':
@@ -335,7 +335,7 @@ export function InstrumentsBrowse() {
                   <CardContent className="space-y-4">
                     <p className="text-sm text-gray-700 line-clamp-2">{instrument.description || 'No description available'}</p>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
                           <DollarSign className="h-3 w-3" />
@@ -367,7 +367,7 @@ export function InstrumentsBrowse() {
             <div className="space-y-4">
               {instruments.map((instrument) => (
                 <Card key={instrument.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 md:p-6">
                     <div className="flex flex-col md:flex-row justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-start gap-3 mb-2">

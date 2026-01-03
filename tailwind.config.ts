@@ -9,6 +9,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // EMDEE VENTURES Brand Colors
+        brand: {
+          white: '#F6F6F6',
+          blue: '#002369',
+          grey: '#657997',
+        },
+        // Shadcn UI colors (mapped to brand colors)
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -54,6 +61,16 @@ const config: Config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+      },
+      fontFamily: {
+        optima: ['Optima', 'Georgia', 'serif'],
+        georgia: ['Georgia', 'serif'],
+      },
+      fontSize: {
+        'heading': '50px',
+        'subheading': '30px',
+        'body': '25px',
+        'comments': '15px',
       },
       borderRadius: {
         lg: 'var(--radius)',

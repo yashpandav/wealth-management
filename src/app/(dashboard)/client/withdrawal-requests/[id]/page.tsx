@@ -148,7 +148,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
     return (
       <div className="relative">
         {timeline.map((item, index) => (
-          <div key={index} className="flex gap-4 pb-8 last:pb-0">
+          <div key={index} className="flex flex-col sm:flex-row gap-4 pb-8 last:pb-0">
             {/* Timeline Line */}
             <div className="flex flex-col items-center">
               <div
@@ -158,7 +158,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                     : item.isCompleted
                     ? 'bg-green-500 text-white'
                     : item.isCurrent
-                    ? 'bg-blue-500 text-white animate-pulse'
+                    ? 'bg-brand-blue/10 text-white animate-pulse'
                     : 'bg-gray-200 text-gray-500'
                 }`}
               >
@@ -193,7 +193,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                     : item.isCompleted
                     ? 'text-green-700'
                     : item.isCurrent
-                    ? 'text-blue-700'
+                    ? 'text-brand-blue'
                     : 'text-gray-500'
                 }`}
               >
@@ -230,7 +230,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
   const isPending = !isRejected && !isApproved;
 
   return (
-    <div className="container mx-auto py-8 max-w-6xl">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"
@@ -247,10 +247,10 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
         </Button>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">Withdrawal Request Details</h1>
+      <h1 className="text-2xl md:text-3xl font-bold mb-2">Withdrawal Request Details</h1>
       <p className="text-gray-600 mb-6">Tracking Number: {request.trackingNumber}</p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - Status Timeline */}
         <div className="lg:col-span-1">
           <Card>
@@ -283,7 +283,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                     ? 'bg-red-50 border border-red-200'
                     : isApproved
                     ? 'bg-green-50 border border-green-200'
-                    : 'bg-blue-50 border border-blue-200'
+                    : 'bg-brand-blue/10 border border-blue-200'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -292,7 +292,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                   ) : isApproved ? (
                     <CheckCircle className="h-8 w-8 text-green-600" />
                   ) : (
-                    <Clock className="h-8 w-8 text-blue-600" />
+                    <Clock className="h-8 w-8 text-brand-blue" />
                   )}
                   <div>
                     <p
@@ -328,7 +328,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
               <CardTitle>Withdrawal Amount</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-4xl font-bold text-blue-600">
+              <p className="text-3xl md:text-4xl font-bold text-brand-blue">
                 ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </p>
             </CardContent>
@@ -397,7 +397,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
 
           {/* RM Notes (if available) */}
           {request.rmNotes && (
-            <Card className="border-2 border-blue-200 bg-blue-50/30">
+            <Card className="border-2 border-blue-200 bg-brand-blue/10/30">
               <CardHeader>
                 <CardTitle className="text-blue-900">
                   Relationship Manager Notes
@@ -457,7 +457,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
             <Card className="bg-gray-50">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <AlertCircle className="mr-2 h-5 w-5 text-blue-600" />
+                  <AlertCircle className="mr-2 h-5 w-5 text-brand-blue" />
                   What&apos;s Next?
                 </CardTitle>
               </CardHeader>

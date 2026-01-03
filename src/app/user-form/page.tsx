@@ -10,9 +10,6 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast, Toaster } from 'react-hot-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -20,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   createLeadSchema,
   type CreateLeadInput,
@@ -94,56 +90,70 @@ export default function UserFormPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brand-white py-12 px-4 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <Toaster position="top-right" />
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Wealth Management</h1>
-          <p className="mt-2 text-gray-600">
-            Start your financial journey with us
+        {/* Header with Logo */}
+        <div className="flex flex-col items-center mb-8">
+          {/* Logo */}
+          <img
+            src="/images/logo/primary-logo-1.png"
+            alt="EMDEE VENTURES"
+            className="h-20 w-auto object-contain"
+          />
+
+          {/* Divider */}
+          <div className="mt-4 h-px w-40 bg-brand-grey/40" />
+
+          {/* Tagline */}
+          <p className="mt-3 text-sm font-optima tracking-wide text-brand-grey">
+            A Better Tomorrow
           </p>
         </div>
 
         {/* Form Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Get Started</CardTitle>
-            <CardDescription>Tell us about yourself and we&apos;ll get in touch</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <div className="rounded-xl bg-white shadow-lg border-2 border-brand-blue/20">
+          <div className="border-b border-brand-grey/20 px-6 py-5">
+            <h2 className="font-optima text-xl font-semibold text-brand-blue">Get Started</h2>
+            <p className="font-georgia text-comments text-brand-grey mt-1">Tell us about yourself and we&apos;ll get in touch</p>
+          </div>
+          <div className="px-6 py-6">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
               {/* Name Fields */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="firstName" className="block text-comments font-optima font-medium text-brand-blue">
                     First Name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="firstName"
+                    type="text"
                     {...form.register('firstName')}
                     placeholder="John"
                     disabled={isSubmitting}
+                    className="mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue placeholder-brand-grey/50 shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50"
                   />
                   {form.formState.errors.firstName && (
-                    <p className="text-sm text-red-500">
+                    <p className="mt-1.5 text-xs font-georgia text-red-600">
                       {form.formState.errors.firstName.message}
                     </p>
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">
+                <div>
+                  <label htmlFor="lastName" className="block text-comments font-optima font-medium text-brand-blue">
                     Last Name <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
+                  </label>
+                  <input
                     id="lastName"
+                    type="text"
                     {...form.register('lastName')}
                     placeholder="Doe"
                     disabled={isSubmitting}
+                    className="mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue placeholder-brand-grey/50 shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50"
                   />
                   {form.formState.errors.lastName && (
-                    <p className="text-sm text-red-500">
+                    <p className="mt-1.5 text-xs font-georgia text-red-600">
                       {form.formState.errors.lastName.message}
                     </p>
                   )}
@@ -151,51 +161,53 @@ export default function UserFormPage() {
               </div>
 
               {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email">
+              <div>
+                <label htmlFor="email" className="block text-comments font-optima font-medium text-brand-blue">
                   Email Address <span className="text-red-500">*</span>
-                </Label>
-                <Input
+                </label>
+                <input
                   id="email"
                   type="email"
                   {...form.register('email')}
                   placeholder="john@example.com"
                   disabled={isSubmitting}
+                  className="mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue placeholder-brand-grey/50 shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50"
                 />
                 {form.formState.errors.email && (
-                  <p className="text-sm text-red-500">
+                  <p className="mt-1.5 text-xs font-georgia text-red-600">
                     {form.formState.errors.email.message}
                   </p>
                 )}
               </div>
 
               {/* Phone Number */}
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">
+              <div>
+                <label htmlFor="phoneNumber" className="block text-comments font-optima font-medium text-brand-blue">
                   Phone Number <span className="text-red-500">*</span>
-                </Label>
-                <Input
+                </label>
+                <input
                   id="phoneNumber"
                   type="tel"
                   {...form.register('phoneNumber')}
                   placeholder="+1 (555) 123-4567"
                   disabled={isSubmitting}
+                  className="mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue placeholder-brand-grey/50 shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50"
                 />
                 {form.formState.errors.phoneNumber && (
-                  <p className="text-sm text-red-500">
+                  <p className="mt-1.5 text-xs font-georgia text-red-600">
                     {form.formState.errors.phoneNumber.message}
                   </p>
                 )}
-                <p className="text-xs text-gray-500">
+                <p className="mt-1.5 text-xs font-georgia text-brand-grey">
                   Include country code for international numbers
                 </p>
               </div>
 
               {/* Lead Source */}
-              <div className="space-y-2">
-                <Label htmlFor="leadSource">
+              <div>
+                <label htmlFor="leadSource" className="block text-comments font-optima font-medium text-brand-blue">
                   How did you hear about us? <span className="text-red-500">*</span>
-                </Label>
+                </label>
                 <Select
                   disabled={isSubmitting}
                   onValueChange={(value) =>
@@ -205,54 +217,64 @@ export default function UserFormPage() {
                   }
                   value={form.watch('leadSource')}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a source" />
+                  <SelectTrigger className="mt-2 h-auto rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue shadow-sm transition-all focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50">
+                    <SelectValue placeholder="Select a source" className="font-georgia text-brand-grey/50" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-lg border-2 border-brand-blue/20 bg-white shadow-lg">
                     {leadSourceOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="font-georgia text-comments text-brand-blue hover:bg-brand-blue focus:bg-brand-blue"
+                      >
                         {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {form.formState.errors.leadSource && (
-                  <p className="text-sm text-red-500">
+                  <p className="mt-1.5 text-xs font-georgia text-red-600">
                     {form.formState.errors.leadSource.message}
                   </p>
                 )}
               </div>
 
               {/* RM Reference (Optional) */}
-              <div className="space-y-2">
-                <Label htmlFor="rmReference">
-                  RM Reference <span className="text-gray-500">(Optional)</span>
-                </Label>
-                <Input
+              <div>
+                <label htmlFor="rmReference" className="block text-comments font-optima font-medium text-brand-blue">
+                  RM Reference <span className="text-brand-grey">(Optional)</span>
+                </label>
+                <input
                   id="rmReference"
+                  type="text"
                   {...form.register('rmReference')}
                   placeholder="Enter RM name or code if you have one"
                   disabled={isSubmitting}
+                  className="mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue placeholder-brand-grey/50 shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50"
                 />
                 {form.formState.errors.rmReference && (
-                  <p className="text-sm text-red-500">
+                  <p className="mt-1.5 text-xs font-georgia text-red-600">
                     {form.formState.errors.rmReference.message}
                   </p>
                 )}
-                <p className="text-xs text-gray-500">
+                <p className="mt-1.5 text-xs font-georgia text-brand-grey">
                   If you were referred by or already know a Relationship Manager, enter their name or code here
                 </p>
               </div>
 
               {/* Submit Button */}
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full rounded-lg bg-brand-blue px-6 py-2.5 font-optima text-comments font-semibold text-brand-white shadow-lg transition-all duration-200 ease-in-out hover:bg-opacity-90 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-lg sm:w-auto"
+                >
                   {isSubmitting ? 'Submitting...' : 'Submit'}
-                </Button>
+                </button>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

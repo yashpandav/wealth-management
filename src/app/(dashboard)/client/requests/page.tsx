@@ -102,7 +102,7 @@ export default function ClientRequestsPage() {
       case RequestStatus.PENDING:
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case RequestStatus.PROCESSING:
-        return <RefreshCw className="h-5 w-5 text-blue-600 animate-spin" />;
+        return <RefreshCw className="h-5 w-5 text-brand-blue animate-spin" />;
       case RequestStatus.APPROVED:
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case RequestStatus.REJECTED:
@@ -161,9 +161,9 @@ export default function ClientRequestsPage() {
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4">
         <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+          <RefreshCw className="h-8 w-8 animate-spin text-brand-blue" />
         </div>
       </div>
     );
@@ -174,22 +174,22 @@ export default function ClientRequestsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex items-start justify-between">
+    <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Purchase Requests</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Purchase Requests</h1>
+          <p className="font-georgia text-brand-grey mt-2">
             Track the status of your investment purchase requests
           </p>
         </div>
-        <Button onClick={fetchRequests} variant="outline" size="sm">
+        <Button onClick={fetchRequests} variant="outline" size="sm" className="font-optima">
           <RefreshCw className="mr-2 h-4 w-4" />
           Refresh
         </Button>
       </div>
 
       {/* Status Filter */}
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2">
         <Button
           variant={selectedStatus === 'ALL' ? 'default' : 'outline'}
           size="sm"
@@ -228,7 +228,7 @@ export default function ClientRequestsPage() {
       </div>
 
       {/* Requests List */}
-      <div className="mt-8 space-y-6">
+      <div className="space-y-5">
         {filteredRequests.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
@@ -283,7 +283,7 @@ export default function ClientRequestsPage() {
                     : request.status === RequestStatus.REJECTED
                     ? 'bg-red-50 border border-red-200'
                     : request.status === RequestStatus.PROCESSING
-                    ? 'bg-blue-50 border border-blue-200'
+                    ? 'bg-brand-blue/10 border border-blue-200'
                     : 'bg-yellow-50 border border-yellow-200'
                 }`}>
                   <p className={`text-sm font-medium ${
@@ -300,7 +300,7 @@ export default function ClientRequestsPage() {
                 </div>
 
                 {/* Request Details */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
                     <p className="mt-1 text-2xl font-bold">
@@ -345,7 +345,7 @@ export default function ClientRequestsPage() {
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-3">
                       <div className="flex h-5 w-5 items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-blue-600" />
+                        <div className="h-2 w-2 rounded-full bg-brand-blue" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">Submitted</p>
@@ -369,7 +369,7 @@ export default function ClientRequestsPage() {
                               ? 'bg-green-600'
                               : request.status === RequestStatus.REJECTED
                               ? 'bg-red-600'
-                              : 'bg-blue-600'
+                              : 'bg-brand-blue'
                           }`} />
                         </div>
                         <div className="flex-1">

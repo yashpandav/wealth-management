@@ -45,7 +45,7 @@ export default function InstrumentsPage() {
             </svg>
             Back to Home
           </a>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Investment Instruments</h1>
+          <h1 className="text-3xl md:text-4xl md:text-4xl md:text-5xl font-bold mb-4">Investment Instruments</h1>
           <p className="text-xl text-blue-100 max-w-2xl">
             Discover a wide range of investment opportunities tailored to your financial goals and
             risk tolerance
@@ -61,7 +61,7 @@ export default function InstrumentsPage() {
       {/* Call to Action */}
       <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white py-16 px-4 mt-12">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Start Investing?</h2>
+          <h2 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold mb-4">Ready to Start Investing?</h2>
           <p className="text-xl text-indigo-100 mb-8">
             Create an account to access these investment opportunities and connect with a dedicated
             relationship manager
@@ -69,13 +69,13 @@ export default function InstrumentsPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="/register"
-              className="px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
+              className="px-4 md:px-6 lg:px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
             >
               Create Account
             </a>
             <a
               href="/login"
-              className="px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors"
+              className="px-4 md:px-6 lg:px-8 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors"
             >
               Sign In
             </a>

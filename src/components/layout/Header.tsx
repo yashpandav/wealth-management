@@ -37,12 +37,12 @@ export function Header({ onMenuClick }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-white shadow-sm">
       <div className="flex h-16 items-center px-4 lg:px-6">
         {/* Mobile Menu Button */}
         <button
           onClick={onMenuClick}
-          className="mr-4 inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent hover:text-accent-foreground lg:hidden"
+          className="mr-4 inline-flex items-center justify-center rounded-md p-2 text-brand-grey hover:bg-brand-blue hover:text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 lg:hidden"
           aria-label="Toggle menu"
         >
           <svg
@@ -60,39 +60,34 @@ export function Header({ onMenuClick }: HeaderProps) {
           </svg>
         </button>
 
-        {/* Logo */}
-        <Link href="/" className="mr-6 flex items-center space-x-2">
-          <svg
-            className="h-8 w-8 text-primary"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-          <span className="hidden font-bold text-foreground sm:inline-block">
-            WealthCRM
-          </span>
+        {/* EMDEE VENTURES Logo */}
+        <Link href="/" className="mr-6 flex items-center space-x-3">
+          <img
+            src="/images/logo/primary-logo-1.png"
+            alt="EMDEE VENTURES"
+            className="h-10 w-auto object-contain"
+          />
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden flex-1 items-center space-x-6 text-sm font-medium lg:flex">
+        <nav className="hidden flex-1 items-center space-x-6 text-sm font-medium font-optima lg:flex">
           {session?.user?.role === 'ADMIN' && (
             <>
               <Link
                 href="/admin/users"
-                className="text-foreground/60 transition-colors hover:text-foreground"
+                className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue"
               >
                 Users
               </Link>
               <Link
                 href="/admin/assignments"
-                className="text-foreground/60 transition-colors hover:text-foreground"
+                className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue"
               >
                 Assignments
               </Link>
               <Link
                 href="/admin/audit-logs"
-                className="text-foreground/60 transition-colors hover:text-foreground"
+                className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue"
               >
                 Audit Logs
               </Link>
@@ -100,10 +95,10 @@ export function Header({ onMenuClick }: HeaderProps) {
           )}
           {session?.user?.role === 'RM' && (
             <>
-              <span className="text-foreground/60 transition-colors hover:text-foreground">
+              <span className="text-brand-grey transition-colors duration-200 hover:text-brand-blue cursor-pointer">
                 My Clients
               </span>
-              <span className="text-foreground/60 transition-colors hover:text-foreground">
+              <span className="text-brand-grey transition-colors duration-200 hover:text-brand-blue cursor-pointer">
                 Requests
               </span>
             </>
@@ -112,7 +107,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             <>
               <Link
                 href="/client/portfolio"
-                className="text-foreground/60 transition-colors hover:text-foreground"
+                className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue"
               >
                 Portfolio
               </Link>
@@ -129,7 +124,7 @@ export function Header({ onMenuClick }: HeaderProps) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-9 w-9 rounded-full"
+                  className="relative h-9 w-9 rounded-full hover:bg-brand-blue/10 transition-colors duration-200"
                 >
                   <Avatar className="h-9 w-9">
                     <AvatarFallback className="bg-primary text-primary-foreground">
@@ -154,28 +149,36 @@ export function Header({ onMenuClick }: HeaderProps) {
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/profile">Profile Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={handleSignOut}
-                  className="cursor-pointer text-destructive focus:text-destructive"
-                >
-                  Sign Out
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="font-optima transition-colors duration-200 hover:text-primary-foreground focus:text-primary-foreground hover:bg-primary focus:bg-primary">
+                    <Link href="/profile" >
+                      Profile Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="cursor-pointer font-optima text-destructive transition-colors duration-200 hover:bg-destructive hover:text-white focus:bg-destructive focus:text-white"
+                  >
+                    Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </>
           ) : (
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" asChild>
-                <Link href="/login">Sign In</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">Sign Up</Link>
-              </Button>
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium font-optima text-brand-blue transition-colors duration-200 hover:text-brand-blue/80 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-medium font-optima text-white transition-colors duration-200 hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2"
+              >
+                Sign Up
+              </Link>
             </div>
           )}
         </div>

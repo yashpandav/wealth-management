@@ -111,20 +111,20 @@ export function RegisterForm() {
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
       {error && (
         <div className="rounded-md bg-red-50 p-4">
-          <div className="text-sm font-medium text-red-800">{error}</div>
+          <div className="text-comments font-optima font-medium text-red-800">{error}</div>
         </div>
       )}
 
       {success && (
         <div className="rounded-md bg-green-50 p-4">
-          <div className="text-sm font-medium text-green-800">{success}</div>
+          <div className="text-comments font-optima font-medium text-green-800">{success}</div>
         </div>
       )}
 
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="firstName" className="block text-comments font-optima font-medium text-brand-blue">
               First Name
             </label>
             <input
@@ -134,14 +134,14 @@ export function RegisterForm() {
               required
               value={formData.firstName}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
               placeholder="John"
               disabled={isLoading}
             />
           </div>
 
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="lastName" className="block text-comments font-optima font-medium text-brand-blue">
               Last Name
             </label>
             <input
@@ -151,7 +151,7 @@ export function RegisterForm() {
               required
               value={formData.lastName}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
               placeholder="Doe"
               disabled={isLoading}
             />
@@ -159,7 +159,7 @@ export function RegisterForm() {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-comments font-optima font-medium text-brand-blue">
             Email Address
           </label>
           <input
@@ -170,14 +170,14 @@ export function RegisterForm() {
             required
             value={formData.email}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
             placeholder="john@example.com"
             disabled={isLoading}
           />
         </div>
 
         <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="phone" className="block text-comments font-optima font-medium text-brand-blue">
             Phone Number (Optional)
           </label>
           <input
@@ -186,14 +186,14 @@ export function RegisterForm() {
             type="tel"
             value={formData.phone}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
             placeholder="+1 (555) 123-4567"
             disabled={isLoading}
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="block text-comments font-optima font-medium text-brand-blue">
             Password
           </label>
           <input
@@ -204,17 +204,17 @@ export function RegisterForm() {
             required
             value={formData.password}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
             placeholder="••••••••"
             disabled={isLoading}
           />
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs font-optima text-brand-grey">
             Must be at least 8 characters with uppercase, lowercase, number, and special character
           </p>
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="confirmPassword" className="block text-comments font-optima font-medium text-brand-blue">
             Confirm Password
           </label>
           <input
@@ -225,7 +225,7 @@ export function RegisterForm() {
             required
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
             placeholder="••••••••"
             disabled={isLoading}
           />
@@ -236,15 +236,15 @@ export function RegisterForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex w-full justify-center rounded-md bg-brand-blue px-4 py-2.5 text-comments font-optima font-semibold text-brand-white transition-all duration-200 ease-in-out hover:bg-opacity-90 hover:shadow-lg hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           {isLoading ? 'Creating account...' : 'Create Account'}
         </button>
       </div>
 
-      <div className="text-center text-sm">
-        <span className="text-gray-600">Already have an account? </span>
-        <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+      <div className="text-center text-comments font-optima">
+        <span className="text-brand-grey">Already have an account? </span>
+        <a href="/login" className="font-medium text-brand-blue hover:text-brand-grey transition-colors duration-200 ease-in-out underline-offset-2 hover:underline">
           Sign in
         </a>
       </div>

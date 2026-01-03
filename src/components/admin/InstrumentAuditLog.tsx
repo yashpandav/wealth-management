@@ -81,7 +81,7 @@ export function InstrumentAuditLog({ instrumentId }: InstrumentAuditLogProps) {
       case AuditAction.INSTRUMENT_CREATE:
         return <Badge className="bg-green-600">Created</Badge>;
       case AuditAction.INSTRUMENT_UPDATE:
-        return <Badge className="bg-blue-600">Updated</Badge>;
+        return <Badge className="bg-brand-blue">Updated</Badge>;
       case AuditAction.INSTRUMENT_DELETE:
         return <Badge variant="destructive">Deleted</Badge>;
       case AuditAction.INSTRUMENT_ACTIVATE:
@@ -128,7 +128,7 @@ export function InstrumentAuditLog({ instrumentId }: InstrumentAuditLogProps) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <CardTitle>Audit Trail</CardTitle>
             <CardDescription>Complete history of all changes to this instrument</CardDescription>
@@ -150,15 +150,15 @@ export function InstrumentAuditLog({ instrumentId }: InstrumentAuditLogProps) {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="py-8 text-center text-muted-foreground">Loading audit logs...</div>
+          <div className="py-4 md:py-6 lg:py-8 text-center text-muted-foreground">Loading audit logs...</div>
         ) : logs.length === 0 ? (
-          <div className="py-8 text-center text-muted-foreground">No audit logs found</div>
+          <div className="py-4 md:py-6 lg:py-8 text-center text-muted-foreground">No audit logs found</div>
         ) : (
           <>
             {/* Timeline */}
             <div className="space-y-4">
               {logs.map((log, index) => (
-                <div key={log.id} className="relative flex gap-4">
+                <div key={log.id} className="relative flex flex-col sm:flex-row gap-4">
                   {/* Timeline connector */}
                   {index < logs.length - 1 && (
                     <div className="absolute left-4 top-10 h-full w-px bg-border" />

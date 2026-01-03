@@ -140,7 +140,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-3xl px-4 py-4 md:py-6 lg:py-8">
         <div className="rounded-md bg-red-50 p-4">
           <p className="text-sm text-red-800">User not found</p>
         </div>
@@ -149,18 +149,18 @@ function EditUserContent({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-brand-blue"
           >
             ← Back
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Edit User</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Edit User</h1>
             <p className="mt-2 text-sm text-gray-600">
               Update user details, role, and account status
             </p>
@@ -227,7 +227,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                     setRole(originalRole);
                   }}
                   disabled={isSaving}
-                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -271,8 +271,8 @@ function EditUserContent({ params }: { params: { id: string } }) {
 
       {/* Edit Form */}
       <div className="rounded-lg bg-white shadow">
-        <form onSubmit={handleSubmit} className="space-y-6 p-6">
-          <div className="grid gap-6 md:grid-cols-2">
+        <form onSubmit={handleSubmit} className="space-y-6 p-4 md:p-6">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
             {/* First Name */}
             <div>
               <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
@@ -285,7 +285,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 maxLength={100}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -301,7 +301,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 onChange={(e) => setLastName(e.target.value)}
                 required
                 maxLength={100}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -316,7 +316,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={20}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -330,7 +330,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="CLIENT">Client</option>
                 <option value="RM">Relationship Manager</option>
@@ -353,7 +353,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="ACTIVE">Active</option>
                 <option value="INACTIVE">Inactive</option>
@@ -368,7 +368,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 id="isActive"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
               />
               <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
                 Account is active
@@ -381,7 +381,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-md bg-brand-blue px-6 py-2 text-sm font-medium text-white hover:bg-brand-blue/90 disabled:opacity-50"
             >
               {isSaving ? 'Saving Changes...' : 'Save Changes'}
             </button>
@@ -389,7 +389,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
               type="button"
               onClick={() => router.back()}
               disabled={isSaving}
-              className="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
             >
               Cancel
             </button>

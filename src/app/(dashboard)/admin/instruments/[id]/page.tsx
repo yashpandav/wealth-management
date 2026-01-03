@@ -73,13 +73,13 @@ export default async function InstrumentDetailPage({ params }: InstrumentDetailP
   };
 
   return (
-    <div className="container mx-auto max-w-4xl py-8">
+    <div className="container mx-auto max-w-4xl py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{instrument.name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{instrument.name}</h1>
               <Badge variant={instrument.isActive ? 'default' : 'secondary'}>
                 {instrument.isActive ? 'Active' : 'Inactive'}
               </Badge>

@@ -4,112 +4,112 @@
 
 @layer base {
   :root {
-    /* Wealth Management Professional Theme */
+    /* EMDEE VENTURES Brand Theme */
 
-    /* Base colors */
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* Base colors - EMDEE White background */
+    --background: 0 0% 96.5%; /* #F6F6F6 */
+    --foreground: 217 100% 21%; /* #002369 - EMDEE Blue */
 
     /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 217 100% 21%; /* #002369 */
 
     /* Popovers and dropdowns */
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 217 100% 21%;
 
-    /* Primary: Professional blue for trust and stability */
-    --primary: 217 91% 35%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: EMDEE Blue for trust and stability */
+    --primary: 217 100% 21%; /* #002369 */
+    --primary-foreground: 0 0% 96.5%; /* #F6F6F6 */
 
-    /* Secondary: Refined slate for secondary actions */
-    --secondary: 215 20% 95%;
-    --secondary-foreground: 222 47% 11%;
+    /* Secondary: EMDEE Grey for secondary actions */
+    --secondary: 216 21% 50%; /* #657997 */
+    --secondary-foreground: 0 0% 96.5%;
 
-    /* Muted: Subtle backgrounds */
-    --muted: 215 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Muted: Subtle backgrounds using EMDEE White */
+    --muted: 0 0% 96.5%;
+    --muted-foreground: 216 21% 50%; /* #657997 */
 
-    /* Accent: Highlight color for interactive elements */
-    --accent: 215 20% 95%;
-    --accent-foreground: 222 47% 11%;
+    /* Accent: EMDEE Grey for interactive elements */
+    --accent: 216 21% 50%; /* #657997 */
+    --accent-foreground: 0 0% 96.5%;
 
     /* Destructive: Error and critical actions */
     --destructive: 0 84% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success: Positive returns and growth (custom variable) */
+    /* Success: Positive returns and growth */
     --success: 142 71% 35%;
     --success-foreground: 0 0% 100%;
 
-    /* Warning: Alerts and cautions (custom variable) */
+    /* Warning: Alerts and cautions */
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    /* Info: Informational messages (custom variable) */
+    /* Info: Informational messages */
     --info: 199 89% 48%;
     --info-foreground: 0 0% 100%;
 
-    /* Borders and inputs */
-    --border: 215 20% 88%;
-    --input: 215 20% 88%;
-    --ring: 217 91% 35%;
+    /* Borders and inputs - EMDEE Grey tint */
+    --border: 216 21% 85%;
+    --input: 216 21% 85%;
+    --ring: 217 100% 21%; /* #002369 */
 
     /* Border radius */
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Dark mode for wealth management platform */
+    /* EMDEE VENTURES Dark Mode */
 
     /* Base colors */
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
+    --background: 217 100% 10%; /* Dark EMDEE Blue */
+    --foreground: 0 0% 96.5%; /* EMDEE White */
 
     /* Card surfaces */
-    --card: 222 47% 10%;
-    --card-foreground: 210 40% 98%;
+    --card: 217 100% 15%;
+    --card-foreground: 0 0% 96.5%;
 
     /* Popovers and dropdowns */
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 217 100% 15%;
+    --popover-foreground: 0 0% 96.5%;
 
     /* Primary: Brighter blue for dark mode */
-    --primary: 217 91% 55%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 217 100% 35%;
+    --primary-foreground: 0 0% 96.5%;
 
-    /* Secondary: Darker slate */
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    /* Secondary: EMDEE Grey adjusted for dark mode */
+    --secondary: 216 21% 40%;
+    --secondary-foreground: 0 0% 96.5%;
 
     /* Muted: Subtle dark backgrounds */
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 217 100% 15%;
+    --muted-foreground: 216 21% 70%;
 
-    /* Accent: Highlight for dark mode */
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent: EMDEE Grey for dark mode */
+    --accent: 216 21% 40%;
+    --accent-foreground: 0 0% 96.5%;
 
     /* Destructive: Adjusted for dark mode */
     --destructive: 0 84% 55%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 96.5%;
 
     /* Success: Adjusted for dark mode */
     --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    --success-foreground: 0 0% 96.5%;
 
     /* Warning: Adjusted for dark mode */
     --warning: 38 92% 60%;
-    --warning-foreground: 222 47% 11%;
+    --warning-foreground: 217 100% 10%;
 
     /* Info: Adjusted for dark mode */
     --info: 199 89% 58%;
-    --info-foreground: 222 47% 11%;
+    --info-foreground: 217 100% 10%;
 
     /* Borders and inputs */
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 217 91% 55%;
+    --border: 217 100% 25%;
+    --input: 217 100% 25%;
+    --ring: 217 100% 35%;
   }
 }
 
@@ -119,5 +119,17 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Optima', 'Georgia', serif;
+  }
+
+  /* Typography presets matching EMDEE VENTURES brand */
+  h1 {
+    font-family: 'Optima', 'Georgia', serif;
+    font-weight: 700;
+  }
+
+  h2, h3, h4, h5, h6 {
+    font-family: 'Optima', 'Georgia', serif;
+    font-weight: 700;
   }
 }

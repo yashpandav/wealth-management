@@ -199,83 +199,85 @@ export function ClientAnalyticsDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Gain/Loss</CardTitle>
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Gain/Loss</CardTitle>
             {isPositive ? (
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-3.5 w-3.5 text-green-600" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-red-600" />
+              <TrendingDown className="h-3.5 w-3.5 text-red-600" />
             )}
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 pb-3">
             <div className={`text-2xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}${analytics.overview.gainLoss.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              {isPositive ? '+' : ''}${Math.abs(analytics.overview.gainLoss) >= 1000
+                ? `${(analytics.overview.gainLoss / 1000).toFixed(1)}K`
+                : analytics.overview.gainLoss.toFixed(0)}
             </div>
-            <p className={`text-xs ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}{analytics.overview.gainLossPercent.toFixed(2)}% return
+            <p className={`text-xs mt-0.5 font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositive ? '+' : ''}{analytics.overview.gainLossPercent.toFixed(1)}%
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Annualized Return</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Annual Return</CardTitle>
+            <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics.overview.annualizedReturn.toFixed(2)}%
+          <CardContent className="px-3 pb-3">
+            <div className="text-2xl font-bold text-brand-blue">
+              {analytics.overview.annualizedReturn.toFixed(1)}%
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs mt-0.5 text-gray-600">
               {analytics.performance.yearsSinceCreation.toFixed(1)} years
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Diversification Score</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Diversification</CardTitle>
+            <PieChart className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="px-3 pb-3">
+            <div className="text-2xl font-bold text-brand-blue">
               {analytics.riskMetrics.diversificationScore.toFixed(0)}/100
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs mt-0.5 text-gray-600">
               {analytics.riskMetrics.numberOfHoldings} holdings
             </p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Concentration Risk</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+        <Card className="border-gray-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+            <CardTitle className="text-xs font-medium text-gray-600">Concentration</CardTitle>
+            <BarChart3 className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {analytics.riskMetrics.concentrationRisk.toFixed(1)}%
+          <CardContent className="px-3 pb-3">
+            <div className="text-2xl font-bold text-brand-blue">
+              {analytics.riskMetrics.concentrationRisk.toFixed(0)}%
             </div>
-            <p className="text-xs text-muted-foreground">
-              Largest single allocation
+            <p className="text-xs mt-0.5 text-gray-600">
+              Top allocation
             </p>
           </CardContent>
         </Card>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2">
         {/* Asset Allocation by Type - Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Asset Allocation by Type</CardTitle>
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2 px-3 pt-3">
+            <CardTitle className="text-sm font-medium">Asset Type</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-3 pb-3">
+            <ResponsiveContainer width="100%" height={250}>
               <RechartsPieChart>
                 <Pie
                   data={allocationPieData}
@@ -283,7 +285,7 @@ export function ClientAnalyticsDashboard() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percentage }) => `${name}: ${percentage.toFixed(1)}%`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -299,12 +301,12 @@ export function ClientAnalyticsDashboard() {
         </Card>
 
         {/* Sector Allocation - Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sector Allocation</CardTitle>
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2 px-3 pt-3">
+            <CardTitle className="text-sm font-medium">Sector Allocation</CardTitle>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+          <CardContent className="px-3 pb-3">
+            <ResponsiveContainer width="100%" height={250}>
               <RechartsPieChart>
                 <Pie
                   data={sectorPieData}
@@ -312,7 +314,7 @@ export function ClientAnalyticsDashboard() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percentage }) => `${name}: ${percentage.toFixed(1)}%`}
-                  outerRadius={80}
+                  outerRadius={70}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -329,21 +331,21 @@ export function ClientAnalyticsDashboard() {
       </div>
 
       {/* Top Holdings - Bar Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Holdings by Value</CardTitle>
+      <Card className="border-gray-200">
+        <CardHeader className="pb-2 px-3 pt-3">
+          <CardTitle className="text-sm font-medium">Top Holdings</CardTitle>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
+        <CardContent className="px-3 pb-3">
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart data={topHoldingsBarData} layout="horizontal">
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 11 }}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 11 }}
                 tickLine={false}
                 tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
               />
@@ -355,61 +357,67 @@ export function ClientAnalyticsDashboard() {
       </Card>
 
       {/* Performance Metrics Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Performance Summary</CardTitle>
+      <Card className="border-gray-200">
+        <CardHeader className="pb-2 px-3 pt-3">
+          <CardTitle className="text-sm font-medium">Performance Summary</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b pb-3">
+        <CardContent className="px-3 pb-3">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
               <div>
-                <p className="text-sm font-medium">Portfolio Value</p>
-                <p className="text-xs text-muted-foreground">Current market value</p>
+                <p className="text-xs font-medium text-gray-600">Portfolio Value</p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold">
-                  ${analytics.overview.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                <p className="text-base font-bold text-brand-blue">
+                  ${analytics.overview.totalValue >= 1000000
+                    ? `${(analytics.overview.totalValue / 1000000).toFixed(2)}M`
+                    : analytics.overview.totalValue >= 1000
+                    ? `${(analytics.overview.totalValue / 1000).toFixed(1)}K`
+                    : analytics.overview.totalValue.toFixed(0)}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
               <div>
-                <p className="text-sm font-medium">Total Invested</p>
-                <p className="text-xs text-muted-foreground">Amount invested</p>
+                <p className="text-xs font-medium text-gray-600">Total Invested</p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold">
-                  ${analytics.overview.totalInvested.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                <p className="text-base font-bold text-brand-blue">
+                  ${analytics.overview.totalInvested >= 1000000
+                    ? `${(analytics.overview.totalInvested / 1000000).toFixed(2)}M`
+                    : analytics.overview.totalInvested >= 1000
+                    ? `${(analytics.overview.totalInvested / 1000).toFixed(1)}K`
+                    : analytics.overview.totalInvested.toFixed(0)}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-b pb-3">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
               <div>
-                <p className="text-sm font-medium">Day Change</p>
-                <p className="text-xs text-muted-foreground">Today&apos;s performance</p>
+                <p className="text-xs font-medium text-gray-600">Today's Change</p>
               </div>
               <div className="text-right">
-                <p className={`text-lg font-bold ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {analytics.overview.dayChange >= 0 ? '+' : ''}${analytics.overview.dayChange.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                <p className={`text-base font-bold ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {analytics.overview.dayChange >= 0 ? '+' : ''}${Math.abs(analytics.overview.dayChange) >= 1000
+                    ? `${(analytics.overview.dayChange / 1000).toFixed(1)}K`
+                    : analytics.overview.dayChange.toFixed(0)}
                 </p>
                 <p className={`text-xs ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {analytics.overview.dayChange >= 0 ? '+' : ''}{analytics.overview.dayChangePercent.toFixed(2)}%
+                  {analytics.overview.dayChange >= 0 ? '+' : ''}{analytics.overview.dayChangePercent.toFixed(1)}%
                 </p>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">Investment Period</p>
-                <p className="text-xs text-muted-foreground">Time in market</p>
+                <p className="text-xs font-medium text-gray-600">Time in Market</p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold">
+                <p className="text-base font-bold text-brand-blue">
                   {analytics.performance.daysSinceCreation} days
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-600">
                   {analytics.performance.yearsSinceCreation.toFixed(1)} years
                 </p>
               </div>

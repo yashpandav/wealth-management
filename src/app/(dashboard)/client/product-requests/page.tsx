@@ -120,7 +120,7 @@ function ClientProductRequestsContent() {
       case RequestStatus.PENDING:
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case RequestStatus.PROCESSING:
-        return <RefreshCw className="h-5 w-5 text-blue-600 animate-spin" />;
+        return <RefreshCw className="h-5 w-5 text-brand-blue animate-spin" />;
       case RequestStatus.APPROVED:
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case RequestStatus.REJECTED:
@@ -179,7 +179,7 @@ function ClientProductRequestsContent() {
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
     return (
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -196,10 +196,10 @@ function ClientProductRequestsContent() {
       <Suspense fallback={null}>
         <SearchParamsHandler router={router} />
       </Suspense>
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Product Requests</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">My Product Requests</h1>
           <p className="mt-2 text-muted-foreground">
             Track the status of your product purchase requests
           </p>
@@ -310,7 +310,7 @@ function ClientProductRequestsContent() {
                     : request.status === RequestStatus.REJECTED
                     ? 'bg-red-50 border border-red-200'
                     : request.status === RequestStatus.PROCESSING
-                    ? 'bg-blue-50 border border-blue-200'
+                    ? 'bg-brand-blue/10 border border-blue-200'
                     : 'bg-yellow-50 border border-yellow-200'
                 }`}>
                   <p className={`text-sm font-medium ${
@@ -327,7 +327,7 @@ function ClientProductRequestsContent() {
                 </div>
 
                 {/* Request Details */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
                     <p className="mt-1 text-2xl font-bold">
@@ -373,7 +373,7 @@ function ClientProductRequestsContent() {
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-3">
                       <div className="flex h-5 w-5 items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-blue-600" />
+                        <div className="h-2 w-2 rounded-full bg-brand-blue" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">Submitted</p>
@@ -397,7 +397,7 @@ function ClientProductRequestsContent() {
                               ? 'bg-green-600'
                               : request.status === RequestStatus.REJECTED
                               ? 'bg-red-600'
-                              : 'bg-blue-600'
+                              : 'bg-brand-blue'
                           }`} />
                         </div>
                         <div className="flex-1">
@@ -473,7 +473,7 @@ function ClientProductRequestsContent() {
 export default function ClientProductRequestsPage() {
   return (
     <Suspense fallback={
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-4 md:py-6 lg:py-8">
         <div className="flex items-center justify-center py-12">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>

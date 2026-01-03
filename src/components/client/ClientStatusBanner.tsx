@@ -44,7 +44,7 @@ export function ClientStatusBanner({
       ? 'border-red-500/50 bg-red-50 text-red-900 dark:border-red-500 dark:bg-red-950 dark:text-red-200'
       : banner.type === 'warning'
         ? 'border-yellow-500/50 bg-yellow-50 text-yellow-900 dark:border-yellow-500 dark:bg-yellow-950 dark:text-yellow-200'
-        : 'border-blue-500/50 bg-blue-50 text-blue-900 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-200';
+        : 'border-brand-blue/50 bg-brand-blue/10 text-blue-900 dark:border-brand-blue dark:bg-blue-950 dark:text-blue-200';
 
   return (
     <Alert className={`${variantClass} ${className}`}>

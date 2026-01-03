@@ -22,9 +22,9 @@ export default async function RMLeadsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-4 md:py-6 lg:py-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Leads</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Leads</h1>
         <p className="text-muted-foreground">
           Unregistered leads assigned to you - follow up to convert them to clients
         </p>
