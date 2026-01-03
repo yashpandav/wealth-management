@@ -293,14 +293,14 @@ export function DocumentUploadForm({
     return (
       <Card className="bg-white shadow-lg">
         <CardHeader>
-          <CardTitle className="text-center text-xl text-blue-600">
+          <CardTitle className="text-center text-xl text-brand-blue">
             Documents Under Review
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert className="bg-blue-50 border-blue-200">
+          <Alert className="bg-brand-blue/10 border-blue-200">
             <AlertTitle className="text-blue-800">Verification in Progress</AlertTitle>
-            <AlertDescription className="text-blue-700">
+            <AlertDescription className="text-brand-blue">
               Your documents have been submitted and are being reviewed by our team.
               You will receive an email notification once the verification is complete.
             </AlertDescription>
@@ -309,7 +309,7 @@ export function DocumentUploadForm({
           <div className="text-center space-y-4 py-4">
             <div className="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
               <svg
-                className="w-8 h-8 text-blue-600 animate-pulse"
+                className="w-8 h-8 text-brand-blue animate-pulse"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -323,7 +323,7 @@ export function DocumentUploadForm({
               </svg>
             </div>
             <p className="text-gray-600">
-              Status: <span className="font-semibold text-blue-600">
+              Status: <span className="font-semibold text-brand-blue">
                 {verificationStatus === 'PENDING' ? 'Pending Review' : 'Under Review'}
               </span>
             </p>
@@ -493,7 +493,7 @@ export function DocumentUploadForm({
                           file:mr-4 file:py-2 file:px-4
                           file:rounded-md file:border-0
                           file:text-sm file:font-semibold
-                          file:bg-blue-50 file:text-blue-700
+                          file:bg-brand-blue/10 file:text-brand-blue
                           hover:file:bg-blue-100
                           disabled:opacity-50 disabled:cursor-not-allowed"
                       />

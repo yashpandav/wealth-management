@@ -504,7 +504,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-border bg-card transition-transform duration-200 ease-in-out lg:translate-x-0',
+          'fixed left-0 top-16 z-40 h-[calc(100vh-4rem)] w-64 border-r border-border bg-white shadow-sm transition-transform duration-200 ease-in-out lg:translate-x-0',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -533,11 +533,12 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                   href={item.href as any} // eslint-disable-line @typescript-eslint/no-explicit-any
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium font-optima transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-1',
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                      ? 'bg-brand-blue text-brand-white'
+                      : 'text-brand-grey hover:bg-brand-blue/10 hover:text-brand-blue active:bg-brand-blue/20'
                   )}
+                  aria-current={isActive ? 'page' : undefined}
                 >
                   {item.icon}
                   {item.label}

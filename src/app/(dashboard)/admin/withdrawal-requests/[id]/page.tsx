@@ -236,7 +236,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
           Back to Requests
         </Button>
         <div className="flex items-center gap-2">
-          <Shield className="h-5 w-5 text-blue-600" />
+          <Shield className="h-5 w-5 text-brand-blue" />
           <span className="text-sm font-medium text-gray-600">Admin Review</span>
         </div>
       </div>
@@ -350,7 +350,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
         <CardContent className="space-y-4">
           <div>
             <Label className="text-gray-600">Withdrawal Amount</Label>
-            <p className="text-3xl font-bold text-blue-600">
+            <p className="text-3xl font-bold text-brand-blue">
               ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </p>
             {request.client.portfolio && (
@@ -419,7 +419,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
 
       {/* RM Recommendation */}
       {request.processedByRM && (
-        <Card className="mb-6 border-2 border-blue-200 bg-blue-50/30">
+        <Card className="mb-6 border-2 border-blue-200 bg-brand-blue/10/30">
           <CardHeader>
             <CardTitle className="flex items-center text-blue-900">
               <Shield className="mr-2 h-5 w-5" />
@@ -582,14 +582,14 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-4">
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="p-4 bg-brand-blue/10 rounded-lg border border-blue-200">
               <p className="font-semibold text-blue-900">
                 Withdraw ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </p>
-              <p className="text-sm text-blue-700 mt-1">
+              <p className="text-sm text-brand-blue mt-1">
                 From {request.client.user.firstName} {request.client.user.lastName}&apos;s portfolio
               </p>
-              <p className="text-sm text-blue-700">To {request.bankName}</p>
+              <p className="text-sm text-brand-blue">To {request.bankName}</p>
             </div>
             <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
               <li>Deduct the amount from the client&apos;s portfolio</li>

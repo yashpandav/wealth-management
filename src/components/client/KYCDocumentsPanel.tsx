@@ -253,7 +253,7 @@ export function KYCDocumentsPanel() {
         );
       case 'UNDER_REVIEW':
         return (
-          <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+          <Badge className="bg-blue-100 text-blue-800 hover:bg-brand-blue/10">
             <Clock className="mr-1 h-3 w-3" />
             Under Review
           </Badge>
@@ -310,8 +310,8 @@ export function KYCDocumentsPanel() {
       </div>
 
       {showUnderReviewBanner && (
-        <Alert className="border-blue-200 bg-blue-50">
-          <Clock className="h-4 w-4 text-blue-600" />
+        <Alert className="border-blue-200 bg-brand-blue/10">
+          <Clock className="h-4 w-4 text-brand-blue" />
           <AlertTitle className="text-blue-900">Documents Under Review</AlertTitle>
           <AlertDescription className="text-blue-800">
             Your submitted documents are being reviewed by our team.
@@ -377,7 +377,7 @@ export function KYCDocumentsPanel() {
                         href={existingDoc.filePath}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                        className="flex items-center gap-1 text-xs text-brand-blue hover:text-brand-blue/80 hover:underline transition-colors duration-200"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         View

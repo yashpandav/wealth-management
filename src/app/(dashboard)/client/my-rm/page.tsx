@@ -99,18 +99,18 @@ export default function MyRMPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
+        <RefreshCw className="h-8 w-8 animate-spin text-brand-blue" />
       </div>
     );
   }
 
   if (!rm) {
     return (
-      <div className="container mx-auto py-8 max-w-4xl">
+      <div className="container mx-auto py-8 px-4 max-w-4xl">
         <Card>
           <CardHeader>
-            <CardTitle>No Relationship Manager Assigned</CardTitle>
-            <CardDescription>
+            <CardTitle className="font-optima text-brand-blue">No Relationship Manager Assigned</CardTitle>
+            <CardDescription className="font-georgia text-brand-grey">
               You don&apos;t have a Relationship Manager assigned yet. Please contact support.
             </CardDescription>
           </CardHeader>
@@ -120,10 +120,10 @@ export default function MyRMPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">My Relationship Manager</h1>
-        <p className="text-gray-600">
+    <div className="container max-w-4xl px-8 py-8">
+      <div className="mb-6">
+        <h1 className="font-optima text-3xl font-bold text-brand-blue">My Relationship Manager</h1>
+        <p className="font-georgia text-brand-grey mt-2">
           Your dedicated advisor for all investment needs
         </p>
       </div>
@@ -166,7 +166,7 @@ export default function MyRMPage() {
                 <Mail className="h-5 w-5 text-gray-500" />
                 <a
                   href={`mailto:${rm.email}`}
-                  className="text-blue-600 hover:underline"
+                  className="text-brand-blue hover:underline"
                 >
                   {rm.email}
                 </a>
@@ -179,7 +179,7 @@ export default function MyRMPage() {
                     <Phone className="h-5 w-5 text-gray-500" />
                     <a
                       href={`tel:${rm.phone}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-brand-blue hover:underline"
                     >
                       {rm.phone}
                     </a>
@@ -223,9 +223,9 @@ export default function MyRMPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Total Clients */}
-            <div className="flex items-start gap-4 p-4 rounded-lg bg-blue-50">
+            <div className="flex items-start gap-4 p-4 rounded-lg bg-brand-blue/10">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <Users className="h-6 w-6 text-blue-600" />
+                <Users className="h-6 w-6 text-brand-blue" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Clients Managed</p>
@@ -275,7 +275,7 @@ export default function MyRMPage() {
       </Card>
 
       {/* Information Card */}
-      <Card className="mt-6 bg-blue-50 border-blue-200">
+      <Card className="mt-6 bg-brand-blue/10 border-blue-200">
         <CardContent className="pt-6">
           <div className="flex gap-3">
             <div className="flex-shrink-0">
@@ -292,7 +292,7 @@ export default function MyRMPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-sm text-blue-700">
+              <p className="text-sm text-brand-blue">
                 <strong>Your Dedicated Advisor:</strong> {rm.firstName} is here to help you with all your investment decisions,
                 portfolio management, and financial goals. Feel free to reach out anytime for assistance.
               </p>

@@ -241,7 +241,7 @@ export function ProductPurchaseRequestsTable() {
       case 'REJECTED':
         return <Badge variant="outline" className="bg-red-500/10 text-red-700">Rejected</Badge>;
       case 'COMPLETED':
-        return <Badge variant="outline" className="bg-blue-500/10 text-blue-700">Completed</Badge>;
+        return <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">Completed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }

@@ -81,7 +81,7 @@ export function InstrumentAuditLog({ instrumentId }: InstrumentAuditLogProps) {
       case AuditAction.INSTRUMENT_CREATE:
         return <Badge className="bg-green-600">Created</Badge>;
       case AuditAction.INSTRUMENT_UPDATE:
-        return <Badge className="bg-blue-600">Updated</Badge>;
+        return <Badge className="bg-brand-blue">Updated</Badge>;
       case AuditAction.INSTRUMENT_DELETE:
         return <Badge variant="destructive">Deleted</Badge>;
       case AuditAction.INSTRUMENT_ACTIVATE:

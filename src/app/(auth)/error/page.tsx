@@ -48,7 +48,7 @@ function ErrorContent() {
         <div className="text-center">
           <a
             href="/login"
-            className="font-medium text-blue-600 hover:text-blue-500"
+            className="font-medium text-brand-blue hover:text-brand-blue"
           >
             Return to login
           </a>

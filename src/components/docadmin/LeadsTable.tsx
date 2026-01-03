@@ -194,7 +194,7 @@ export function LeadsTable() {
   // Get status color
   const getStatusColor = (status: LeadStatus) => {
     const colors: Record<LeadStatus, string> = {
-      NEW: 'bg-blue-500/10 text-blue-700',
+      NEW: 'bg-brand-blue/10/10 text-brand-blue',
       CONTACTED: 'bg-purple-500/10 text-purple-700',
       INTERESTED: 'bg-green-500/10 text-green-700',
       NOT_INTERESTED: 'bg-orange-500/10 text-orange-700',

@@ -167,7 +167,7 @@ export default function RMPerformancePage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total RMs</CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{totalRMs}</CardTitle>
+            <CardTitle className="text-3xl text-brand-blue">{totalRMs}</CardTitle>
           </CardHeader>
         </Card>
         <Card>

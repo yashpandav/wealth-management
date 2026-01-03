@@ -247,7 +247,7 @@ function AdminUsersContent() {
         </div>
         <a
           href="/admin/users/create"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90"
         >
           Create User
         </a>
@@ -268,7 +268,7 @@ function AdminUsersContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name or email..."
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -284,7 +284,7 @@ function AdminUsersContent() {
                   setRoleFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="">All Roles</option>
                 <option value="ADMIN">Admin</option>
@@ -305,7 +305,7 @@ function AdminUsersContent() {
                   setStatusFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="">All Statuses</option>
                 <option value="ACTIVE">Active</option>
@@ -318,7 +318,7 @@ function AdminUsersContent() {
           <div className="flex gap-2">
             <button
               type="submit"
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90"
             >
               Search
             </button>
@@ -354,7 +354,7 @@ function AdminUsersContent() {
 
       {/* Bulk Operations Toolbar */}
       {selectedUsers.length > 0 && (
-        <div className="mb-6 rounded-lg bg-blue-50 p-4 shadow">
+        <div className="mb-6 rounded-lg bg-brand-blue/10 p-4 shadow">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-blue-900">
@@ -363,7 +363,7 @@ function AdminUsersContent() {
               <select
                 value={bulkOperation}
                 onChange={(e) => setBulkOperation(e.target.value)}
-                className="rounded-md border border-blue-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="rounded-md border border-brand-blue bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="">Select Operation</option>
                 <option value="activate">Activate</option>
@@ -375,14 +375,14 @@ function AdminUsersContent() {
               <button
                 onClick={handleBulkOperation}
                 disabled={!bulkOperation || isBulkProcessing}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90 disabled:opacity-50"
               >
                 {isBulkProcessing ? 'Processing...' : 'Apply'}
               </button>
             </div>
             <button
               onClick={() => setSelectedUsers([])}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-brand-blue hover:text-brand-blue/80"
             >
               Clear Selection
             </button>
@@ -413,7 +413,7 @@ function AdminUsersContent() {
                       type="checkbox"
                       checked={selectedUsers.length === users.length && users.length > 0}
                       onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
                     />
                   </th>
                   <th
@@ -459,7 +459,7 @@ function AdminUsersContent() {
                         type="checkbox"
                         checked={selectedUsers.includes(user.id)}
                         onChange={() => toggleSelectUser(user.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
                       />
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
@@ -524,7 +524,7 @@ function AdminUsersContent() {
                         <select
                           value={user.status}
                           onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                          className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                          className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                           title="Change Status"
                         >
                           <option value="ACTIVE">Active</option>
@@ -535,7 +535,7 @@ function AdminUsersContent() {
                         {/* Edit Link */}
                         <Link
                           href={`/admin/users/${user.id}/edit`}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-brand-blue hover:text-brand-blue/80"
                         >
                           Edit
                         </Link>
@@ -554,14 +554,14 @@ function AdminUsersContent() {
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={!pagination.hasPrevPage}
-                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={!pagination.hasNextPage}
-                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Next
                 </button>
@@ -585,7 +585,7 @@ function AdminUsersContent() {
                     <button
                       onClick={() => setCurrentPage(currentPage - 1)}
                       disabled={!pagination.hasPrevPage}
-                      className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                     >
                       Previous
                     </button>
@@ -595,7 +595,7 @@ function AdminUsersContent() {
                     <button
                       onClick={() => setCurrentPage(currentPage + 1)}
                       disabled={!pagination.hasNextPage}
-                      className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                     >
                       Next
                     </button>

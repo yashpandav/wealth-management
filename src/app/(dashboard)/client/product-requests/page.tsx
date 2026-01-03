@@ -120,7 +120,7 @@ function ClientProductRequestsContent() {
       case RequestStatus.PENDING:
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case RequestStatus.PROCESSING:
-        return <RefreshCw className="h-5 w-5 text-blue-600 animate-spin" />;
+        return <RefreshCw className="h-5 w-5 text-brand-blue animate-spin" />;
       case RequestStatus.APPROVED:
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case RequestStatus.REJECTED:
@@ -310,7 +310,7 @@ function ClientProductRequestsContent() {
                     : request.status === RequestStatus.REJECTED
                     ? 'bg-red-50 border border-red-200'
                     : request.status === RequestStatus.PROCESSING
-                    ? 'bg-blue-50 border border-blue-200'
+                    ? 'bg-brand-blue/10 border border-blue-200'
                     : 'bg-yellow-50 border border-yellow-200'
                 }`}>
                   <p className={`text-sm font-medium ${
@@ -373,7 +373,7 @@ function ClientProductRequestsContent() {
                   <div className="space-y-2 text-sm">
                     <div className="flex items-start gap-3">
                       <div className="flex h-5 w-5 items-center justify-center">
-                        <div className="h-2 w-2 rounded-full bg-blue-600" />
+                        <div className="h-2 w-2 rounded-full bg-brand-blue" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">Submitted</p>
@@ -397,7 +397,7 @@ function ClientProductRequestsContent() {
                               ? 'bg-green-600'
                               : request.status === RequestStatus.REJECTED
                               ? 'bg-red-600'
-                              : 'bg-blue-600'
+                              : 'bg-brand-blue'
                           }`} />
                         </div>
                         <div className="flex-1">

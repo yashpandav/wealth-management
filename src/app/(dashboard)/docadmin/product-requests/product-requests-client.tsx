@@ -187,7 +187,7 @@ export function ProductRequestsClient({
       case 'PENDING':
         return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700">Pending</Badge>;
       case 'APPROVED':
-        return <Badge variant="outline" className="bg-blue-500/10 text-blue-700">Approved</Badge>;
+        return <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">Approved</Badge>;
       case 'COMPLETED':
         return <Badge variant="outline" className="bg-green-500/10 text-green-700">Completed</Badge>;
       case 'REJECTED':
@@ -336,7 +336,7 @@ export function ProductRequestsClient({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          className="text-brand-blue hover:text-brand-blue/80 hover:bg-brand-blue/5"
                           onClick={() => setUploadDialog({ open: true, request: req })}
                         >
                           <Upload className="h-4 w-4" />

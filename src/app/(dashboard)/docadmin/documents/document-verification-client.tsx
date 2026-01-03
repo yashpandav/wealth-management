@@ -292,8 +292,8 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-1 text-sm rounded-md transition-colors ${
                   statusFilter === status
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-brand-blue text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-brand-blue/20'
                 }`}
               >
                 {status.replace('_', ' ')}
@@ -318,12 +318,12 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
             <div key={client.clientId} className="bg-white border rounded-lg overflow-hidden">
               {/* Client Header */}
               <div
-                className="p-4 cursor-pointer hover:bg-gray-50 flex items-center justify-between"
+                className="p-4 cursor-pointer hover:bg-brand-blue/5 flex items-center justify-between"
                 onClick={() => toggleExpand(client.clientId)}
               >
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-semibold">
+                    <span className="text-brand-blue font-semibold">
                       {client.clientName.charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -361,7 +361,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                         e.stopPropagation();
                         openAssignModal(client);
                       }}
-                      className="px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                      className="px-3 py-2 bg-brand-blue text-white text-sm rounded-md hover:bg-brand-blue/90"
                     >
                       Assign RM
                     </button>
@@ -404,7 +404,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                               href={doc.filePath}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800 text-sm"
+                              className="text-brand-blue hover:text-brand-blue/80 text-sm"
                             >
                               {doc.fileName}
                             </a>
@@ -470,7 +470,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                 <h2 className="text-xl font-bold text-gray-900">
                   {actionType === 'VERIFY' ? 'Verify Document' : 'Reject Document'}
                 </h2>
-                <button onClick={closeDocModal} className="text-gray-400 hover:text-gray-600 text-2xl">
+                <button onClick={closeDocModal} className="text-gray-400 hover:text-brand-blue text-2xl">
                   ×
                 </button>
               </div>
@@ -501,7 +501,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                     href={selectedDocument.filePath}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 hover:text-blue-800"
+                    className="inline-flex items-center text-brand-blue hover:text-brand-blue/80"
                   >
                     <svg className="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -521,14 +521,14 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
                     placeholder="Please provide a reason for rejection..."
                   />
                 </div>
               )}
 
               {actionType === 'VERIFY' && (
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                <div className="mb-6 p-4 bg-brand-blue/10 rounded-lg">
                   <p className="text-sm text-blue-800">
                     <strong>Note:</strong> You can assign a Relationship Manager after all documents for this client are verified.
                   </p>
@@ -538,7 +538,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
               <div className="flex justify-end gap-3">
                 <button
                   onClick={closeDocModal}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-brand-blue/20"
                 >
                   Cancel
                 </button>
@@ -566,7 +566,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-xl font-bold text-gray-900">Assign Relationship Manager</h2>
-                <button onClick={closeAssignModal} className="text-gray-400 hover:text-gray-600 text-2xl">
+                <button onClick={closeAssignModal} className="text-gray-400 hover:text-brand-blue text-2xl">
                   ×
                 </button>
               </div>
@@ -584,7 +584,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                 <select
                   value={selectedRM}
                   onChange={(e) => setSelectedRM(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-blue"
                 >
                   <option value="">-- Select RM --</option>
                   {relationshipManagers.map((rm) => (
@@ -598,14 +598,14 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
               <div className="flex justify-end gap-3">
                 <button
                   onClick={closeAssignModal}
-                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-brand-blue/20"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleAssignRM}
                   disabled={processing || !selectedRM}
-                  className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 text-white bg-brand-blue rounded-md hover:bg-brand-blue/90 disabled:opacity-50"
                 >
                   {processing ? 'Assigning...' : 'Assign RM'}
                 </button>

@@ -158,7 +158,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                     : item.isCompleted
                     ? 'bg-green-500 text-white'
                     : item.isCurrent
-                    ? 'bg-blue-500 text-white animate-pulse'
+                    ? 'bg-brand-blue/10 text-white animate-pulse'
                     : 'bg-gray-200 text-gray-500'
                 }`}
               >
@@ -193,7 +193,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                     : item.isCompleted
                     ? 'text-green-700'
                     : item.isCurrent
-                    ? 'text-blue-700'
+                    ? 'text-brand-blue'
                     : 'text-gray-500'
                 }`}
               >
@@ -283,7 +283,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                     ? 'bg-red-50 border border-red-200'
                     : isApproved
                     ? 'bg-green-50 border border-green-200'
-                    : 'bg-blue-50 border border-blue-200'
+                    : 'bg-brand-blue/10 border border-blue-200'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -292,7 +292,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                   ) : isApproved ? (
                     <CheckCircle className="h-8 w-8 text-green-600" />
                   ) : (
-                    <Clock className="h-8 w-8 text-blue-600" />
+                    <Clock className="h-8 w-8 text-brand-blue" />
                   )}
                   <div>
                     <p
@@ -328,7 +328,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
               <CardTitle>Withdrawal Amount</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-4xl font-bold text-blue-600">
+              <p className="text-4xl font-bold text-brand-blue">
                 ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </p>
             </CardContent>
@@ -397,7 +397,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
 
           {/* RM Notes (if available) */}
           {request.rmNotes && (
-            <Card className="border-2 border-blue-200 bg-blue-50/30">
+            <Card className="border-2 border-blue-200 bg-brand-blue/10/30">
               <CardHeader>
                 <CardTitle className="text-blue-900">
                   Relationship Manager Notes
@@ -457,7 +457,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
             <Card className="bg-gray-50">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <AlertCircle className="mr-2 h-5 w-5 text-blue-600" />
+                  <AlertCircle className="mr-2 h-5 w-5 text-brand-blue" />
                   What&apos;s Next?
                 </CardTitle>
               </CardHeader>

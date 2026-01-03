@@ -140,14 +140,14 @@ export function RegisteredClientsTable() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <a href={`mailto:${client.user.email}`} className="text-blue-600 hover:underline">
+                        <a href={`mailto:${client.user.email}`} className="text-brand-blue hover:underline">
                           {client.user.email}
                         </a>
                       </div>
                       {client.user.phone && (
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="h-3 w-3 text-muted-foreground" />
-                          <a href={`tel:${client.user.phone}`} className="text-blue-600 hover:underline">
+                          <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline">
                             {client.user.phone}
                           </a>
                         </div>

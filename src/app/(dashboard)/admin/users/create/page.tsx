@@ -172,7 +172,7 @@ function CreateUserContent() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-brand-blue"
           >
             ← Back
           </button>
@@ -209,7 +209,7 @@ function CreateUserContent() {
                   <p className="text-sm font-semibold text-gray-900 mb-1">
                     Temporary Password (share securely with user):
                   </p>
-                  <code className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                  <code className="text-sm font-mono text-brand-blue bg-brand-blue/10 px-2 py-1 rounded">
                     {tempPassword}
                   </code>
                   <p className="mt-2 text-xs text-gray-600">
@@ -247,7 +247,7 @@ function CreateUserContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                 placeholder="user@example.com"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -267,7 +267,7 @@ function CreateUserContent() {
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 maxLength={100}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                 placeholder="John"
               />
             </div>
@@ -284,7 +284,7 @@ function CreateUserContent() {
                 onChange={(e) => setLastName(e.target.value)}
                 required
                 maxLength={100}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                 placeholder="Doe"
               />
             </div>
@@ -300,7 +300,7 @@ function CreateUserContent() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={20}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                 placeholder="+1 (555) 000-0000"
               />
             </div>
@@ -315,7 +315,7 @@ function CreateUserContent() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="CLIENT">Client - Can invest and manage portfolio</option>
                 <option value="RM">Relationship Manager - Can manage clients</option>
@@ -338,7 +338,7 @@ function CreateUserContent() {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="ACTIVE">Active - User can login and use the system</option>
                 <option value="INACTIVE">Inactive - User cannot login</option>
@@ -348,7 +348,7 @@ function CreateUserContent() {
           </div>
 
           {/* Info Box */}
-          <div className="rounded-md bg-blue-50 p-4">
+          <div className="rounded-md bg-brand-blue/10 p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -364,7 +364,7 @@ function CreateUserContent() {
                 </svg>
               </div>
               <div className="ml-3 flex-1">
-                <p className="text-sm text-blue-700">
+                <p className="text-sm text-brand-blue">
                   <strong>Important:</strong> A temporary password will be generated for this user.
                   Make sure to securely share it with them. The user will be required to change
                   their password on first login.
@@ -378,7 +378,7 @@ function CreateUserContent() {
             <button
               type="submit"
               disabled={isLoading}
-              className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-md bg-brand-blue px-6 py-2 text-sm font-medium text-white hover:bg-brand-blue/90 disabled:opacity-50"
             >
               {isLoading ? 'Creating User...' : 'Create User'}
             </button>
@@ -386,7 +386,7 @@ function CreateUserContent() {
               type="button"
               onClick={() => router.back()}
               disabled={isLoading}
-              className="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
             >
               Cancel
             </button>

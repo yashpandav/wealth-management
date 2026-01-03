@@ -173,7 +173,7 @@ export default function AdminWithdrawalRequestsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Under Review</CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{underReview}</CardTitle>
+            <CardTitle className="text-3xl text-brand-blue">{underReview}</CardTitle>
           </CardHeader>
         </Card>
         <Card>

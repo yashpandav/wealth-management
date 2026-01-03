@@ -267,7 +267,7 @@ export function AdminDashboard() {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Purchase Requests</span>
-              <span className="font-semibold text-blue-600">
+              <span className="font-semibold text-brand-blue">
                 {overview.pendingPurchaseRequests}
               </span>
             </div>

@@ -235,7 +235,7 @@ export default function WithdrawPage() {
 
               <Separator />
 
-              <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
+              <div className="rounded-lg bg-brand-blue/10 border border-blue-200 p-3">
                 <p className="text-sm text-blue-900">
                   <strong>Note:</strong> Withdrawals require two-tier approval (RM review + Admin approval) and may take 3-5 business days to process.
                 </p>

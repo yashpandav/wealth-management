@@ -1,13 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from '@/lib/auth';
 
-const inter = Inter({ subsets: ['latin'] });
-
 export const metadata: Metadata = {
-  title: 'Wealth Management CRM',
-  description: 'Enterprise-grade Wealth Management CRM Platform',
+  title: 'EMDEE VENTURES | Wealth Management',
+  description: 'EMDEE VENTURES - A Better Tomorrow. Investment and Holding Company.',
 };
 
 export default function RootLayout({
@@ -17,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>

@@ -155,7 +155,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-brand-blue"
           >
             ← Back
           </button>
@@ -227,7 +227,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                     setRole(originalRole);
                   }}
                   disabled={isSaving}
-                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Cancel
                 </button>
@@ -285,7 +285,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 onChange={(e) => setFirstName(e.target.value)}
                 required
                 maxLength={100}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -301,7 +301,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 onChange={(e) => setLastName(e.target.value)}
                 required
                 maxLength={100}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -316,7 +316,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 maxLength={20}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -330,7 +330,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="CLIENT">Client</option>
                 <option value="RM">Relationship Manager</option>
@@ -353,7 +353,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="ACTIVE">Active</option>
                 <option value="INACTIVE">Inactive</option>
@@ -368,7 +368,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
                 id="isActive"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
               />
               <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
                 Account is active
@@ -381,7 +381,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-md bg-brand-blue px-6 py-2 text-sm font-medium text-white hover:bg-brand-blue/90 disabled:opacity-50"
             >
               {isSaving ? 'Saving Changes...' : 'Save Changes'}
             </button>
@@ -389,7 +389,7 @@ function EditUserContent({ params }: { params: { id: string } }) {
               type="button"
               onClick={() => router.back()}
               disabled={isSaving}
-              className="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-md border border-gray-300 bg-white px-6 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
             >
               Cancel
             </button>

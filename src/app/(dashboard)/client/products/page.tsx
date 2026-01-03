@@ -28,10 +28,10 @@ export default function ClientProductsPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-brand-white flex items-center justify-center">
         <div className="flex items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <span className="text-muted-foreground">Loading...</span>
+          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+          <span className="font-georgia text-brand-grey">Loading...</span>
         </div>
       </div>
     );
@@ -42,16 +42,16 @@ export default function ClientProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white py-16 px-4">
+      <div className="bg-brand-blue text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <Link
             href="/client/portfolio"
-            className="inline-flex items-center text-blue-100 hover:text-white mb-4 transition-colors"
+            className="inline-flex items-center text-brand-grey hover:text-white mb-4 transition-colors font-georgia text-comments"
           >
             <svg
-              className="h-5 w-5 mr-2"
+              className="h-4 w-4 mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -65,48 +65,48 @@ export default function ClientProductsPage() {
             </svg>
             Back to Dashboard
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Investment Products</h1>
-          <p className="text-xl text-blue-100 max-w-2xl">
-            Explore our premium investment ventures with competitive returns and flexible withdrawal options
+          <h1 className="font-optima text-heading font-bold mb-3 leading-tight">Investment Products</h1>
+          <p className="font-georgia text-body text-white/90 max-w-3xl leading-relaxed">
+            Explore our curated investment ventures designed to deliver sustainable returns with flexible withdrawal options
           </p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-8 py-8">
         <ProductsBrowse />
       </div>
 
       {/* How It Works Section */}
-      <div className="bg-white py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">How It Works</h2>
+      <div className="bg-white py-12 px-4 border-t border-brand-grey/20">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-optima text-subheading font-bold text-center text-brand-blue mb-10">How It Works</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold">1</span>
+              <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
+                <span className="font-optima text-2xl font-bold">1</span>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Choose a Product</h3>
-              <p className="text-gray-600">
-                Select a venture based on your investment amount and goals
+              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Choose a Product</h3>
+              <p className="font-georgia text-brand-grey leading-relaxed text-sm">
+                Select a venture aligned with your investment goals and financial capacity
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold">2</span>
+              <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
+                <span className="font-optima text-2xl font-bold">2</span>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Select Your Plan</h3>
-              <p className="text-gray-600">
-                Pick your preferred duration and withdrawal frequency
+              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Select Your Plan</h3>
+              <p className="font-georgia text-brand-grey leading-relaxed text-sm">
+                Choose your preferred investment duration and withdrawal frequency
               </p>
             </div>
             <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl font-bold">3</span>
+              <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
+                <span className="font-optima text-2xl font-bold">3</span>
               </div>
-              <h3 className="font-semibold text-lg mb-2">Submit Request</h3>
-              <p className="text-gray-600">
-                Your RM will review and process your investment request
+              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Submit Request</h3>
+              <p className="font-georgia text-brand-grey leading-relaxed text-sm">
+                Your dedicated Relationship Manager will review and process your request
               </p>
             </div>
           </div>
@@ -114,15 +114,15 @@ export default function ClientProductsPage() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-br from-indigo-600 to-purple-700 text-white py-16 px-4">
+      <div className="bg-brand-blue text-white py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Need Help Choosing?</h2>
-          <p className="text-xl text-indigo-100 mb-8">
-            Contact your Relationship Manager for personalized investment advice
+          <h2 className="font-optima text-subheading md:text-heading font-bold mb-4 leading-tight">Need Guidance?</h2>
+          <p className="font-georgia text-body text-white/90 mb-8 leading-relaxed">
+            Connect with your Relationship Manager for personalized investment advice
           </p>
           <Link
             href="/client/my-rm"
-            className="inline-block px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-indigo-50 transition-colors"
+            className="inline-block px-10 py-4 bg-white text-brand-blue font-optima font-semibold rounded-lg hover:bg-brand-white transition-all shadow-lg hover:shadow-xl"
           >
             Contact My RM
           </Link>

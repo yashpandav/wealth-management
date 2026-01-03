@@ -122,7 +122,7 @@ export function RMDashboard() {
       case 'REJECTED':
         return 'bg-red-500/10 text-red-700';
       case 'ADMIN_REVIEW':
-        return 'bg-blue-500/10 text-blue-700';
+        return 'bg-brand-blue/10/10 text-brand-blue';
       default:
         return 'bg-gray-500/10 text-gray-700';
     }
@@ -210,13 +210,13 @@ export function RMDashboard() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium">Withdrawal Requests</span>
-                    <span className="text-lg font-bold text-blue-600">
+                    <span className="text-lg font-bold text-brand-blue">
                       {charts.approvalRates.withdrawalApprovalRate.toFixed(1)}%
                     </span>
                   </div>
                   <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-600 rounded-full"
+                      className="h-full bg-brand-blue rounded-full"
                       style={{ width: `${charts.approvalRates.withdrawalApprovalRate}%` }}
                     />
                   </div>

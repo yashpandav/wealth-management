@@ -200,7 +200,7 @@ export function ActiveClientsTable() {
                     <TableCell>{client.user.email}</TableCell>
                     <TableCell>
                       {client.user.phone ? (
-                        <a href={`tel:${client.user.phone}`} className="text-blue-600 hover:underline">
+                        <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline">
                           {client.user.phone}
                         </a>
                       ) : (

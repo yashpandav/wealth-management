@@ -131,14 +131,14 @@ export default async function DocAdminDashboardPage() {
           </Link>
 
           <Link href="/docadmin/documents?status=UNDER_REVIEW" className="block">
-            <div className="bg-white border border-gray-200 rounded-lg p-5 hover:border-blue-300 transition-colors">
+            <div className="bg-white border border-gray-200 rounded-lg p-5 hover:border-brand-blue transition-colors">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 font-medium">Under Review</p>
                   <p className="text-3xl font-bold text-gray-900 mt-1">{docStats.underReview}</p>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-3 bg-brand-blue/10 rounded-lg">
+                  <svg className="h-6 w-6 text-brand-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
@@ -240,7 +240,7 @@ export default async function DocAdminDashboardPage() {
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Recent Documents</h2>
-            <Link href="/docadmin/documents" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/docadmin/documents" className="text-sm text-brand-blue hover:text-brand-blue/80 font-medium">
               View All
             </Link>
           </div>
@@ -258,7 +258,7 @@ export default async function DocAdminDashboardPage() {
                 <Link
                   key={doc.id}
                   href={`/docadmin/documents?documentId=${doc.id}`}
-                  className="block border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                  className="block border border-gray-200 rounded-lg p-4 hover:border-brand-blue hover:bg-brand-blue/5 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -290,7 +290,7 @@ export default async function DocAdminDashboardPage() {
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Recent Product Requests</h2>
-            <Link href="/docadmin/product-requests" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <Link href="/docadmin/product-requests" className="text-sm text-brand-blue hover:text-brand-blue/80 font-medium">
               View All
             </Link>
           </div>
@@ -308,7 +308,7 @@ export default async function DocAdminDashboardPage() {
                 <Link
                   key={req.id}
                   href={req.status === 'PENDING' ? '/docadmin/product-requests' : '/docadmin/contract-pending'}
-                  className="block border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                  className="block border border-gray-200 rounded-lg p-4 hover:border-brand-blue hover:bg-brand-blue/5 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">

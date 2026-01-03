@@ -152,7 +152,7 @@ export default function ClientWithdrawalRequestsPage() {
                       : isCompleted
                       ? 'bg-green-500 text-white'
                       : isActive
-                      ? 'bg-blue-500 text-white'
+                      ? 'bg-brand-blue/10 text-white'
                       : 'bg-gray-200 text-gray-500'
                   }`}
                 >
@@ -198,26 +198,26 @@ export default function ClientWithdrawalRequestsPage() {
   if (loading && requests.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
+        <RefreshCw className="h-8 w-8 animate-spin text-brand-blue" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-7xl">
-      <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Withdrawal Requests</h1>
-          <p className="text-gray-600">Track the status of your withdrawal requests</p>
+          <h1 className="font-optima text-3xl font-bold text-brand-blue">My Withdrawal Requests</h1>
+          <p className="font-georgia text-brand-grey mt-2">Track the status of your withdrawal requests</p>
         </div>
-        <Button onClick={() => router.push('/client/withdraw')}>
+        <Button onClick={() => router.push('/client/withdraw')} className="font-optima">
           <Plus className="mr-2 h-4 w-4" />
           New Withdrawal
         </Button>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Pending</CardDescription>
@@ -227,7 +227,7 @@ export default function ClientWithdrawalRequestsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>In Review</CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{inReview}</CardTitle>
+            <CardTitle className="text-3xl text-brand-blue">{inReview}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -313,7 +313,7 @@ export default function ClientWithdrawalRequestsPage() {
                           </div>
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-sm text-gray-600">Amount</span>
-                            <span className="text-2xl font-bold text-blue-600">
+                            <span className="text-2xl font-bold text-brand-blue">
                               ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </span>
                           </div>

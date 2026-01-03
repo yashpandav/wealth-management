@@ -123,7 +123,7 @@ export function NotificationDropdown({
             size="sm"
             onClick={handleMarkAllAsRead}
             disabled={marking}
-            className="h-8 text-xs"
+            className="h-8 text-xs hover:bg-brand-blue hover:text-white transition-colors duration-200"
           >
             <CheckCheck className="h-4 w-4 mr-1" />
             Mark all read
@@ -146,8 +146,8 @@ export function NotificationDropdown({
               <div
                 key={notification.id}
                 className={cn(
-                  'p-4 transition-colors hover:bg-muted/50',
-                  !notification.isRead && 'bg-blue-50/50 dark:bg-blue-950/20'
+                  'p-4 transition-colors duration-200 hover:bg-brand-blue/5',
+                  !notification.isRead && 'bg-brand-blue/10'
                 )}
               >
                 <div className="flex gap-3">
@@ -163,7 +163,7 @@ export function NotificationDropdown({
                         <button
                           onClick={() => handleMarkAsRead(notification.id)}
                           disabled={marking}
-                          className="flex-shrink-0 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                          className="flex-shrink-0 text-xs text-brand-blue hover:text-brand-blue/80 transition-colors duration-200"
                         >
                           Mark read
                         </button>
@@ -181,7 +181,7 @@ export function NotificationDropdown({
                       {notification.actionUrl && (
                         <Link
                           href={notification.actionUrl as any} // eslint-disable-line @typescript-eslint/no-explicit-any
-                          className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 inline-flex items-center gap-1"
+                          className="text-xs text-brand-blue hover:text-brand-blue/80 transition-colors duration-200 inline-flex items-center gap-1"
                         >
                           {notification.actionText || 'View'}
                           <ExternalLink className="h-3 w-3" />
@@ -201,7 +201,7 @@ export function NotificationDropdown({
       {/* Footer */}
       <div className="p-3">
         <Link href="/notifications" className="block">
-          <Button variant="ghost" size="sm" className="w-full">
+          <Button variant="ghost" size="sm" className="w-full hover:bg-brand-blue hover:text-white transition-colors duration-200">
             View all notifications
           </Button>
         </Link>

@@ -200,7 +200,7 @@ export function AssignedClientsTable() {
                     <TableCell>{client.user.email}</TableCell>
                     <TableCell>
                       {client.user.phone ? (
-                        <a href={`tel:${client.user.phone}`} className="text-blue-600 hover:underline">
+                        <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline">
                           {client.user.phone}
                         </a>
                       ) : (
@@ -213,7 +213,7 @@ export function AssignedClientsTable() {
                           Verified
                         </Badge>
                       ) : client.verificationStatus === 'PENDING' || client.verificationStatus === 'UNDER_REVIEW' ? (
-                        <Badge variant="outline" className="bg-blue-500/10 text-blue-700">
+                        <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">
                           {client.verificationStatus === 'UNDER_REVIEW' ? 'Under Review' : 'Pending'}
                         </Badge>
                       ) : client.verificationStatus === 'REJECTED' ? (

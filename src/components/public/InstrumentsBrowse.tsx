@@ -145,7 +145,7 @@ export function InstrumentsBrowse() {
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case 'STOCK':
-        return 'bg-blue-500/10 text-blue-700 border-blue-200';
+        return 'bg-brand-blue/10/10 text-brand-blue border-blue-200';
       case 'BOND':
         return 'bg-purple-500/10 text-purple-700 border-purple-200';
       case 'MUTUAL_FUND':

@@ -115,7 +115,7 @@ export default function NotificationsPage() {
             Stay updated with your latest activities and updates
           </p>
         </div>
-        <Button onClick={fetchNotifications} variant="outline" size="sm">
+        <Button onClick={fetchNotifications} variant="outline" size="sm" className="hover:bg-brand-blue hover:text-white hover:border-brand-blue transition-colors duration-200">
           <RefreshCw className="mr-2 h-4 w-4" />
           Refresh
         </Button>
@@ -134,7 +134,7 @@ export default function NotificationsPage() {
           </Card>
         ) : (
           notifications.map((notification) => (
-            <Card key={notification.id} className={notification.isRead ? 'bg-background' : 'bg-blue-50/50'}>
+            <Card key={notification.id} className={notification.isRead ? 'bg-background' : 'bg-brand-blue/10'}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 flex-1">
@@ -156,6 +156,7 @@ export default function NotificationsPage() {
                         variant="ghost"
                         size="sm"
                         title="Mark as read"
+                        className="hover:bg-brand-blue hover:text-white transition-colors duration-200"
                       >
                         <Check className="h-4 w-4" />
                       </Button>
@@ -165,6 +166,7 @@ export default function NotificationsPage() {
                       variant="ghost"
                       size="sm"
                       title="Delete"
+                      className="hover:bg-destructive hover:text-white transition-colors duration-200"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -182,6 +184,7 @@ export default function NotificationsPage() {
                     }}
                     variant="outline"
                     size="sm"
+                    className="hover:bg-brand-blue hover:text-white hover:border-brand-blue transition-colors duration-200"
                   >
                     {notification.actionText}
                   </Button>

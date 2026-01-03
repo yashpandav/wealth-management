@@ -100,7 +100,7 @@ const STATUS_LABELS: Record<LeadStatus, string> = {
 };
 
 const STATUS_COLORS: Record<LeadStatus, string> = {
-  NEW: 'bg-blue-500/10 text-blue-700',
+  NEW: 'bg-brand-blue/10/10 text-brand-blue',
   CONTACTED: 'bg-purple-500/10 text-purple-700',
   INTERESTED: 'bg-green-500/10 text-green-700',
   NOT_INTERESTED: 'bg-orange-500/10 text-orange-700',
@@ -229,13 +229,13 @@ export function RMLeadsTable() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 text-sm">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <a href={`mailto:${lead.email}`} className="text-blue-600 hover:underline">
+                        <a href={`mailto:${lead.email}`} className="text-brand-blue hover:underline">
                           {lead.email}
                         </a>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Phone className="h-3 w-3 text-muted-foreground" />
-                        <a href={`tel:${lead.phoneNumber}`} className="text-blue-600 hover:underline">
+                        <a href={`tel:${lead.phoneNumber}`} className="text-brand-blue hover:underline">
                           {lead.phoneNumber}
                         </a>
                       </div>

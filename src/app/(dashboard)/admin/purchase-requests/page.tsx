@@ -170,7 +170,7 @@ export default function AdminPurchaseRequestsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Processing</CardDescription>
-            <CardTitle className="text-3xl text-blue-600">{processing}</CardTitle>
+            <CardTitle className="text-3xl text-brand-blue">{processing}</CardTitle>
           </CardHeader>
         </Card>
         <Card>

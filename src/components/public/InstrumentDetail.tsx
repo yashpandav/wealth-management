@@ -140,7 +140,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case 'STOCK':
-        return 'bg-blue-500/10 text-blue-700 border-blue-200';
+        return 'bg-brand-blue/10/10 text-brand-blue border-blue-200';
       case 'BOND':
         return 'bg-purple-500/10 text-purple-700 border-purple-200';
       case 'MUTUAL_FUND':
@@ -185,11 +185,11 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <nav className="flex items-center gap-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-gray-900">
+            <Link href="/" className="hover:text-brand-blue">
               Home
             </Link>
             <ChevronRight className="h-4 w-4" />
-            <Link href="/instruments" className="hover:text-gray-900">
+            <Link href="/instruments" className="hover:text-brand-blue">
               Instruments
             </Link>
             <ChevronRight className="h-4 w-4" />
@@ -399,10 +399,10 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                     href={instrument.prospectusUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-brand-blue/5 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <Download className="h-5 w-5 text-blue-600" />
+                      <Download className="h-5 w-5 text-brand-blue" />
                       <div>
                         <p className="font-semibold">Prospectus</p>
                         <p className="text-sm text-gray-600">
@@ -464,7 +464,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                     <Link
                       key={related.id}
                       href={`/instruments/${related.id}`}
-                      className="block p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                      className="block p-3 border rounded-lg hover:bg-brand-blue/5 transition-colors"
                     >
                       <div className="flex justify-between items-start mb-1">
                         <div>
@@ -504,7 +504,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
-              <Button size="lg" className="bg-white text-blue-700 hover:bg-blue-50">
+              <Button size="lg" className="bg-white text-brand-blue hover:bg-brand-blue/5">
                 Create Account
               </Button>
             </Link>

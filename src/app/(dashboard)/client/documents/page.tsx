@@ -23,7 +23,7 @@ export default async function ClientDocumentsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 max-w-5xl">
+    <div className="container mx-auto px-8 py-8 max-w-5xl">
       <KYCDocumentsPanel />
     </div>
   );

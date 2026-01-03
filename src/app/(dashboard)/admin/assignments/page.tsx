@@ -321,7 +321,7 @@ function AssignmentsContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name or email..."
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -337,7 +337,7 @@ function AssignmentsContent() {
                   setAssignmentFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="all">All Clients</option>
                 <option value="assigned">Assigned</option>
@@ -357,7 +357,7 @@ function AssignmentsContent() {
                   setRMFilter(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
                 <option value="">All RMs</option>
                 {rms.map((rm) => (
@@ -372,7 +372,7 @@ function AssignmentsContent() {
           <div className="flex gap-2">
             <button
               type="submit"
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90"
             >
               Search
             </button>
@@ -407,7 +407,7 @@ function AssignmentsContent() {
 
       {/* Bulk Operations Toolbar */}
       {selectedClients.length > 0 && (
-        <div className="mb-6 rounded-lg bg-blue-50 p-4 shadow">
+        <div className="mb-6 rounded-lg bg-brand-blue/10 p-4 shadow">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-blue-900">
@@ -415,14 +415,14 @@ function AssignmentsContent() {
               </span>
               <button
                 onClick={openBulkModal}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90"
               >
                 Bulk Assign
               </button>
             </div>
             <button
               onClick={() => setSelectedClients([])}
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-brand-blue hover:text-brand-blue/80"
             >
               Clear Selection
             </button>
@@ -453,7 +453,7 @@ function AssignmentsContent() {
                       type="checkbox"
                       checked={selectedClients.length === clients.length && clients.length > 0}
                       onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
                     />
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
@@ -481,7 +481,7 @@ function AssignmentsContent() {
                         type="checkbox"
                         checked={selectedClients.includes(client.id)}
                         onChange={() => toggleSelectClient(client.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
                       />
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
@@ -515,7 +515,7 @@ function AssignmentsContent() {
                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                       <button
                         onClick={() => openAssignModal(client)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-brand-blue hover:text-brand-blue/80"
                       >
                         {client.isAssigned ? 'Reassign' : 'Assign'}
                       </button>
@@ -533,14 +533,14 @@ function AssignmentsContent() {
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={!pagination.hasPrevPage}
-                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={!pagination.hasNextPage}
-                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Next
                 </button>
@@ -558,14 +558,14 @@ function AssignmentsContent() {
                     <button
                       onClick={() => setCurrentPage(currentPage - 1)}
                       disabled={!pagination.hasPrevPage}
-                      className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                     >
                       Previous
                     </button>
                     <button
                       onClick={() => setCurrentPage(currentPage + 1)}
                       disabled={!pagination.hasNextPage}
-                      className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                     >
                       Next
                     </button>
@@ -592,13 +592,13 @@ function AssignmentsContent() {
                 </h3>
 
                 <div className="mt-4">
-                  <div className="mb-4 rounded-md bg-blue-50 p-3">
+                  <div className="mb-4 rounded-md bg-brand-blue/10 p-3">
                     <p className="text-sm font-medium text-blue-900">Client</p>
-                    <p className="text-sm text-blue-700">
+                    <p className="text-sm text-brand-blue">
                       {selectedClient.fullName} ({selectedClient.email})
                     </p>
                     {selectedClient.assignedRM && (
-                      <p className="mt-2 text-xs text-blue-600">
+                      <p className="mt-2 text-xs text-brand-blue">
                         Currently assigned to: {selectedClient.assignedRM.fullName}
                       </p>
                     )}
@@ -612,7 +612,7 @@ function AssignmentsContent() {
                       id="rmSelect"
                       value={selectedRMId}
                       onChange={(e) => setSelectedRMId(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                     >
                       <option value="">-- Select RM --</option>
                       {rms
@@ -668,7 +668,7 @@ function AssignmentsContent() {
                         onChange={(e) => setAssignmentReason(e.target.value)}
                         rows={3}
                         maxLength={500}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                         placeholder="Enter reason for reassignment..."
                       />
                     </div>
@@ -680,14 +680,14 @@ function AssignmentsContent() {
                 <button
                   onClick={handleAssignment}
                   disabled={!selectedRMId || isAssigning}
-                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   {isAssigning ? 'Assigning...' : selectedClient.isAssigned ? 'Reassign' : 'Assign'}
                 </button>
                 <button
                   onClick={closeAssignModal}
                   disabled={isAssigning}
-                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
+                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-brand-blue/5 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
                 >
                   Cancel
                 </button>
@@ -712,11 +712,11 @@ function AssignmentsContent() {
                 </h3>
 
                 <div className="mt-4">
-                  <div className="mb-4 rounded-md bg-blue-50 p-3">
+                  <div className="mb-4 rounded-md bg-brand-blue/10 p-3">
                     <p className="text-sm font-medium text-blue-900">
                       Selected Clients: {selectedClients.length}
                     </p>
-                    <p className="mt-1 text-xs text-blue-700">
+                    <p className="mt-1 text-xs text-brand-blue">
                       {selectedClients.length === 1
                         ? '1 client will be assigned/reassigned'
                         : `${selectedClients.length} clients will be assigned/reassigned`}
@@ -731,7 +731,7 @@ function AssignmentsContent() {
                       id="bulkRmSelect"
                       value={bulkRMId}
                       onChange={(e) => setBulkRMId(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                     >
                       <option value="">-- Select RM --</option>
                       {rms
@@ -799,7 +799,7 @@ function AssignmentsContent() {
                       onChange={(e) => setBulkReason(e.target.value)}
                       rows={3}
                       maxLength={500}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
                       placeholder="Enter reason for bulk assignment..."
                     />
                   </div>
@@ -810,14 +810,14 @@ function AssignmentsContent() {
                 <button
                   onClick={handleBulkAssignment}
                   disabled={!bulkRMId || isBulkAssigning}
-                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
+                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   {isBulkAssigning ? 'Assigning...' : `Assign ${selectedClients.length} Client${selectedClients.length === 1 ? '' : 's'}`}
                 </button>
                 <button
                   onClick={closeBulkModal}
                   disabled={isBulkAssigning}
-                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
+                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-brand-blue/5 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
                 >
                   Cancel
                 </button>

@@ -153,7 +153,7 @@ export function TransactionHistory() {
       case 'REVERSED':
         return 'bg-orange-500/10 text-orange-700';
       case 'PENDING_SETTLEMENT':
-        return 'bg-blue-500/10 text-blue-700';
+        return 'bg-brand-blue/10/10 text-brand-blue';
       default:
         return 'bg-gray-500/10 text-gray-700';
     }
@@ -166,7 +166,7 @@ export function TransactionHistory() {
       case 'WITHDRAWAL':
         return 'bg-red-500/10 text-red-700';
       case 'DIVIDEND':
-        return 'bg-blue-500/10 text-blue-700';
+        return 'bg-brand-blue/10/10 text-brand-blue';
       case 'ADJUSTMENT':
         return 'bg-purple-500/10 text-purple-700';
       default:

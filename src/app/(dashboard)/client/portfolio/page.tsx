@@ -38,9 +38,9 @@ export default async function ClientPortfolioPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold tracking-tight">My Portfolio</h1>
-      <p className="mt-2 text-muted-foreground">
+    <div className="container px-8 py-8">
+      <h1 className="font-optima text-3xl font-bold text-brand-blue">My Portfolio</h1>
+      <p className="font-georgia text-brand-grey mt-2 mb-6">
         View and manage your investment portfolio
       </p>
 
@@ -48,12 +48,10 @@ export default async function ClientPortfolioPage() {
       <ClientStatusBanner
         hasRM={!!client.assignedRMId}
         verificationStatus={client.verificationStatus}
-        className="mt-6"
+        className="mb-6"
       />
 
-      <div className="mt-8">
-        <PortfolioDashboard />
-      </div>
+      <PortfolioDashboard />
     </div>
   );
 }

@@ -545,7 +545,7 @@ export default function RMWithdrawalRequestDetailPage({
               </div>
             </div>
 
-            <div className="rounded-lg bg-blue-50 border border-blue-200 p-3">
+            <div className="rounded-lg bg-brand-blue/10 border border-blue-200 p-3">
               <p className="text-sm text-blue-900">
                 <strong>Note:</strong> Your recommendation will be reviewed by an administrator who has final approval authority.
               </p>

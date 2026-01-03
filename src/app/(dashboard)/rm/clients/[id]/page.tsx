@@ -233,7 +233,7 @@ export default function RMClientDetailPage() {
               {/* Email */}
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-gray-500" />
-                <a href={`mailto:${client.user.email}`} className="text-blue-600 hover:underline text-sm">
+                <a href={`mailto:${client.user.email}`} className="text-brand-blue hover:underline text-sm">
                   {client.user.email}
                 </a>
               </div>
@@ -243,7 +243,7 @@ export default function RMClientDetailPage() {
                 <>
                   <div className="flex items-center gap-3">
                     <Phone className="h-5 w-5 text-gray-500" />
-                    <a href={`tel:${client.user.phone}`} className="text-blue-600 hover:underline text-sm">
+                    <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline text-sm">
                       {client.user.phone}
                     </a>
                   </div>

@@ -9,13 +9,11 @@ import { ClientAnalyticsDashboard } from '@/components/client/ClientAnalyticsDas
 
 export default function ClientAnalyticsPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Portfolio Analytics</h1>
-        <p className="text-muted-foreground mt-2">
-          Comprehensive insights into your investment performance
-        </p>
-      </div>
+    <div className="container px-8 py-8">
+      <h1 className="font-optima text-3xl font-bold text-brand-blue">Portfolio Analytics</h1>
+      <p className="font-georgia text-brand-grey mt-2 mb-6">
+        Comprehensive insights into your investment performance
+      </p>
 
       <ClientAnalyticsDashboard />
     </div>
