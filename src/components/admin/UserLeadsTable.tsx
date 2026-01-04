@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,8 @@ import {
 } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast, Toaster } from 'react-hot-toast';
+
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface UserLead {
   id: string;
@@ -81,8 +84,9 @@ export function UserLeadsTable() {
         limit: limit.toString(),
         sortBy,
         sortOrder,
-        ...(search && { query: search }),
       });
+
+      if (search) params.append('search', search);
 
       const response = await fetch(`/api/admin/leads?${params}`);
       const result = await response.json();
@@ -100,7 +104,9 @@ export function UserLeadsTable() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortOrder, search]);
+  }, [page, limit, search, sortBy, sortOrder]);
+
+
 
   // Handle sort
   const handleSort = (column: string) => {
@@ -120,10 +126,15 @@ export function UserLeadsTable() {
 
   // Format currency
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
+    return (
+      <span className="flex items-center">
+        <DirhamIcon className="w-3 h-3 mr-1" />
+        {value.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </span>
+    );
   };
 
   // Format date
@@ -166,65 +177,67 @@ export function UserLeadsTable() {
 
       {/* Table */}
       <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('fullName')}
-              >
-                Name {sortBy === 'fullName' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('email')}
-              >
-                Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('createdAt')}
-              >
-                Submitted {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
+        <ResponsiveTable>
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  Loading...
-                </TableCell>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('fullName')}
+                >
+                  Name {sortBy === 'fullName' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('email')}
+                >
+                  Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('createdAt')}
+                >
+                  Submitted {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : leads.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  No leads found
-                </TableCell>
-              </TableRow>
-            ) : (
-              leads.map((lead) => (
-                <TableRow key={lead.id}>
-                  <TableCell className="font-medium">{lead.fullName}</TableCell>
-                  <TableCell>{lead.email}</TableCell>
-                  <TableCell>{lead.phone}</TableCell>
-                  <TableCell>{formatDate(lead.createdAt)}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewDetails(lead)}
-                    >
-                      View Details
-                    </Button>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    Searching...
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : leads.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    No leads found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                leads.map((lead) => (
+                  <TableRow key={lead.id}>
+                    <TableCell className="font-medium">{lead.fullName}</TableCell>
+                    <TableCell>{lead.email}</TableCell>
+                    <TableCell>{lead.phone}</TableCell>
+                    <TableCell>{formatDate(lead.createdAt)}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewDetails(lead)}
+                      >
+                        View Details
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </ResponsiveTable>
       </div>
 
       {/* Pagination */}
@@ -249,7 +262,7 @@ export function UserLeadsTable() {
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground">
-            Showing {leads.length === 0 ? 0 : (page - 1) * limit + 1} to{' '}
+            Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
             {Math.min(page * limit, totalCount)} of {totalCount} leads
           </span>
         </div>
@@ -270,7 +283,7 @@ export function UserLeadsTable() {
             variant="outline"
             size="sm"
             onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages || loading}
+            disabled={page >= totalPages}
           >
             Next
           </Button>

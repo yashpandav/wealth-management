@@ -25,6 +25,7 @@ import {
   Eye,
   ExternalLink,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { VerificationStatus } from '@prisma/client';
 import { formatFileSize } from '@/lib/utils';
 
@@ -273,12 +274,7 @@ export function KYCDocumentsPanel() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-3 text-muted-foreground">Loading documents...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading documents..." />;
   }
 
   if (error) {

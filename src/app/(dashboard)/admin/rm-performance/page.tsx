@@ -10,7 +10,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Users, DollarSign, TrendingUp, CheckCircle, XCircle, Award } from 'lucide-react';
+import { RefreshCw, Users, TrendingUp, CheckCircle, XCircle, Award } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 
 interface RMPerformance {
@@ -145,19 +147,13 @@ export default function RMPerformancePage() {
   const totalAUM = rms.reduce((sum, rm) => sum + rm.aum.total, 0);
   const avgClientsPerRM = totalRMs > 0 ? totalClients / totalRMs : 0;
 
-  if (loading && rms.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
-  }
+
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
+    <div className="container px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">RM Performance Dashboard</h1>
-        <p className="text-gray-600">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">RM Performance Dashboard</h1>
+        <p className="font-georgia text-brand-grey">
           Comprehensive performance metrics for all Relationship Managers
         </p>
       </div>
@@ -179,8 +175,9 @@ export default function RMPerformancePage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total AUM</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-purple-600">
-              ${(totalAUM / 1000000).toFixed(1)}M
+            <CardTitle className="text-2xl md:text-3xl text-purple-600 flex items-center">
+              <DirhamIcon className="h-6 w-6 mr-1" />
+              {(totalAUM / 1000000).toFixed(1)}M
             </CardTitle>
           </CardHeader>
         </Card>
@@ -217,11 +214,10 @@ export default function RMPerformancePage() {
                     setSortOrder('desc');
                   }
                 }}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  sortBy === option.key
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                }`}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${sortBy === option.key
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  }`}
               >
                 {option.label}
                 {sortBy === option.key && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
@@ -238,7 +234,11 @@ export default function RMPerformancePage() {
           <CardDescription>Click column headers to sort</CardDescription>
         </CardHeader>
         <CardContent>
-          {rms.length === 0 ? (
+          {loading ? (
+            <div className="py-12">
+              <LoadingSpinner text="Searching..." />
+            </div>
+          ) : rms.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
               <p>No Relationship Managers found</p>
@@ -307,30 +307,32 @@ export default function RMPerformancePage() {
                         {/* AUM Metrics */}
                         <div className="space-y-3">
                           <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                            <DollarSign className="h-4 w-4" />
+                            <DirhamIcon className="h-4 w-4" />
                             Assets Under Management
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-600">Total AUM:</span>
-                              <span className="font-semibold">
-                                ${rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                              <span className="font-semibold flex items-center">
+                                <DirhamIcon className="h-3 w-3 mr-1" />
+                                {rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Avg per Client:</span>
-                              <span className="font-semibold">
-                                ${rm.aum.avgPerClient.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                              <span className="font-semibold flex items-center">
+                                <DirhamIcon className="h-3 w-3 mr-1" />
+                                {rm.aum.avgPerClient.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Gain/Loss:</span>
                               <span
-                                className={`font-semibold ${
-                                  isPositiveGain ? 'text-green-600' : 'text-red-600'
-                                }`}
+                                className={`font-semibold flex items-center ${isPositiveGain ? 'text-green-600' : 'text-red-600'
+                                  }`}
                               >
-                                {isPositiveGain ? '+' : ''}$
+                                {isPositiveGain ? '+' : ''}
+                                <DirhamIcon className="h-3 w-3 mx-1" />
                                 {rm.aum.gainLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
                             </div>
@@ -384,8 +386,8 @@ export default function RMPerformancePage() {
                             avgApprovalRate >= 80
                               ? 'default'
                               : avgApprovalRate >= 60
-                              ? 'secondary'
-                              : 'destructive'
+                                ? 'secondary'
+                                : 'destructive'
                           }
                           className="text-sm"
                         >

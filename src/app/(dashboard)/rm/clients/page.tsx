@@ -23,9 +23,9 @@ export default async function AssignedClientsPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8">
-      <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Assigned Clients</h1>
-      <p className="mt-2 text-muted-foreground">
+    <div className="container mx-auto py-8 px-8">
+      <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Assigned Clients</h1>
+      <p className="font-georgia mt-2 text-brand-grey">
         View and manage your assigned client portfolio
       </p>
 

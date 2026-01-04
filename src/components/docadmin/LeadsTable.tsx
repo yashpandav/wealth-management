@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import {
   Dialog,
   DialogContent,
@@ -31,7 +32,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/dashboard/StatCard';
+import { Users, UserCheck, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast, Toaster } from 'react-hot-toast';
 
@@ -115,9 +117,10 @@ export function LeadsTable() {
         limit: limit.toString(),
         sortBy,
         sortOrder,
-        ...(search && { query: search }),
-        ...(filterSource && { leadSource: filterSource }),
       });
+
+      if (search) params.append('search', search);
+      if (filterSource) params.append('source', filterSource);
 
       const response = await fetch(`/api/docadmin/leads?${params}`);
       const result = await response.json();
@@ -135,7 +138,7 @@ export function LeadsTable() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortOrder, search, filterSource]);
+  }, [page, limit, search, filterSource, sortBy, sortOrder]);
 
   // Handle sort
   const handleSort = (column: string) => {
@@ -269,7 +272,6 @@ export function LeadsTable() {
     }
   };
 
-  // Effect to fetch when filters change
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
@@ -328,47 +330,31 @@ export function LeadsTable() {
 
       {/* Stats */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Enquiries
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">All submitted leads</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Assigned to RM
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {leads.filter((l) => l.assignedRMId).length}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Have assigned managers</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Unassigned
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {leads.filter((l) => !l.assignedRMId).length}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Need RM assignment</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Enquiries"
+          value={totalCount}
+          icon={Users}
+          subValue="All submitted leads"
+          status="default"
+        />
+        <StatCard
+          title="Assigned to RM"
+          value={leads.filter((l) => l.assignedRMId).length}
+          icon={UserCheck}
+          subValue="Have assigned managers"
+          status="success"
+        />
+        <StatCard
+          title="Unassigned"
+          value={leads.filter((l) => !l.assignedRMId).length}
+          icon={AlertCircle}
+          subValue="Need RM assignment"
+          status="warning"
+        />
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border">
+      <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
@@ -406,13 +392,13 @@ export function LeadsTable() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={8} className="h-24 text-center">
-                  Loading...
+                  Searching...
                 </TableCell>
               </TableRow>
             ) : leads.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={8} className="h-24 text-center">
-                  No leads found
+                  {leads.length === 0 ? "No leads found" : "No results found matching your filters"}
                 </TableCell>
               </TableRow>
             ) : (
@@ -455,7 +441,7 @@ export function LeadsTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ResponsiveTable>
 
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -479,7 +465,7 @@ export function LeadsTable() {
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground">
-            Showing {leads.length === 0 ? 0 : (page - 1) * limit + 1} to{' '}
+            Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
             {Math.min(page * limit, totalCount)} of {totalCount} leads
           </span>
         </div>
@@ -500,7 +486,7 @@ export function LeadsTable() {
             variant="outline"
             size="sm"
             onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages || loading}
+            disabled={page >= totalPages}
           >
             Next
           </Button>
@@ -643,7 +629,7 @@ export function LeadsTable() {
                         <SelectItem key={rm.id} value={rm.id}>
                           <div className="flex justify-between items-center w-full">
                             <span>{rm.name}</span>
-                            <span className="text-xs text-muted-foreground ml-2">
+                            <span className="text-xs text-gray-500 ml-2">
                               {rm.clientCount} {rm.clientCount === 1 ? 'client' : 'clients'}
                             </span>
                           </div>
@@ -683,7 +669,7 @@ export function LeadsTable() {
                 <Button
                   onClick={handleAssignRM}
                   disabled={!selectedRmId || isAssigning}
-                  className="flex-1"
+                  className="flex-1 bg-brand-blue hover:bg-brand-blue/90 text-white"
                 >
                   {isAssigning ? 'Assigning...' : 'Assign'}
                 </Button>

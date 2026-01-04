@@ -10,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { format, subDays } from 'date-fns';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface PerformanceChartProps {
   currentValue: number;
@@ -100,12 +101,18 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
       return (
         <div className="rounded-lg border bg-background p-3 shadow-lg">
           <p className="mb-2 font-medium">{payload[0].payload.date}</p>
-          <p className="text-sm">
-            Portfolio: <span className="font-medium">${payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <p className="text-sm flex items-center">
+            Portfolio: <span className="font-medium flex items-center">
+              <DirhamIcon className="w-3 h-3 mx-1" />
+              {payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </span>
           </p>
           {payload[1] && (
-            <p className="text-sm text-muted-foreground">
-              Invested: <span className="font-medium">${payload[1].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            <p className="text-sm text-muted-foreground flex items-center">
+              Invested: <span className="font-medium flex items-center">
+                <DirhamIcon className="w-3 h-3 mx-1" />
+                {payload[1].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </span>
             </p>
           )}
         </div>
@@ -117,25 +124,27 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="text-lg">Portfolio Performance</CardTitle>
-            <div className={`mt-1 text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}${performanceMetrics.change.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            <div className={`mt-1 text-sm flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositive ? '+' : ''}
+              <DirhamIcon className="w-3 h-3 mx-1" />
+              {performanceMetrics.change.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               ({isPositive ? '+' : ''}{performanceMetrics.changePercent.toFixed(2)}%)
               <span className="ml-2 text-muted-foreground">
                 {selectedPeriod === 'ALL' ? 'All time' : `Last ${selectedPeriod}`}
               </span>
             </div>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 self-start sm:self-auto">
             {(['1M', '3M', '6M', '1Y', 'ALL'] as TimePeriod[]).map((period) => (
               <Button
                 key={period}
                 variant={selectedPeriod === period ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedPeriod(period)}
-                className="h-8 px-3"
+                className="h-8 px-3 flex-1 sm:flex-none"
               >
                 {period}
               </Button>
@@ -144,41 +153,45 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 12 }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fontSize: 12 }}
-              tickLine={false}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={false}
-              name="Portfolio Value"
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="invested"
-              stroke="#94a3b8"
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              dot={false}
-              name="Total Invested"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="w-full overflow-x-auto pb-4">
+          <div className="min-w-[600px]">
+            <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Portfolio Value"
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="invested"
+                  stroke="#94a3b8"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  dot={false}
+                  name="Total Invested"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
         <div className="mt-4 flex items-center justify-center gap-6 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-brand-blue/10" />

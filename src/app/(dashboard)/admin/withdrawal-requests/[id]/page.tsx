@@ -16,7 +16,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  RefreshCw,
   User,
   Wallet,
   Building2,
@@ -27,6 +26,7 @@ import {
   Shield,
   Clock,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
 
@@ -210,11 +210,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
   };
 
   if (loading || !request) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
+    return <LoadingSpinner text="Loading request details..." className="min-h-screen" />;
   }
 
   const availableBalance = request.client.portfolio?.totalValue || 0;
@@ -224,7 +220,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
     request.status === WithdrawalStatus.ADMIN_REVIEW;
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-6xl">
+    <div className="container px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"
@@ -310,11 +306,10 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
               <div>
                 <Label className="text-gray-600">Total Gain/Loss</Label>
                 <p
-                  className={`text-2xl font-bold ${
-                    Number(request.client.portfolio.totalGainLoss) >= 0
-                      ? 'text-green-600'
-                      : 'text-red-600'
-                  }`}
+                  className={`text-2xl font-bold ${Number(request.client.portfolio.totalGainLoss) >= 0
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                    }`}
                 >
                   ${Number(request.client.portfolio.totalGainLoss).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>

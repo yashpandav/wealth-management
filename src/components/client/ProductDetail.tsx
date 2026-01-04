@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation';
 import {
   ChevronRight,
   TrendingUp,
-  DollarSign,
   Shield,
   Calendar,
   Clock,
@@ -23,6 +22,7 @@ import {
   Info,
   ArrowRight,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -178,9 +178,9 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
     const min = prod.minAmount.toLocaleString();
     if (prod.maxAmount) {
       const max = prod.maxAmount.toLocaleString();
-      return `${prod.currency} ${min} – ${max}`;
+      return `${min} – ${max}`;
     }
-    return `${prod.currency} ${min} and Above`;
+    return `${min} and Above`;
   };
 
   const getHighestReturn = (options: ProductOption[]) => {
@@ -316,7 +316,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       {/* Breadcrumb Navigation */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <nav className="flex items-center gap-2 text-sm text-gray-600">
+          <nav className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
             <Link href="/client/portfolio" className="hover:text-brand-blue transition-colors duration-200">
               Dashboard
             </Link>
@@ -395,12 +395,12 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
               <h1 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
               <div className="flex items-center gap-3">
                 <p className="text-xl text-gray-600 font-mono flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
+                  <DirhamIcon className="h-5 w-5" />
                   {formatAmountRange(product)}
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Badge variant="outline" className={getProductBadgeColor(product.name)}>
                 {product.name}
               </Badge>
@@ -431,45 +431,42 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                 {product.options.map((option) => (
                   <div
                     key={option.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
-                      selectedOption?.id === option.id
-                        ? 'border-brand-blue bg-brand-blue/10 ring-2 ring-brand-blue/30'
-                        : 'border-gray-200 hover:border-brand-blue hover:bg-brand-blue/5'
-                    }`}
+                    className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${selectedOption?.id === option.id
+                      ? 'border-brand-blue bg-brand-blue/10 ring-2 ring-brand-blue/30'
+                      : 'border-gray-200 hover:border-brand-blue hover:bg-brand-blue/5'
+                      }`}
                     onClick={() => setSelectedOption(option)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 sm:gap-4">
+                      <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                         <div
-                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                            selectedOption?.id === option.id
-                              ? 'border-brand-blue bg-brand-blue/10'
-                              : 'border-gray-400'
-                          }`}
+                          className={`mt-1 sm:mt-0 w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selectedOption?.id === option.id
+                            ? 'border-brand-blue bg-brand-blue/10'
+                            : 'border-gray-400'
+                            }`}
                         >
                           {selectedOption?.id === option.id && (
-                            <CheckCircle className="h-3 w-3 text-white" />
+                            <CheckCircle className="h-3 w-3 text-brand-blue" />
                           )}
                         </div>
-                        <div>
-                          <div className="flex items-center gap-3">
-                            <span className="font-semibold flex items-center gap-1">
-                              <Calendar className="h-4 w-4 text-gray-500" />
-                              {option.duration}
-                            </span>
-                            <Separator orientation="vertical" className="h-4" />
-                            <span className="flex items-center gap-1 text-gray-600">
-                              <Clock className="h-4 w-4" />
-                              {option.withdrawalFrequency} Withdrawal
-                            </span>
-                          </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
+                          <span className="font-semibold flex items-center gap-2 text-gray-900">
+                            <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                            {option.duration}
+                          </span>
+                          <span className="hidden sm:block text-gray-300">|</span>
+                          <span className="flex items-center gap-2 text-gray-600 text-sm sm:text-base">
+                            <Clock className="h-4 w-4 flex-shrink-0" />
+                            {option.withdrawalFrequency} Withdrawal
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Badge variant="secondary" className="font-semibold">
+
+                      <div className="flex flex-wrap items-center gap-2 pl-8 sm:pl-0">
+                        <Badge variant="secondary" className="font-semibold whitespace-nowrap">
                           ROI: {option.roi}%
                         </Badge>
-                        <Badge className="bg-green-600 font-semibold">
+                        <Badge className="bg-green-600 font-semibold whitespace-nowrap">
                           <TrendingUp className="h-3 w-3 mr-1" />
                           {option.annualReturn}% Annual
                         </Badge>
@@ -489,24 +486,26 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <div className="flex items-center gap-2 text-gray-600 mb-1">
-                      <DollarSign className="h-4 w-4" />
+                      <DirhamIcon className="h-4 w-4" />
                       <span className="text-sm">Minimum Investment</span>
                     </div>
-                    <p className="font-semibold text-lg">
+                    <div className="font-semibold text-lg flex items-center">
+                      {product.currency !== 'USD' && <span className="mr-1">{product.currency}</span>}
+                      {product.currency === 'USD' && <DirhamIcon className="w-4 h-4 mr-1" />}
                       {product.currency} {product.minAmount.toLocaleString()}
-                    </p>
+                    </div>
                   </div>
 
                   <div>
                     <div className="flex items-center gap-2 text-gray-600 mb-1">
-                      <DollarSign className="h-4 w-4" />
+                      <DirhamIcon className="h-4 w-4" />
                       <span className="text-sm">Maximum Investment</span>
                     </div>
-                    <p className="font-semibold text-lg">
-                      {product.maxAmount
-                        ? `${product.currency} ${product.maxAmount.toLocaleString()}`
-                        : 'No Limit'}
-                    </p>
+                    <div className="font-semibold text-lg flex items-center">
+                      {product.currency !== 'USD' && <span className="mr-1">{product.currency}</span>}
+                      {product.currency === 'USD' && <DirhamIcon className="w-4 h-4 mr-1" />}
+                      {product.maxAmount ? product.maxAmount.toLocaleString() : 'No Limit'}
+                    </div>
                   </div>
 
                   <div>
@@ -587,7 +586,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                     placeholder={`Min: ${product.minAmount.toLocaleString()}`}
                     className="mt-1"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Range: {formatAmountRange(product)}</p>
+                  <div className="text-xs text-gray-500 mt-1 flex items-center">Range: {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mx-1" />} {formatAmountRange(product)}</div>
 
                   {/* Slider */}
                   <div className="mt-4">
@@ -599,9 +598,9 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                       step={1000}
                       className="mb-2"
                     />
-                    <div className="flex justify-between text-xs text-gray-500">
-                      <span>{product.currency} {product.minAmount.toLocaleString()}</span>
-                      <span>{product.currency} {(product.maxAmount || product.minAmount * 10).toLocaleString()}</span>
+                    <div className="flex justify-between text-xs text-gray-500 items-center">
+                      <span className="flex items-center">{product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}{product.minAmount.toLocaleString()}</span>
+                      <span className="flex items-center">{product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}{(product.maxAmount || product.minAmount * 10).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -658,7 +657,8 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                       <div className="flex justify-between">
                         <span className="text-gray-700">Annual Return:</span>
                         <span className="font-semibold text-green-600">
-                          {product.currency} {Math.round(projectedReturns.annualReturn).toLocaleString()}
+                          {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                          {Math.round(projectedReturns.annualReturn).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -667,14 +667,16 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                           {projectedReturns.years > 1 ? 'years' : 'year'}):
                         </span>
                         <span className="font-semibold text-green-600">
-                          {product.currency} {Math.round(projectedReturns.totalReturn).toLocaleString()}
+                          {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                          {Math.round(projectedReturns.totalReturn).toLocaleString()}
                         </span>
                       </div>
                       <Separator />
                       <div className="flex justify-between">
                         <span className="font-semibold text-gray-900">Total at Maturity:</span>
                         <span className="font-bold text-green-600 text-base">
-                          {product.currency} {Math.round(projectedReturns.totalAmount).toLocaleString()}
+                          {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-4 h-4 mr-1" />}
+                          {Math.round(projectedReturns.totalAmount).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -765,7 +767,10 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
               <div>
                 <p className="text-gray-600">Amount</p>
                 <p className="font-semibold">
-                  {product.currency} {parseFloat(amount).toLocaleString()}
+                  <span className="flex items-center">
+                    {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                    {parseFloat(amount).toLocaleString()}
+                  </span>
                 </p>
               </div>
               {selectedOption && (

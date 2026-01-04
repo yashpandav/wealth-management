@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RefreshCw, Shield, Clock, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
+
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
 
@@ -145,19 +146,13 @@ export default function AdminWithdrawalRequestsPage() {
   const approved = requests.filter((r) => r.status === WithdrawalStatus.ADMIN_APPROVED).length;
   const rejected = requests.filter((r) => r.status === WithdrawalStatus.ADMIN_REJECTED).length;
 
-  if (loading && requests.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
-  }
+
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
+    <div className="container px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Withdrawal Requests - Admin</h1>
-        <p className="text-gray-600">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">Withdrawal Requests - Admin</h1>
+        <p className="font-georgia text-brand-grey">
           Review and approve withdrawal requests recommended by Relationship Managers
         </p>
       </div>
@@ -238,27 +233,37 @@ export default function AdminWithdrawalRequestsPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          {requests.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <Shield className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <p>No withdrawal requests found</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tracking #</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Relationship Manager</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Portfolio Value</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
                 <TableRow>
-                  <TableHead>Tracking #</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Relationship Manager</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Portfolio Value</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    Searching...
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {requests.map((request) => (
+              ) : requests.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    <div className="flex flex-col items-center justify-center text-gray-500">
+                      <Shield className="h-8 w-8 mb-2 opacity-50" />
+                      <p>No withdrawal requests found</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                requests.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell className="font-mono text-sm">{request.trackingNumber}</TableCell>
                     <TableCell>
@@ -304,10 +309,10 @@ export default function AdminWithdrawalRequestsPage() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -43,9 +44,11 @@ import {
   Loader2,
   AlertCircle,
   Check,
-  X,
   Eye,
+  X,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 
 interface ProductRequest {
@@ -182,12 +185,19 @@ export function ProductPurchaseRequestsTable() {
     queryFn: () => fetchProductRequests({ page, search, status, sortBy, sortOrder }),
   });
 
+  // Separate query for global stats that doesn't change with search/filters
+  const { data: globalStatsData } = useQuery({
+    queryKey: ['rm-product-requests-stats'],
+    queryFn: () => fetchProductRequests({ page: 1, search: '', status: '', sortBy: 'createdAt', sortOrder: 'desc' }),
+  });
+
   const mutation = useMutation({
     mutationFn: updateProductRequest,
     onSuccess: (result) => {
       if (result.success) {
         toast.success(result.message || 'Request updated successfully');
         queryClient.invalidateQueries({ queryKey: ['rm-product-requests'] });
+        queryClient.invalidateQueries({ queryKey: ['rm-product-requests-stats'] });
         queryClient.invalidateQueries({ queryKey: ['rm-dashboard-stats'] });
         setActionDialog({ open: false, request: null, action: null });
         setRmNotes('');
@@ -241,20 +251,13 @@ export function ProductPurchaseRequestsTable() {
       case 'REJECTED':
         return <Badge variant="outline" className="bg-red-500/10 text-red-700">Rejected</Badge>;
       case 'COMPLETED':
-        return <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">Completed</Badge>;
+        return <Badge variant="outline" className="bg-brand-blue/10 text-brand-blue">Completed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading product requests...</span>
-      </div>
-    );
-  }
+
 
   if (error) {
     return (
@@ -266,196 +269,216 @@ export function ProductPurchaseRequestsTable() {
   }
 
   const requests = data?.data.requests || [];
+  const summary = globalStatsData?.data.summary;
   const pagination = data?.data.pagination;
-  const summary = data?.data.summary;
 
   return (
     <div className="space-y-4">
       {/* Summary Stats */}
       {summary && summary.byStatus.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border">
-            <p className="text-sm text-muted-foreground">Total Requests</p>
-            <p className="text-2xl font-bold">{summary.total}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg border shadow-sm">
+            <p className="text-sm text-brand-grey font-medium">Total Requests</p>
+            <p className="text-2xl font-bold text-brand-blue mt-1">{summary.total}</p>
           </div>
           {summary.byStatus.map((s) => (
-            <div key={s.status} className="bg-white p-4 rounded-lg border">
-              <p className="text-sm text-muted-foreground">{s.status}</p>
-              <p className="text-2xl font-bold">{s.count}</p>
-              <p className="text-xs text-muted-foreground">
-                Total: ${s.totalAmount.toLocaleString()}
-              </p>
+            <div key={s.status} className="bg-white p-4 rounded-lg border shadow-sm">
+              <p className="text-sm text-brand-grey font-medium capitalize">{s.status.toLowerCase()}</p>
+              <div className="flex items-end justify-between mt-1">
+                <p className="text-2xl font-bold text-gray-900">{s.count}</p>
+                <div className="flex items-center text-xs text-brand-grey mb-1">
+                  <span className="mr-1">Total:</span>
+                  <DirhamIcon className="w-3 h-3 text-brand-grey mr-1" />
+                  {s.totalAmount.toLocaleString()}
+                </div>
+              </div>
             </div>
           ))}
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <Input
-          placeholder="Search by tracking number, client, or product..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-sm"
-        />
-        <Select
-          value={status}
-          onValueChange={(value) => {
-            setStatus(value === 'all' ? '' : value);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="APPROVED">Approved</SelectItem>
-            <SelectItem value="REJECTED">Rejected</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="text-sm text-muted-foreground">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-1">
+          <div className="relative w-full sm:max-w-md flex-1">
+            <Input
+              placeholder="Search by tracking number, client, or product..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full"
+            />
+          </div>
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setStatus(value === 'all' ? '' : value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="APPROVED">Approved</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden md:block">
           {pagination?.totalCount || 0} total requests
         </div>
       </div>
 
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('trackingNumber')} className="h-8 px-2">
-                  Tracking #
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('client')} className="h-8 px-2">
-                  Client
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('product')} className="h-8 px-2">
-                  Product
-                </Button>
-              </TableHead>
-              <TableHead>Plan Details</TableHead>
-              <TableHead className="text-right">
-                <Button variant="ghost" onClick={() => handleSort('amount')} className="h-8 px-2">
-                  Amount
-                </Button>
-              </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('createdAt')} className="h-8 px-2">
-                  Date
-                </Button>
-              </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.length > 0 ? (
-              requests.map((req) => (
-                <TableRow key={req.id}>
-                  <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{req.client.firstName} {req.client.lastName}</p>
-                      <p className="text-xs text-muted-foreground">{req.client.email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-medium">{req.product.name}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p>{req.productOption.duration}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {req.productOption.withdrawalFrequency} | {req.productOption.annualReturn}% Annual
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {req.product.currency} {req.amount.toLocaleString()}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(req.status)}</TableCell>
-                  <TableCell>{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDetailDialog({ open: true, request: req })}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {req.status === 'PENDING' && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                            onClick={() => handleAction(req, 'APPROVE')}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleAction(req, 'REJECT')}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
+        <ResponsiveTable>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('trackingNumber')} className="h-8 px-2">
+                    Tracking #
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('client')} className="h-8 px-2">
+                    Client
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('product')} className="h-8 px-2">
+                    Product
+                  </Button>
+                </TableHead>
+                <TableHead>Plan Details</TableHead>
+                <TableHead className="text-right">
+                  <Button variant="ghost" onClick={() => handleSort('amount')} className="h-8 px-2">
+                    Amount
+                  </Button>
+                </TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('createdAt')} className="h-8 px-2">
+                    Date
+                  </Button>
+                </TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    Searching...
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  No product requests found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ) : requests.length > 0 ? (
+                requests.map((req) => (
+                  <TableRow key={req.id}>
+                    <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{req.client.firstName} {req.client.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{req.client.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-medium">{req.product.name}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p>{req.productOption.duration}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {req.productOption.withdrawalFrequency} | {req.productOption.annualReturn}% Annual
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      <div className="flex items-center justify-end">
+                        <span className="mr-1 text-xs text-muted-foreground">{req.product.currency}</span>
+                        {req.product.currency === 'USD' ? <DirhamIcon className="w-3 h-3 mx-1" /> : null}
+                        {req.amount.toLocaleString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(req.status)}</TableCell>
+                    <TableCell>{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailDialog({ open: true, request: req })}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {req.status === 'PENDING' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                              onClick={() => handleAction(req, 'APPROVE')}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleAction(req, 'REJECT')}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    No product requests found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ResponsiveTable>
       </div>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} requests
+            Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
+            {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
+            {pagination?.totalCount} requests
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p - 1)}
-              disabled={!pagination.hasPrevPage}
+              disabled={!pagination?.hasPrevPage}
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
             <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+              Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasNextPage}
+              disabled={!pagination?.hasNextPage}
             >
               Next
               <ChevronRight className="h-4 w-4" />
@@ -483,7 +506,7 @@ export function ProductPurchaseRequestsTable() {
                   {actionDialog.action === 'APPROVE'
                     ? `Approve the product purchase request for ${actionDialog.request.product.name}`
                     : `Reject the product purchase request for ${actionDialog.request.product.name}`}
-                  {' '}- {actionDialog.request.product.currency} {actionDialog.request.amount.toLocaleString()}
+                  {' '}- {actionDialog.request.product.currency !== 'USD' ? actionDialog.request.product.currency : <span className="inline-flex items-center baseline"><DirhamIcon className="w-3 h-3 mx-1 self-center" /></span>} {actionDialog.request.amount.toLocaleString()}
                 </>
               )}
             </DialogDescription>
@@ -493,7 +516,11 @@ export function ProductPurchaseRequestsTable() {
               <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
                 <p><strong>Client:</strong> {actionDialog.request.client.firstName} {actionDialog.request.client.lastName}</p>
                 <p><strong>Product:</strong> {actionDialog.request.product.name}</p>
-                <p><strong>Amount:</strong> {actionDialog.request.product.currency} {actionDialog.request.amount.toLocaleString()}</p>
+                <div className="flex items-center">
+                  <strong className="mr-1">Amount:</strong>
+                  {actionDialog.request.product.currency !== 'USD' ? actionDialog.request.product.currency : <DirhamIcon className="w-3 h-3 mx-1" />}
+                  {actionDialog.request.amount.toLocaleString()}
+                </div>
                 <p><strong>Duration:</strong> {actionDialog.request.productOption.duration}</p>
                 <p><strong>Annual Return:</strong> {actionDialog.request.productOption.annualReturn}%</p>
                 {actionDialog.request.clientNotes && (
@@ -573,7 +600,10 @@ export function ProductPurchaseRequestsTable() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium">{detailDialog.request.product.currency} {detailDialog.request.amount.toLocaleString()}</p>
+                  <p className="font-medium flex items-center">
+                    {detailDialog.request.product.currency !== 'USD' ? detailDialog.request.product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                    {detailDialog.request.amount.toLocaleString()}
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

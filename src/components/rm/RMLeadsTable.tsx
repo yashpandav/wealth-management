@@ -28,7 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Loader2, AlertCircle, Phone, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertCircle, Phone, Mail } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 
 type LeadStatus = 'NEW' | 'CONTACTED' | 'INTERESTED' | 'NOT_INTERESTED' | 'CONVERTED' | 'LOST';
 
@@ -100,7 +102,7 @@ const STATUS_LABELS: Record<LeadStatus, string> = {
 };
 
 const STATUS_COLORS: Record<LeadStatus, string> = {
-  NEW: 'bg-brand-blue/10/10 text-brand-blue',
+  NEW: 'bg-brand-blue/10 text-brand-blue',
   CONTACTED: 'bg-purple-500/10 text-purple-700',
   INTERESTED: 'bg-green-500/10 text-green-700',
   NOT_INTERESTED: 'bg-orange-500/10 text-orange-700',
@@ -116,7 +118,7 @@ export function RMLeadsTable() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['rm-leads', page, search, filterSource],
-    queryFn: () => fetchLeads({ page, search, source: filterSource }),
+    queryFn: () => fetchLeads({ page, search, source: filterSource === 'ALL' ? '' : filterSource }),
   });
 
   const updateStatusMutation = useMutation({
@@ -142,17 +144,12 @@ export function RMLeadsTable() {
     updateStatusMutation.mutate({ leadId, status: newStatus });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading leads...</span>
-      </div>
-    );
-  }
+
 
   const leads = data?.data.leads || [];
   const pagination = data?.data.pagination;
+
+
 
   // Show friendly message for errors or empty data
   if (error && !leads.length) {
@@ -169,44 +166,49 @@ export function RMLeadsTable() {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search by name, email, or phone..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-md"
-        />
-        <Select
-          value={filterSource || 'ALL'}
-          onValueChange={(value) => {
-            setFilterSource(value === 'ALL' ? '' : value);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Sources" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Sources</SelectItem>
-            <SelectItem value="INSTAGRAM">Instagram</SelectItem>
-            <SelectItem value="YOUTUBE">YouTube</SelectItem>
-            <SelectItem value="FACEBOOK_ADS">Facebook Ads</SelectItem>
-            <SelectItem value="GOOGLE_ADS">Google Ads</SelectItem>
-            <SelectItem value="WEBSITE">Website</SelectItem>
-            <SelectItem value="REFERRAL">Referral</SelectItem>
-            <SelectItem value="OTHER">Other</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="text-sm text-muted-foreground ml-auto">
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-1">
+          <div className="relative w-full sm:max-w-md flex-1">
+            <Input
+              placeholder="Search by name, email, or phone..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full"
+            />
+          </div>
+          <Select
+            value={filterSource || 'ALL'}
+            onValueChange={(value) => {
+              setFilterSource(value === 'ALL' ? '' : value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="All Sources" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Sources</SelectItem>
+              <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+              <SelectItem value="YOUTUBE">YouTube</SelectItem>
+              <SelectItem value="FACEBOOK_ADS">Facebook Ads</SelectItem>
+              <SelectItem value="GOOGLE_ADS">Google Ads</SelectItem>
+              <SelectItem value="WEBSITE">Website</SelectItem>
+              <SelectItem value="REFERRAL">Referral</SelectItem>
+              <SelectItem value="OTHER">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden md:block">
           {pagination?.totalCount || 0} total leads
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
@@ -219,7 +221,13 @@ export function RMLeadsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {leads.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : leads.length > 0 ? (
               leads.map((lead) => (
                 <TableRow key={lead.id}>
                   <TableCell className="font-medium">
@@ -287,34 +295,34 @@ export function RMLeadsTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ResponsiveTable>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} leads
+            Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
+            {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
+            {pagination?.totalCount} leads
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p - 1)}
-              disabled={pagination.page === 1}
+              disabled={page === 1}
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
             <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+              Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasMore}
+              disabled={!pagination?.hasMore}
             >
               Next
               <ChevronRight className="h-4 w-4" />

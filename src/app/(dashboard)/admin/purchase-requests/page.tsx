@@ -142,19 +142,13 @@ export default function AdminPurchaseRequestsPage() {
   const approved = requests.filter((r) => r.status === RequestStatus.APPROVED).length;
   const rejected = requests.filter((r) => r.status === RequestStatus.REJECTED).length;
 
-  if (loading && requests.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
-  }
+
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
+    <div className="container px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Purchase Requests - Admin</h1>
-        <p className="text-gray-600">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">Purchase Requests - Admin</h1>
+        <p className="font-georgia text-brand-grey">
           Monitor all purchase requests across the platform
         </p>
       </div>
@@ -228,28 +222,38 @@ export default function AdminPurchaseRequestsPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          {requests.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <AlertCircle className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <p>No purchase requests found</p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Tracking #</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Instrument</TableHead>
+                <TableHead>RM</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Quantity</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Submitted</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
                 <TableRow>
-                  <TableHead>Tracking #</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Instrument</TableHead>
-                  <TableHead>RM</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Quantity</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableCell colSpan={9} className="h-24 text-center">
+                    Searching...
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {requests.map((request) => (
+              ) : requests.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} className="h-24 text-center">
+                    <div className="flex flex-col items-center justify-center text-gray-500">
+                      <AlertCircle className="h-8 w-8 mb-2 opacity-50" />
+                      <p>No purchase requests found</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                requests.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell className="font-mono text-sm">{request.trackingNumber}</TableCell>
                     <TableCell>
@@ -297,10 +301,10 @@ export default function AdminPurchaseRequestsPage() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+                ))
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>

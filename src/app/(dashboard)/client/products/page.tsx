@@ -10,8 +10,8 @@ import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
 import { ProductsBrowse } from '@/components/client/ProductsBrowse';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function ClientProductsPage() {
   const { data: session, status } = useSession();
@@ -27,14 +27,7 @@ export default function ClientProductsPage() {
   }, [status, session, router]);
 
   if (status === 'loading') {
-    return (
-      <div className="min-h-screen bg-brand-white flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-          <span className="font-georgia text-brand-grey">Loading...</span>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner text="Loading..." className="min-h-screen" />;
   }
 
   if (status === 'unauthenticated' || (status === 'authenticated' && session?.user?.role !== 'CLIENT')) {

@@ -21,8 +21,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RefreshCw, Eye, Clock, CheckCircle, XCircle, AlertCircle, Wallet } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface WithdrawalRequest {
   id: string;
@@ -163,10 +166,8 @@ export default function RMWithdrawalRequestsPage() {
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'RM' && loading)) {
     return (
-      <div className="container mx-auto py-4 md:py-6 lg:py-8">
-        <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+      <div className="container mx-auto py-8 px-8">
+        <LoadingSpinner text="Loading requests..." centered={false} className="py-12" />
       </div>
     );
   }
@@ -176,11 +177,11 @@ export default function RMWithdrawalRequestsPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8">
+    <div className="container mx-auto py-8 px-8">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Withdrawal Requests</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Withdrawal Requests</h1>
+          <p className="font-georgia mt-2 text-brand-grey">
             Review and process withdrawal requests from your assigned clients
           </p>
         </div>
@@ -269,18 +270,20 @@ export default function RMWithdrawalRequestsPage() {
         <CardContent>
           {filteredRequests.length === 0 ? (
             <div className="py-12 text-center">
-              <Wallet className="mx-auto h-12 w-12 text-muted-foreground" />
-              <p className="mt-4 text-lg font-medium">
+              <div className="mx-auto h-12 w-12 text-muted-foreground mb-4">
+                <Wallet className="h-full w-full" />
+              </div>
+              <p className="text-lg font-medium text-gray-900">
                 {selectedStatus === 'ALL'
                   ? 'No withdrawal requests found'
                   : `No ${selectedStatus.toLowerCase().replace('_', ' ')} requests`}
               </p>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 text-sm text-gray-500">
                 Requests from your assigned clients will appear here
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <ResponsiveTable>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -308,15 +311,19 @@ export default function RMWithdrawalRequestsPage() {
                         </div>
                       </TableCell>
                       <TableCell className="font-semibold">
-                        ${request.amount.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                        <div className="flex items-center">
+                          <DirhamIcon className="w-4 h-4 mr-1" />
+                          {request.amount.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {request.client.portfolio ? (
-                          <span className="text-sm">
-                            ${request.client.portfolio.totalValue.toLocaleString('en-US', {
+                          <span className="text-sm flex items-center">
+                            <DirhamIcon className="w-3 h-3 mr-1" />
+                            {request.client.portfolio.totalValue.toLocaleString('en-US', {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
                             })}
@@ -345,7 +352,7 @@ export default function RMWithdrawalRequestsPage() {
                   ))}
                 </TableBody>
               </Table>
-            </div>
+            </ResponsiveTable>
           )}
         </CardContent>
       </Card>

@@ -6,6 +6,7 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { LoginForm } from './login-form';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export const metadata: Metadata = {
   title: 'Login | EMDEE VENTURES',
@@ -16,7 +17,7 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-white px-4 py-12 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
-                <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center">
           {/* Logo */}
           <img
             src="/images/logo/primary-logo-1.png"
@@ -43,7 +44,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <Suspense fallback={<div className="text-center text-brand-grey">Loading...</div>}>
+        <Suspense fallback={<LoadingSpinner text="Loading..." centered={false} className="py-8" />}>
           <LoginForm />
         </Suspense>
       </div>

@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -36,11 +37,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   ChevronLeft,
   ChevronRight,
-  Loader2,
   AlertCircle,
   Download,
   Eye,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+
 
 interface Transaction {
   id: string;
@@ -174,14 +176,7 @@ export function TransactionHistory() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading transactions...</span>
-      </div>
-    );
-  }
+
 
   if (error) {
     return (
@@ -286,110 +281,130 @@ export function TransactionHistory() {
 
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Instrument</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.length > 0 ? (
-              transactions.map((txn) => (
-                <TableRow key={txn.id}>
-                  <TableCell className="font-medium">
-                    {format(new Date(txn.completedAt), 'MMM dd, yyyy HH:mm')}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getTypeColor(txn.type)}>
-                      {txn.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {txn.instrument ? (
-                      <div className="flex flex-col">
-                        <span className="font-medium">{txn.instrument.symbol}</span>
-                        <span className="text-xs text-muted-foreground">{txn.instrument.name}</span>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {txn.quantity ? txn.quantity.toLocaleString() : '-'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {txn.price ? `$${txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : '-'}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    ${txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(txn.status)}>
-                      {txn.status.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedTransaction(txn)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
+        <ResponsiveTable>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Instrument</TableHead>
+                <TableHead className="text-right">Quantity</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    Searching...
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  No transactions found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ) : transactions.length > 0 ? (
+                transactions.map((txn) => (
+                  <TableRow key={txn.id}>
+                    <TableCell className="font-medium">
+                      {format(new Date(txn.completedAt), 'MMM dd, yyyy HH:mm')}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getTypeColor(txn.type)}>
+                        {txn.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {txn.instrument ? (
+                        <div className="flex flex-col">
+                          <span className="font-medium">{txn.instrument.symbol}</span>
+                          <span className="text-xs text-muted-foreground">{txn.instrument.name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">N/A</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {txn.quantity ? txn.quantity.toLocaleString() : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {txn.price ? (
+                        <div className="flex items-center justify-end">
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                          {txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                        </div>
+                      ) : (
+                        '-'
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      <div className="flex items-center justify-end">
+                        <DirhamIcon className="w-3 h-3 mr-1" />
+                        {txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getStatusColor(txn.status)}>
+                        {txn.status.replace('_', ' ')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedTransaction(txn)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    No transactions found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ResponsiveTable>
       </div>
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} transactions
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p - 1)}
-              disabled={pagination.page === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-            <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+      {
+        pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+              {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
+              {pagination.totalCount} transactions
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasMore}
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p - 1)}
+                disabled={pagination.page === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="text-sm">
+                Page {pagination.page} of {pagination.totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.hasMore}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Transaction Detail Modal */}
       <Dialog open={!!selectedTransaction} onOpenChange={() => setSelectedTransaction(null)}>
@@ -440,24 +455,39 @@ export function TransactionHistory() {
                 {selectedTransaction.price && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Price per Unit</p>
-                    <p className="font-medium">${selectedTransaction.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</p>
+                    <p className="font-medium flex items-center">
+                      <DirhamIcon className="w-3 h-3 mr-1" />
+                      {selectedTransaction.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                    </p>
                   </div>
                 )}
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Amount</p>
-                  <p className="font-medium">${selectedTransaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Fees</p>
-                  <p className="font-medium">${selectedTransaction.fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total</p>
-                  <p className="font-medium">${selectedTransaction.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Net Amount</p>
-                  <p className="font-medium">${selectedTransaction.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
               </div>
 
@@ -471,6 +501,6 @@ export function TransactionHistory() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }

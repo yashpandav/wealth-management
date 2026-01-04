@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2, Upload, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -197,14 +198,7 @@ export function ProductRequestsClient({
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading product requests...</span>
-      </div>
-    );
-  }
+
 
   if (error) {
     return (
@@ -297,7 +291,13 @@ export function ProductRequestsClient({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {requests.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : requests.length > 0 ? (
               requests.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>

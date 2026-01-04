@@ -58,13 +58,13 @@ export default async function InstrumentsPage() {
   }));
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8">
+    <div className="container px-8 py-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Instruments</h1>
-            <p className="mt-2 text-muted-foreground">
+            <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Instruments</h1>
+            <p className="font-georgia mt-2 text-brand-grey">
               Manage investment instruments available on the platform
             </p>
           </div>

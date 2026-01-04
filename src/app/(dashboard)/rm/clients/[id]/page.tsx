@@ -186,7 +186,7 @@ export default function RMClientDetailPage() {
   const isPositiveGain = client.portfolio ? client.portfolio.totalGainLoss >= 0 : true;
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
+    <div className="container mx-auto py-8 px-8 max-w-full sm:max-w-7xl">
       {/* Header */}
       <div className="mb-6">
         <Button variant="ghost" onClick={() => router.back()} className="mb-4">

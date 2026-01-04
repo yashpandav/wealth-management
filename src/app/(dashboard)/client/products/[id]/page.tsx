@@ -8,7 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { ProductDetail } from '@/components/client/ProductDetail';
 
@@ -121,14 +121,7 @@ export default function ProductDetailPage() {
   };
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <span className="text-muted-foreground">Loading product...</span>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner text="Loading product..." className="min-h-screen bg-gray-50" />;
   }
 
   if (status === 'unauthenticated' || (status === 'authenticated' && session?.user?.role !== 'CLIENT')) {

@@ -14,7 +14,6 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  RefreshCw,
   User,
   Wallet,
   Building2,
@@ -23,7 +22,9 @@ import {
   AlertCircle,
   ArrowLeft,
   Shield,
+  Loader2,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
 
@@ -202,10 +203,8 @@ export default function RMWithdrawalRequestDetailPage({
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'RM' && loading)) {
     return (
-      <div className="container mx-auto py-4 md:py-6 lg:py-8">
-        <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+      <div className="container mx-auto py-8 px-8">
+        <LoadingSpinner text="Loading request details..." centered={false} className="py-12" />
       </div>
     );
   }
@@ -219,7 +218,7 @@ export default function RMWithdrawalRequestDetailPage({
   const canReview = request.status === WithdrawalStatus.PENDING || request.status === WithdrawalStatus.RM_REVIEW;
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-6xl">
+    <div className="container mx-auto py-8 px-8 max-w-6xl">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"
@@ -291,9 +290,8 @@ export default function RMWithdrawalRequestDetailPage({
             {request.client.portfolio && (
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Total Gain/Loss</p>
-                <p className={`text-lg font-semibold ${
-                  request.client.portfolio.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <p className={`text-lg font-semibold ${request.client.portfolio.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {request.client.portfolio.totalGainLoss >= 0 ? '+' : ''}
                   ${request.client.portfolio.totalGainLoss.toLocaleString('en-US', {
                     minimumFractionDigits: 2,
@@ -564,7 +562,7 @@ export default function RMWithdrawalRequestDetailPage({
             <Button type="button" onClick={handleApprove} disabled={submitting}>
               {submitting ? (
                 <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Submitting...
                 </>
               ) : (
@@ -629,7 +627,7 @@ export default function RMWithdrawalRequestDetailPage({
             >
               {submitting ? (
                 <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Submitting...
                 </>
               ) : (

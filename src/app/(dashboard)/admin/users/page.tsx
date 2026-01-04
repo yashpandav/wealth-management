@@ -8,6 +8,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { RequireAdmin } from '@/lib/auth';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface User {
   id: string;
@@ -209,6 +229,8 @@ function AdminUsersContent() {
     }
   };
 
+
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'ADMIN':
@@ -236,12 +258,12 @@ function AdminUsersContent() {
   };
 
   return (
-    <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
+    <div className="container px-8 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="font-optima text-2xl font-bold text-brand-blue">User Management</h1>
+          <p className="font-georgia mt-1 text-sm text-brand-grey">
             Manage all users, roles, and permissions
           </p>
         </div>
@@ -277,20 +299,23 @@ function AdminUsersContent() {
               <label htmlFor="role" className="block text-sm font-medium text-gray-700">
                 Role
               </label>
-              <select
-                id="role"
+              <Select
                 value={roleFilter}
-                onChange={(e) => {
-                  setRoleFilter(e.target.value);
+                onValueChange={(value) => {
+                  setRoleFilter(value === 'all' ? '' : value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="">All Roles</option>
-                <option value="ADMIN">Admin</option>
-                <option value="RM">RM</option>
-                <option value="CLIENT">Client</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                  <SelectItem value="RM">RM</SelectItem>
+                  <SelectItem value="CLIENT">Client</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Status Filter */}
@@ -298,20 +323,23 @@ function AdminUsersContent() {
               <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                 Status
               </label>
-              <select
-                id="status"
+              <Select
                 value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
+                onValueChange={(value) => {
+                  setStatusFilter(value === 'all' ? '' : value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-                <option value="LOCKED">Locked</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="LOCKED">Locked</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -360,18 +388,21 @@ function AdminUsersContent() {
               <span className="text-sm font-medium text-blue-900">
                 {selectedUsers.length} user(s) selected
               </span>
-              <select
+              <Select
                 value={bulkOperation}
-                onChange={(e) => setBulkOperation(e.target.value)}
-                className="rounded-md border border-brand-blue bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                onValueChange={setBulkOperation}
               >
-                <option value="">Select Operation</option>
-                <option value="activate">Activate</option>
-                <option value="deactivate">Deactivate</option>
-                <option value="lock">Lock</option>
-                <option value="unlock">Unlock</option>
-                <option value="delete">Delete (Soft)</option>
-              </select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Operation" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="activate">Activate</SelectItem>
+                  <SelectItem value="deactivate">Deactivate</SelectItem>
+                  <SelectItem value="lock">Lock</SelectItem>
+                  <SelectItem value="unlock">Unlock</SelectItem>
+                  <SelectItem value="delete">Delete (Soft)</SelectItem>
+                </SelectContent>
+              </Select>
               <button
                 onClick={handleBulkOperation}
                 disabled={!bulkOperation || isBulkProcessing}
@@ -391,219 +422,206 @@ function AdminUsersContent() {
       )}
 
       {/* Users Table */}
-      {isLoading ? (
-        <div className="flex min-h-[400px] items-center justify-center rounded-lg bg-white shadow">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-            <p className="text-sm text-gray-600">Loading users...</p>
-          </div>
-        </div>
-      ) : users.length === 0 ? (
-        <div className="rounded-lg bg-white p-4 md:p-4 md:p-6 lg:p-8 text-center shadow">
-          <p className="text-gray-600">No users found</p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-lg bg-white shadow">
-          <div className="w-full overflow-x-auto -mx-4 sm:mx-0">
-            <table className="text-sm min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedUsers.length === users.length && users.length > 0}
-                      onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
+      <ResponsiveTable>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={selectedUsers.length === users.length && users.length > 0}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('lastName')}
+              >
+                Name {sortBy === 'lastName' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('email')}
+              >
+                Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('createdAt')}
+              >
+                Joined {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('lastLogin')}
+              >
+                Last Login {sortBy === 'lastLogin' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                  No users found
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedUsers.includes(user.id)}
+                      onCheckedChange={() => toggleSelectUser(user.id)}
                     />
-                  </th>
-                  <th
-                    onClick={() => handleSort('lastName')}
-                    className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
-                  >
-                    Name {sortBy === 'lastName' && (sortOrder === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th
-                    onClick={() => handleSort('email')}
-                    className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
-                  >
-                    Email {sortBy === 'email' && (sortOrder === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Role
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Status
-                  </th>
-                  <th
-                    onClick={() => handleSort('createdAt')}
-                    className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
-                  >
-                    Joined {sortBy === 'createdAt' && (sortOrder === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th
-                    onClick={() => handleSort('lastLogin')}
-                    className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100"
-                  >
-                    Last Login {sortBy === 'lastLogin' && (sortOrder === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedUsers.includes(user.id)}
-                        onChange={() => toggleSelectUser(user.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
-                      />
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.firstName} {user.lastName}
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">
+                      {user.firstName} {user.lastName}
+                    </div>
+                    {user.emailVerified ? (
+                      <div className="text-xs text-green-600">✓ Verified</div>
+                    ) : (
+                      <div className="text-xs text-yellow-600">Not verified</div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {user.email}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={getRoleBadgeColor(user.role).replace('text-', 'text-').replace('bg-', 'bg-')}>
+                      {user.role}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={getStatusBadgeColor(user.status)}>
+                      {user.status}
+                    </Badge>
+                    {user.accountLockedUntil && new Date(user.accountLockedUntil) > new Date() && (
+                      <div className="mt-1 text-xs text-destructive">
+                        Locked until {new Date(user.accountLockedUntil).toLocaleTimeString()}
                       </div>
-                      {user.emailVerified ? (
-                        <div className="text-xs text-green-600">✓ Verified</div>
-                      ) : (
-                        <div className="text-xs text-yellow-600">Not verified</div>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getRoleBadgeColor(
-                          user.role
-                        )}`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getStatusBadgeColor(
-                          user.status
-                        )}`}
-                      >
-                        {user.status}
-                      </span>
-                      {user.accountLockedUntil && new Date(user.accountLockedUntil) > new Date() && (
-                        <div className="mt-1 text-xs text-red-600">
-                          Locked until {new Date(user.accountLockedUntil).toLocaleTimeString()}
-                        </div>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {user.lastLogin
-                        ? new Date(user.lastLogin).toLocaleDateString()
-                        : 'Never'}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        {/* Unlock Button (only show for locked accounts) */}
-                        {(user.status === 'LOCKED' ||
-                          (user.accountLockedUntil && new Date(user.accountLockedUntil) > new Date())) && (
-                          <button
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {user.lastLogin
+                      ? new Date(user.lastLogin).toLocaleDateString()
+                      : 'Never'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      {/* Unlock Button */}
+                      {(user.status === 'LOCKED' ||
+                        (user.accountLockedUntil && new Date(user.accountLockedUntil) > new Date())) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleUnlock(user.id)}
                             className="text-green-600 hover:text-green-900"
                             title="Unlock Account"
                           >
-                            🔓 Unlock
-                          </button>
+                            🔓
+                          </Button>
                         )}
 
-                        {/* Status Dropdown */}
-                        <select
-                          value={user.status}
-                          onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                          className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
-                          title="Change Status"
-                        >
-                          <option value="ACTIVE">Active</option>
-                          <option value="INACTIVE">Inactive</option>
-                          <option value="LOCKED">Locked</option>
-                        </select>
+                      {/* Status Dropdown - simplified to native for now as replacing with Select inside Table might be tricky layout-wise, but let's stick to native for simplicity or native styled. Actually let's use the native one for now to minimize complex interaction changes, or better yet, just keep the actions simple. */}
+                      {/* Status Dropdown */}
+                      <Select
+                        value={user.status}
+                        onValueChange={(value) => handleStatusChange(user.id, value)}
+                      >
+                        <SelectTrigger className="h-8 w-[100px] text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                          <SelectItem value="LOCKED">Locked</SelectItem>
+                        </SelectContent>
+                      </Select>
 
-                        {/* Edit Link */}
-                        <Link
-                          href={`/admin/users/${user.id}/edit`}
-                          className="text-brand-blue hover:text-brand-blue/80"
-                        >
-                          Edit
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {/* Edit Link */}
+                      <Link
+                        href={`/admin/users/${user.id}/edit`}
+                        className="text-sm font-medium text-brand-blue hover:text-brand-blue/80"
+                      >
+                        Edit
+                      </Link>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </ResponsiveTable>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+          <div className="flex flex-1 justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={!pagination.hasPrevPage}
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={!pagination.hasNextPage}
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
-
-          {/* Pagination */}
-          {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-              <div className="flex flex-1 justify-between sm:hidden">
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing{' '}
+                <span className="font-medium">
+                  {(currentPage - 1) * pagination.limit + 1}
+                </span>{' '}
+                to{' '}
+                <span className="font-medium">
+                  {Math.min(currentPage * pagination.limit, pagination.totalCount)}
+                </span>{' '}
+                of <span className="font-medium">{pagination.totalCount}</span> results
+              </p>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={!pagination.hasPrevPage}
-                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Previous
                 </button>
+                <span className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700">
+                  Page {currentPage} of {pagination.totalPages}
+                </span>
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={!pagination.hasNextPage}
-                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Next
                 </button>
-              </div>
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing{' '}
-                    <span className="font-medium">
-                      {(currentPage - 1) * pagination.limit + 1}
-                    </span>{' '}
-                    to{' '}
-                    <span className="font-medium">
-                      {Math.min(currentPage * pagination.limit, pagination.totalCount)}
-                    </span>{' '}
-                    of <span className="font-medium">{pagination.totalCount}</span> results
-                  </p>
-                </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
-                    <button
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      disabled={!pagination.hasPrevPage}
-                      className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700">
-                      Page {currentPage} of {pagination.totalPages}
-                    </span>
-                    <button
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={!pagination.hasNextPage}
-                      className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
-                    >
-                      Next
-                    </button>
-                  </nav>
-                </div>
-              </div>
+              </nav>
             </div>
-          )}
+          </div>
         </div>
       )}
     </div>

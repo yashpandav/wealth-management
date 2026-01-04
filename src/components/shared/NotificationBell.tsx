@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { NotificationDropdown } from './NotificationDropdown';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 interface NotificationResponse {
   success: boolean;
@@ -46,6 +47,7 @@ async function fetchNotifications(): Promise<NotificationResponse> {
 }
 
 export function NotificationBell() {
+  const [isOpen, setIsOpen] = useState(false);
   const { data, refetch } = useQuery({
     queryKey: ['notifications'],
     queryFn: fetchNotifications,
@@ -55,7 +57,7 @@ export function NotificationBell() {
   const unreadCount = data?.data?.unreadCount || 0;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -74,11 +76,12 @@ export function NotificationBell() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-96 p-0" align="end">
+      <DropdownMenuContent className="w-[90vw] sm:w-96 p-0" align="end">
         <NotificationDropdown
           notifications={data?.data?.notifications as any || []} // eslint-disable-line @typescript-eslint/no-explicit-any
           unreadCount={unreadCount}
           onMarkAsRead={refetch}
+          onViewAll={() => setIsOpen(false)}
         />
       </DropdownMenuContent>
     </DropdownMenu>

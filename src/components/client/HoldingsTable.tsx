@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -35,6 +36,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, ChevronLeft, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 export interface Holding {
   id: string;
@@ -156,8 +158,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right">
-            ${row.original.averagePurchasePrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          <div className="text-right flex items-center justify-end">
+            <DirhamIcon className="w-3 h-3 mr-1" />
+            {row.original.averagePurchasePrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
         ),
       },
@@ -174,8 +177,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right">
-            ${row.original.currentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          <div className="text-right flex items-center justify-end">
+            <DirhamIcon className="w-3 h-3 mr-1" />
+            {row.original.currentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
         ),
       },
@@ -192,8 +196,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right font-medium">
-            ${row.original.currentValue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          <div className="text-right font-medium flex items-center justify-end">
+            <DirhamIcon className="w-3 h-3 mr-1" />
+            {row.original.currentValue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
         ),
       },
@@ -219,7 +224,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
               ) : (
                 <TrendingDown className="mr-1 h-4 w-4" />
               )}
-              {isPositive ? '+' : ''}${gainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {isPositive ? '+' : ''}
+              <DirhamIcon className="w-3 h-3 mx-1" />
+              {Math.abs(gainLoss).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           );
         },
@@ -337,40 +344,42 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
 
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+        <ResponsiveTable>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No holdings match your filters.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No holdings match your filters.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ResponsiveTable>
       </div>
 
       {/* Pagination */}

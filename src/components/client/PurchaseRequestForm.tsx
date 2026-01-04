@@ -29,6 +29,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'react-hot-toast';
 import { checkTransactionEligibility } from '@/lib/utils/client-utils';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface Instrument {
   id: string;
@@ -237,8 +238,8 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
                       selectedInstrument.riskRating === 'HIGH'
                         ? 'destructive'
                         : selectedInstrument.riskRating === 'MEDIUM'
-                        ? 'default'
-                        : 'secondary'
+                          ? 'default'
+                          : 'secondary'
                     }
                   >
                     {selectedInstrument.riskRating} Risk
@@ -249,15 +250,18 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
               <div className="grid gap-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Current Price:</span>
-                  <span className="font-medium">
-                    {selectedInstrument.currency} {selectedInstrument.currentPrice.toFixed(2)}
+                  <span className="font-medium flex items-center">
+                    {selectedInstrument.currency !== 'USD' && <span className="mr-1">{selectedInstrument.currency}</span>}
+                    {selectedInstrument.currency === 'USD' && <DirhamIcon className="w-3 h-3 mr-1" />}
+                    {selectedInstrument.currentPrice.toFixed(2)}
                   </span>
                 </div>
                 {selectedInstrument.minimumInvestment && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Minimum Investment:</span>
-                    <span className="font-medium">
-                      {selectedInstrument.currency}{' '}
+                    <span className="font-medium flex items-center">
+                      {selectedInstrument.currency !== 'USD' && <span className="mr-1">{selectedInstrument.currency}</span>}
+                      {selectedInstrument.currency === 'USD' && <DirhamIcon className="w-3 h-3 mr-1" />}
                       {selectedInstrument.minimumInvestment.toFixed(2)}
                     </span>
                   </div>
@@ -324,12 +328,13 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
       </Card>
 
       {/* Submit Button */}
-      <div className="flex justify-end gap-4">
+      <div className="flex flex-col-reverse sm:flex-row justify-end gap-4">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
           disabled={isSubmitting}
+          className="w-full sm:w-auto"
         >
           Cancel
         </Button>
@@ -337,6 +342,7 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
           type="submit"
           disabled={!canTransact || !selectedInstrument || isSubmitting || !!amountError}
           title={!canTransact ? 'You must have an assigned RM and verified KYC to submit purchase requests' : undefined}
+          className="w-full sm:w-auto"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Purchase Request'}
         </Button>

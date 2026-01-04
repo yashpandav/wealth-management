@@ -12,13 +12,13 @@ import {
   Grid3x3,
   List,
   Search,
-  Loader2,
   AlertCircle,
   ChevronLeft,
   ChevronRight,
   TrendingUp,
-  DollarSign,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -145,7 +145,7 @@ export function InstrumentsBrowse() {
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case 'STOCK':
-        return 'bg-brand-blue/10/10 text-brand-blue border-blue-200';
+        return 'bg-brand-blue/10 text-brand-blue border-blue-200';
       case 'BOND':
         return 'bg-purple-500/10 text-purple-700 border-purple-200';
       case 'MUTUAL_FUND':
@@ -166,12 +166,7 @@ export function InstrumentsBrowse() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading instruments...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading instruments..." />;
   }
 
   if (error) {
@@ -338,11 +333,12 @@ export function InstrumentsBrowse() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <div className="flex items-center gap-1 text-xs text-gray-600 mb-1">
-                          <DollarSign className="h-3 w-3" />
+                          <DirhamIcon className="h-3 w-3" />
                           <span>Current Price</span>
                         </div>
-                        <p className="font-semibold text-green-600">
-                          ${Number(instrument.currentPrice).toFixed(2)}
+                        <p className="font-semibold text-green-600 flex items-center">
+                          <DirhamIcon className="h-3 w-3 mr-1" />
+                          {Number(instrument.currentPrice).toFixed(2)}
                         </p>
                       </div>
                       <div>
@@ -350,8 +346,9 @@ export function InstrumentsBrowse() {
                           <TrendingUp className="h-3 w-3" />
                           <span>Min Investment</span>
                         </div>
-                        <p className="font-semibold">
-                          ${instrument.minimumInvestment.toLocaleString()}
+                        <p className="font-semibold flex items-center">
+                          <DirhamIcon className="h-3 w-3 mr-1" />
+                          {instrument.minimumInvestment.toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -391,14 +388,16 @@ export function InstrumentsBrowse() {
                       <div className="flex md:flex-col justify-between md:justify-start items-end gap-4 md:min-w-[200px]">
                         <div className="text-right">
                           <p className="text-xs text-gray-600 mb-1">Current Price</p>
-                          <p className="font-semibold text-green-600">
-                            ${Number(instrument.currentPrice).toFixed(2)}
+                          <p className="font-semibold text-green-600 flex items-center justify-end">
+                            <DirhamIcon className="h-3 w-3 mr-1" />
+                            {Number(instrument.currentPrice).toFixed(2)}
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-gray-600 mb-1">Min Investment</p>
-                          <p className="font-semibold">
-                            ${instrument.minimumInvestment.toLocaleString()}
+                          <p className="font-semibold flex items-center justify-end">
+                            <DirhamIcon className="h-3 w-3 mr-1" />
+                            {instrument.minimumInvestment.toLocaleString()}
                           </p>
                         </div>
                         <Link href={`/instruments/${instrument.id}`}>

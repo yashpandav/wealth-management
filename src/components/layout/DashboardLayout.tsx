@@ -28,7 +28,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen w-full bg-background">
       {/* Skip Link for Accessibility */}
       <SkipLink />
 
@@ -40,7 +40,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
         {/* Main Content */}
-        <main id="main-content" className="flex-1 lg:ml-64 " tabIndex={-1}>
+        <main id="main-content" className="flex-1 lg:ml-64 w-full max-w-[100vw] overflow-x-hidden" tabIndex={-1}>
           <div className="min-h-[calc(100vh-4rem-200px)]">{children}</div>
           <Footer />
         </main>

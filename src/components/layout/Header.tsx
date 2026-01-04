@@ -29,15 +29,15 @@ export function Header({ onMenuClick }: HeaderProps) {
   const userInitials = session?.user?.firstName && session?.user?.lastName
     ? `${session.user.firstName[0]}${session.user.lastName[0]}`.toUpperCase()
     : session?.user?.email
-    ? session.user.email.substring(0, 2).toUpperCase()
-    : 'U';
+      ? session.user.email.substring(0, 2).toUpperCase()
+      : 'U';
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/login' });
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-white shadow-sm">
+    <header className="sticky top-0 left-0 right-0 z-50 w-full border-b border-border bg-white shadow-sm">
       <div className="flex h-16 items-center px-4 lg:px-6">
         {/* Mobile Menu Button */}
         <button
@@ -121,34 +121,34 @@ export function Header({ onMenuClick }: HeaderProps) {
             <>
               <NotificationBell />
               <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-9 w-9 rounded-full hover:bg-brand-blue/10 transition-colors duration-200"
-                >
-                  <Avatar className="h-9 w-9">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      {userInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {session.user?.firstName && session.user?.lastName
-                        ? `${session.user.firstName} ${session.user.lastName}`
-                        : session.user?.email || 'User'}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {session.user?.email}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      Role: {session.user?.role}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full hover:bg-brand-blue/10 transition-colors duration-200"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {session.user?.firstName && session.user?.lastName
+                          ? `${session.user.firstName} ${session.user.lastName}`
+                          : session.user?.email || 'User'}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {session.user?.email}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        Role: {session.user?.role}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="font-optima transition-colors duration-200 hover:text-primary-foreground focus:text-primary-foreground hover:bg-primary focus:bg-primary">
                     <Link href="/profile" >
@@ -161,9 +161,9 @@ export function Header({ onMenuClick }: HeaderProps) {
                     className="cursor-pointer font-optima text-destructive transition-colors duration-200 hover:bg-destructive hover:text-white focus:bg-destructive focus:text-white"
                   >
                     Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <div className="flex items-center space-x-2">

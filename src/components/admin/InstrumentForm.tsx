@@ -58,7 +58,7 @@ export function InstrumentForm({
   } = useForm<CreateInstrumentInput>({
     resolver: zodResolver(createInstrumentSchema),
     defaultValues: initialData || {
-      currency: 'USD',
+      currency: 'AED',
       isActive: true,
       isPublic: true,
     },
@@ -113,7 +113,7 @@ export function InstrumentForm({
   const handleReset = () => {
     reset(
       initialData || {
-        currency: 'USD',
+        currency: 'AED',
         isActive: true,
         isPublic: true,
       }
@@ -289,7 +289,7 @@ export function InstrumentForm({
               <Input
                 id="currency"
                 {...register('currency')}
-                placeholder="USD"
+                placeholder="AED"
                 maxLength={3}
                 className="uppercase"
                 aria-invalid={!!errors.currency}
@@ -297,7 +297,7 @@ export function InstrumentForm({
               {errors.currency && (
                 <p className="text-sm text-destructive">{errors.currency.message}</p>
               )}
-              <p className="text-xs text-muted-foreground">3-letter currency code (e.g., USD, EUR)</p>
+              <p className="text-xs text-muted-foreground">3-letter currency code (e.g., AED, USD)</p>
             </div>
           </div>
         </CardContent>
@@ -541,8 +541,8 @@ export function InstrumentForm({
           {isSubmitting
             ? 'Saving...'
             : mode === 'edit'
-            ? 'Update Instrument'
-            : 'Create Instrument'}
+              ? 'Update Instrument'
+              : 'Create Instrument'}
         </Button>
       </div>
     </form>

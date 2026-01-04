@@ -6,17 +6,17 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatCard } from '@/components/dashboard/StatCard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   TrendingUp,
   TrendingDown,
-  DollarSign,
   PiggyBank,
   Activity,
   AlertCircle,
-  Loader2,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { HoldingsTable, Holding } from './HoldingsTable';
 import { AssetAllocationCharts } from './AssetAllocationCharts';
 import { TransactionHistory } from './TransactionHistory';
@@ -67,12 +67,7 @@ export function PortfolioDashboard() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading portfolio data...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading portfolio data..." />;
   }
 
   if (error) {
@@ -105,97 +100,87 @@ export function PortfolioDashboard() {
     <div className="space-y-4 sm:space-y-6">
       {/* Welcome Section */}
       <div>
-        <h2 className="text-2xl font-semibold">
+        <h2 className="text-2xl font-semibold font-optima text-gray-900">
           Welcome back, {portfolio.client.user.firstName}
         </h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground font-georgia mt-1">
           Here&apos;s an overview of your investment portfolio
         </p>
       </div>
 
       {/* Summary Cards Grid */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Portfolio Value */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">
-              Portfolio Value
-            </CardTitle>
-            <DollarSign className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-2xl font-bold text-brand-blue">
-              ${portfolio.totalValue >= 1000000
+        <StatCard
+          title="Portfolio Value"
+          value={
+            <div className="flex items-center">
+              <DirhamIcon className="w-5 h-5 mr-1" />
+              {portfolio.totalValue >= 1000000
                 ? `${(portfolio.totalValue / 1000000).toFixed(2)}M`
                 : portfolio.totalValue >= 1000
-                ? `${(portfolio.totalValue / 1000).toFixed(1)}K`
-                : portfolio.totalValue.toFixed(0)}
+                  ? `${(portfolio.totalValue / 1000).toFixed(1)}K`
+                  : `${portfolio.totalValue.toFixed(0)}`
+              }
             </div>
-          </CardContent>
-        </Card>
+          }
+          icon={DirhamIcon}
+        />
 
         {/* Total Invested */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">
-              Invested
-            </CardTitle>
-            <PiggyBank className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-2xl font-bold text-brand-blue">
-              ${portfolio.totalInvested >= 1000000
+        <StatCard
+          title="Invested"
+          value={
+            <div className="flex items-center">
+              <DirhamIcon className="w-5 h-5 mr-1" />
+              {portfolio.totalInvested >= 1000000
                 ? `${(portfolio.totalInvested / 1000000).toFixed(2)}M`
                 : portfolio.totalInvested >= 1000
-                ? `${(portfolio.totalInvested / 1000).toFixed(1)}K`
-                : portfolio.totalInvested.toFixed(0)}
+                  ? `${(portfolio.totalInvested / 1000).toFixed(1)}K`
+                  : `${portfolio.totalInvested.toFixed(0)}`
+              }
             </div>
-          </CardContent>
-        </Card>
+          }
+          icon={PiggyBank}
+        />
 
         {/* Total Gain/Loss */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">
-              Gain/Loss
-            </CardTitle>
-            {isPositiveGain ? (
-              <TrendingUp className="h-3.5 w-3.5 text-green-600" />
-            ) : (
-              <TrendingDown className="h-3.5 w-3.5 text-red-600" />
-            )}
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className={`text-2xl font-bold ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveGain ? '+' : ''}${Math.abs(portfolio.totalGainLoss) >= 1000
+        <StatCard
+          title="Gain/Loss"
+          value={
+            <div className="flex items-center">
+              {isPositiveGain ? '+' : ''}
+              <DirhamIcon className="w-5 h-5 mx-1" />
+              {Math.abs(portfolio.totalGainLoss) >= 1000
                 ? `${(portfolio.totalGainLoss / 1000).toFixed(1)}K`
-                : portfolio.totalGainLoss.toFixed(0)}
+                : `${portfolio.totalGainLoss.toFixed(0)}`
+              }
             </div>
-            <p className={`text-xs mt-0.5 font-medium ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveGain ? '+' : ''}{portfolio.totalGainLossPercent.toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
+          }
+          icon={isPositiveGain ? TrendingUp : TrendingDown}
+          status={isPositiveGain ? "success" : "danger"}
+          trend={isPositiveGain ? "up" : "down"}
+          trendValue={`${portfolio.totalGainLossPercent.toFixed(1)}%`}
+        />
 
         {/* Today's Change */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">
-              Today
-            </CardTitle>
-            <Activity className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className={`text-2xl font-bold ${isPositiveDayChange ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveDayChange ? '+' : ''}${Math.abs(portfolio.dayChange) >= 1000
+        <StatCard
+          title="Today"
+          value={
+            <div className="flex items-center">
+              {isPositiveDayChange ? '+' : ''}
+              <DirhamIcon className="w-5 h-5 mx-1" />
+              {Math.abs(portfolio.dayChange) >= 1000
                 ? `${(portfolio.dayChange / 1000).toFixed(1)}K`
-                : portfolio.dayChange.toFixed(0)}
+                : `${portfolio.dayChange.toFixed(0)}`
+              }
             </div>
-            <p className={`text-xs mt-0.5 font-medium ${isPositiveDayChange ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositiveDayChange ? '+' : ''}{portfolio.dayChangePercent.toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
+          }
+          icon={Activity}
+          status={isPositiveDayChange ? "success" : "danger"}
+          trend={isPositiveDayChange ? "up" : "down"}
+          trendValue={`${portfolio.dayChangePercent.toFixed(1)}%`}
+        />
       </div>
 
       {/* Performance Over Time */}
@@ -208,19 +193,19 @@ export function PortfolioDashboard() {
 
       {/* Asset Allocation Charts */}
       <div className="mt-8">
-        <h3 className="mb-4 text-lg font-semibold">Asset Allocation</h3>
+        <h3 className="mb-4 text-lg font-semibold font-optima text-gray-900">Asset Allocation</h3>
         <AssetAllocationCharts holdings={portfolio.holdings} />
       </div>
 
       {/* Holdings Table */}
       <div className="mt-8">
-        <h3 className="mb-4 text-lg font-semibold">Holdings</h3>
+        <h3 className="mb-4 text-lg font-semibold font-optima text-gray-900">Holdings</h3>
         <HoldingsTable holdings={portfolio.holdings} />
       </div>
 
       {/* Transaction History */}
       <div className="mt-8">
-        <h3 className="mb-4 text-lg font-semibold">Transaction History</h3>
+        <h3 className="mb-4 text-lg font-semibold font-optima text-gray-900">Transaction History</h3>
         <TransactionHistory />
       </div>
     </div>

@@ -22,12 +22,12 @@ import {
   Download,
   TrendingUp,
   TrendingDown,
-  DollarSign,
   Shield,
   Calendar,
   Building2,
   BarChart3,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -140,7 +140,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
   const getTypeBadgeColor = (type: string) => {
     switch (type) {
       case 'STOCK':
-        return 'bg-brand-blue/10/10 text-brand-blue border-blue-200';
+        return 'bg-brand-blue/10 text-brand-blue border-blue-200';
       case 'BOND':
         return 'bg-purple-500/10 text-purple-700 border-purple-200';
       case 'MUTUAL_FUND':
@@ -182,341 +182,352 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
 
       <div className="min-h-screen bg-gray-50">
         {/* Breadcrumb Navigation */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <nav className="flex items-center gap-2 text-sm text-gray-600">
-            <Link href="/" className="hover:text-brand-blue">
-              Home
-            </Link>
-            <ChevronRight className="h-4 w-4" />
-            <Link href="/instruments" className="hover:text-brand-blue">
-              Instruments
-            </Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-gray-900 font-medium">{instrument.symbol}</span>
-          </nav>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 lg:py-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                {instrument.name}
-              </h1>
-              <div className="flex items-center gap-3">
-                <p className="text-xl text-gray-600 font-mono">{instrument.symbol}</p>
-                {instrument.isin && (
-                  <p className="text-sm text-gray-500">ISIN: {instrument.isin}</p>
-                )}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Badge variant="outline" className={getTypeBadgeColor(instrument.type)}>
-                {formatType(instrument.type)}
-              </Badge>
-              <Badge variant="outline" className={getRiskBadgeColor(instrument.riskRating)}>
-                {instrument.riskRating || 'N/A'}
-              </Badge>
-            </div>
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <nav className="flex items-center gap-2 text-sm text-gray-600">
+              <Link href="/" className="hover:text-brand-blue">
+                Home
+              </Link>
+              <ChevronRight className="h-4 w-4" />
+              <Link href="/instruments" className="hover:text-brand-blue">
+                Instruments
+              </Link>
+              <ChevronRight className="h-4 w-4" />
+              <span className="text-gray-900 font-medium">{instrument.symbol}</span>
+            </nav>
           </div>
-
-          {/* Current Price */}
-          <div className="flex items-baseline gap-4">
-            <div className="text-3xl md:text-4xl font-bold text-gray-900">
-              {instrument.currency} {instrument.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-            <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
-              <span className="text-lg font-semibold">
-                {isPositive ? '+' : ''}
-                {priceChange.toFixed(2)} ({isPositive ? '+' : ''}
-                {priceChangePercent.toFixed(2)}%)
-              </span>
-            </div>
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Last updated: {format(new Date(instrument.lastPriceUpdate), 'MMM dd, yyyy HH:mm')}
-          </p>
         </div>
 
-        {/* Performance Chart */}
-        <Card className="mb-8">
-          <CardHeader>
-            <div className="flex flex-wrap justify-between items-center gap-4">
-              <CardTitle>Price Performance</CardTitle>
-              <div className="flex gap-2">
-                {(['1M', '3M', '6M', '1Y', 'ALL'] as const).map((period) => (
-                  <Button
-                    key={period}
-                    variant={timePeriod === period ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setTimePeriod(period)}
-                  >
-                    {period}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={priceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip
-                  formatter={(value: number) => [
-                    `${instrument.currency} ${value.toFixed(2)}`,
-                    'Price',
-                  ]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="price"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Column */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Description */}
-            {instrument.description && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>About</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 leading-relaxed">{instrument.description}</p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Key Metrics */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Key Metrics</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  {instrument.exchange && (
-                    <div>
-                      <div className="flex items-center gap-2 text-gray-600 mb-1">
-                        <Building2 className="h-4 w-4" />
-                        <span className="text-sm">Exchange</span>
-                      </div>
-                      <p className="font-semibold text-lg">{instrument.exchange}</p>
-                    </div>
-                  )}
-
-                  {instrument.sector && (
-                    <div>
-                      <div className="flex items-center gap-2 text-gray-600 mb-1">
-                        <BarChart3 className="h-4 w-4" />
-                        <span className="text-sm">Sector</span>
-                      </div>
-                      <p className="font-semibold text-lg">{instrument.sector}</p>
-                    </div>
-                  )}
-
-                  {instrument.marketCap !== null && (
-                    <div>
-                      <div className="flex items-center gap-2 text-gray-600 mb-1">
-                        <DollarSign className="h-4 w-4" />
-                        <span className="text-sm">Market Cap</span>
-                      </div>
-                      <p className="font-semibold text-lg">
-                        ${(instrument.marketCap / 1000000000).toFixed(2)}B
-                      </p>
-                    </div>
-                  )}
-
-                  <div>
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
-                      <TrendingUp className="h-4 w-4" />
-                      <span className="text-sm">Dividend Yield</span>
-                    </div>
-                    <p className="font-semibold text-lg">{instrument.dividendYield.toFixed(2)}%</p>
-                  </div>
-
-                  {instrument.yearlyHigh !== null && (
-                    <div>
-                      <div className="text-gray-600 text-sm mb-1">52-Week High</div>
-                      <p className="font-semibold text-lg">
-                        {instrument.currency} {instrument.yearlyHigh.toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-
-                  {instrument.yearlyLow !== null && (
-                    <div>
-                      <div className="text-gray-600 text-sm mb-1">52-Week Low</div>
-                      <p className="font-semibold text-lg">
-                        {instrument.currency} {instrument.yearlyLow.toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-
-                  {instrument.peRatio !== null && (
-                    <div>
-                      <div className="text-gray-600 text-sm mb-1">P/E Ratio</div>
-                      <p className="font-semibold text-lg">{instrument.peRatio.toFixed(2)}</p>
-                    </div>
-                  )}
-
-                  {instrument.launchDate && (
-                    <div>
-                      <div className="flex items-center gap-2 text-gray-600 mb-1">
-                        <Calendar className="h-4 w-4" />
-                        <span className="text-sm">Launch Date</span>
-                      </div>
-                      <p className="font-semibold text-lg">
-                        {format(new Date(instrument.launchDate), 'MMM dd, yyyy')}
-                      </p>
-                    </div>
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 py-4 md:py-6 lg:py-8">
+          {/* Header Section */}
+          <div className="mb-8">
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  {instrument.name}
+                </h1>
+                <div className="flex items-center gap-3">
+                  <p className="text-xl text-gray-600 font-mono">{instrument.symbol}</p>
+                  {instrument.isin && (
+                    <p className="text-sm text-gray-500">ISIN: {instrument.isin}</p>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex gap-2">
+                <Badge variant="outline" className={getTypeBadgeColor(instrument.type)}>
+                  {formatType(instrument.type)}
+                </Badge>
+                <Badge variant="outline" className={getRiskBadgeColor(instrument.riskRating)}>
+                  {instrument.riskRating || 'N/A'}
+                </Badge>
+              </div>
+            </div>
 
-            {/* Documents */}
-            {instrument.prospectusUrl && (
+            {/* Current Price */}
+            <div className="flex items-baseline gap-4">
+              <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center">
+                {instrument.currency !== 'USD' && <span className="mr-2">{instrument.currency}</span>}
+                {instrument.currency === 'USD' && <DirhamIcon className="w-8 h-8 mr-2" />}
+                {instrument.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
+                <span className="text-lg font-semibold">
+                  {isPositive ? '+' : ''}
+                  {priceChange.toFixed(2)} ({isPositive ? '+' : ''}
+                  {priceChangePercent.toFixed(2)}%)
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Last updated: {format(new Date(instrument.lastPriceUpdate), 'MMM dd, yyyy HH:mm')}
+            </p>
+          </div>
+
+          {/* Performance Chart */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <CardTitle>Price Performance</CardTitle>
+                <div className="flex gap-2 self-start sm:self-auto">
+                  {(['1M', '3M', '6M', '1Y', 'ALL'] as const).map((period) => (
+                    <Button
+                      key={period}
+                      variant={timePeriod === period ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setTimePeriod(period)}
+                      className="h-8 px-3 flex-1 sm:flex-none"
+                    >
+                      {period}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={priceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip
+                    formatter={(value: number) => [
+                      <div className="flex items-center">
+                        <DirhamIcon className="w-3 h-3 mr-1" />
+                        {value.toFixed(2)}
+                      </div>,
+                      'Price',
+                    ]}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="price"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Column */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Description */}
+              {instrument.description && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>About</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-700 leading-relaxed">{instrument.description}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Key Metrics */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Documents</CardTitle>
+                  <CardTitle>Key Metrics</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <a
-                    href={instrument.prospectusUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-brand-blue/5 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Download className="h-5 w-5 text-brand-blue" />
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {instrument.exchange && (
                       <div>
-                        <p className="font-semibold">Prospectus</p>
-                        <p className="text-sm text-gray-600">
-                          Official investment prospectus document
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <Building2 className="h-4 w-4" />
+                          <span className="text-sm">Exchange</span>
+                        </div>
+                        <p className="font-semibold text-lg">{instrument.exchange}</p>
+                      </div>
+                    )}
+
+                    {instrument.sector && (
+                      <div>
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <BarChart3 className="h-4 w-4" />
+                          <span className="text-sm">Sector</span>
+                        </div>
+                        <p className="font-semibold text-lg">{instrument.sector}</p>
+                      </div>
+                    )}
+
+                    {instrument.marketCap !== null && (
+                      <div>
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <DirhamIcon className="h-4 w-4" />
+                          <span className="text-sm">Market Cap</span>
+                        </div>
+                        <p className="font-semibold text-lg flex items-center">
+                          <DirhamIcon className="w-4 h-4 mr-1" />
+                          {(instrument.marketCap / 1000000000).toFixed(2)}B
                         </p>
                       </div>
+                    )}
+
+                    <div>
+                      <div className="flex items-center gap-2 text-gray-600 mb-1">
+                        <TrendingUp className="h-4 w-4" />
+                        <span className="text-sm">Dividend Yield</span>
+                      </div>
+                      <p className="font-semibold text-lg">{instrument.dividendYield.toFixed(2)}%</p>
                     </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                  </a>
+
+                    {instrument.yearlyHigh !== null && (
+                      <div>
+                        <div className="text-gray-600 text-sm mb-1">52-Week High</div>
+                        <p className="font-semibold text-lg flex items-center">
+                          {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-4 h-4 mr-1" />}
+                          {instrument.yearlyHigh.toFixed(2)}
+                        </p>
+                      </div>
+                    )}
+
+                    {instrument.yearlyLow !== null && (
+                      <div>
+                        <div className="text-gray-600 text-sm mb-1">52-Week Low</div>
+                        <p className="font-semibold text-lg flex items-center">
+                          {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-4 h-4 mr-1" />}
+                          {instrument.yearlyLow.toFixed(2)}
+                        </p>
+                      </div>
+                    )}
+
+                    {instrument.peRatio !== null && (
+                      <div>
+                        <div className="text-gray-600 text-sm mb-1">P/E Ratio</div>
+                        <p className="font-semibold text-lg">{instrument.peRatio.toFixed(2)}</p>
+                      </div>
+                    )}
+
+                    {instrument.launchDate && (
+                      <div>
+                        <div className="flex items-center gap-2 text-gray-600 mb-1">
+                          <Calendar className="h-4 w-4" />
+                          <span className="text-sm">Launch Date</span>
+                        </div>
+                        <p className="font-semibold text-lg">
+                          {format(new Date(instrument.launchDate), 'MMM dd, yyyy')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
-            )}
-          </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Investment Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Investment Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Minimum Investment</p>
-                  <p className="text-2xl font-bold">
-                    ${instrument.minimumInvestment.toLocaleString()}
-                  </p>
-                </div>
-                <Separator />
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Risk Level</p>
-                  <Badge variant="outline" className={getRiskBadgeColor(instrument.riskRating)}>
-                    {instrument.riskRating || 'Not Rated'}
-                  </Badge>
-                </div>
-                <Separator />
-                <Link href="/register">
-                  <Button className="w-full" size="lg">
-                    Invest Now
-                  </Button>
-                </Link>
-                <p className="text-xs text-gray-500 text-center">
-                  Sign up to start investing in this instrument
-                </p>
-              </CardContent>
-            </Card>
+              {/* Documents */}
+              {instrument.prospectusUrl && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Documents</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <a
+                      href={instrument.prospectusUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-brand-blue/5 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Download className="h-5 w-5 text-brand-blue" />
+                        <div>
+                          <p className="font-semibold">Prospectus</p>
+                          <p className="text-sm text-gray-600">
+                            Official investment prospectus document
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-gray-400" />
+                    </a>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
 
-            {/* Related Instruments */}
-            {relatedInstruments.length > 0 && (
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Investment Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Related Instruments</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Investment Information
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {relatedInstruments.map((related) => (
-                    <Link
-                      key={related.id}
-                      href={`/instruments/${related.id}`}
-                      className="block p-3 border rounded-lg hover:bg-brand-blue/5 transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-1">
-                        <div>
-                          <p className="font-semibold">{related.symbol}</p>
-                          <p className="text-sm text-gray-600">{related.name}</p>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {formatType(related.type)}
-                        </Badge>
-                      </div>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-sm font-semibold">
-                          ${related.currentPrice.toFixed(2)}
-                        </span>
-                        <span className="text-xs text-green-600">
-                          {related.dividendYield.toFixed(2)}% yield
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
+                <CardContent className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Minimum Investment</p>
+                    <div className="text-2xl font-bold flex items-center">
+                      <DirhamIcon className="w-6 h-6 mr-2" />
+                      {instrument.minimumInvestment.toLocaleString()}
+                    </div>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Risk Level</p>
+                    <Badge variant="outline" className={getRiskBadgeColor(instrument.riskRating)}>
+                      {instrument.riskRating || 'Not Rated'}
+                    </Badge>
+                  </div>
+                  <Separator />
+                  <Link href="/register">
+                    <Button className="w-full" size="lg">
+                      Invest Now
+                    </Button>
+                  </Link>
+                  <p className="text-xs text-gray-500 text-center">
+                    Sign up to start investing in this instrument
+                  </p>
                 </CardContent>
               </Card>
-            )}
-          </div>
-        </div>
-      </div>
 
-      {/* CTA Section */}
-      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white py-16 px-4 mt-12">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold mb-4">
-            Ready to Invest in {instrument.symbol}?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Create an account to access this investment opportunity and get matched with a
-            dedicated relationship manager
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register">
-              <Button size="lg" className="bg-white text-brand-blue hover:bg-brand-blue/5">
-                Create Account
-              </Button>
-            </Link>
-            <Link href="/instruments">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                Browse More Instruments
-              </Button>
-            </Link>
+              {/* Related Instruments */}
+              {relatedInstruments.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Related Instruments</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {relatedInstruments.map((related) => (
+                      <Link
+                        key={related.id}
+                        href={`/instruments/${related.id}`}
+                        className="block p-3 border rounded-lg hover:bg-brand-blue/5 transition-colors"
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <div>
+                            <p className="font-semibold">{related.symbol}</p>
+                            <p className="text-sm text-gray-600">{related.name}</p>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {formatType(related.type)}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="text-sm font-semibold flex items-center">
+                            <DirhamIcon className="w-3 h-3 mr-1" />
+                            {related.currentPrice.toFixed(2)}
+                          </span>
+                          <span className="text-xs text-green-600">
+                            {related.dividendYield.toFixed(2)}% yield
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white py-16 px-4 mt-12">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold mb-4">
+              Ready to Invest in {instrument.symbol}?
+            </h2>
+            <p className="text-xl text-blue-100 mb-8">
+              Create an account to access this investment opportunity and get matched with a
+              dedicated relationship manager
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/register">
+                <Button size="lg" className="bg-white text-brand-blue hover:bg-brand-blue/5">
+                  Create Account
+                </Button>
+              </Link>
+              <Link href="/instruments">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Browse More Instruments
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

@@ -23,12 +23,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   ChevronLeft,
   ChevronRight,
-  Loader2,
   AlertCircle,
   TrendingUp,
   TrendingDown,
   Eye,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import Link from 'next/link';
 
 interface Client {
@@ -107,17 +109,12 @@ export function ActiveClientsTable() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading clients...</span>
-      </div>
-    );
-  }
+
 
   const clients = data?.data.clients || [];
   const pagination = data?.data.pagination;
+
+
 
   // Show friendly message for errors
   if (error && !clients.length) {
@@ -134,23 +131,26 @@ export function ActiveClientsTable() {
   return (
     <div className="space-y-4">
       {/* Search */}
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-md"
-        />
-        <div className="text-sm text-muted-foreground ml-auto">
+      {/* Search */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="relative w-full sm:w-auto sm:max-w-md flex-1">
+          <Input
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full"
+          />
+        </div>
+        <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden sm:block">
           {pagination?.totalCount || 0} total clients
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
@@ -189,7 +189,13 @@ export function ActiveClientsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : clients.length > 0 ? (
               clients.map((client) => {
                 const isPositiveGain = client.portfolio ? client.portfolio.totalGainLoss >= 0 : true;
                 return (
@@ -213,9 +219,14 @@ export function ActiveClientsTable() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {client.portfolio
-                        ? `$${client.portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                        : '-'}
+                      {client.portfolio ? (
+                        <div className="flex items-center justify-end">
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                          {client.portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {client.portfolio ? (
@@ -225,8 +236,10 @@ export function ActiveClientsTable() {
                           ) : (
                             <TrendingDown className="h-4 w-4" />
                           )}
-                          <span className="font-medium">
-                            {isPositiveGain ? '+' : ''}${client.portfolio.totalGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          <span className="font-medium flex items-center">
+                            {isPositiveGain ? '+' : ''}
+                            <DirhamIcon className="w-3 h-3 mx-1" />
+                            {client.portfolio.totalGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                           <span className="text-xs">
                             ({isPositiveGain ? '+' : ''}{client.portfolio.totalGainLossPercent.toFixed(2)}%)
@@ -264,41 +277,45 @@ export function ActiveClientsTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ResponsiveTable>
+
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} clients
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p - 1)}
-              disabled={pagination.page === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-            <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+      {/* Pagination */}
+      {
+        pagination && pagination.totalPages > 1 && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="text-sm text-muted-foreground">
+              Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
+              {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
+              {pagination?.totalCount} clients
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasMore}
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p - 1)}
+                disabled={page === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="text-sm">
+                Page {pagination?.page || 1} of {pagination?.totalPages || 1}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination?.hasMore}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

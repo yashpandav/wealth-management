@@ -28,7 +28,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { toast } from 'react-hot-toast';
+
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface Instrument {
   id: string;
@@ -77,6 +80,8 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Fetch instruments
+  // Fetch all instruments once
+  // Fetch all instruments once
   const fetchInstruments = useCallback(async () => {
     setLoading(true);
     try {
@@ -85,12 +90,12 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
         limit: limit.toString(),
         sortBy,
         sortOrder,
-        ...(search && { query: search }),
-        ...(typeFilter !== 'all' && { type: typeFilter }),
-        ...(riskFilter !== 'all' && { riskRating: riskFilter }),
-        ...(statusFilter === 'active' && { isActive: 'true' }),
-        ...(statusFilter === 'inactive' && { isActive: 'false' }),
       });
+
+      if (search) params.append('search', search);
+      if (typeFilter && typeFilter !== 'all') params.append('type', typeFilter);
+      if (riskFilter && riskFilter !== 'all') params.append('risk', riskFilter);
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter);
 
       const response = await fetch(`/api/admin/instruments?${params}`);
       const result = await response.json();
@@ -108,7 +113,9 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortOrder, search, typeFilter, riskFilter, statusFilter]);
+  }, [page, limit, search, typeFilter, riskFilter, statusFilter, sortBy, sortOrder]);
+
+
 
   // Handle bulk operations
   const handleBulkOperation = async (operation: 'activate' | 'deactivate' | 'delete') => {
@@ -163,7 +170,8 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
 
   // Selection handlers
   const toggleSelectAll = () => {
-    if (selectedIds.size === instruments.length) {
+    // Select all filtered instruments
+    if (selectedIds.size === instruments.length && instruments.length > 0) {
       setSelectedIds(new Set());
     } else {
       setSelectedIds(new Set(instruments.map((i) => i.id)));
@@ -277,11 +285,11 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
 
         {/* Bulk Actions */}
         {selectedIds.size > 0 && (
-          <div className="flex items-center gap-2 rounded-md bg-muted p-3">
-            <span className="text-sm font-medium">
+          <div className="flex flex-wrap items-center gap-2 rounded-md bg-muted p-3">
+            <span className="text-sm font-medium whitespace-nowrap">
               {selectedIds.size} selected
             </span>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
                 variant="outline"
@@ -311,127 +319,137 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
 
       {/* Table */}
       <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={selectedIds.size === instruments.length && instruments.length > 0}
-                  onCheckedChange={toggleSelectAll}
-                  aria-label="Select all"
-                />
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('symbol')}
-              >
-                Symbol {sortBy === 'symbol' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('name')}
-              >
-                Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('type')}
-              >
-                Type {sortBy === 'type' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('currentPrice')}
-              >
-                Price {sortBy === 'currentPrice' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('riskRating')}
-              >
-                Risk {sortBy === 'riskRating' && (sortOrder === 'asc' ? '↑' : '↓')}
-              </TableHead>
-              <TableHead>Min Investment</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Holdings</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
+        <ResponsiveTable>
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={10} className="h-24 text-center">
-                  Loading...
-                </TableCell>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedIds.size === instruments.length && instruments.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('symbol')}
+                >
+                  Symbol {sortBy === 'symbol' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('name')}
+                >
+                  Name {sortBy === 'name' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('type')}
+                >
+                  Type {sortBy === 'type' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('currentPrice')}
+                >
+                  Price {sortBy === 'currentPrice' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleSort('riskRating')}
+                >
+                  Risk {sortBy === 'riskRating' && (sortOrder === 'asc' ? '↑' : '↓')}
+                </TableHead>
+                <TableHead>Min Investment</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Holdings</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : instruments.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={10} className="h-24 text-center">
-                  No instruments found
-                </TableCell>
-              </TableRow>
-            ) : (
-              instruments.map((instrument) => (
-                <TableRow key={instrument.id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedIds.has(instrument.id)}
-                      onCheckedChange={() => toggleSelect(instrument.id)}
-                      aria-label={`Select ${instrument.name}`}
-                    />
-                  </TableCell>
-                  <TableCell className="font-mono font-medium">{instrument.symbol}</TableCell>
-                  <TableCell className="font-medium">{instrument.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {instrument.type.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {instrument.currency} {Number(instrument.currentPrice).toFixed(2)}
-                  </TableCell>
-                  <TableCell>
-                    {instrument.riskRating ? (
-                      <Badge
-                        variant={
-                          instrument.riskRating === 'HIGH'
-                            ? 'destructive'
-                            : instrument.riskRating === 'MEDIUM'
-                            ? 'default'
-                            : 'secondary'
-                        }
-                      >
-                        {instrument.riskRating}
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {instrument.minimumInvestment
-                      ? `${instrument.currency} ${Number(instrument.minimumInvestment).toFixed(2)}`
-                      : '—'}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={instrument.isActive ? 'default' : 'secondary'}>
-                      {instrument.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{instrument._count.holdings}</TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => router.push(`/admin/instruments/${instrument.id}`)}
-                    >
-                      View
-                    </Button>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={10} className="h-24 text-center">
+                    Searching...
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : instruments.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={10} className="h-24 text-center">
+                    No instruments found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                instruments.map((instrument) => (
+                  <TableRow key={instrument.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.has(instrument.id)}
+                        onCheckedChange={() => toggleSelect(instrument.id)}
+                        aria-label={`Select ${instrument.name}`}
+                      />
+                    </TableCell>
+                    <TableCell className="font-mono font-medium">{instrument.symbol}</TableCell>
+                    <TableCell className="font-medium">{instrument.name}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {instrument.type.replace('_', ' ')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                        {Number(instrument.currentPrice).toFixed(2)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {instrument.riskRating ? (
+                        <Badge
+                          variant={
+                            instrument.riskRating === 'HIGH'
+                              ? 'destructive'
+                              : instrument.riskRating === 'MEDIUM'
+                                ? 'default'
+                                : 'secondary'
+                          }
+                        >
+                          {instrument.riskRating}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {instrument.minimumInvestment
+                        ? (
+                          <div className="flex items-center">
+                            {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                            {Number(instrument.minimumInvestment).toFixed(2)}
+                          </div>
+                        )
+                        : '—'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={instrument.isActive ? 'default' : 'secondary'}>
+                        {instrument.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{instrument._count.holdings}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/admin/instruments/${instrument.id}`)}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </ResponsiveTable>
       </div>
 
       {/* Pagination */}
@@ -456,7 +474,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground">
-            Showing {instruments.length === 0 ? 0 : (page - 1) * limit + 1} to{' '}
+            Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
             {Math.min(page * limit, totalCount)} of {totalCount} instruments
           </span>
         </div>
@@ -477,7 +495,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
             variant="outline"
             size="sm"
             onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages || loading}
+            disabled={page >= totalPages}
           >
             Next
           </Button>
