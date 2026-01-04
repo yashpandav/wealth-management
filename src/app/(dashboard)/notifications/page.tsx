@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Bell, Check, Trash2, RefreshCw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface Notification {
   id: string;
@@ -94,10 +95,8 @@ export default function NotificationsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="container mx-auto py-4 md:py-6 lg:py-8">
-        <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <LoadingSpinner />
       </div>
     );
   }
@@ -107,7 +106,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Notifications</h1>
@@ -135,28 +134,31 @@ export default function NotificationsPage() {
         ) : (
           notifications.map((notification) => (
             <Card key={notification.id} className={notification.isRead ? 'bg-background' : 'bg-brand-blue/10'}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-lg">{notification.title}</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <div className="flex items-start justify-between gap-3 sm:gap-4">
+                  <div className="space-y-1.5 flex-1 min-w-0 mr-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <CardTitle className="text-base sm:text-lg leading-tight">{notification.title}</CardTitle>
                       {!notification.isRead && (
-                        <Badge variant="default" className="text-xs">New</Badge>
+                        <Badge variant="default" className="text-[10px] sm:text-xs h-5">New</Badge>
                       )}
-                      <Badge variant="outline" className="text-xs">{notification.category}</Badge>
+                      <Badge variant="outline" className="text-[10px] sm:text-xs h-5 truncate max-w-[120px]">{notification.category}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(notification.createdAt).toLocaleString()}
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(notification.createdAt).toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                     {!notification.isRead && (
                       <Button
                         onClick={() => markAsRead(notification.id)}
                         variant="ghost"
-                        size="sm"
+                        size="icon"
                         title="Mark as read"
-                        className="hover:bg-brand-blue hover:text-white transition-colors duration-200"
+                        className="h-8 w-8 hover:bg-brand-blue hover:text-white transition-colors duration-200"
                       >
                         <Check className="h-4 w-4" />
                       </Button>
@@ -164,27 +166,25 @@ export default function NotificationsPage() {
                     <Button
                       onClick={() => deleteNotification(notification.id)}
                       variant="ghost"
-                      size="sm"
+                      size="icon"
                       title="Delete"
-                      className="hover:bg-destructive hover:text-white transition-colors duration-200"
+                      className="h-8 w-8 hover:bg-destructive hover:text-white transition-colors duration-200"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">{notification.message}</p>
+              <CardContent className="md:px-5 md:pt-0 md:pb-5 sm:px-5 sm:pt-0 sm:pb-5">
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{notification.message}</p>
                 {notification.actionUrl && notification.actionText && (
                   <Button
                     onClick={() => {
-                      // Type assertion needed due to Next.js router type limitations
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       router.push(notification.actionUrl as any);
                     }}
                     variant="outline"
                     size="sm"
-                    className="hover:bg-brand-blue hover:text-white hover:border-brand-blue transition-colors duration-200"
+                    className="w-full sm:w-auto hover:bg-brand-blue hover:text-white hover:border-brand-blue transition-colors duration-200"
                   >
                     {notification.actionText}
                   </Button>

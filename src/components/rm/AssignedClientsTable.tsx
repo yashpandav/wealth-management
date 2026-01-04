@@ -28,7 +28,9 @@ import {
   TrendingUp,
   TrendingDown,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import Link from 'next/link';
 
 interface Client {
@@ -129,23 +131,26 @@ export function AssignedClientsTable() {
   return (
     <div className="space-y-4">
       {/* Search and Filters */}
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-sm"
-        />
-        <div className="text-sm text-muted-foreground">
+      {/* Search and Filters */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="relative w-full sm:w-auto sm:max-w-md flex-1">
+          <Input
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full"
+          />
+        </div>
+        <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden sm:block">
           {pagination?.totalCount || 0} total clients
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
@@ -208,7 +213,7 @@ export function AssignedClientsTable() {
                           Verified
                         </Badge>
                       ) : client.verificationStatus === 'PENDING' || client.verificationStatus === 'UNDER_REVIEW' ? (
-                        <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">
+                        <Badge variant="outline" className="bg-brand-blue/10 text-brand-blue">
                           {client.verificationStatus === 'UNDER_REVIEW' ? 'Under Review' : 'Pending'}
                         </Badge>
                       ) : client.verificationStatus === 'REJECTED' ? (
@@ -226,9 +231,14 @@ export function AssignedClientsTable() {
                       )}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {client.portfolio
-                        ? `$${client.portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                        : '-'}
+                      {client.portfolio ? (
+                        <div className="flex items-center justify-end">
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                          {client.portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {client.portfolio ? (
@@ -238,8 +248,10 @@ export function AssignedClientsTable() {
                           ) : (
                             <TrendingDown className="h-4 w-4" />
                           )}
-                          <span className="font-medium">
-                            {isPositiveGain ? '+' : ''}${client.portfolio.totalGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          <span className="font-medium flex items-center">
+                            {isPositiveGain ? '+' : ''}
+                            <DirhamIcon className="w-3 h-3 mx-1" />
+                            {client.portfolio.totalGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
                           <span className="text-xs">
                             ({isPositiveGain ? '+' : ''}{client.portfolio.totalGainLossPercent.toFixed(2)}%)
@@ -275,7 +287,7 @@ export function AssignedClientsTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ResponsiveTable>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (

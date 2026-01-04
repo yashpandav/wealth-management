@@ -156,8 +156,8 @@ export default function RMPerformancePage() {
   return (
     <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">RM Performance Dashboard</h1>
-        <p className="text-gray-600">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">RM Performance Dashboard</h1>
+        <p className="font-georgia text-brand-grey">
           Comprehensive performance metrics for all Relationship Managers
         </p>
       </div>
@@ -217,11 +217,10 @@ export default function RMPerformancePage() {
                     setSortOrder('desc');
                   }
                 }}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  sortBy === option.key
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${sortBy === option.key
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                }`}
+                  }`}
               >
                 {option.label}
                 {sortBy === option.key && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
@@ -326,9 +325,8 @@ export default function RMPerformancePage() {
                             <div className="flex justify-between">
                               <span className="text-gray-600">Gain/Loss:</span>
                               <span
-                                className={`font-semibold ${
-                                  isPositiveGain ? 'text-green-600' : 'text-red-600'
-                                }`}
+                                className={`font-semibold ${isPositiveGain ? 'text-green-600' : 'text-red-600'
+                                  }`}
                               >
                                 {isPositiveGain ? '+' : ''}$
                                 {rm.aum.gainLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -384,8 +382,8 @@ export default function RMPerformancePage() {
                             avgApprovalRate >= 80
                               ? 'default'
                               : avgApprovalRate >= 60
-                              ? 'secondary'
-                              : 'destructive'
+                                ? 'secondary'
+                                : 'destructive'
                           }
                           className="text-sm"
                         >

@@ -40,6 +40,7 @@ interface NotificationDropdownProps {
   notifications: Notification[];
   unreadCount: number;
   onMarkAsRead: () => void;
+  onViewAll?: () => void;
 }
 
 function getNotificationIcon(type: NotificationType) {
@@ -80,6 +81,7 @@ export function NotificationDropdown({
   notifications,
   unreadCount,
   onMarkAsRead,
+  onViewAll
 }: NotificationDropdownProps) {
   const [marking, setMarking] = useState(false);
 
@@ -134,7 +136,7 @@ export function NotificationDropdown({
       <Separator />
 
       {/* Notifications List */}
-      <ScrollArea className="h-[400px]">
+      <ScrollArea className="h-[60vh] sm:h-[400px]">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <Bell className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -146,34 +148,39 @@ export function NotificationDropdown({
               <div
                 key={notification.id}
                 className={cn(
-                  'p-4 transition-colors duration-200 hover:bg-brand-blue/5',
-                  !notification.isRead && 'bg-brand-blue/10'
+                  'relative p-4 transition-colors duration-200 hover:bg-brand-blue/5 group',
+                  !notification.isRead && 'bg-brand-blue/5'
                 )}
               >
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 mt-0.5">
+                  <div className="flex-shrink-0 mt-1">
                     {getNotificationIcon(notification.type)}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-medium text-sm leading-tight">
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-start justify-between gap-3 pr-6">
+                      <p className={cn("text-sm leading-snug", !notification.isRead ? "font-semibold text-gray-900" : "font-medium text-gray-700")}>
                         {notification.title}
                       </p>
                       {!notification.isRead && (
                         <button
-                          onClick={() => handleMarkAsRead(notification.id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleMarkAsRead(notification.id);
+                          }}
                           disabled={marking}
-                          className="flex-shrink-0 text-xs text-brand-blue hover:text-brand-blue/80 transition-colors duration-200"
+                          title="Mark as read"
+                          className="absolute right-3 top-3 text-brand-blue opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-brand-blue/10 rounded-full"
                         >
-                          Mark read
+                          <span className="sr-only">Mark read</span>
+                          <CheckCheck className="h-4 w-4" />
                         </button>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                       {notification.message}
                     </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center justify-between gap-y-1 pt-1">
+                      <p className="text-[10px] text-muted-foreground font-medium">
                         {formatDistanceToNow(new Date(notification.createdAt), {
                           addSuffix: true,
                         })}
@@ -181,15 +188,21 @@ export function NotificationDropdown({
                       {notification.actionUrl && (
                         <Link
                           href={notification.actionUrl as any} // eslint-disable-line @typescript-eslint/no-explicit-any
-                          className="text-xs text-brand-blue hover:text-brand-blue/80 transition-colors duration-200 inline-flex items-center gap-1"
+                          onClick={() => {
+                            if (onViewAll) onViewAll();
+                          }}
+                          className="text-xs font-medium text-brand-blue hover:text-brand-blue/80 hover:underline inline-flex items-center gap-1 transition-colors ml-auto"
                         >
-                          {notification.actionText || 'View'}
+                          {notification.actionText || 'View Details'}
                           <ExternalLink className="h-3 w-3" />
                         </Link>
                       )}
                     </div>
                   </div>
                 </div>
+                {!notification.isRead && (
+                  <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-brand-blue group-hover:opacity-0 transition-opacity" />
+                )}
               </div>
             ))}
           </div>
@@ -199,9 +212,15 @@ export function NotificationDropdown({
       <Separator />
 
       {/* Footer */}
-      <div className="p-3">
-        <Link href="/notifications" className="block">
-          <Button variant="ghost" size="sm" className="w-full hover:bg-brand-blue hover:text-white transition-colors duration-200">
+      <div className="p-3 bg-gray-50/50">
+        <Link
+          href="/notifications"
+          className="block"
+          onClick={() => {
+            if (onViewAll) onViewAll();
+          }}
+        >
+          <Button variant="ghost" size="sm" className="w-full hover:bg-brand-blue hover:text-white transition-colors duration-200 h-9 font-medium">
             View all notifications
           </Button>
         </Link>

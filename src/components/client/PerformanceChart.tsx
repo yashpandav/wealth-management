@@ -10,6 +10,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { format, subDays } from 'date-fns';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface PerformanceChartProps {
   currentValue: number;
@@ -100,12 +101,18 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
       return (
         <div className="rounded-lg border bg-background p-3 shadow-lg">
           <p className="mb-2 font-medium">{payload[0].payload.date}</p>
-          <p className="text-sm">
-            Portfolio: <span className="font-medium">${payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <p className="text-sm flex items-center">
+            Portfolio: <span className="font-medium flex items-center">
+              <DirhamIcon className="w-3 h-3 mx-1" />
+              {payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            </span>
           </p>
           {payload[1] && (
-            <p className="text-sm text-muted-foreground">
-              Invested: <span className="font-medium">${payload[1].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            <p className="text-sm text-muted-foreground flex items-center">
+              Invested: <span className="font-medium flex items-center">
+                <DirhamIcon className="w-3 h-3 mx-1" />
+                {payload[1].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </span>
             </p>
           )}
         </div>
@@ -120,8 +127,10 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="text-lg">Portfolio Performance</CardTitle>
-            <div className={`mt-1 text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}${performanceMetrics.change.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            <div className={`mt-1 text-sm flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositive ? '+' : ''}
+              <DirhamIcon className="w-3 h-3 mx-1" />
+              {performanceMetrics.change.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               ({isPositive ? '+' : ''}{performanceMetrics.changePercent.toFixed(2)}%)
               <span className="ml-2 text-muted-foreground">
                 {selectedPeriod === 'ALL' ? 'All time' : `Last ${selectedPeriod}`}
@@ -157,7 +166,7 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
                 <YAxis
                   tick={{ fontSize: 12 }}
                   tickLine={false}
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />

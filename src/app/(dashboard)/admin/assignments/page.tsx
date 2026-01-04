@@ -268,8 +268,8 @@ function AssignmentsContent() {
     <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Client-RM Assignments</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Client-RM Assignments</h1>
+        <p className="font-georgia mt-2 text-brand-grey">
           Manage client assignments to relationship managers
         </p>
       </div>
@@ -291,8 +291,8 @@ function AssignmentsContent() {
           <div className="mt-1.5 text-2xl font-bold text-brand-blue">
             {rms.length > 0
               ? Math.round(
-                  rms.reduce((sum, rm) => sum + rm.assignedClientsCount, 0) / rms.length
-                )
+                rms.reduce((sum, rm) => sum + rm.assignedClientsCount, 0) / rms.length
+              )
               : 0}
           </div>
         </div>

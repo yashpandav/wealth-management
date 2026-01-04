@@ -35,6 +35,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast, Toaster } from 'react-hot-toast';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface UserLead {
   id: string;
@@ -122,10 +123,15 @@ export function UserLeadsTable() {
 
   // Format currency
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value);
+    return (
+      <span className="flex items-center">
+        <DirhamIcon className="w-3 h-3 mr-1" />
+        {value.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </span>
+    );
   };
 
   // Format date

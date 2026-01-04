@@ -15,6 +15,7 @@ import {
   TrendingUp,
   ArrowRight,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -149,9 +150,9 @@ export function ProductsBrowse() {
     const min = product.minAmount.toLocaleString();
     if (product.maxAmount) {
       const max = product.maxAmount.toLocaleString();
-      return `${product.currency} ${min} - ${max}`;
+      return `${min} - ${max}`;
     }
-    return `${product.currency} ${min}+`;
+    return `${min}+`;
   };
 
   const getHighestReturn = (options: ProductOption[]) => {
@@ -277,7 +278,10 @@ export function ProductsBrowse() {
                         )}
                       </div>
                       <p className="text-white/95 font-georgia text-comments font-medium">
-                        {formatAmountRange(product)}
+                        <span className="flex items-center gap-1">
+                          <DirhamIcon className="h-4 w-4 text-white" />
+                          {formatAmountRange(product)}
+                        </span>
                       </p>
                     </div>
 
@@ -349,7 +353,10 @@ export function ProductsBrowse() {
                       <div className={`${colors.gradient} text-white p-4 md:p-6 md:w-72 flex-shrink-0`}>
                         <h3 className="font-optima text-2xl font-bold mb-2">{product.name}</h3>
                         <p className="text-white/95 font-georgia text-comments font-medium mb-4">
-                          {formatAmountRange(product)}
+                          <span className="flex items-center gap-1">
+                            <DirhamIcon className="h-4 w-4 text-white" />
+                            {formatAmountRange(product)}
+                          </span>
                         </p>
                         {highestReturn && (
                           <div className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">

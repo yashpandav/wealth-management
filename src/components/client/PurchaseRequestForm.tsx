@@ -29,6 +29,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'react-hot-toast';
 import { checkTransactionEligibility } from '@/lib/utils/client-utils';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface Instrument {
   id: string;
@@ -249,15 +250,18 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
               <div className="grid gap-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Current Price:</span>
-                  <span className="font-medium">
-                    {selectedInstrument.currency} {selectedInstrument.currentPrice.toFixed(2)}
+                  <span className="font-medium flex items-center">
+                    {selectedInstrument.currency !== 'USD' && <span className="mr-1">{selectedInstrument.currency}</span>}
+                    {selectedInstrument.currency === 'USD' && <DirhamIcon className="w-3 h-3 mr-1" />}
+                    {selectedInstrument.currentPrice.toFixed(2)}
                   </span>
                 </div>
                 {selectedInstrument.minimumInvestment && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Minimum Investment:</span>
-                    <span className="font-medium">
-                      {selectedInstrument.currency}{' '}
+                    <span className="font-medium flex items-center">
+                      {selectedInstrument.currency !== 'USD' && <span className="mr-1">{selectedInstrument.currency}</span>}
+                      {selectedInstrument.currency === 'USD' && <DirhamIcon className="w-3 h-3 mr-1" />}
                       {selectedInstrument.minimumInvestment.toFixed(2)}
                     </span>
                   </div>

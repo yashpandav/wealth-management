@@ -24,6 +24,7 @@ import {
   FileText,
   Calendar,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
 
@@ -152,15 +153,14 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
             {/* Timeline Line */}
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  item.isRejected
-                    ? 'bg-red-500 text-white'
-                    : item.isCompleted
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${item.isRejected
+                  ? 'bg-red-500 text-white'
+                  : item.isCompleted
                     ? 'bg-green-500 text-white'
                     : item.isCurrent
-                    ? 'bg-brand-blue/10 text-white animate-pulse'
-                    : 'bg-gray-200 text-gray-500'
-                }`}
+                      ? 'bg-brand-blue/10 text-white animate-pulse'
+                      : 'bg-gray-200 text-gray-500'
+                  }`}
               >
                 {item.isCompleted ? (
                   item.isRejected ? (
@@ -176,9 +176,8 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
               </div>
               {index < timeline.length - 1 && (
                 <div
-                  className={`w-0.5 flex-1 mt-2 ${
-                    item.isCompleted ? 'bg-green-500' : 'bg-gray-200'
-                  }`}
+                  className={`w-0.5 flex-1 mt-2 ${item.isCompleted ? 'bg-green-500' : 'bg-gray-200'
+                    }`}
                   style={{ minHeight: '40px' }}
                 />
               )}
@@ -187,15 +186,14 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
             {/* Timeline Content */}
             <div className="flex-1 pt-1">
               <h3
-                className={`font-semibold ${
-                  item.isRejected
-                    ? 'text-red-700'
-                    : item.isCompleted
+                className={`font-semibold ${item.isRejected
+                  ? 'text-red-700'
+                  : item.isCompleted
                     ? 'text-green-700'
                     : item.isCurrent
-                    ? 'text-brand-blue'
-                    : 'text-gray-500'
-                }`}
+                      ? 'text-brand-blue'
+                      : 'text-gray-500'
+                  }`}
               >
                 {item.stage}
                 {item.isRejected && ' - Rejected'}
@@ -218,11 +216,7 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
   };
 
   if (loading || !request) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
+    return <LoadingSpinner text="Loading request details..." className="min-h-screen" />;
   }
 
   const isRejected = request.status.includes('REJECTED');
@@ -278,13 +272,12 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
             </CardHeader>
             <CardContent>
               <div
-                className={`p-4 rounded-lg ${
-                  isRejected
-                    ? 'bg-red-50 border border-red-200'
-                    : isApproved
+                className={`p-4 rounded-lg ${isRejected
+                  ? 'bg-red-50 border border-red-200'
+                  : isApproved
                     ? 'bg-green-50 border border-green-200'
                     : 'bg-brand-blue/10 border border-blue-200'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   {isRejected ? (
@@ -296,13 +289,12 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                   )}
                   <div>
                     <p
-                      className={`font-semibold ${
-                        isRejected
-                          ? 'text-red-900'
-                          : isApproved
+                      className={`font-semibold ${isRejected
+                        ? 'text-red-900'
+                        : isApproved
                           ? 'text-green-900'
                           : 'text-blue-900'
-                      }`}
+                        }`}
                     >
                       {request.status.replace(/_/g, ' ')}
                     </p>
@@ -310,8 +302,8 @@ export default function ClientWithdrawalRequestDetailPage({ params }: { params: 
                       {isRejected
                         ? 'Your request has been rejected'
                         : isApproved
-                        ? 'Your withdrawal has been approved'
-                        : 'Your request is being processed'}
+                          ? 'Your withdrawal has been approved'
+                          : 'Your request is being processed'}
                     </p>
                   </div>
                 </div>

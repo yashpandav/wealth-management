@@ -10,6 +10,7 @@ import { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Holding } from './HoldingsTable';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface AssetAllocationChartsProps {
   holdings: Holding[];
@@ -84,8 +85,9 @@ export function AssetAllocationCharts({ holdings }: AssetAllocationChartsProps) 
       return (
         <div className="rounded-lg border bg-background p-3 shadow-lg">
           <p className="font-semibold">{data.name}</p>
-          <p className="text-sm">
-            ${data.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className="text-sm flex items-center">
+            <DirhamIcon className="w-3 h-3 mx-1" />
+            {data.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
           <p className="text-xs text-muted-foreground">{percentage}% of portfolio</p>
         </div>

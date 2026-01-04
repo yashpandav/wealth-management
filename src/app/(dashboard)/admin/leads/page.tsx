@@ -29,8 +29,8 @@ export default async function AdminLeadsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-red-600">403 - Access Forbidden</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-red-600">403 - Access Forbidden</h1>
+        <p className="font-georgia text-brand-grey mt-2">
           Lead management is no longer available to Administrators
         </p>
       </div>

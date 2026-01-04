@@ -56,25 +56,10 @@ export function StatCard({
                 <CardTitle className="text-xs font-medium text-gray-600 uppercase tracking-wider">
                     {title}
                 </CardTitle>
-                <div
-                    className={cn(
-                        "p-1.5 rounded-full bg-opacity-10",
-                        status === "default"
-                            ? "bg-gray-100 dark:bg-gray-800"
-                            : status === "success"
-                                ? "bg-emerald-100 dark:bg-emerald-900/20"
-                                : status === "warning"
-                                    ? "bg-amber-100 dark:bg-amber-900/20"
-                                    : status === "danger"
-                                        ? "bg-red-100 dark:bg-red-900/20"
-                                        : status === "info"
-                                            ? "bg-blue-100 dark:bg-blue-900/20"
-                                            : "bg-gray-100 dark:bg-gray-800",
-                    )}
-                >
+                <div className="p-1.5">
                     <Icon
                         className={cn(
-                            "h-3.5 w-3.5",
+                            "h-5 w-5",
                             status === "default" ? "text-gray-500" : statusColorClass,
                         )}
                     />

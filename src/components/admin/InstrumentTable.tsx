@@ -31,6 +31,8 @@ import {
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface Instrument {
   id: string;
@@ -391,7 +393,10 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {instrument.currency} {Number(instrument.currentPrice).toFixed(2)}
+                      <div className="flex items-center">
+                        {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                        {Number(instrument.currentPrice).toFixed(2)}
+                      </div>
                     </TableCell>
                     <TableCell>
                       {instrument.riskRating ? (
@@ -412,7 +417,12 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
                     </TableCell>
                     <TableCell>
                       {instrument.minimumInvestment
-                        ? `${instrument.currency} ${Number(instrument.minimumInvestment).toFixed(2)}`
+                        ? (
+                          <div className="flex items-center">
+                            {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                            {Number(instrument.minimumInvestment).toFixed(2)}
+                          </div>
+                        )
                         : '—'}
                     </TableCell>
                     <TableCell>

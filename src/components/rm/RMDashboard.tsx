@@ -12,12 +12,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
   Users,
-  DollarSign,
-  ArrowDownToLine,
+  Wallet,
   AlertCircle,
   TrendingUp,
   Package,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { format } from 'date-fns';
 import {
@@ -116,7 +116,7 @@ export function RMDashboard() {
       case 'REJECTED':
         return 'bg-red-500/10 text-red-700';
       case 'ADMIN_REVIEW':
-        return 'bg-brand-blue/10/10 text-brand-blue';
+        return 'bg-brand-blue/10 text-brand-blue';
       default:
         return 'bg-gray-500/10 text-gray-700';
     }
@@ -137,11 +137,17 @@ export function RMDashboard() {
         <StatCard
           title="Total AUM"
           value={
-            stats && stats.totalAUM >= 1000000
-              ? `$${(stats.totalAUM / 1000000).toFixed(2)}M`
-              : stats && stats.totalAUM >= 1000
-                ? `$${(stats.totalAUM / 1000).toFixed(1)}K`
-                : `$${stats?.totalAUM.toFixed(0) || '0'}`
+            stats ? (
+              <div className="flex items-center">
+                <DirhamIcon className="w-5 h-5 mr-1" />
+                {stats.totalAUM >= 1000000
+                  ? `${(stats.totalAUM / 1000000).toFixed(2)}M`
+                  : stats.totalAUM >= 1000
+                    ? `${(stats.totalAUM / 1000).toFixed(1)}K`
+                    : `${stats.totalAUM.toFixed(0)}`
+                }
+              </div>
+            ) : '0'
           }
           icon={TrendingUp}
         />
@@ -150,7 +156,7 @@ export function RMDashboard() {
         <StatCard
           title="Withdrawals"
           value={stats?.pendingWithdrawalRequests || 0}
-          icon={ArrowDownToLine}
+          icon={Wallet}
           status={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "warning" : "default"}
           href={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "/rm/withdrawal-requests" : undefined}
           subValue={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "Pending Review" : undefined}
@@ -171,36 +177,36 @@ export function RMDashboard() {
       {charts && (
         <>
           {/* Approval Rates Card */}
-          <Card className="border-gray-200">
-            <CardHeader className="pb-2 px-3 pt-3">
-              <CardTitle className="text-sm font-medium">Approval Performance</CardTitle>
+          <Card className="border-gray-200 shadow-sm">
+            <CardHeader className="pb-2 pt-4 px-4">
+              <CardTitle className="text-sm font-semibold text-gray-900">Approval Performance</CardTitle>
             </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-                <div className="space-y-1.5">
+            <CardContent className="px-4 pb-4">
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-600">Withdrawals</span>
-                    <span className="text-sm font-bold text-brand-blue">
+                    <span className="text-sm text-gray-600">Withdrawals</span>
+                    <span className="text-base font-bold text-brand-blue">
                       {charts.approvalRates.withdrawalApprovalRate.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-brand-blue rounded-full"
+                      className="h-full bg-brand-blue rounded-full transition-all duration-500 ease-in-out"
                       style={{ width: `${charts.approvalRates.withdrawalApprovalRate}%` }}
                     />
                   </div>
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-gray-600">Products</span>
-                    <span className="text-sm font-bold text-purple-600">
+                    <span className="text-sm text-gray-600">Products</span>
+                    <span className="text-base font-bold text-purple-600">
                       {charts.approvalRates.productApprovalRate.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-purple-600 rounded-full"
+                      className="h-full bg-purple-600 rounded-full transition-all duration-500 ease-in-out"
                       style={{ width: `${charts.approvalRates.productApprovalRate}%` }}
                     />
                   </div>
@@ -210,37 +216,36 @@ export function RMDashboard() {
           </Card>
 
           {/* Charts Grid */}
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             {/* Request Status Distribution - Pie Chart */}
             {charts.requestStatusData.length > 0 && (
-              <Card className="border-gray-200">
-                <CardHeader className="pb-2 px-3 pt-3">
-                  <CardTitle className="text-sm font-medium">Request Status</CardTitle>
+              <Card className="border-gray-200 shadow-sm h-full">
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <CardTitle className="text-sm font-semibold text-gray-900">Request Status</CardTitle>
                 </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  <div className="w-full overflow-x-auto pb-4">
-                    <div className="min-w-[300px]">
-                      <ResponsiveContainer width="100%" height={250}>
-                        <PieChart>
-                          <Pie
-                            data={charts.requestStatusData}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, value }) => `${name}: ${value}`}
-                            outerRadius={70}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            {charts.requestStatusData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                          <Legend />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                <CardContent className="px-4 pb-4">
+                  <div className="w-full h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={charts.requestStatusData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {charts.requestStatusData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} strokeWidth={0} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
@@ -248,36 +253,45 @@ export function RMDashboard() {
 
             {/* Top Clients by AUM - Bar Chart */}
             {charts.topClientsByAUM.length > 0 && (
-              <Card className="border-gray-200">
-                <CardHeader className="pb-2 px-3 pt-3">
-                  <CardTitle className="text-sm font-medium">Top Clients</CardTitle>
+              <Card className="border-gray-200 shadow-sm h-full">
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <CardTitle className="text-sm font-semibold text-gray-900">Top Clients by AUM</CardTitle>
                 </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  <div className="w-full overflow-x-auto pb-4">
-                    <div className="min-w-[400px]">
-                      <ResponsiveContainer width="100%" height={250}>
-                        <BarChart data={charts.topClientsByAUM} layout="vertical">
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                          <XAxis
-                            type="number"
-                            tick={{ fontSize: 11 }}
-                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                          />
-                          <YAxis
-                            type="category"
-                            dataKey="name"
-                            width={90}
-                            tick={{ fontSize: 10 }}
-                          />
-                          <Tooltip
-                            formatter={(value: number) =>
-                              `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
-                            }
-                          />
-                          <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                <CardContent className="px-4 pb-4">
+                  <div className="w-full h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={charts.topClientsByAUM} layout="vertical" margin={{ left: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
+                        <XAxis
+                          type="number"
+                          tick={{ fontSize: 12, fill: '#6b7280' }}
+                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          width={100}
+                          tick={{ fontSize: 12, fill: '#6b7280' }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <Tooltip
+                          cursor={{ fill: 'transparent' }}
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          formatter={(value: number) =>
+                            `AED ${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                          }
+                        />
+                        <Bar
+                          dataKey="value"
+                          fill="#3b82f6"
+                          radius={[0, 4, 4, 0]}
+                          barSize={24}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
@@ -286,49 +300,59 @@ export function RMDashboard() {
 
           {/* Activity Trend - Line Chart */}
           {charts.activityTrend.length > 0 && (
-            <Card className="border-gray-200">
-              <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="text-sm font-medium">Activity Trend (30 Days)</CardTitle>
+            <Card className="border-gray-200 shadow-sm">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-semibold text-gray-900">Activity Trend (30 Days)</CardTitle>
               </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <div className="w-full overflow-x-auto pb-4">
-                  <div className="min-w-[500px]">
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart data={charts.activityTrend}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis
-                          dataKey="date"
-                          tick={{ fontSize: 10 }}
-                          tickFormatter={(value) => {
-                            const date = new Date(value);
-                            return `${date.getMonth() + 1}/${date.getDate()}`;
-                          }}
-                        />
-                        <YAxis tick={{ fontSize: 11 }} />
-                        <Tooltip
-                          labelFormatter={(value) => {
-                            const date = new Date(value);
-                            return date.toLocaleDateString();
-                          }}
-                        />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey="withdrawals"
-                          stroke="#f97316"
-                          strokeWidth={2}
-                          name="Withdrawals"
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="products"
-                          stroke="#8b5cf6"
-                          strokeWidth={2}
-                          name="Products"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+              <CardContent className="px-4 pb-4">
+                <div className="w-full h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={charts.activityTrend} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        tickFormatter={(value) => {
+                          const date = new Date(value);
+                          return `${date.getMonth() + 1}/${date.getDate()}`;
+                        }}
+                        axisLine={false}
+                        tickLine={false}
+                        dy={10}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        labelFormatter={(value) => {
+                          const date = new Date(value);
+                          return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                        }}
+                      />
+                      <Legend verticalAlign="top" height={36} />
+                      <Line
+                        type="monotone"
+                        dataKey="withdrawals"
+                        stroke="#f97316"
+                        strokeWidth={3}
+                        dot={false}
+                        activeDot={{ r: 6 }}
+                        name="Withdrawals"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="products"
+                        stroke="#8b5cf6"
+                        strokeWidth={3}
+                        dot={false}
+                        activeDot={{ r: 6 }}
+                        name="Products"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
@@ -337,52 +361,64 @@ export function RMDashboard() {
       )}
 
       {/* Recent Activities */}
-      <Card className="border-gray-200">
-        <CardHeader className="pb-2 px-3 pt-3">
-          <CardTitle className="text-sm font-medium">Recent Activities</CardTitle>
+      <Card className="border-gray-200 shadow-sm">
+        <CardHeader className="pb-2 pt-4 px-4">
+          <CardTitle className="text-sm font-semibold text-gray-900">Recent Activities</CardTitle>
         </CardHeader>
-        <CardContent className="px-3 pb-3">
+        <CardContent className="px-4 pb-4">
           {activities.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4 text-xs">No recent activities</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="rounded-full bg-gray-50 p-4 mb-4">
+                <AlertCircle className="h-6 w-6 text-gray-400" />
+              </div>
+              <p className="text-sm font-medium text-gray-900">No recent activities</p>
+              <p className="text-sm text-gray-500 mt-1">
+                New client actions will appear here
+              </p>
+            </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="divide-y divide-gray-100">
               {activities.map((activity) => (
                 <div
                   key={activity.id}
-                  className="flex items-center justify-between border-b border-gray-100 pb-2.5 last:border-0 last:pb-0"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between py-4 first:pt-0 last:pb-0 gap-4 sm:gap-0"
                 >
-                  <div className="flex items-start gap-2.5">
-                    <div className={`rounded-full p-1.5 ${activity.type === 'PRODUCT'
-                      ? 'bg-purple-500/10'
-                      : 'bg-orange-500/10'
+                  <div className="flex items-start gap-4">
+                    <div className={`p-1 flex-shrink-0 ${activity.type === 'PRODUCT'
+                      ? 'text-purple-600'
+                      : 'text-orange-600'
                       }`}>
                       {activity.type === 'PRODUCT' ? (
-                        <Package className="h-3 w-3 text-purple-600" />
+                        <Package className="h-6 w-6" />
                       ) : (
-                        <DollarSign className="h-3 w-3 text-orange-600" />
+                        <DirhamIcon className="h-6 w-6" />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-xs truncate">{activity.clientName}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {activity.type === 'PRODUCT' ? activity.instrumentName : 'Withdrawal'}
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm text-gray-900">{activity.clientName}</p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {activity.type === 'PRODUCT' ? activity.instrumentName : 'Withdrawal Request'}
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {format(new Date(activity.createdAt), 'MMM dd, h:mm a')}
+                      <p className="text-xs text-gray-400 mt-1">
+                        {format(new Date(activity.createdAt), 'MMM dd, yyyy • h:mm a')}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="text-right">
-                      <p className="font-medium text-xs">
-                        {activity.type === 'PRODUCT'
-                          ? `${activity.instrumentSymbol} ${activity.amount.toFixed(0)}`
-                          : `$${(activity.amount / 1000).toFixed(1)}K`
-                        }
-                      </p>
-                    </div>
-                    <Badge variant="outline" className={`${getStatusColor(activity.status)} text-[10px] px-1.5 py-0`}>
-                      {activity.status.replace('_', ' ')}
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto gap-2 sm:gap-1 pl-11 sm:pl-0">
+                    <span className="font-semibold text-gray-900 flex items-center">
+                      {activity.type === 'PRODUCT' ? (
+                        <>
+                          {activity.instrumentSymbol} {activity.amount.toLocaleString()}
+                        </>
+                      ) : (
+                        <>
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                          {activity.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </>
+                      )}
+                    </span>
+                    <Badge variant="outline" className={`${getStatusColor(activity.status)} border-0 font-medium`}>
+                      {activity.status.replace(/_/g, ' ')}
                     </Badge>
                   </div>
                 </div>

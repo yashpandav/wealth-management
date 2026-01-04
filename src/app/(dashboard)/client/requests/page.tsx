@@ -20,6 +20,7 @@ import {
   RefreshCw,
   FileText,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { RequestStatus } from '@prisma/client';
 import { toast } from 'react-hot-toast';
 
@@ -160,13 +161,7 @@ export default function ClientRequestsPage() {
     : requests.filter(req => req.status === selectedStatus);
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
-    return (
-      <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4">
-        <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-brand-blue" />
-        </div>
-      </div>
-    );
+    return <LoadingSpinner text="Loading purchase requests..." className="min-h-screen" />;
   }
 
   if (status === 'unauthenticated' || (status === 'authenticated' && session?.user?.role !== 'CLIENT')) {
@@ -277,24 +272,22 @@ export default function ClientRequestsPage() {
 
               <CardContent className="pt-6">
                 {/* Status Message */}
-                <div className={`rounded-lg p-4 mb-6 ${
-                  request.status === RequestStatus.APPROVED || request.status === RequestStatus.COMPLETED
-                    ? 'bg-green-50 border border-green-200'
-                    : request.status === RequestStatus.REJECTED
+                <div className={`rounded-lg p-4 mb-6 ${request.status === RequestStatus.APPROVED || request.status === RequestStatus.COMPLETED
+                  ? 'bg-green-50 border border-green-200'
+                  : request.status === RequestStatus.REJECTED
                     ? 'bg-red-50 border border-red-200'
                     : request.status === RequestStatus.PROCESSING
-                    ? 'bg-brand-blue/10 border border-blue-200'
-                    : 'bg-yellow-50 border border-yellow-200'
-                }`}>
-                  <p className={`text-sm font-medium ${
-                    request.status === RequestStatus.APPROVED || request.status === RequestStatus.COMPLETED
-                      ? 'text-green-900'
-                      : request.status === RequestStatus.REJECTED
+                      ? 'bg-brand-blue/10 border border-blue-200'
+                      : 'bg-yellow-50 border border-yellow-200'
+                  }`}>
+                  <p className={`text-sm font-medium ${request.status === RequestStatus.APPROVED || request.status === RequestStatus.COMPLETED
+                    ? 'text-green-900'
+                    : request.status === RequestStatus.REJECTED
                       ? 'text-red-900'
                       : request.status === RequestStatus.PROCESSING
-                      ? 'text-blue-900'
-                      : 'text-yellow-900'
-                  }`}>
+                        ? 'text-blue-900'
+                        : 'text-yellow-900'
+                    }`}>
                     {getStatusMessage(request)}
                   </p>
                 </div>
@@ -364,21 +357,20 @@ export default function ClientRequestsPage() {
                     {request.processedAt && (
                       <div className="flex items-start gap-3">
                         <div className="flex h-5 w-5 items-center justify-center">
-                          <div className={`h-2 w-2 rounded-full ${
-                            request.status === RequestStatus.APPROVED || request.status === RequestStatus.COMPLETED
-                              ? 'bg-green-600'
-                              : request.status === RequestStatus.REJECTED
+                          <div className={`h-2 w-2 rounded-full ${request.status === RequestStatus.APPROVED || request.status === RequestStatus.COMPLETED
+                            ? 'bg-green-600'
+                            : request.status === RequestStatus.REJECTED
                               ? 'bg-red-600'
                               : 'bg-brand-blue'
-                          }`} />
+                            }`} />
                         </div>
                         <div className="flex-1">
                           <p className="font-medium">
                             {request.status === RequestStatus.APPROVED || request.status === RequestStatus.COMPLETED
                               ? 'Approved'
                               : request.status === RequestStatus.REJECTED
-                              ? 'Rejected'
-                              : 'Processed'}
+                                ? 'Rejected'
+                                : 'Processed'}
                           </p>
                           <p className="text-muted-foreground">
                             {new Date(request.processedAt).toLocaleString('en-US', {

@@ -47,6 +47,7 @@ import {
   Eye,
   X,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 
@@ -243,7 +244,7 @@ export function ProductPurchaseRequestsTable() {
       case 'REJECTED':
         return <Badge variant="outline" className="bg-red-500/10 text-red-700">Rejected</Badge>;
       case 'COMPLETED':
-        return <Badge variant="outline" className="bg-brand-blue/10/10 text-brand-blue">Completed</Badge>;
+        return <Badge variant="outline" className="bg-brand-blue/10 text-brand-blue">Completed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -270,53 +271,61 @@ export function ProductPurchaseRequestsTable() {
     <div className="space-y-4">
       {/* Summary Stats */}
       {summary && summary.byStatus.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border">
-            <p className="text-sm text-muted-foreground">Total Requests</p>
-            <p className="text-2xl font-bold">{summary.total}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg border shadow-sm">
+            <p className="text-sm text-brand-grey font-medium">Total Requests</p>
+            <p className="text-2xl font-bold text-brand-blue mt-1">{summary.total}</p>
           </div>
           {summary.byStatus.map((s) => (
-            <div key={s.status} className="bg-white p-4 rounded-lg border">
-              <p className="text-sm text-muted-foreground">{s.status}</p>
-              <p className="text-2xl font-bold">{s.count}</p>
-              <p className="text-xs text-muted-foreground">
-                Total: ${s.totalAmount.toLocaleString()}
-              </p>
+            <div key={s.status} className="bg-white p-4 rounded-lg border shadow-sm">
+              <p className="text-sm text-brand-grey font-medium capitalize">{s.status.toLowerCase()}</p>
+              <div className="flex items-end justify-between mt-1">
+                <p className="text-2xl font-bold text-gray-900">{s.count}</p>
+                <div className="flex items-center text-xs text-brand-grey mb-1">
+                  <span className="mr-1">Total:</span>
+                  <DirhamIcon className="w-3 h-3 text-brand-grey mr-1" />
+                  {s.totalAmount.toLocaleString()}
+                </div>
+              </div>
             </div>
           ))}
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <Input
-          placeholder="Search by tracking number, client, or product..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-sm"
-        />
-        <Select
-          value={status}
-          onValueChange={(value) => {
-            setStatus(value === 'all' ? '' : value);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="APPROVED">Approved</SelectItem>
-            <SelectItem value="REJECTED">Rejected</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="text-sm text-muted-foreground">
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-1">
+          <div className="relative w-full sm:max-w-md flex-1">
+            <Input
+              placeholder="Search by tracking number, client, or product..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full"
+            />
+          </div>
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setStatus(value === 'all' ? '' : value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="PENDING">Pending</SelectItem>
+              <SelectItem value="APPROVED">Approved</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden md:block">
           {pagination?.totalCount || 0} total requests
         </div>
       </div>
@@ -380,7 +389,11 @@ export function ProductPurchaseRequestsTable() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {req.product.currency} {req.amount.toLocaleString()}
+                      <div className="flex items-center justify-end">
+                        <span className="mr-1 text-xs text-muted-foreground">{req.product.currency}</span>
+                        {req.product.currency === 'USD' ? <DirhamIcon className="w-3 h-3 mx-1" /> : null}
+                        {req.amount.toLocaleString()}
+                      </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(req.status)}</TableCell>
                     <TableCell>{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
@@ -482,7 +495,7 @@ export function ProductPurchaseRequestsTable() {
                   {actionDialog.action === 'APPROVE'
                     ? `Approve the product purchase request for ${actionDialog.request.product.name}`
                     : `Reject the product purchase request for ${actionDialog.request.product.name}`}
-                  {' '}- {actionDialog.request.product.currency} {actionDialog.request.amount.toLocaleString()}
+                  {' '}- {actionDialog.request.product.currency !== 'USD' ? actionDialog.request.product.currency : <span className="inline-flex items-center baseline"><DirhamIcon className="w-3 h-3 mx-1 self-center" /></span>} {actionDialog.request.amount.toLocaleString()}
                 </>
               )}
             </DialogDescription>
@@ -492,7 +505,11 @@ export function ProductPurchaseRequestsTable() {
               <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
                 <p><strong>Client:</strong> {actionDialog.request.client.firstName} {actionDialog.request.client.lastName}</p>
                 <p><strong>Product:</strong> {actionDialog.request.product.name}</p>
-                <p><strong>Amount:</strong> {actionDialog.request.product.currency} {actionDialog.request.amount.toLocaleString()}</p>
+                <div className="flex items-center">
+                  <strong className="mr-1">Amount:</strong>
+                  {actionDialog.request.product.currency !== 'USD' ? actionDialog.request.product.currency : <DirhamIcon className="w-3 h-3 mx-1" />}
+                  {actionDialog.request.amount.toLocaleString()}
+                </div>
                 <p><strong>Duration:</strong> {actionDialog.request.productOption.duration}</p>
                 <p><strong>Annual Return:</strong> {actionDialog.request.productOption.annualReturn}%</p>
                 {actionDialog.request.clientNotes && (
@@ -572,7 +589,10 @@ export function ProductPurchaseRequestsTable() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium">{detailDialog.request.product.currency} {detailDialog.request.amount.toLocaleString()}</p>
+                  <p className="font-medium flex items-center">
+                    {detailDialog.request.product.currency !== 'USD' ? detailDialog.request.product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                    {detailDialog.request.amount.toLocaleString()}
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

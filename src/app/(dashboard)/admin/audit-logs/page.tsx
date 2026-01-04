@@ -140,8 +140,8 @@ function AuditLogsContent() {
     <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Audit Logs</h1>
-        <p className="mt-2 text-sm text-gray-600">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Audit Logs</h1>
+        <p className="font-georgia mt-2 text-brand-grey">
           View and export comprehensive audit trail of all system actions
         </p>
       </div>
@@ -408,11 +408,10 @@ function AuditLogsContent() {
                         <button
                           key={page}
                           onClick={() => setCurrentPage(page)}
-                          className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium ${
-                            currentPage === page
+                          className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium ${currentPage === page
                               ? 'z-10 border-brand-blue bg-brand-blue/10 text-brand-blue'
                               : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
-                          }`}
+                            }`}
                         >
                           {page}
                         </button>

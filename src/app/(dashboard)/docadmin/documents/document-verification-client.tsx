@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 
 interface Document {
   id: string;
@@ -272,9 +273,8 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
       {/* Message */}
       {message && (
         <div
-          className={`p-4 rounded-md ${
-            message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-          }`}
+          className={`p-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            }`}
         >
           {message.text}
           <button onClick={() => setMessage(null)} className="float-right font-bold">×</button>
@@ -290,11 +290,10 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-1 text-sm rounded-md transition-colors ${
-                  statusFilter === status
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${statusFilter === status
                     ? 'bg-brand-blue text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-brand-blue/20'
-                }`}
+                  }`}
               >
                 {status.replace('_', ' ')}
               </button>
@@ -368,9 +367,8 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                   )}
 
                   <svg
-                    className={`h-5 w-5 text-gray-400 transition-transform ${
-                      expandedClient === client.clientId ? 'rotate-180' : ''
-                    }`}
+                    className={`h-5 w-5 text-gray-400 transition-transform ${expandedClient === client.clientId ? 'rotate-180' : ''
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -383,77 +381,79 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
               {/* Documents List - Expanded */}
               {expandedClient === client.clientId && (
                 <div className="border-t bg-gray-50 p-4">
-                  <table className="text-sm min-w-full">
-                    <thead>
-                      <tr className="text-left text-xs font-medium text-gray-500 uppercase min-h-[44px]">
-                        <th className="pb-2">Document Type</th>
-                        <th className="pb-2">File</th>
-                        <th className="pb-2">Uploaded</th>
-                        <th className="pb-2">Status</th>
-                        <th className="pb-2">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {client.documents.map((doc) => (
-                        <tr key={doc.id} className="bg-white">
-                          <td className="py-3 text-sm font-medium text-gray-900">
-                            {doc.documentType}
-                          </td>
-                          <td className="py-3">
-                            <a
-                              href={doc.filePath}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-brand-blue hover:text-brand-blue/80 text-sm"
-                            >
-                              {doc.fileName}
-                            </a>
-                            <span className="text-xs text-gray-500 ml-2">
-                              ({formatFileSize(doc.fileSize)})
-                            </span>
-                          </td>
-                          <td className="py-3 text-sm text-gray-500">
-                            {new Date(doc.uploadedAt).toLocaleDateString()}
-                          </td>
-                          <td className="py-3">
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(doc.verificationStatus)}`}>
-                              {doc.verificationStatus}
-                            </span>
-                            {doc.rejectionReason && (
-                              <p className="text-xs text-red-600 mt-1">
-                                Reason: {doc.rejectionReason}
-                              </p>
-                            )}
-                            {doc.verifiedBy && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                By: {doc.verifiedBy}
-                              </p>
-                            )}
-                          </td>
-                          <td className="py-3">
-                            {(doc.verificationStatus === 'PENDING' || doc.verificationStatus === 'UNDER_REVIEW') ? (
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => openDocModal(doc, client, 'VERIFY')}
-                                  className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
-                                >
-                                  Verify
-                                </button>
-                                <button
-                                  onClick={() => openDocModal(doc, client, 'REJECT')}
-                                  className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-400">Processed</span>
-                            )}
-                          </td>
+                  <ResponsiveTable>
+                    <table className="text-sm min-w-full">
+                      <thead>
+                        <tr className="text-left text-xs font-medium text-gray-500 uppercase min-h-[44px]">
+                          <th className="pb-2">Document Type</th>
+                          <th className="pb-2">File</th>
+                          <th className="pb-2">Uploaded</th>
+                          <th className="pb-2">Status</th>
+                          <th className="pb-2">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {client.documents.map((doc) => (
+                          <tr key={doc.id} className="bg-white">
+                            <td className="py-3 text-sm font-medium text-gray-900">
+                              {doc.documentType}
+                            </td>
+                            <td className="py-3">
+                              <a
+                                href={doc.filePath}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-brand-blue hover:text-brand-blue/80 text-sm"
+                              >
+                                {doc.fileName}
+                              </a>
+                              <span className="text-xs text-gray-500 ml-2">
+                                ({formatFileSize(doc.fileSize)})
+                              </span>
+                            </td>
+                            <td className="py-3 text-sm text-gray-500">
+                              {new Date(doc.uploadedAt).toLocaleDateString()}
+                            </td>
+                            <td className="py-3">
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(doc.verificationStatus)}`}>
+                                {doc.verificationStatus}
+                              </span>
+                              {doc.rejectionReason && (
+                                <p className="text-xs text-red-600 mt-1">
+                                  Reason: {doc.rejectionReason}
+                                </p>
+                              )}
+                              {doc.verifiedBy && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  By: {doc.verifiedBy}
+                                </p>
+                              )}
+                            </td>
+                            <td className="py-3">
+                              {(doc.verificationStatus === 'PENDING' || doc.verificationStatus === 'UNDER_REVIEW') ? (
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => openDocModal(doc, client, 'VERIFY')}
+                                    className="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                                  >
+                                    Verify
+                                  </button>
+                                  <button
+                                    onClick={() => openDocModal(doc, client, 'REJECT')}
+                                    className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-400">Processed</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </ResponsiveTable>
                 </div>
               )}
             </div>
@@ -545,11 +545,10 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                 <button
                   onClick={handleDocumentAction}
                   disabled={processing}
-                  className={`px-4 py-2 text-white rounded-md disabled:opacity-50 ${
-                    actionType === 'VERIFY'
+                  className={`px-4 py-2 text-white rounded-md disabled:opacity-50 ${actionType === 'VERIFY'
                       ? 'bg-green-600 hover:bg-green-700'
                       : 'bg-red-600 hover:bg-red-700'
-                  }`}
+                    }`}
                 >
                   {processing ? 'Processing...' : actionType === 'VERIFY' ? 'Verify Document' : 'Reject Document'}
                 </button>

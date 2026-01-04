@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, TrendingUp, TrendingDown, PieChart, BarChart3 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import {
   PieChart as RechartsPieChart,
@@ -159,8 +160,9 @@ export function ClientAnalyticsDashboard() {
       return (
         <div className="rounded-lg border bg-background p-3 shadow-lg">
           <p className="font-medium">{payload[0].name}</p>
-          <p className="text-sm">
-            Value: <span className="font-medium">${payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <p className="text-sm flex items-center">
+            Value: <DirhamIcon className="w-3 h-3 mx-1" />
+            <span className="font-medium">{payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
           </p>
           <p className="text-sm text-muted-foreground">
             {payload[0].payload.percentage.toFixed(2)}% of portfolio
@@ -179,11 +181,14 @@ export function ClientAnalyticsDashboard() {
       return (
         <div className="rounded-lg border bg-background p-3 shadow-lg">
           <p className="font-medium">{data.name}</p>
-          <p className="text-sm">
-            Value: <span className="font-medium">${data.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+          <p className="text-sm flex items-center">
+            Value: <DirhamIcon className="w-3 h-3 mx-1" />
+            <span className="font-medium">{data.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
           </p>
-          <p className={`text-sm ${isGainPositive ? 'text-green-600' : 'text-red-600'}`}>
-            Gain/Loss: {isGainPositive ? '+' : ''}${data.gainLoss.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+          <p className={`text-sm flex items-center ${isGainPositive ? 'text-green-600' : 'text-red-600'}`}>
+            Gain/Loss: {isGainPositive ? '+' : ''}
+            <DirhamIcon className="w-3 h-3 mx-1" />
+            {data.gainLoss.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
           <p className="text-sm text-muted-foreground">
             {data.percentage.toFixed(2)}% of portfolio
@@ -208,8 +213,10 @@ export function ClientAnalyticsDashboard() {
             )}
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className={`text-2xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isPositive ? '+' : ''}${Math.abs(analytics.overview.gainLoss) >= 1000
+            <div className={`text-2xl font-bold flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositive ? '+' : ''}
+              <DirhamIcon className="w-5 h-5 mx-1" />
+              {Math.abs(analytics.overview.gainLoss) >= 1000
                 ? `${(analytics.overview.gainLoss / 1000).toFixed(1)}K`
                 : analytics.overview.gainLoss.toFixed(0)}
             </div>
@@ -343,7 +350,7 @@ export function ClientAnalyticsDashboard() {
               <YAxis
                 tick={{ fontSize: 11 }}
                 tickLine={false}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
               />
               <Tooltip content={<CustomBarTooltip />} />
               <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -364,8 +371,9 @@ export function ClientAnalyticsDashboard() {
                 <p className="text-xs font-medium text-gray-600">Portfolio Value</p>
               </div>
               <div className="text-right">
-                <p className="text-base font-bold text-brand-blue">
-                  ${analytics.overview.totalValue >= 1000000
+                <p className="text-base font-bold text-brand-blue flex items-center justify-end">
+                  <DirhamIcon className="w-4 h-4 mr-1" />
+                  {analytics.overview.totalValue >= 1000000
                     ? `${(analytics.overview.totalValue / 1000000).toFixed(2)}M`
                     : analytics.overview.totalValue >= 1000
                       ? `${(analytics.overview.totalValue / 1000).toFixed(1)}K`
@@ -379,8 +387,9 @@ export function ClientAnalyticsDashboard() {
                 <p className="text-xs font-medium text-gray-600">Total Invested</p>
               </div>
               <div className="text-right">
-                <p className="text-base font-bold text-brand-blue">
-                  ${analytics.overview.totalInvested >= 1000000
+                <p className="text-base font-bold text-brand-blue flex items-center justify-end">
+                  <DirhamIcon className="w-4 h-4 mr-1" />
+                  {analytics.overview.totalInvested >= 1000000
                     ? `${(analytics.overview.totalInvested / 1000000).toFixed(2)}M`
                     : analytics.overview.totalInvested >= 1000
                       ? `${(analytics.overview.totalInvested / 1000).toFixed(1)}K`
@@ -394,8 +403,10 @@ export function ClientAnalyticsDashboard() {
                 <p className="text-xs font-medium text-gray-600">Today's Change</p>
               </div>
               <div className="text-right">
-                <p className={`text-base font-bold ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {analytics.overview.dayChange >= 0 ? '+' : ''}${Math.abs(analytics.overview.dayChange) >= 1000
+                <p className={`text-base font-bold flex items-center justify-end ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {analytics.overview.dayChange >= 0 ? '+' : ''}
+                  <DirhamIcon className="w-4 h-4 mx-1" />
+                  {Math.abs(analytics.overview.dayChange) >= 1000
                     ? `${(analytics.overview.dayChange / 1000).toFixed(1)}K`
                     : analytics.overview.dayChange.toFixed(0)}
                 </p>

@@ -36,6 +36,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ArrowUpDown, ChevronLeft, ChevronRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 export interface Holding {
   id: string;
@@ -157,8 +158,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right">
-            ${row.original.averagePurchasePrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          <div className="text-right flex items-center justify-end">
+            <DirhamIcon className="w-3 h-3 mr-1" />
+            {row.original.averagePurchasePrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
         ),
       },
@@ -175,8 +177,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right">
-            ${row.original.currentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          <div className="text-right flex items-center justify-end">
+            <DirhamIcon className="w-3 h-3 mr-1" />
+            {row.original.currentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
         ),
       },
@@ -193,8 +196,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right font-medium">
-            ${row.original.currentValue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+          <div className="text-right font-medium flex items-center justify-end">
+            <DirhamIcon className="w-3 h-3 mr-1" />
+            {row.original.currentValue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
         ),
       },
@@ -220,7 +224,9 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
               ) : (
                 <TrendingDown className="mr-1 h-4 w-4" />
               )}
-              {isPositive ? '+' : ''}${gainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {isPositive ? '+' : ''}
+              <DirhamIcon className="w-3 h-3 mx-1" />
+              {Math.abs(gainLoss).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           );
         },

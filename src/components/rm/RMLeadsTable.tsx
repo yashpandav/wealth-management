@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight, AlertCircle, Phone, Mail } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 
 type LeadStatus = 'NEW' | 'CONTACTED' | 'INTERESTED' | 'NOT_INTERESTED' | 'CONVERTED' | 'LOST';
 
@@ -101,7 +102,7 @@ const STATUS_LABELS: Record<LeadStatus, string> = {
 };
 
 const STATUS_COLORS: Record<LeadStatus, string> = {
-  NEW: 'bg-brand-blue/10/10 text-brand-blue',
+  NEW: 'bg-brand-blue/10 text-brand-blue',
   CONTACTED: 'bg-purple-500/10 text-purple-700',
   INTERESTED: 'bg-green-500/10 text-green-700',
   NOT_INTERESTED: 'bg-orange-500/10 text-orange-700',
@@ -165,44 +166,49 @@ export function RMLeadsTable() {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search by name, email, or phone..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-md"
-        />
-        <Select
-          value={filterSource || 'ALL'}
-          onValueChange={(value) => {
-            setFilterSource(value === 'ALL' ? '' : value);
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Sources" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">All Sources</SelectItem>
-            <SelectItem value="INSTAGRAM">Instagram</SelectItem>
-            <SelectItem value="YOUTUBE">YouTube</SelectItem>
-            <SelectItem value="FACEBOOK_ADS">Facebook Ads</SelectItem>
-            <SelectItem value="GOOGLE_ADS">Google Ads</SelectItem>
-            <SelectItem value="WEBSITE">Website</SelectItem>
-            <SelectItem value="REFERRAL">Referral</SelectItem>
-            <SelectItem value="OTHER">Other</SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="text-sm text-muted-foreground ml-auto">
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto flex-1">
+          <div className="relative w-full sm:max-w-md flex-1">
+            <Input
+              placeholder="Search by name, email, or phone..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="w-full"
+            />
+          </div>
+          <Select
+            value={filterSource || 'ALL'}
+            onValueChange={(value) => {
+              setFilterSource(value === 'ALL' ? '' : value);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="All Sources" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Sources</SelectItem>
+              <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+              <SelectItem value="YOUTUBE">YouTube</SelectItem>
+              <SelectItem value="FACEBOOK_ADS">Facebook Ads</SelectItem>
+              <SelectItem value="GOOGLE_ADS">Google Ads</SelectItem>
+              <SelectItem value="WEBSITE">Website</SelectItem>
+              <SelectItem value="REFERRAL">Referral</SelectItem>
+              <SelectItem value="OTHER">Other</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden md:block">
           {pagination?.totalCount || 0} total leads
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
@@ -283,7 +289,7 @@ export function RMLeadsTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ResponsiveTable>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (

@@ -9,7 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Users,
   UserCheck,
-  DollarSign,
   TrendingUp,
   FileText,
   CheckCircle,
@@ -17,6 +16,7 @@ import {
   BarChart3,
   AlertCircle,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -111,13 +111,17 @@ export function AdminDashboard() {
         <StatCard
           title="Total AUM"
           value={
-            overview.totalAUM >= 1000000
-              ? `$${(overview.totalAUM / 1000000).toFixed(2)}M`
-              : overview.totalAUM >= 1000
-                ? `$${(overview.totalAUM / 1000).toFixed(1)}K`
-                : `$${overview.totalAUM.toFixed(0)}`
+            <div className="flex items-center">
+              <DirhamIcon className="w-5 h-5 mr-1" />
+              {overview.totalAUM >= 1000000
+                ? `${(overview.totalAUM / 1000000).toFixed(2)}M`
+                : overview.totalAUM >= 1000
+                  ? `${(overview.totalAUM / 1000).toFixed(1)}K`
+                  : `${overview.totalAUM.toFixed(0)}`
+              }
+            </div>
           }
-          icon={DollarSign}
+          icon={DirhamIcon}
         />
 
         {/* Total Clients Card */}
@@ -186,8 +190,9 @@ export function AdminDashboard() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-600">Avg AUM/Client</span>
-              <span className="text-sm font-semibold">
-                ${overview.totalClients > 0 ? ((overview.totalAUM / overview.totalClients) / 1000).toFixed(1) + 'K' : '0'}
+              <span className="text-sm font-semibold flex items-center">
+                <DirhamIcon className="w-3 h-3 mr-1" />
+                {overview.totalClients > 0 ? ((overview.totalAUM / overview.totalClients) / 1000).toFixed(1) + 'K' : '0'}
               </span>
             </div>
           </CardContent>
@@ -271,16 +276,22 @@ export function AdminDashboard() {
                           <XAxis
                             type="number"
                             tick={{ fontSize: 11 }}
-                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                            tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
                           />
                           <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10 }} />
                           <Tooltip
                             formatter={(value: number, name: string) => {
                               if (name === 'aum') {
-                                return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                                return (
+                                  <div className="flex items-center">
+                                    <DirhamIcon className="w-3 h-3 mr-1" />
+                                    {value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                                  </div>
+                                );
                               }
                               return value;
-                            }}
+                            }
+                            }
                           />
                           <Legend />
                           <Bar dataKey="aum" fill="#3b82f6" name="AUM" radius={[0, 4, 4, 0]} />
@@ -351,16 +362,19 @@ export function AdminDashboard() {
                         />
                         <YAxis
                           tick={{ fontSize: 11 }}
-                          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
                         />
                         <Tooltip
                           labelFormatter={(value) => {
                             const date = new Date(value);
                             return date.toLocaleDateString();
                           }}
-                          formatter={(value: number) =>
-                            `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
-                          }
+                          formatter={(value: number) => (
+                            <div className="flex items-center">
+                              <DirhamIcon className="w-3 h-3 mr-1" />
+                              {value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            </div>
+                          )}
                         />
                         <Legend />
                         <Area

@@ -23,13 +23,13 @@ export default async function RMDashboardPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8">
-      <h1 className="text-2xl md:text-3xl font-bold tracking-tight">RM Dashboard</h1>
-      <p className="mt-2 text-muted-foreground">
+    <div className="container mx-auto py-8 px-8">
+      <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">RM Dashboard</h1>
+      <p className="font-georgia mt-2 text-brand-grey">
         Manage your assigned clients and pending requests
       </p>
 
-      <div className="mt-8">
+      <div className="mt-6">
         <RMDashboard />
       </div>
     </div>

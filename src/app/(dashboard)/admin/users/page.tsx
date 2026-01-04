@@ -240,8 +240,8 @@ function AdminUsersContent() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">User Management</h1>
-          <p className="mt-2 text-sm text-gray-600">
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">User Management</h1>
+          <p className="font-georgia mt-2 text-brand-grey">
             Manage all users, roles, and permissions
           </p>
         </div>
@@ -511,14 +511,14 @@ function AdminUsersContent() {
                         {/* Unlock Button (only show for locked accounts) */}
                         {(user.status === 'LOCKED' ||
                           (user.accountLockedUntil && new Date(user.accountLockedUntil) > new Date())) && (
-                          <button
-                            onClick={() => handleUnlock(user.id)}
-                            className="text-green-600 hover:text-green-900"
-                            title="Unlock Account"
-                          >
-                            🔓 Unlock
-                          </button>
-                        )}
+                            <button
+                              onClick={() => handleUnlock(user.id)}
+                              className="text-green-600 hover:text-green-900"
+                              title="Unlock Account"
+                            >
+                              🔓 Unlock
+                            </button>
+                          )}
 
                         {/* Status Dropdown */}
                         <select

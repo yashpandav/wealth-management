@@ -103,9 +103,9 @@ export default async function AssignRMPage() {
     const verifiedDocs = client.documents.filter((d) => d.verifiedAt);
     const latestVerifiedAt = verifiedDocs.length > 0
       ? verifiedDocs.reduce((latest, doc) =>
-          doc.verifiedAt && (!latest || doc.verifiedAt > latest) ? doc.verifiedAt : latest,
-          null as Date | null
-        )
+        doc.verifiedAt && (!latest || doc.verifiedAt > latest) ? doc.verifiedAt : latest,
+        null as Date | null
+      )
       : null;
 
     return {
@@ -130,8 +130,8 @@ export default async function AssignRMPage() {
   return (
     <div className="container px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">RM Assignment Pending</h1>
-        <p className="mt-2 text-muted-foreground">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">RM Assignment Pending</h1>
+        <p className="font-georgia mt-2 text-brand-grey">
           Manage clients with verified KYC documents who are awaiting Relationship Manager assignment.
         </p>
       </div>

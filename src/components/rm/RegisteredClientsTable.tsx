@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, AlertCircle, Mail, Phone } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 
 interface Client {
   id: string;
@@ -99,23 +100,26 @@ export function RegisteredClientsTable() {
   return (
     <div className="space-y-4">
       {/* Search */}
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-md"
-        />
-        <div className="text-sm text-muted-foreground ml-auto">
+      {/* Search */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="relative w-full sm:w-auto sm:max-w-md flex-1">
+          <Input
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full"
+          />
+        </div>
+        <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden sm:block">
           {pagination?.totalCount || 0} total clients
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
@@ -172,7 +176,7 @@ export function RegisteredClientsTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ResponsiveTable>
 
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (

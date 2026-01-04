@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import {
   Dialog,
   DialogContent,
@@ -368,7 +369,7 @@ export function LeadsTable() {
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border">
+      <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
@@ -455,7 +456,7 @@ export function LeadsTable() {
             )}
           </TableBody>
         </Table>
-      </div>
+      </ResponsiveTable>
 
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

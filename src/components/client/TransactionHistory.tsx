@@ -41,6 +41,7 @@ import {
   Download,
   Eye,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface Transaction {
@@ -322,10 +323,20 @@ export function TransactionHistory() {
                       {txn.quantity ? txn.quantity.toLocaleString() : '-'}
                     </TableCell>
                     <TableCell className="text-right">
-                      {txn.price ? `$${txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : '-'}
+                      {txn.price ? (
+                        <div className="flex items-center justify-end">
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                          {txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                        </div>
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      ${txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <div className="flex items-center justify-end">
+                        <DirhamIcon className="w-3 h-3 mr-1" />
+                        {txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={getStatusColor(txn.status)}>
@@ -438,24 +449,39 @@ export function TransactionHistory() {
                 {selectedTransaction.price && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Price per Unit</p>
-                    <p className="font-medium">${selectedTransaction.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</p>
+                    <p className="font-medium flex items-center">
+                      <DirhamIcon className="w-3 h-3 mr-1" />
+                      {selectedTransaction.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                    </p>
                   </div>
                 )}
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Amount</p>
-                  <p className="font-medium">${selectedTransaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Fees</p>
-                  <p className="font-medium">${selectedTransaction.fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total</p>
-                  <p className="font-medium">${selectedTransaction.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Net Amount</p>
-                  <p className="font-medium">${selectedTransaction.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+                  <p className="font-medium flex items-center">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {selectedTransaction.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </p>
                 </div>
               </div>
 

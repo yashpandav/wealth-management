@@ -22,10 +22,10 @@ export default async function KYCPendingPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8">
+    <div className="container mx-auto py-8 px-8">
       <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">KYC Pending</h1>
-        <p className="text-muted-foreground">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">KYC Pending</h1>
+        <p className="font-georgia text-brand-grey">
           Clients with KYC documents under verification by DocAdmin - view only
         </p>
       </div>

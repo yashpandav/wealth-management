@@ -23,10 +23,10 @@ export default async function RMProductRequestsPage() {
   }
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8">
+    <div className="container mx-auto py-8 px-8">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Product Requests</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Product Requests</h1>
+        <p className="font-georgia text-brand-grey mt-2">
           Review and process product purchase requests from your assigned clients
         </p>
       </div>

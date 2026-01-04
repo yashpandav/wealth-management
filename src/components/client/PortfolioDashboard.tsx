@@ -11,11 +11,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   TrendingUp,
   TrendingDown,
-  DollarSign,
   PiggyBank,
   Activity,
   AlertCircle,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { HoldingsTable, Holding } from './HoldingsTable';
 import { AssetAllocationCharts } from './AssetAllocationCharts';
@@ -114,24 +114,32 @@ export function PortfolioDashboard() {
         <StatCard
           title="Portfolio Value"
           value={
-            portfolio.totalValue >= 1000000
-              ? `$${(portfolio.totalValue / 1000000).toFixed(2)}M`
-              : portfolio.totalValue >= 1000
-                ? `$${(portfolio.totalValue / 1000).toFixed(1)}K`
-                : `$${portfolio.totalValue.toFixed(0)}`
+            <div className="flex items-center">
+              <DirhamIcon className="w-5 h-5 mr-1" />
+              {portfolio.totalValue >= 1000000
+                ? `${(portfolio.totalValue / 1000000).toFixed(2)}M`
+                : portfolio.totalValue >= 1000
+                  ? `${(portfolio.totalValue / 1000).toFixed(1)}K`
+                  : `${portfolio.totalValue.toFixed(0)}`
+              }
+            </div>
           }
-          icon={DollarSign}
+          icon={DirhamIcon}
         />
 
         {/* Total Invested */}
         <StatCard
           title="Invested"
           value={
-            portfolio.totalInvested >= 1000000
-              ? `$${(portfolio.totalInvested / 1000000).toFixed(2)}M`
-              : portfolio.totalInvested >= 1000
-                ? `$${(portfolio.totalInvested / 1000).toFixed(1)}K`
-                : `$${portfolio.totalInvested.toFixed(0)}`
+            <div className="flex items-center">
+              <DirhamIcon className="w-5 h-5 mr-1" />
+              {portfolio.totalInvested >= 1000000
+                ? `${(portfolio.totalInvested / 1000000).toFixed(2)}M`
+                : portfolio.totalInvested >= 1000
+                  ? `${(portfolio.totalInvested / 1000).toFixed(1)}K`
+                  : `${portfolio.totalInvested.toFixed(0)}`
+              }
+            </div>
           }
           icon={PiggyBank}
         />
@@ -140,10 +148,14 @@ export function PortfolioDashboard() {
         <StatCard
           title="Gain/Loss"
           value={
-            (isPositiveGain ? '+' : '') +
-            (Math.abs(portfolio.totalGainLoss) >= 1000
-              ? `$${(portfolio.totalGainLoss / 1000).toFixed(1)}K`
-              : `$${portfolio.totalGainLoss.toFixed(0)}`)
+            <div className="flex items-center">
+              {isPositiveGain ? '+' : ''}
+              <DirhamIcon className="w-5 h-5 mx-1" />
+              {Math.abs(portfolio.totalGainLoss) >= 1000
+                ? `${(portfolio.totalGainLoss / 1000).toFixed(1)}K`
+                : `${portfolio.totalGainLoss.toFixed(0)}`
+              }
+            </div>
           }
           icon={isPositiveGain ? TrendingUp : TrendingDown}
           status={isPositiveGain ? "success" : "danger"}
@@ -155,10 +167,14 @@ export function PortfolioDashboard() {
         <StatCard
           title="Today"
           value={
-            (isPositiveDayChange ? '+' : '') +
-            (Math.abs(portfolio.dayChange) >= 1000
-              ? `$${(portfolio.dayChange / 1000).toFixed(1)}K`
-              : `$${portfolio.dayChange.toFixed(0)}`)
+            <div className="flex items-center">
+              {isPositiveDayChange ? '+' : ''}
+              <DirhamIcon className="w-5 h-5 mx-1" />
+              {Math.abs(portfolio.dayChange) >= 1000
+                ? `${(portfolio.dayChange / 1000).toFixed(1)}K`
+                : `${portfolio.dayChange.toFixed(0)}`
+              }
+            </div>
           }
           icon={Activity}
           status={isPositiveDayChange ? "success" : "danger"}
