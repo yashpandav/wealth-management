@@ -23,12 +23,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   ChevronLeft,
   ChevronRight,
-  Loader2,
   AlertCircle,
   Eye,
   TrendingUp,
   TrendingDown,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import Link from 'next/link';
 
 interface Client {
@@ -108,12 +108,7 @@ export function AssignedClientsTable() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading clients...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading clients..." />;
   }
 
   const clients = data?.data.clients || [];

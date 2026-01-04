@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -43,9 +44,10 @@ import {
   Loader2,
   AlertCircle,
   Check,
-  X,
   Eye,
+  X,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 
 interface ProductRequest {
@@ -248,12 +250,7 @@ export function ProductPurchaseRequestsTable() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading product requests...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading product requests..." />;
   }
 
   if (error) {
@@ -326,108 +323,110 @@ export function ProductPurchaseRequestsTable() {
 
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('trackingNumber')} className="h-8 px-2">
-                  Tracking #
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('client')} className="h-8 px-2">
-                  Client
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('product')} className="h-8 px-2">
-                  Product
-                </Button>
-              </TableHead>
-              <TableHead>Plan Details</TableHead>
-              <TableHead className="text-right">
-                <Button variant="ghost" onClick={() => handleSort('amount')} className="h-8 px-2">
-                  Amount
-                </Button>
-              </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('createdAt')} className="h-8 px-2">
-                  Date
-                </Button>
-              </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.length > 0 ? (
-              requests.map((req) => (
-                <TableRow key={req.id}>
-                  <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{req.client.firstName} {req.client.lastName}</p>
-                      <p className="text-xs text-muted-foreground">{req.client.email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-medium">{req.product.name}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">
-                      <p>{req.productOption.duration}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {req.productOption.withdrawalFrequency} | {req.productOption.annualReturn}% Annual
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {req.product.currency} {req.amount.toLocaleString()}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(req.status)}</TableCell>
-                  <TableCell>{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDetailDialog({ open: true, request: req })}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {req.status === 'PENDING' && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                            onClick={() => handleAction(req, 'APPROVE')}
-                          >
-                            <Check className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleAction(req, 'REJECT')}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
+        <ResponsiveTable>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('trackingNumber')} className="h-8 px-2">
+                    Tracking #
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('client')} className="h-8 px-2">
+                    Client
+                  </Button>
+                </TableHead>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('product')} className="h-8 px-2">
+                    Product
+                  </Button>
+                </TableHead>
+                <TableHead>Plan Details</TableHead>
+                <TableHead className="text-right">
+                  <Button variant="ghost" onClick={() => handleSort('amount')} className="h-8 px-2">
+                    Amount
+                  </Button>
+                </TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>
+                  <Button variant="ghost" onClick={() => handleSort('createdAt')} className="h-8 px-2">
+                    Date
+                  </Button>
+                </TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {requests.length > 0 ? (
+                requests.map((req) => (
+                  <TableRow key={req.id}>
+                    <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{req.client.firstName} {req.client.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{req.client.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-medium">{req.product.name}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p>{req.productOption.duration}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {req.productOption.withdrawalFrequency} | {req.productOption.annualReturn}% Annual
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {req.product.currency} {req.amount.toLocaleString()}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(req.status)}</TableCell>
+                    <TableCell>{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailDialog({ open: true, request: req })}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {req.status === 'PENDING' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                              onClick={() => handleAction(req, 'APPROVE')}
+                            >
+                              <Check className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleAction(req, 'REJECT')}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    No product requests found
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  No product requests found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              )}
+            </TableBody>
+          </Table>
+        </ResponsiveTable>
       </div>
 
       {/* Pagination */}

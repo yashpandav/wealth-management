@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RefreshCw, Eye, Clock, CheckCircle, XCircle, AlertCircle, Wallet } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
 
@@ -164,9 +165,7 @@ export default function RMWithdrawalRequestsPage() {
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'RM' && loading)) {
     return (
       <div className="container mx-auto py-4 md:py-6 lg:py-8">
-        <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner text="Loading requests..." centered={false} className="py-12" />
       </div>
     );
   }

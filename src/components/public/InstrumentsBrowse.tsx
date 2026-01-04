@@ -12,13 +12,13 @@ import {
   Grid3x3,
   List,
   Search,
-  Loader2,
   AlertCircle,
   ChevronLeft,
   ChevronRight,
   TrendingUp,
   DollarSign,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -166,12 +166,7 @@ export function InstrumentsBrowse() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading instruments...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading instruments..." />;
   }
 
   if (error) {

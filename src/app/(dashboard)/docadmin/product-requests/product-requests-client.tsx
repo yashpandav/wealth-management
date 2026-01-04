@@ -25,6 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2, Upload, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -198,12 +199,7 @@ export function ProductRequestsClient({
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading product requests...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading product requests..." />;
   }
 
   if (error) {

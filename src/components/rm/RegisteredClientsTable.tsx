@@ -19,7 +19,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ChevronLeft, ChevronRight, Loader2, AlertCircle, Mail, Phone } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertCircle, Mail, Phone } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface Client {
   id: string;
@@ -77,12 +78,7 @@ export function RegisteredClientsTable() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading clients...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading clients..." />;
   }
 
   const clients = data?.data.clients || [];

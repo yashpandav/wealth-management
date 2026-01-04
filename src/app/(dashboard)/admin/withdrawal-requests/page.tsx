@@ -21,6 +21,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { RefreshCw, Shield, Clock, CheckCircle, XCircle, AlertCircle, Eye } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
 
@@ -146,11 +147,7 @@ export default function AdminWithdrawalRequestsPage() {
   const rejected = requests.filter((r) => r.status === WithdrawalStatus.ADMIN_REJECTED).length;
 
   if (loading && requests.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
+    return <LoadingSpinner text="Loading withdrawal requests..." className="min-h-screen" />;
   }
 
   return (

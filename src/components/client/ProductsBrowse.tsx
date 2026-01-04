@@ -11,11 +11,11 @@ import Link from 'next/link';
 import {
   Grid3x3,
   List,
-  Loader2,
   AlertCircle,
   TrendingUp,
   ArrowRight,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -160,12 +160,7 @@ export function ProductsBrowse() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
-        <span className="ml-3 font-georgia text-brand-grey">Loading products...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading products..." />;
   }
 
   if (error) {
@@ -194,22 +189,20 @@ export function ProductsBrowse() {
         <div className="flex items-center gap-2 bg-white border border-brand-grey/20 rounded-lg p-1 shadow-sm">
           <button
             onClick={() => setViewMode('grid')}
-            className={`p-2 rounded-md transition-all ${
-              viewMode === 'grid'
-                ? 'bg-brand-blue text-white shadow-sm'
-                : 'text-brand-grey hover:text-brand-blue'
-            }`}
+            className={`p-2 rounded-md transition-all ${viewMode === 'grid'
+              ? 'bg-brand-blue text-white shadow-sm'
+              : 'text-brand-grey hover:text-brand-blue'
+              }`}
             aria-label="Grid view"
           >
             <Grid3x3 className="h-4 w-4" />
           </button>
           <button
             onClick={() => setViewMode('list')}
-            className={`p-2 rounded-md transition-all ${
-              viewMode === 'list'
-                ? 'bg-brand-blue text-white shadow-sm'
-                : 'text-brand-grey hover:text-brand-blue'
-            }`}
+            className={`p-2 rounded-md transition-all ${viewMode === 'list'
+              ? 'bg-brand-blue text-white shadow-sm'
+              : 'text-brand-grey hover:text-brand-blue'
+              }`}
             aria-label="List view"
           >
             <List className="h-4 w-4" />

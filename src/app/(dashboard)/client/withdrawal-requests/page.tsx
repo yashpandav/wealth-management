@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, Plus, Clock, CheckCircle, XCircle, AlertCircle, Eye, ArrowRight } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { WithdrawalStatus } from '@prisma/client';
 
@@ -141,20 +142,18 @@ export default function ClientWithdrawalRequestsPage() {
           return (
             <div key={stage.key} className="flex items-center">
               <div
-                className={`flex flex-col items-center ${
-                  isActive ? 'scale-110' : ''
-                } transition-transform`}
+                className={`flex flex-col items-center ${isActive ? 'scale-110' : ''
+                  } transition-transform`}
               >
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${
-                    isRejected && isActive
-                      ? 'bg-red-500 text-white'
-                      : isCompleted
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold ${isRejected && isActive
+                    ? 'bg-red-500 text-white'
+                    : isCompleted
                       ? 'bg-green-500 text-white'
                       : isActive
-                      ? 'bg-brand-blue/10 text-white'
-                      : 'bg-gray-200 text-gray-500'
-                  }`}
+                        ? 'bg-brand-blue/10 text-white'
+                        : 'bg-gray-200 text-gray-500'
+                    }`}
                 >
                   {isCompleted ? (
                     <CheckCircle className="h-4 w-4" />
@@ -168,9 +167,8 @@ export default function ClientWithdrawalRequestsPage() {
               </div>
               {index < stages.length - 1 && (
                 <div
-                  className={`w-12 h-1 mx-1 ${
-                    isCurrent && index < currentStage ? 'bg-green-500' : 'bg-gray-200'
-                  }`}
+                  className={`w-12 h-1 mx-1 ${isCurrent && index < currentStage ? 'bg-green-500' : 'bg-gray-200'
+                    }`}
                 />
               )}
             </div>
@@ -196,11 +194,7 @@ export default function ClientWithdrawalRequestsPage() {
   ).length;
 
   if (loading && requests.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-brand-blue" />
-      </div>
-    );
+    return <LoadingSpinner text="Loading withdrawal requests..." className="min-h-screen" />;
   }
 
   return (

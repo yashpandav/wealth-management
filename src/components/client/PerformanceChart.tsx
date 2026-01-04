@@ -117,7 +117,7 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="text-lg">Portfolio Performance</CardTitle>
             <div className={`mt-1 text-sm ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
@@ -128,14 +128,14 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
               </span>
             </div>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 self-start sm:self-auto">
             {(['1M', '3M', '6M', '1Y', 'ALL'] as TimePeriod[]).map((period) => (
               <Button
                 key={period}
                 variant={selectedPeriod === period ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedPeriod(period)}
-                className="h-8 px-3"
+                className="h-8 px-3 flex-1 sm:flex-none"
               >
                 {period}
               </Button>
@@ -144,41 +144,45 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis
-              dataKey="date"
-              tick={{ fontSize: 12 }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fontSize: 12 }}
-              tickLine={false}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={false}
-              name="Portfolio Value"
-              activeDot={{ r: 6 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="invested"
-              stroke="#94a3b8"
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              dot={false}
-              name="Total Invested"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <div className="w-full overflow-x-auto pb-4">
+          <div className="min-w-[600px]">
+            <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Portfolio Value"
+                  activeDot={{ r: 6 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="invested"
+                  stroke="#94a3b8"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  dot={false}
+                  name="Total Invested"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
         <div className="mt-4 flex items-center justify-center gap-6 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded-full bg-brand-blue/10" />

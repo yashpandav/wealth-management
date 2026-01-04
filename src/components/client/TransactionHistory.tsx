@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -36,11 +37,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   ChevronLeft,
   ChevronRight,
-  Loader2,
   AlertCircle,
   Download,
   Eye,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface Transaction {
   id: string;
@@ -175,12 +176,7 @@ export function TransactionHistory() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading transactions...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading transactions..." />;
   }
 
   if (error) {
@@ -286,75 +282,77 @@ export function TransactionHistory() {
 
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Instrument</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead className="text-right">Price</TableHead>
-              <TableHead className="text-right">Total</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.length > 0 ? (
-              transactions.map((txn) => (
-                <TableRow key={txn.id}>
-                  <TableCell className="font-medium">
-                    {format(new Date(txn.completedAt), 'MMM dd, yyyy HH:mm')}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getTypeColor(txn.type)}>
-                      {txn.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {txn.instrument ? (
-                      <div className="flex flex-col">
-                        <span className="font-medium">{txn.instrument.symbol}</span>
-                        <span className="text-xs text-muted-foreground">{txn.instrument.name}</span>
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {txn.quantity ? txn.quantity.toLocaleString() : '-'}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {txn.price ? `$${txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : '-'}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    ${txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={getStatusColor(txn.status)}>
-                      {txn.status.replace('_', ' ')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedTransaction(txn)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
+        <ResponsiveTable>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Instrument</TableHead>
+                <TableHead className="text-right">Quantity</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {transactions.length > 0 ? (
+                transactions.map((txn) => (
+                  <TableRow key={txn.id}>
+                    <TableCell className="font-medium">
+                      {format(new Date(txn.completedAt), 'MMM dd, yyyy HH:mm')}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getTypeColor(txn.type)}>
+                        {txn.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {txn.instrument ? (
+                        <div className="flex flex-col">
+                          <span className="font-medium">{txn.instrument.symbol}</span>
+                          <span className="text-xs text-muted-foreground">{txn.instrument.name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">N/A</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {txn.quantity ? txn.quantity.toLocaleString() : '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {txn.price ? `$${txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : '-'}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      ${txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={getStatusColor(txn.status)}>
+                        {txn.status.replace('_', ' ')}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedTransaction(txn)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    No transactions found
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">
-                  No transactions found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              )}
+            </TableBody>
+          </Table>
+        </ResponsiveTable>
       </div>
 
       {/* Pagination */}

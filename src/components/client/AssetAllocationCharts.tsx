@@ -112,36 +112,40 @@ export function AssetAllocationCharts({ holdings }: AssetAllocationChartsProps) 
           <CardTitle className="text-lg">Allocation by Type</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
-            <PieChart>
-              <Pie
-                data={typeAllocation}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderLabel}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {typeAllocation.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={TYPE_COLORS[index % TYPE_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                formatter={(value: string, entry: any) => {
-                  if (entry.payload?.value) {
-                    const percentage = ((entry.payload.value / totalValue) * 100).toFixed(1);
-                    return `${value} (${percentage}%)`;
-                  }
-                  return value;
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-x-auto pb-4">
+            <div className="min-w-[500px]">
+              <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
+                <PieChart>
+                  <Pie
+                    data={typeAllocation}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderLabel}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {typeAllocation.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={TYPE_COLORS[index % TYPE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    formatter={(value: string, entry: any) => {
+                      if (entry.payload?.value) {
+                        const percentage = ((entry.payload.value / totalValue) * 100).toFixed(1);
+                        return `${value} (${percentage}%)`;
+                      }
+                      return value;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -151,37 +155,41 @@ export function AssetAllocationCharts({ holdings }: AssetAllocationChartsProps) 
           <CardTitle className="text-lg">Allocation by Sector</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
-            <PieChart>
-              <Pie
-                data={sectorAllocation}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderLabel}
-                outerRadius={80}
-                innerRadius={40}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {sectorAllocation.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={SECTOR_COLORS[index % SECTOR_COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                formatter={(value: string, entry: any) => {
-                  if (entry.payload?.value) {
-                    const percentage = ((entry.payload.value / totalValue) * 100).toFixed(1);
-                    return `${value} (${percentage}%)`;
-                  }
-                  return value;
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="w-full overflow-x-auto pb-4">
+            <div className="min-w-[500px]">
+              <ResponsiveContainer width="100%" height={250} className="sm:h-[300px]">
+                <PieChart>
+                  <Pie
+                    data={sectorAllocation}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderLabel}
+                    outerRadius={80}
+                    innerRadius={40}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {sectorAllocation.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={SECTOR_COLORS[index % SECTOR_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    formatter={(value: string, entry: any) => {
+                      if (entry.payload?.value) {
+                        const percentage = ((entry.payload.value / totalValue) * 100).toFixed(1);
+                        return `${value} (${percentage}%)`;
+                      }
+                      return value;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -28,7 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ChevronLeft, ChevronRight, Loader2, AlertCircle, Phone, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertCircle, Phone, Mail } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 type LeadStatus = 'NEW' | 'CONTACTED' | 'INTERESTED' | 'NOT_INTERESTED' | 'CONVERTED' | 'LOST';
 
@@ -143,12 +144,7 @@ export function RMLeadsTable() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading leads...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading leads..." />;
   }
 
   const leads = data?.data.leads || [];

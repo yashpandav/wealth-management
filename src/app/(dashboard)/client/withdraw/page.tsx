@@ -16,7 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { AlertCircle, CheckCircle, DollarSign, RefreshCw, Wallet } from 'lucide-react';
+import { AlertCircle, CheckCircle, DollarSign, Wallet, Loader2 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 import { createWithdrawalRequestSchema, type CreateWithdrawalRequestInput } from '@/lib/validation/withdrawal-request.validation';
 import { ClientStatusBannerClient } from '@/components/client/ClientStatusBannerClient';
@@ -169,13 +170,7 @@ export default function WithdrawPage() {
   const insufficientBalance = requestedAmount > availableBalance;
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
-    return (
-      <div className="container mx-auto py-4 md:py-6 lg:py-8">
-        <div className="flex items-center justify-center py-12">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </div>
-    );
+    return <LoadingSpinner text="Loading portfolio data..." className="min-h-screen" />;
   }
 
   if (status === 'unauthenticated' || (status === 'authenticated' && session?.user?.role !== 'CLIENT')) {
@@ -218,9 +213,8 @@ export default function WithdrawPage() {
               {portfolio && (
                 <div>
                   <p className="text-sm text-muted-foreground">Total Gain/Loss</p>
-                  <p className={`text-lg font-semibold ${
-                    portfolio.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <p className={`text-lg font-semibold ${portfolio.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
                     {portfolio.totalGainLoss >= 0 ? '+' : ''}
                     ${portfolio.totalGainLoss.toLocaleString('en-US', {
                       minimumFractionDigits: 2,
@@ -266,9 +260,8 @@ export default function WithdrawPage() {
 
               <div>
                 <p className="text-sm text-muted-foreground">Remaining Balance</p>
-                <p className={`text-lg font-semibold ${
-                  insufficientBalance ? 'text-red-600' : 'text-foreground'
-                }`}>
+                <p className={`text-lg font-semibold ${insufficientBalance ? 'text-red-600' : 'text-foreground'
+                  }`}>
                   ${(availableBalance - requestedAmount).toLocaleString('en-US', {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -517,7 +510,7 @@ export default function WithdrawPage() {
             >
               {submitting ? (
                 <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Submitting...
                 </>
               ) : (

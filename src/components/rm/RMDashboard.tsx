@@ -6,6 +6,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { StatCard } from '@/components/dashboard/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -13,14 +14,12 @@ import {
   Users,
   DollarSign,
   ArrowDownToLine,
-  Loader2,
   AlertCircle,
   TrendingUp,
   Package,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { format } from 'date-fns';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import {
   BarChart,
   Bar,
@@ -90,12 +89,7 @@ export function RMDashboard() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading dashboard...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading dashboard..." />;
   }
 
   if (error) {
@@ -131,70 +125,46 @@ export function RMDashboard() {
   return (
     <div className="space-y-4">
       {/* Metrics Cards */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Clients */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Clients</CardTitle>
-            <Users className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-brand-blue">{stats?.totalClients || 0}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Clients"
+          value={stats?.totalClients || 0}
+          icon={Users}
+        />
 
         {/* Total AUM */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Total AUM</CardTitle>
-            <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-brand-blue">
-              ${stats && stats.totalAUM >= 1000000
-                ? `${(stats.totalAUM / 1000000).toFixed(2)}M`
-                : stats && stats.totalAUM >= 1000
-                ? `${(stats.totalAUM / 1000).toFixed(1)}K`
-                : stats?.totalAUM.toFixed(0) || '0'}
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total AUM"
+          value={
+            stats && stats.totalAUM >= 1000000
+              ? `$${(stats.totalAUM / 1000000).toFixed(2)}M`
+              : stats && stats.totalAUM >= 1000
+                ? `$${(stats.totalAUM / 1000).toFixed(1)}K`
+                : `$${stats?.totalAUM.toFixed(0) || '0'}`
+          }
+          icon={TrendingUp}
+        />
 
         {/* Pending Withdrawal Requests */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Withdrawals</CardTitle>
-            <ArrowDownToLine className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-orange-600">{stats?.pendingWithdrawalRequests || 0}</div>
-            {stats && stats.pendingWithdrawalRequests > 0 && (
-              <Link href="/rm/withdrawal-requests">
-                <Button variant="link" size="sm" className="h-auto p-0 text-xs mt-0.5">
-                  Review →
-                </Button>
-              </Link>
-            )}
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Withdrawals"
+          value={stats?.pendingWithdrawalRequests || 0}
+          icon={ArrowDownToLine}
+          status={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "warning" : "default"}
+          href={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "/rm/withdrawal-requests" : undefined}
+          subValue={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "Pending Review" : undefined}
+        />
 
         {/* Pending Product Requests */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Products</CardTitle>
-            <Package className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-purple-600">{stats?.pendingProductRequests || 0}</div>
-            {stats && stats.pendingProductRequests > 0 && (
-              <Link href="/rm/product-requests">
-                <Button variant="link" size="sm" className="h-auto p-0 text-xs mt-0.5">
-                  Review →
-                </Button>
-              </Link>
-            )}
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Products"
+          value={stats?.pendingProductRequests || 0}
+          icon={Package}
+          status={(stats?.pendingProductRequests ?? 0) > 0 ? "info" : "default"}
+          href={(stats?.pendingProductRequests ?? 0) > 0 ? "/rm/product-requests" : undefined}
+          subValue={(stats?.pendingProductRequests ?? 0) > 0 ? "Pending Review" : undefined}
+        />
       </div>
 
       {/* Charts Section */}
@@ -248,26 +218,30 @@ export function RMDashboard() {
                   <CardTitle className="text-sm font-medium">Request Status</CardTitle>
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
-                  <ResponsiveContainer width="100%" height={250}>
-                    <PieChart>
-                      <Pie
-                        data={charts.requestStatusData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={70}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {charts.requestStatusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <div className="w-full overflow-x-auto pb-4">
+                    <div className="min-w-[300px]">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                          <Pie
+                            data={charts.requestStatusData}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, value }) => `${name}: ${value}`}
+                            outerRadius={70}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {charts.requestStatusData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -279,28 +253,32 @@ export function RMDashboard() {
                   <CardTitle className="text-sm font-medium">Top Clients</CardTitle>
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={charts.topClientsByAUM} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 11 }}
-                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        width={90}
-                        tick={{ fontSize: 10 }}
-                      />
-                      <Tooltip
-                        formatter={(value: number) =>
-                          `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
-                        }
-                      />
-                      <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="w-full overflow-x-auto pb-4">
+                    <div className="min-w-[400px]">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <BarChart data={charts.topClientsByAUM} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis
+                            type="number"
+                            tick={{ fontSize: 11 }}
+                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                          />
+                          <YAxis
+                            type="category"
+                            dataKey="name"
+                            width={90}
+                            tick={{ fontSize: 10 }}
+                          />
+                          <Tooltip
+                            formatter={(value: number) =>
+                              `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                            }
+                          />
+                          <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -313,41 +291,45 @@ export function RMDashboard() {
                 <CardTitle className="text-sm font-medium">Activity Trend (30 Days)</CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={charts.activityTrend}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 10 }}
-                      tickFormatter={(value) => {
-                        const date = new Date(value);
-                        return `${date.getMonth() + 1}/${date.getDate()}`;
-                      }}
-                    />
-                    <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip
-                      labelFormatter={(value) => {
-                        const date = new Date(value);
-                        return date.toLocaleDateString();
-                      }}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="withdrawals"
-                      stroke="#f97316"
-                      strokeWidth={2}
-                      name="Withdrawals"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="products"
-                      stroke="#8b5cf6"
-                      strokeWidth={2}
-                      name="Products"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="w-full overflow-x-auto pb-4">
+                  <div className="min-w-[500px]">
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={charts.activityTrend}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis
+                          dataKey="date"
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(value) => {
+                            const date = new Date(value);
+                            return `${date.getMonth() + 1}/${date.getDate()}`;
+                          }}
+                        />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip
+                          labelFormatter={(value) => {
+                            const date = new Date(value);
+                            return date.toLocaleDateString();
+                          }}
+                        />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="withdrawals"
+                          stroke="#f97316"
+                          strokeWidth={2}
+                          name="Withdrawals"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="products"
+                          stroke="#8b5cf6"
+                          strokeWidth={2}
+                          name="Products"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -370,11 +352,10 @@ export function RMDashboard() {
                   className="flex items-center justify-between border-b border-gray-100 pb-2.5 last:border-0 last:pb-0"
                 >
                   <div className="flex items-start gap-2.5">
-                    <div className={`rounded-full p-1.5 ${
-                      activity.type === 'PRODUCT'
-                        ? 'bg-purple-500/10'
-                        : 'bg-orange-500/10'
-                    }`}>
+                    <div className={`rounded-full p-1.5 ${activity.type === 'PRODUCT'
+                      ? 'bg-purple-500/10'
+                      : 'bg-orange-500/10'
+                      }`}>
                       {activity.type === 'PRODUCT' ? (
                         <Package className="h-3 w-3 text-purple-600" />
                       ) : (

@@ -20,9 +20,9 @@ import {
   Users,
   DollarSign,
   CheckCircle,
-  RefreshCw,
   Award
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 
 interface RMDetails {
@@ -97,11 +97,7 @@ export default function MyRMPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-brand-blue" />
-      </div>
-    );
+    return <LoadingSpinner text="Loading advisor details..." className="min-h-screen" />;
   }
 
   if (!rm) {

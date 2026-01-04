@@ -15,9 +15,10 @@ import {
   CheckCircle,
   Clock,
   BarChart3,
-  Loader2,
   AlertCircle,
 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { StatCard } from '@/components/dashboard/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -85,12 +86,7 @@ export function AdminDashboard() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading analytics...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading analytics..." />;
   }
 
   if (error || !data?.success) {
@@ -110,92 +106,66 @@ export function AdminDashboard() {
   return (
     <div className="space-y-4">
       {/* Key Metrics Grid */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total AUM Card */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Total AUM</CardTitle>
-            <DollarSign className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-brand-blue">
-              ${overview.totalAUM >= 1000000
-                ? `${(overview.totalAUM / 1000000).toFixed(2)}M`
-                : overview.totalAUM >= 1000
-                ? `${(overview.totalAUM / 1000).toFixed(1)}K`
-                : overview.totalAUM.toFixed(0)}
-            </div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total AUM"
+          value={
+            overview.totalAUM >= 1000000
+              ? `$${(overview.totalAUM / 1000000).toFixed(2)}M`
+              : overview.totalAUM >= 1000
+                ? `$${(overview.totalAUM / 1000).toFixed(1)}K`
+                : `$${overview.totalAUM.toFixed(0)}`
+          }
+          icon={DollarSign}
+        />
 
         {/* Total Clients Card */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Clients</CardTitle>
-            <Users className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-brand-blue">{overview.totalClients}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Clients"
+          value={overview.totalClients}
+          icon={Users}
+        />
 
         {/* Total RMs Card */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">RMs</CardTitle>
-            <UserCheck className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-brand-blue">{overview.totalRMs}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="RMs"
+          value={overview.totalRMs}
+          icon={UserCheck}
+        />
 
         {/* Pending Requests Card */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Pending</CardTitle>
-            <Clock className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-amber-600">{overview.pendingRequests}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Pending"
+          value={overview.pendingRequests}
+          icon={Clock}
+          status="warning"
+        />
       </div>
 
       {/* Secondary Metrics Grid */}
       <div className="grid gap-3 grid-cols-3">
         {/* Active Instruments Card */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Instruments</CardTitle>
-            <BarChart3 className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-brand-blue">{overview.totalInstruments}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Instruments"
+          value={overview.totalInstruments}
+          icon={BarChart3}
+        />
 
         {/* Total Transactions Card */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Transactions</CardTitle>
-            <FileText className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-brand-blue">{overview.totalTransactions}</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Transactions"
+          value={overview.totalTransactions}
+          icon={FileText}
+        />
 
         {/* Transaction Success Rate Card */}
-        <Card className="border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
-            <CardTitle className="text-xs font-medium text-gray-600">Success Rate</CardTitle>
-            <CheckCircle className="h-3.5 w-3.5 text-gray-400" />
-          </CardHeader>
-          <CardContent className="px-3 pb-3">
-            <div className="text-lg font-bold text-green-600">{overview.transactionSuccessRate.toFixed(0)}%</div>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Success Rate"
+          value={`${overview.transactionSuccessRate.toFixed(0)}%`}
+          icon={CheckCircle}
+          status="success"
+        />
       </div>
 
       {/* Quick Insights */}
@@ -253,29 +223,33 @@ export function AdminDashboard() {
                 <CardTitle className="text-sm font-medium">User Growth (6 Months)</CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={charts.userGrowthTrend}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="clients"
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      name="Clients"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="rms"
-                      stroke="#10b981"
-                      strokeWidth={2}
-                      name="RMs"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="w-full overflow-x-auto pb-4">
+                  <div className="min-w-[500px]">
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart data={charts.userGrowthTrend}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="clients"
+                          stroke="#3b82f6"
+                          strokeWidth={2}
+                          name="Clients"
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="rms"
+                          stroke="#10b981"
+                          strokeWidth={2}
+                          name="RMs"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -289,28 +263,32 @@ export function AdminDashboard() {
                   <CardTitle className="text-sm font-medium">Top RMs</CardTitle>
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={charts.rmDistribution} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 11 }}
-                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                      />
-                      <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10 }} />
-                      <Tooltip
-                        formatter={(value: number, name: string) => {
-                          if (name === 'aum') {
-                            return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-                          }
-                          return value;
-                        }}
-                      />
-                      <Legend />
-                      <Bar dataKey="aum" fill="#3b82f6" name="AUM" radius={[0, 4, 4, 0]} />
-                      <Bar dataKey="clients" fill="#10b981" name="Clients" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <div className="w-full overflow-x-auto pb-4">
+                    <div className="min-w-[400px]">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <BarChart data={charts.rmDistribution} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis
+                            type="number"
+                            tick={{ fontSize: 11 }}
+                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                          />
+                          <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10 }} />
+                          <Tooltip
+                            formatter={(value: number, name: string) => {
+                              if (name === 'aum') {
+                                return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+                              }
+                              return value;
+                            }}
+                          />
+                          <Legend />
+                          <Bar dataKey="aum" fill="#3b82f6" name="AUM" radius={[0, 4, 4, 0]} />
+                          <Bar dataKey="clients" fill="#10b981" name="Clients" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -322,26 +300,30 @@ export function AdminDashboard() {
                   <CardTitle className="text-sm font-medium">Instrument Types</CardTitle>
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
-                  <ResponsiveContainer width="100%" height={250}>
-                    <PieChart>
-                      <Pie
-                        data={charts.instrumentDistribution}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
-                        outerRadius={70}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {charts.instrumentDistribution.map((_entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <div className="w-full overflow-x-auto pb-4">
+                    <div className="min-w-[300px]">
+                      <ResponsiveContainer width="100%" height={250}>
+                        <PieChart>
+                          <Pie
+                            data={charts.instrumentDistribution}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, value }) => `${name}: ${value}`}
+                            outerRadius={70}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {charts.instrumentDistribution.map((_entry, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -354,51 +336,55 @@ export function AdminDashboard() {
                 <CardTitle className="text-sm font-medium">Transaction Volume (30 Days)</CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
-                <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={charts.transactionTrend}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 10 }}
-                      tickFormatter={(value) => {
-                        const date = new Date(value);
-                        return `${date.getMonth() + 1}/${date.getDate()}`;
-                      }}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 11 }}
-                      tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                    />
-                    <Tooltip
-                      labelFormatter={(value) => {
-                        const date = new Date(value);
-                        return date.toLocaleDateString();
-                      }}
-                      formatter={(value: number) =>
-                        `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
-                      }
-                    />
-                    <Legend />
-                    <Area
-                      type="monotone"
-                      dataKey="purchases"
-                      stackId="1"
-                      stroke="#3b82f6"
-                      fill="#3b82f6"
-                      fillOpacity={0.6}
-                      name="Purchases"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="withdrawals"
-                      stackId="1"
-                      stroke="#f97316"
-                      fill="#f97316"
-                      fillOpacity={0.6}
-                      name="Withdrawals"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                <div className="w-full overflow-x-auto pb-4">
+                  <div className="min-w-[500px]">
+                    <ResponsiveContainer width="100%" height={250}>
+                      <AreaChart data={charts.transactionTrend}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                        <XAxis
+                          dataKey="date"
+                          tick={{ fontSize: 10 }}
+                          tickFormatter={(value) => {
+                            const date = new Date(value);
+                            return `${date.getMonth() + 1}/${date.getDate()}`;
+                          }}
+                        />
+                        <YAxis
+                          tick={{ fontSize: 11 }}
+                          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                        />
+                        <Tooltip
+                          labelFormatter={(value) => {
+                            const date = new Date(value);
+                            return date.toLocaleDateString();
+                          }}
+                          formatter={(value: number) =>
+                            `$${value.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                          }
+                        />
+                        <Legend />
+                        <Area
+                          type="monotone"
+                          dataKey="purchases"
+                          stackId="1"
+                          stroke="#3b82f6"
+                          fill="#3b82f6"
+                          fillOpacity={0.6}
+                          name="Purchases"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="withdrawals"
+                          stackId="1"
+                          stroke="#f97316"
+                          fill="#f97316"
+                          fillOpacity={0.6}
+                          name="Withdrawals"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -410,26 +396,30 @@ export function AdminDashboard() {
                 <CardTitle className="text-sm font-medium">Request Status</CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={charts.requestStatusDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={70}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {charts.requestStatusDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="w-full overflow-x-auto pb-4">
+                  <div className="min-w-[300px]">
+                    <ResponsiveContainer width="100%" height={250}>
+                      <PieChart>
+                        <Pie
+                          data={charts.requestStatusDistribution}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, value }) => `${name}: ${value}`}
+                          outerRadius={70}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {charts.requestStatusDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}

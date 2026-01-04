@@ -8,7 +8,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Loader2, TrendingUp, TrendingDown, PieChart, BarChart3 } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown, PieChart, BarChart3 } from 'lucide-react';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -102,12 +103,7 @@ export function ClientAnalyticsDashboard() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-3 text-muted-foreground">Loading analytics...</span>
-      </div>
-    );
+    return <LoadingSpinner text="Loading analytics..." />;
   }
 
   if (error) {
@@ -372,8 +368,8 @@ export function ClientAnalyticsDashboard() {
                   ${analytics.overview.totalValue >= 1000000
                     ? `${(analytics.overview.totalValue / 1000000).toFixed(2)}M`
                     : analytics.overview.totalValue >= 1000
-                    ? `${(analytics.overview.totalValue / 1000).toFixed(1)}K`
-                    : analytics.overview.totalValue.toFixed(0)}
+                      ? `${(analytics.overview.totalValue / 1000).toFixed(1)}K`
+                      : analytics.overview.totalValue.toFixed(0)}
                 </p>
               </div>
             </div>
@@ -387,8 +383,8 @@ export function ClientAnalyticsDashboard() {
                   ${analytics.overview.totalInvested >= 1000000
                     ? `${(analytics.overview.totalInvested / 1000000).toFixed(2)}M`
                     : analytics.overview.totalInvested >= 1000
-                    ? `${(analytics.overview.totalInvested / 1000).toFixed(1)}K`
-                    : analytics.overview.totalInvested.toFixed(0)}
+                      ? `${(analytics.overview.totalInvested / 1000).toFixed(1)}K`
+                      : analytics.overview.totalInvested.toFixed(0)}
                 </p>
               </div>
             </div>
