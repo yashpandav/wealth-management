@@ -42,7 +42,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 
 interface Transaction {
   id: string;
@@ -176,9 +176,7 @@ export function TransactionHistory() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner text="Loading transactions..." />;
-  }
+
 
   if (error) {
     return (
@@ -298,7 +296,13 @@ export function TransactionHistory() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {transactions.length > 0 ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    Searching...
+                  </TableCell>
+                </TableRow>
+              ) : transactions.length > 0 ? (
                 transactions.map((txn) => (
                   <TableRow key={txn.id}>
                     <TableCell className="font-medium">
@@ -367,38 +371,40 @@ export function TransactionHistory() {
       </div>
 
       {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} transactions
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p - 1)}
-              disabled={pagination.page === 1}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-            <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+      {
+        pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+              {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
+              {pagination.totalCount} transactions
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasMore}
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p - 1)}
+                disabled={pagination.page === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="text-sm">
+                Page {pagination.page} of {pagination.totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.hasMore}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Transaction Detail Modal */}
       <Dialog open={!!selectedTransaction} onOpenChange={() => setSelectedTransaction(null)}>
@@ -495,6 +501,6 @@ export function TransactionHistory() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }

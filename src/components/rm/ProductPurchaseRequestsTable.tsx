@@ -185,12 +185,19 @@ export function ProductPurchaseRequestsTable() {
     queryFn: () => fetchProductRequests({ page, search, status, sortBy, sortOrder }),
   });
 
+  // Separate query for global stats that doesn't change with search/filters
+  const { data: globalStatsData } = useQuery({
+    queryKey: ['rm-product-requests-stats'],
+    queryFn: () => fetchProductRequests({ page: 1, search: '', status: '', sortBy: 'createdAt', sortOrder: 'desc' }),
+  });
+
   const mutation = useMutation({
     mutationFn: updateProductRequest,
     onSuccess: (result) => {
       if (result.success) {
         toast.success(result.message || 'Request updated successfully');
         queryClient.invalidateQueries({ queryKey: ['rm-product-requests'] });
+        queryClient.invalidateQueries({ queryKey: ['rm-product-requests-stats'] });
         queryClient.invalidateQueries({ queryKey: ['rm-dashboard-stats'] });
         setActionDialog({ open: false, request: null, action: null });
         setRmNotes('');
@@ -250,9 +257,7 @@ export function ProductPurchaseRequestsTable() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner text="Loading product requests..." />;
-  }
+
 
   if (error) {
     return (
@@ -264,7 +269,7 @@ export function ProductPurchaseRequestsTable() {
   }
 
   const requests = data?.data.requests || [];
-  const summary = data?.data.summary;
+  const summary = globalStatsData?.data.summary;
   const pagination = data?.data.pagination;
 
   return (
@@ -367,7 +372,13 @@ export function ProductPurchaseRequestsTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.length > 0 ? (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="h-24 text-center">
+                    Searching...
+                  </TableCell>
+                </TableRow>
+              ) : requests.length > 0 ? (
                 requests.map((req) => (
                   <TableRow key={req.id}>
                     <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>

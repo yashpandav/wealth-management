@@ -25,7 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2, Upload, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { toast } from 'react-hot-toast';
 import { format } from 'date-fns';
 
@@ -198,9 +198,7 @@ export function ProductRequestsClient({
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner text="Loading product requests..." />;
-  }
+
 
   if (error) {
     return (
@@ -293,7 +291,13 @@ export function ProductRequestsClient({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {requests.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : requests.length > 0 ? (
               requests.map((req) => (
                 <TableRow key={req.id}>
                   <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>

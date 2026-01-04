@@ -79,9 +79,7 @@ export function KYCPendingTable() {
     queryFn: () => fetchClients({ page, search }),
   });
 
-  if (isLoading) {
-    return <LoadingSpinner text="Loading clients..." />;
-  }
+
 
   const clients = data?.data.clients || [];
   const pagination = data?.data.pagination;
@@ -141,7 +139,13 @@ export function KYCPendingTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : clients.length > 0 ? (
               clients.map((client) => (
                 <TableRow key={client.id}>
                   <TableCell className="font-medium">

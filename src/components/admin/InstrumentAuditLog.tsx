@@ -150,7 +150,7 @@ export function InstrumentAuditLog({ instrumentId }: InstrumentAuditLogProps) {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="py-4 md:py-6 lg:py-8 text-center text-muted-foreground">Loading audit logs...</div>
+          <div className="py-4 md:py-6 lg:py-8 text-center text-muted-foreground">Searching...</div>
         ) : logs.length === 0 ? (
           <div className="py-4 md:py-6 lg:py-8 text-center text-muted-foreground">No audit logs found</div>
         ) : (

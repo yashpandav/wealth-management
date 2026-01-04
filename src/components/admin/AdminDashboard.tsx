@@ -176,7 +176,7 @@ export function AdminDashboard() {
       <div className="grid gap-3 md:grid-cols-2">
         <Card className="border-gray-200">
           <CardHeader className="pb-2 px-3 pt-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-1.5">
+            <CardTitle className="font-optima text-sm font-semibold text-brand-blue flex items-center gap-1.5">
               <TrendingUp className="h-4 w-4" />
               Platform Health
             </CardTitle>
@@ -200,7 +200,7 @@ export function AdminDashboard() {
 
         <Card className="border-gray-200">
           <CardHeader className="pb-2 px-3 pt-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-1.5">
+            <CardTitle className="font-optima text-sm font-semibold text-brand-blue flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
               Pending Actions
             </CardTitle>
@@ -225,7 +225,7 @@ export function AdminDashboard() {
           {charts.userGrowthTrend.length > 0 && (
             <Card className="border-gray-200">
               <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="text-sm font-medium">User Growth (6 Months)</CardTitle>
+                <CardTitle className="font-optima text-sm font-semibold text-brand-blue">User Growth (6 Months)</CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 <div className="w-full overflow-x-auto pb-4">
@@ -265,7 +265,7 @@ export function AdminDashboard() {
             {charts.rmDistribution.length > 0 && (
               <Card className="border-gray-200">
                 <CardHeader className="pb-2 px-3 pt-3">
-                  <CardTitle className="text-sm font-medium">Top RMs</CardTitle>
+                  <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Top RMs</CardTitle>
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
                   <div className="w-full overflow-x-auto pb-4">
@@ -308,7 +308,7 @@ export function AdminDashboard() {
             {charts.instrumentDistribution.length > 0 && (
               <Card className="border-gray-200">
                 <CardHeader className="pb-2 px-3 pt-3">
-                  <CardTitle className="text-sm font-medium">Instrument Types</CardTitle>
+                  <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Instrument Types</CardTitle>
                 </CardHeader>
                 <CardContent className="px-3 pb-3">
                   <div className="w-full overflow-x-auto pb-4">
@@ -344,7 +344,7 @@ export function AdminDashboard() {
           {charts.transactionTrend.length > 0 && (
             <Card className="border-gray-200">
               <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="text-sm font-medium">Transaction Volume (30 Days)</CardTitle>
+                <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Transaction Volume (30 Days)</CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 <div className="w-full overflow-x-auto pb-4">
@@ -407,7 +407,7 @@ export function AdminDashboard() {
           {charts.requestStatusDistribution.length > 0 && (
             <Card className="border-gray-200">
               <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="text-sm font-medium">Request Status</CardTitle>
+                <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Request Status</CardTitle>
               </CardHeader>
               <CardContent className="px-3 pb-3">
                 <div className="w-full overflow-x-auto pb-4">

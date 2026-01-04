@@ -392,7 +392,7 @@ export function LeadsTable() {
             {loading ? (
               <TableRow>
                 <TableCell colSpan={8} className="h-24 text-center">
-                  Loading...
+                  Searching...
                 </TableCell>
               </TableRow>
             ) : leads.length === 0 ? (
@@ -629,7 +629,7 @@ export function LeadsTable() {
                         <SelectItem key={rm.id} value={rm.id}>
                           <div className="flex justify-between items-center w-full">
                             <span>{rm.name}</span>
-                            <span className="text-xs text-muted-foreground ml-2">
+                            <span className="text-xs text-gray-500 ml-2">
                               {rm.clientCount} {rm.clientCount === 1 ? 'client' : 'clients'}
                             </span>
                           </div>
@@ -669,7 +669,7 @@ export function LeadsTable() {
                 <Button
                   onClick={handleAssignRM}
                   disabled={!selectedRmId || isAssigning}
-                  className="flex-1"
+                  className="flex-1 bg-brand-blue hover:bg-brand-blue/90 text-white"
                 >
                   {isAssigning ? 'Assigning...' : 'Assign'}
                 </Button>

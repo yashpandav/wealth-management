@@ -109,9 +109,7 @@ export function AssignedClientsTable() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner text="Loading clients..." />;
-  }
+
 
   const clients = data?.data.clients || [];
   const pagination = data?.data.pagination;
@@ -192,7 +190,13 @@ export function AssignedClientsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={8} className="h-24 text-center">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : clients.length > 0 ? (
               clients.map((client) => {
                 const isPositiveGain = client.portfolio ? client.portfolio.totalGainLoss >= 0 : true;
                 return (

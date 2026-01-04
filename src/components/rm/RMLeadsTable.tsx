@@ -144,9 +144,7 @@ export function RMLeadsTable() {
     updateStatusMutation.mutate({ leadId, status: newStatus });
   };
 
-  if (isLoading) {
-    return <LoadingSpinner text="Loading leads..." />;
-  }
+
 
   const leads = data?.data.leads || [];
   const pagination = data?.data.pagination;
@@ -223,7 +221,13 @@ export function RMLeadsTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {leads.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : leads.length > 0 ? (
               leads.map((lead) => (
                 <TableRow key={lead.id}>
                   <TableCell className="font-medium">

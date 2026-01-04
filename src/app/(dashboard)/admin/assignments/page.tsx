@@ -7,6 +7,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { RequireAdmin } from '@/lib/auth';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface RM {
   id: string;
@@ -265,11 +277,11 @@ function AssignmentsContent() {
   };
 
   return (
-    <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
+    <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Client-RM Assignments</h1>
-        <p className="font-georgia mt-2 text-brand-grey">
+        <h1 className="font-optima text-2xl font-bold text-brand-blue">Client-RM Assignments</h1>
+        <p className="font-georgia mt-1 text-sm text-brand-grey">
           Manage client assignments to relationship managers
         </p>
       </div>
@@ -431,402 +443,392 @@ function AssignmentsContent() {
       )}
 
       {/* Clients Table */}
-      {isLoading ? (
-        <div className="flex min-h-[400px] items-center justify-center rounded-lg bg-white shadow">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600"></div>
-            <p className="text-sm text-gray-600">Loading clients...</p>
-          </div>
-        </div>
-      ) : clients.length === 0 ? (
-        <div className="rounded-lg bg-white p-4 md:p-4 md:p-6 lg:p-8 text-center shadow">
-          <p className="text-gray-600">No clients found</p>
-        </div>
-      ) : (
-        <div className="overflow-hidden rounded-lg bg-white shadow">
-          <div className="w-full overflow-x-auto -mx-4 sm:mx-0">
-            <table className="text-sm min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedClients.length === clients.length && clients.length > 0}
-                      onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
+      <ResponsiveTable>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={selectedClients.length === clients.length && clients.length > 0}
+                  onCheckedChange={toggleSelectAll}
+                />
+              </TableHead>
+              <TableHead>Client</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Assigned RM</TableHead>
+              <TableHead>Assigned Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  Searching...
+                </TableCell>
+              </TableRow>
+            ) : clients.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                  No clients found
+                </TableCell>
+              </TableRow>
+            ) : (
+              clients.map((client) => (
+                <TableRow key={client.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedClients.includes(client.id)}
+                      onCheckedChange={() => toggleSelectClient(client.id)}
                     />
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Client
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Assigned RM
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Assigned Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {clients.map((client) => (
-                  <tr key={client.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedClients.includes(client.id)}
-                        onChange={() => toggleSelectClient(client.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-brand-blue focus:ring-brand-blue"
-                      />
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">{client.fullName}</div>
-                      {client.emailVerified ? (
-                        <div className="text-xs text-green-600">✓ Verified</div>
-                      ) : (
-                        <div className="text-xs text-yellow-600">Not verified</div>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {client.email}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {client.assignedRM ? (
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {client.assignedRM.fullName}
-                          </div>
-                          <div className="text-xs text-gray-500">{client.assignedRM.email}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium text-gray-900">{client.fullName}</div>
+                    {client.emailVerified ? (
+                      <div className="text-xs text-green-600">✓ Verified</div>
+                    ) : (
+                      <div className="text-xs text-yellow-600">Not verified</div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {client.email}
+                  </TableCell>
+                  <TableCell>
+                    {client.assignedRM ? (
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {client.assignedRM.fullName}
                         </div>
-                      ) : (
-                        <span className="inline-flex rounded-full bg-yellow-100 px-2 py-1 text-xs font-semibold text-yellow-800">
-                          Unassigned
-                        </span>
-                      )}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {client.assignedAt ? new Date(client.assignedAt).toLocaleDateString() : '-'}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                      <button
-                        onClick={() => openAssignModal(client)}
-                        className="text-brand-blue hover:text-brand-blue/80"
-                      >
-                        {client.isAssigned ? 'Reassign' : 'Assign'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        <div className="text-xs text-muted-foreground">{client.assignedRM.email}</div>
+                      </div>
+                    ) : (
+                      <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                        Unassigned
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {client.assignedAt ? new Date(client.assignedAt).toLocaleDateString() : '-'}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="link"
+                      className="text-brand-blue hover:text-brand-blue/80 p-0 h-auto font-medium"
+                      onClick={() => openAssignModal(client)}
+                    >
+                      {client.isAssigned ? 'Reassign' : 'Assign'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </ResponsiveTable>
 
-          {/* Pagination */}
-          {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-              <div className="flex flex-1 justify-between sm:hidden">
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+          <div className="flex flex-1 justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={!pagination.hasPrevPage}
+              className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={!pagination.hasNextPage}
+              className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+          <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing page <span className="font-medium">{pagination.page}</span> of{' '}
+                <span className="font-medium">{pagination.totalPages}</span> (
+                <span className="font-medium">{pagination.totalCount}</span> total clients)
+              </p>
+            </div>
+            <div>
+              <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={!pagination.hasPrevPage}
-                  className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setCurrentPage(currentPage + 1)}
                   disabled={!pagination.hasNextPage}
-                  className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-brand-blue/5 disabled:opacity-50"
+                  className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
                 >
                   Next
                 </button>
-              </div>
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing page <span className="font-medium">{pagination.page}</span> of{' '}
-                    <span className="font-medium">{pagination.totalPages}</span> (
-                    <span className="font-medium">{pagination.totalCount}</span> total clients)
-                  </p>
-                </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
-                    <button
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      disabled={!pagination.hasPrevPage}
-                      className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={!pagination.hasNextPage}
-                      className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-brand-blue/5 disabled:opacity-50"
-                    >
-                      Next
-                    </button>
-                  </nav>
-                </div>
-              </div>
+              </nav>
             </div>
-          )}
+          </div>
         </div>
       )}
 
       {/* Assignment Modal */}
-      {showAssignModal && selectedClient && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            {/* Backdrop */}
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+      {
+        showAssignModal && selectedClient && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+              {/* Backdrop */}
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
-            {/* Modal */}
-            <div className="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-4 md:p-6 sm:pb-4">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">
-                  {selectedClient.isAssigned ? 'Reassign' : 'Assign'} Client to RM
-                </h3>
+              {/* Modal */}
+              <div className="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-4 md:p-6 sm:pb-4">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">
+                    {selectedClient.isAssigned ? 'Reassign' : 'Assign'} Client to RM
+                  </h3>
 
-                <div className="mt-4">
-                  <div className="mb-4 rounded-md bg-brand-blue/10 p-3">
-                    <p className="text-sm font-medium text-blue-900">Client</p>
-                    <p className="text-sm text-brand-blue">
-                      {selectedClient.fullName} ({selectedClient.email})
-                    </p>
-                    {selectedClient.assignedRM && (
-                      <p className="mt-2 text-xs text-brand-blue">
-                        Currently assigned to: {selectedClient.assignedRM.fullName}
+                  <div className="mt-4">
+                    <div className="mb-4 rounded-md bg-brand-blue/10 p-3">
+                      <p className="text-sm font-medium text-blue-900">Client</p>
+                      <p className="text-sm text-brand-blue">
+                        {selectedClient.fullName} ({selectedClient.email})
                       </p>
+                      {selectedClient.assignedRM && (
+                        <p className="mt-2 text-xs text-brand-blue">
+                          Currently assigned to: {selectedClient.assignedRM.fullName}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mb-4">
+                      <label htmlFor="rmSelect" className="block text-sm font-medium text-gray-700">
+                        Select Relationship Manager
+                      </label>
+                      <select
+                        id="rmSelect"
+                        value={selectedRMId}
+                        onChange={(e) => setSelectedRMId(e.target.value)}
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                      >
+                        <option value="">-- Select RM --</option>
+                        {rms
+                          .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
+                          .map((rm) => (
+                            <option key={rm.id} value={rm.id}>
+                              {rm.fullName} - {rm.assignedClientsCount}
+                              {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
+                              {rm.utilizationPercentage !== null
+                                ? ` (${rm.utilizationPercentage}%)`
+                                : ''}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    {selectedRMId && (
+                      <div className="mb-4 rounded-md bg-gray-50 p-3">
+                        {(() => {
+                          const selectedRM = rms.find((rm) => rm.id === selectedRMId);
+                          if (!selectedRM) return null;
+                          return (
+                            <div className="text-sm">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">Workload</span>
+                                <span
+                                  className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getUtilizationColor(selectedRM.utilizationPercentage)}`}
+                                >
+                                  {selectedRM.utilizationPercentage !== null
+                                    ? `${selectedRM.utilizationPercentage}%`
+                                    : 'No limit'}
+                                </span>
+                              </div>
+                              {selectedRM.specialization && (
+                                <div className="mt-2 text-xs text-gray-600">
+                                  Specialization: {selectedRM.specialization}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    {selectedClient.isAssigned && (
+                      <div className="mb-4">
+                        <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
+                          Reason for Reassignment (Optional)
+                        </label>
+                        <textarea
+                          id="reason"
+                          value={assignmentReason}
+                          onChange={(e) => setAssignmentReason(e.target.value)}
+                          rows={3}
+                          maxLength={500}
+                          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                          placeholder="Enter reason for reassignment..."
+                        />
+                      </div>
                     )}
                   </div>
+                </div>
 
-                  <div className="mb-4">
-                    <label htmlFor="rmSelect" className="block text-sm font-medium text-gray-700">
-                      Select Relationship Manager
-                    </label>
-                    <select
-                      id="rmSelect"
-                      value={selectedRMId}
-                      onChange={(e) => setSelectedRMId(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
-                    >
-                      <option value="">-- Select RM --</option>
-                      {rms
-                        .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
-                        .map((rm) => (
-                          <option key={rm.id} value={rm.id}>
-                            {rm.fullName} - {rm.assignedClientsCount}
-                            {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
-                            {rm.utilizationPercentage !== null
-                              ? ` (${rm.utilizationPercentage}%)`
-                              : ''}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                  <button
+                    onClick={handleAssignment}
+                    disabled={!selectedRMId || isAssigning}
+                    className="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    {isAssigning ? 'Assigning...' : selectedClient.isAssigned ? 'Reassign' : 'Assign'}
+                  </button>
+                  <button
+                    onClick={closeAssignModal}
+                    disabled={isAssigning}
+                    className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-brand-blue/5 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
 
-                  {selectedRMId && (
-                    <div className="mb-4 rounded-md bg-gray-50 p-3">
-                      {(() => {
-                        const selectedRM = rms.find((rm) => rm.id === selectedRMId);
-                        if (!selectedRM) return null;
-                        return (
-                          <div className="text-sm">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium">Workload</span>
-                              <span
-                                className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getUtilizationColor(selectedRM.utilizationPercentage)}`}
-                              >
-                                {selectedRM.utilizationPercentage !== null
-                                  ? `${selectedRM.utilizationPercentage}%`
-                                  : 'No limit'}
-                              </span>
-                            </div>
-                            {selectedRM.specialization && (
-                              <div className="mt-2 text-xs text-gray-600">
-                                Specialization: {selectedRM.specialization}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
+      {/* Bulk Assignment Modal */}
+      {
+        showBulkModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto">
+            <div className="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+              {/* Backdrop */}
+              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+              {/* Modal */}
+              <div className="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-4 md:p-6 sm:pb-4">
+                  <h3 className="text-lg font-medium leading-6 text-gray-900">
+                    Bulk Assign Clients to RM
+                  </h3>
+
+                  <div className="mt-4">
+                    <div className="mb-4 rounded-md bg-brand-blue/10 p-3">
+                      <p className="text-sm font-medium text-blue-900">
+                        Selected Clients: {selectedClients.length}
+                      </p>
+                      <p className="mt-1 text-xs text-brand-blue">
+                        {selectedClients.length === 1
+                          ? '1 client will be assigned/reassigned'
+                          : `${selectedClients.length} clients will be assigned/reassigned`}
+                      </p>
                     </div>
-                  )}
 
-                  {selectedClient.isAssigned && (
                     <div className="mb-4">
-                      <label htmlFor="reason" className="block text-sm font-medium text-gray-700">
-                        Reason for Reassignment (Optional)
+                      <label htmlFor="bulkRmSelect" className="block text-sm font-medium text-gray-700">
+                        Select Relationship Manager
+                      </label>
+                      <select
+                        id="bulkRmSelect"
+                        value={bulkRMId}
+                        onChange={(e) => setBulkRMId(e.target.value)}
+                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                      >
+                        <option value="">-- Select RM --</option>
+                        {rms
+                          .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
+                          .map((rm) => (
+                            <option key={rm.id} value={rm.id}>
+                              {rm.fullName} - {rm.assignedClientsCount}
+                              {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
+                              {rm.utilizationPercentage !== null
+                                ? ` (${rm.utilizationPercentage}%)`
+                                : ''}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    {bulkRMId && (
+                      <div className="mb-4 rounded-md bg-gray-50 p-3">
+                        {(() => {
+                          const selectedRM = rms.find((rm) => rm.id === bulkRMId);
+                          if (!selectedRM) return null;
+
+                          const newLoad = selectedRM.assignedClientsCount + selectedClients.length;
+                          const wouldExceed = selectedRM.maxClientLimit && newLoad > selectedRM.maxClientLimit;
+
+                          return (
+                            <div className="text-sm">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">Current Workload</span>
+                                <span
+                                  className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getUtilizationColor(selectedRM.utilizationPercentage)}`}
+                                >
+                                  {selectedRM.utilizationPercentage !== null
+                                    ? `${selectedRM.utilizationPercentage}%`
+                                    : 'No limit'}
+                                </span>
+                              </div>
+                              <div className="mt-2 text-xs text-gray-600">
+                                After assignment: {newLoad} clients
+                                {selectedRM.maxClientLimit ? ` / ${selectedRM.maxClientLimit}` : ''}
+                              </div>
+                              {wouldExceed && (
+                                <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-800">
+                                  Warning: This assignment would exceed the RM&apos;s capacity limit
+                                </div>
+                              )}
+                              {selectedRM.specialization && (
+                                <div className="mt-2 text-xs text-gray-600">
+                                  Specialization: {selectedRM.specialization}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    )}
+
+                    <div className="mb-4">
+                      <label htmlFor="bulkReason" className="block text-sm font-medium text-gray-700">
+                        Reason for Assignment (Optional)
                       </label>
                       <textarea
-                        id="reason"
-                        value={assignmentReason}
-                        onChange={(e) => setAssignmentReason(e.target.value)}
+                        id="bulkReason"
+                        value={bulkReason}
+                        onChange={(e) => setBulkReason(e.target.value)}
                         rows={3}
                         maxLength={500}
                         className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
-                        placeholder="Enter reason for reassignment..."
+                        placeholder="Enter reason for bulk assignment..."
                       />
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                <button
-                  onClick={handleAssignment}
-                  disabled={!selectedRMId || isAssigning}
-                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  {isAssigning ? 'Assigning...' : selectedClient.isAssigned ? 'Reassign' : 'Assign'}
-                </button>
-                <button
-                  onClick={closeAssignModal}
-                  disabled={isAssigning}
-                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-brand-blue/5 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
-                >
-                  Cancel
-                </button>
+                <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                  <button
+                    onClick={handleBulkAssignment}
+                    disabled={!bulkRMId || isBulkAssigning}
+                    className="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
+                  >
+                    {isBulkAssigning ? 'Assigning...' : `Assign ${selectedClients.length} Client${selectedClients.length === 1 ? '' : 's'}`}
+                  </button>
+                  <button
+                    onClick={closeBulkModal}
+                    disabled={isBulkAssigning}
+                    className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-brand-blue/5 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Bulk Assignment Modal */}
-      {showBulkModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            {/* Backdrop */}
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-
-            {/* Modal */}
-            <div className="inline-block transform overflow-hidden rounded-lg bg-white text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:align-middle">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-4 md:p-6 sm:pb-4">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">
-                  Bulk Assign Clients to RM
-                </h3>
-
-                <div className="mt-4">
-                  <div className="mb-4 rounded-md bg-brand-blue/10 p-3">
-                    <p className="text-sm font-medium text-blue-900">
-                      Selected Clients: {selectedClients.length}
-                    </p>
-                    <p className="mt-1 text-xs text-brand-blue">
-                      {selectedClients.length === 1
-                        ? '1 client will be assigned/reassigned'
-                        : `${selectedClients.length} clients will be assigned/reassigned`}
-                    </p>
-                  </div>
-
-                  <div className="mb-4">
-                    <label htmlFor="bulkRmSelect" className="block text-sm font-medium text-gray-700">
-                      Select Relationship Manager
-                    </label>
-                    <select
-                      id="bulkRmSelect"
-                      value={bulkRMId}
-                      onChange={(e) => setBulkRMId(e.target.value)}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
-                    >
-                      <option value="">-- Select RM --</option>
-                      {rms
-                        .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
-                        .map((rm) => (
-                          <option key={rm.id} value={rm.id}>
-                            {rm.fullName} - {rm.assignedClientsCount}
-                            {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
-                            {rm.utilizationPercentage !== null
-                              ? ` (${rm.utilizationPercentage}%)`
-                              : ''}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-
-                  {bulkRMId && (
-                    <div className="mb-4 rounded-md bg-gray-50 p-3">
-                      {(() => {
-                        const selectedRM = rms.find((rm) => rm.id === bulkRMId);
-                        if (!selectedRM) return null;
-
-                        const newLoad = selectedRM.assignedClientsCount + selectedClients.length;
-                        const wouldExceed = selectedRM.maxClientLimit && newLoad > selectedRM.maxClientLimit;
-
-                        return (
-                          <div className="text-sm">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium">Current Workload</span>
-                              <span
-                                className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getUtilizationColor(selectedRM.utilizationPercentage)}`}
-                              >
-                                {selectedRM.utilizationPercentage !== null
-                                  ? `${selectedRM.utilizationPercentage}%`
-                                  : 'No limit'}
-                              </span>
-                            </div>
-                            <div className="mt-2 text-xs text-gray-600">
-                              After assignment: {newLoad} clients
-                              {selectedRM.maxClientLimit ? ` / ${selectedRM.maxClientLimit}` : ''}
-                            </div>
-                            {wouldExceed && (
-                              <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-800">
-                                Warning: This assignment would exceed the RM&apos;s capacity limit
-                              </div>
-                            )}
-                            {selectedRM.specialization && (
-                              <div className="mt-2 text-xs text-gray-600">
-                                Specialization: {selectedRM.specialization}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </div>
-                  )}
-
-                  <div className="mb-4">
-                    <label htmlFor="bulkReason" className="block text-sm font-medium text-gray-700">
-                      Reason for Assignment (Optional)
-                    </label>
-                    <textarea
-                      id="bulkReason"
-                      value={bulkReason}
-                      onChange={(e) => setBulkReason(e.target.value)}
-                      rows={3}
-                      maxLength={500}
-                      className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
-                      placeholder="Enter reason for bulk assignment..."
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                <button
-                  onClick={handleBulkAssignment}
-                  disabled={!bulkRMId || isBulkAssigning}
-                  className="inline-flex w-full justify-center rounded-md border border-transparent bg-brand-blue px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  {isBulkAssigning ? 'Assigning...' : `Assign ${selectedClients.length} Client${selectedClients.length === 1 ? '' : 's'}`}
-                </button>
-                <button
-                  onClick={closeBulkModal}
-                  disabled={isBulkAssigning}
-                  className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-brand-blue/5 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 disabled:opacity-50 sm:mt-0 sm:w-auto sm:text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }
 

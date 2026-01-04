@@ -145,13 +145,7 @@ export default function RMPerformancePage() {
   const totalAUM = rms.reduce((sum, rm) => sum + rm.aum.total, 0);
   const avgClientsPerRM = totalRMs > 0 ? totalClients / totalRMs : 0;
 
-  if (loading && rms.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <RefreshCw className="h-8 w-8 animate-spin text-gray-500" />
-      </div>
-    );
-  }
+
 
   return (
     <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
@@ -218,8 +212,8 @@ export default function RMPerformancePage() {
                   }
                 }}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${sortBy === option.key
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                   }`}
               >
                 {option.label}
@@ -237,7 +231,12 @@ export default function RMPerformancePage() {
           <CardDescription>Click column headers to sort</CardDescription>
         </CardHeader>
         <CardContent>
-          {rms.length === 0 ? (
+          {loading ? (
+            <div className="text-center py-12 text-gray-500">
+              <RefreshCw className="mx-auto h-8 w-8 mb-4 animate-spin opacity-50" />
+              <p>Searching...</p>
+            </div>
+          ) : rms.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
               <p>No Relationship Managers found</p>

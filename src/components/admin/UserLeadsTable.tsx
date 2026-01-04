@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast, Toaster } from 'react-hot-toast';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface UserLead {
@@ -207,7 +207,7 @@ export function UserLeadsTable() {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-24 text-center">
-                    <LoadingSpinner text="Loading leads..." centered={false} />
+                    Searching...
                   </TableCell>
                 </TableRow>
               ) : leads.length === 0 ? (

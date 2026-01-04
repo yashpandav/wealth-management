@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/table';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { toast } from 'react-hot-toast';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface Instrument {
@@ -370,7 +370,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
               {loading ? (
                 <TableRow>
                   <TableCell colSpan={10} className="h-24 text-center">
-                    <LoadingSpinner text="Loading instruments..." centered={false} />
+                    Searching...
                   </TableCell>
                 </TableRow>
               ) : instruments.length === 0 ? (
