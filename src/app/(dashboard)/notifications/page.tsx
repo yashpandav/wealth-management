@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Bell, Check, Trash2, RefreshCw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import type { Route } from 'next';
 
 interface Notification {
   id: string;
@@ -180,7 +181,7 @@ export default function NotificationsPage() {
                 {notification.actionUrl && notification.actionText && (
                   <Button
                     onClick={() => {
-                      router.push(notification.actionUrl as any);
+                      router.push(notification.actionUrl as Route);
                     }}
                     variant="outline"
                     size="sm"

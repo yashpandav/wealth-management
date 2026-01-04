@@ -400,7 +400,7 @@ export function ClientAnalyticsDashboard() {
 
             <div className="flex items-center justify-between border-b border-gray-100 pb-2.5">
               <div>
-                <p className="text-xs font-medium text-gray-600">Today's Change</p>
+                <p className="text-xs font-medium text-gray-600">Today&apos;s Change</p>
               </div>
               <div className="text-right">
                 <p className={`text-base font-bold flex items-center justify-end ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>

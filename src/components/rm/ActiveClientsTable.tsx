@@ -29,7 +29,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import Link from 'next/link';
 

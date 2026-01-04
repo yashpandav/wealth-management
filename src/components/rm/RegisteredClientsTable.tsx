@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, AlertCircle, Mail, Phone } from 'lucide-react';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 
 interface Client {

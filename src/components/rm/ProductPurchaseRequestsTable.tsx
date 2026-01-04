@@ -48,7 +48,7 @@ import {
   X,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { toast } from 'react-hot-toast';
 
 interface ProductRequest {

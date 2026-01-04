@@ -19,7 +19,7 @@ import {
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,

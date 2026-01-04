@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ChevronLeft, ChevronRight, AlertCircle, Mail, Phone, Clock } from 'lucide-react';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 
 interface Client {

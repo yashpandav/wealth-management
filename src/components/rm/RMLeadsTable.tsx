@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ChevronLeft, ChevronRight, AlertCircle, Phone, Mail } from 'lucide-react';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 
 type LeadStatus = 'NEW' | 'CONTACTED' | 'INTERESTED' | 'NOT_INTERESTED' | 'CONVERTED' | 'LOST';

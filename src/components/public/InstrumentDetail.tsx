@@ -273,7 +273,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                   <YAxis />
                   <Tooltip
                     formatter={(value: number) => [
-                      <div className="flex items-center">
+                      <div key="price-value" className="flex items-center">
                         <DirhamIcon className="w-3 h-3 mr-1" />
                         {value.toFixed(2)}
                       </div>,
