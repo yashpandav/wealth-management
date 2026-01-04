@@ -16,8 +16,10 @@ import {
   XCircle,
   FileText,
   FileSignature,
-  FileCheck
+  FileCheck,
+  Package
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 export const metadata = {
   title: 'DocAdmin Dashboard | Wealth Management CRM',
@@ -212,25 +214,32 @@ export default async function DocAdminDashboardPage() {
                 <Link
                   key={doc.id}
                   href={`/docadmin/documents?documentId=${doc.id}`}
-                  className="block border border-gray-100 rounded-lg p-2.5 hover:border-brand-blue hover:bg-brand-blue/5 transition-colors"
+                  className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors group"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-optima text-xs font-medium text-brand-blue truncate">
-                        {doc.client.user.firstName} {doc.client.user.lastName}
-                      </p>
-                      <p className="font-georgia text-[10px] text-brand-grey mt-0.5">{doc.documentType}</p>
-                    </div>
-                    <div className="text-right ml-3 flex-shrink-0">
-                      <span className={`inline-block px-1.5 py-0.5 text-[10px] font-medium rounded ${doc.verificationStatus === 'PENDING'
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-blue-100 text-blue-800'
-                        }`}>
-                        {doc.verificationStatus}
-                      </span>
-                      <p className="font-georgia text-[10px] text-brand-grey mt-0.5">
-                        {new Date(doc.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </p>
+                  <div className="p-1 flex-shrink-0 text-brand-blue">
+                    <FileText className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <p className="font-medium text-sm text-gray-900 group-hover:text-brand-blue transition-colors">
+                          {doc.client.user.firstName} {doc.client.user.lastName}
+                        </p>
+                        <p className="text-xs text-brand-grey mt-0.5">{doc.documentType}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full ${doc.verificationStatus === 'PENDING'
+                          ? 'bg-amber-100 text-amber-800'
+                          : doc.verificationStatus === 'VERIFIED'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-blue-100 text-blue-800'
+                          }`}>
+                          {doc.verificationStatus.replace('_', ' ')}
+                        </span>
+                        <p className="text-[10px] text-brand-grey min-w-fit">
+                          {new Date(doc.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -261,28 +270,40 @@ export default async function DocAdminDashboardPage() {
                 <Link
                   key={req.id}
                   href={req.status === 'PENDING' ? '/docadmin/product-requests' : '/docadmin/contract-pending'}
-                  className="block border border-gray-100 rounded-lg p-2.5 hover:border-brand-blue hover:bg-brand-blue/5 transition-colors"
+                  className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors group"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-optima text-xs font-medium text-brand-blue truncate">
-                        {req.client.user.firstName} {req.client.user.lastName}
-                      </p>
-                      <p className="font-georgia text-[10px] text-brand-grey mt-0.5 truncate">{req.product.name}</p>
-                      <p className="text-[10px] text-gray-600 mt-0.5 font-medium">
-                        {req.product.currency} {(Number(req.amount) / 1000).toFixed(1)}K
-                      </p>
-                    </div>
-                    <div className="text-right ml-3 flex-shrink-0">
-                      <span className={`inline-block px-1.5 py-0.5 text-[10px] font-medium rounded ${req.status === 'PENDING'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-indigo-100 text-indigo-800'
-                        }`}>
-                        {req.status === 'PENDING' ? 'Requested' : 'Contract'}
-                      </span>
-                      <p className="font-georgia text-[10px] text-brand-grey mt-0.5">
-                        {new Date(req.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </p>
+                  <div className="p-1 flex-shrink-0 text-purple-600">
+                    <Package className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <p className="font-medium text-sm text-gray-900 group-hover:text-brand-blue transition-colors">
+                          {req.client.user.firstName} {req.client.user.lastName}
+                        </p>
+                        <p className="text-xs text-brand-grey mt-0.5 truncate max-w-[150px]">{req.product.name}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <p className="text-xs font-semibold text-gray-900 flex items-center">
+                          {req.product.currency === 'USD' ? (
+                            <>
+                              <span className="text-[10px] mr-1">USD</span>
+                              {(Number(req.amount) / 1000).toFixed(1)}K
+                            </>
+                          ) : (
+                            <>
+                              <DirhamIcon className="w-3 h-3 mr-1" />
+                              {(Number(req.amount) / 1000).toFixed(1)}K
+                            </>
+                          )}
+                        </p>
+                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full ${req.status === 'PENDING'
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-indigo-100 text-indigo-800'
+                          }`}>
+                          {req.status === 'PENDING' ? 'Requested' : 'Contract'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </Link>

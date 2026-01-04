@@ -84,8 +84,9 @@ export function UserLeadsTable() {
         limit: limit.toString(),
         sortBy,
         sortOrder,
-        ...(search && { query: search }),
       });
+
+      if (search) params.append('search', search);
 
       const response = await fetch(`/api/admin/leads?${params}`);
       const result = await response.json();
@@ -103,7 +104,9 @@ export function UserLeadsTable() {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortOrder, search]);
+  }, [page, limit, search, sortBy, sortOrder]);
+
+
 
   // Handle sort
   const handleSort = (column: string) => {
@@ -259,7 +262,7 @@ export function UserLeadsTable() {
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground">
-            Showing {leads.length === 0 ? 0 : (page - 1) * limit + 1} to{' '}
+            Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
             {Math.min(page * limit, totalCount)} of {totalCount} leads
           </span>
         </div>
@@ -280,7 +283,7 @@ export function UserLeadsTable() {
             variant="outline"
             size="sm"
             onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages || loading}
+            disabled={page >= totalPages}
           >
             Next
           </Button>

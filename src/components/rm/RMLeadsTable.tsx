@@ -118,7 +118,7 @@ export function RMLeadsTable() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['rm-leads', page, search, filterSource],
-    queryFn: () => fetchLeads({ page, search, source: filterSource }),
+    queryFn: () => fetchLeads({ page, search, source: filterSource === 'ALL' ? '' : filterSource }),
   });
 
   const updateStatusMutation = useMutation({
@@ -150,6 +150,8 @@ export function RMLeadsTable() {
 
   const leads = data?.data.leads || [];
   const pagination = data?.data.pagination;
+
+
 
   // Show friendly message for errors or empty data
   if (error && !leads.length) {
@@ -295,28 +297,28 @@ export function RMLeadsTable() {
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} leads
+            Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
+            {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
+            {pagination?.totalCount} leads
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p - 1)}
-              disabled={pagination.page === 1}
+              disabled={page === 1}
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
             <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+              Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasMore}
+              disabled={!pagination?.hasMore}
             >
               Next
               <ChevronRight className="h-4 w-4" />

@@ -32,7 +32,6 @@ import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { toast } from 'react-hot-toast';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
-import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface Instrument {
   id: string;
@@ -81,6 +80,8 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Fetch instruments
+  // Fetch all instruments once
+  // Fetch all instruments once
   const fetchInstruments = useCallback(async () => {
     setLoading(true);
     try {
@@ -89,12 +90,12 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
         limit: limit.toString(),
         sortBy,
         sortOrder,
-        ...(search && { query: search }),
-        ...(typeFilter !== 'all' && { type: typeFilter }),
-        ...(riskFilter !== 'all' && { riskRating: riskFilter }),
-        ...(statusFilter === 'active' && { isActive: 'true' }),
-        ...(statusFilter === 'inactive' && { isActive: 'false' }),
       });
+
+      if (search) params.append('search', search);
+      if (typeFilter && typeFilter !== 'all') params.append('type', typeFilter);
+      if (riskFilter && riskFilter !== 'all') params.append('risk', riskFilter);
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter);
 
       const response = await fetch(`/api/admin/instruments?${params}`);
       const result = await response.json();
@@ -112,7 +113,9 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, sortBy, sortOrder, search, typeFilter, riskFilter, statusFilter]);
+  }, [page, limit, search, typeFilter, riskFilter, statusFilter, sortBy, sortOrder]);
+
+
 
   // Handle bulk operations
   const handleBulkOperation = async (operation: 'activate' | 'deactivate' | 'delete') => {
@@ -167,7 +170,8 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
 
   // Selection handlers
   const toggleSelectAll = () => {
-    if (selectedIds.size === instruments.length) {
+    // Select all filtered instruments
+    if (selectedIds.size === instruments.length && instruments.length > 0) {
       setSelectedIds(new Set());
     } else {
       setSelectedIds(new Set(instruments.map((i) => i.id)));
@@ -470,7 +474,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground">
-            Showing {instruments.length === 0 ? 0 : (page - 1) * limit + 1} to{' '}
+            Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
             {Math.min(page * limit, totalCount)} of {totalCount} instruments
           </span>
         </div>
@@ -491,7 +495,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
             variant="outline"
             size="sm"
             onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages || loading}
+            disabled={page >= totalPages}
           >
             Next
           </Button>

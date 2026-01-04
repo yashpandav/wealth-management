@@ -85,6 +85,8 @@ export function RegisteredClientsTable() {
   const clients = data?.data.clients || [];
   const pagination = data?.data.pagination;
 
+
+
   // Show friendly message for errors
   if (error && !clients.length) {
     return (
@@ -182,28 +184,28 @@ export function RegisteredClientsTable() {
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} clients
+            Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
+            {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
+            {pagination?.totalCount} clients
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p - 1)}
-              disabled={pagination.page === 1}
+              disabled={page === 1}
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
             <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
+              Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasMore}
+              disabled={!pagination?.hasMore}
             >
               Next
               <ChevronRight className="h-4 w-4" />
