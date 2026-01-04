@@ -148,7 +148,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Secondary Metrics Grid */}
-      <div className="grid gap-3 grid-cols-3">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {/* Active Instruments Card */}
         <StatCard
           title="Instruments"
@@ -173,7 +173,7 @@ export function AdminDashboard() {
       </div>
 
       {/* Quick Insights */}
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
         <Card className="border-gray-200">
           <CardHeader className="pb-2 px-3 pt-3">
             <CardTitle className="font-optima text-sm font-semibold text-brand-blue flex items-center gap-1.5">
@@ -260,7 +260,7 @@ export function AdminDashboard() {
           )}
 
           {/* Charts Grid */}
-          <div className="grid gap-3 lg:grid-cols-2">
+          <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
             {/* RM Distribution - Bar Chart */}
             {charts.rmDistribution.length > 0 && (
               <Card className="border-gray-200">

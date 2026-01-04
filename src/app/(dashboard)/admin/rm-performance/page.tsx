@@ -10,7 +10,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Users, DollarSign, TrendingUp, CheckCircle, XCircle, Award } from 'lucide-react';
+import { RefreshCw, Users, TrendingUp, CheckCircle, XCircle, Award } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
 
 interface RMPerformance {
@@ -148,7 +150,7 @@ export default function RMPerformancePage() {
 
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
+    <div className="container px-8 py-8">
       <div className="mb-8">
         <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">RM Performance Dashboard</h1>
         <p className="font-georgia text-brand-grey">
@@ -173,8 +175,9 @@ export default function RMPerformancePage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total AUM</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-purple-600">
-              ${(totalAUM / 1000000).toFixed(1)}M
+            <CardTitle className="text-2xl md:text-3xl text-purple-600 flex items-center">
+              <DirhamIcon className="h-6 w-6 mr-1" />
+              {(totalAUM / 1000000).toFixed(1)}M
             </CardTitle>
           </CardHeader>
         </Card>
@@ -232,9 +235,8 @@ export default function RMPerformancePage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-12 text-gray-500">
-              <RefreshCw className="mx-auto h-8 w-8 mb-4 animate-spin opacity-50" />
-              <p>Searching...</p>
+            <div className="py-12">
+              <LoadingSpinner text="Searching..." />
             </div>
           ) : rms.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
@@ -305,29 +307,32 @@ export default function RMPerformancePage() {
                         {/* AUM Metrics */}
                         <div className="space-y-3">
                           <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                            <DollarSign className="h-4 w-4" />
+                            <DirhamIcon className="h-4 w-4" />
                             Assets Under Management
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-600">Total AUM:</span>
-                              <span className="font-semibold">
-                                ${rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                              <span className="font-semibold flex items-center">
+                                <DirhamIcon className="h-3 w-3 mr-1" />
+                                {rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Avg per Client:</span>
-                              <span className="font-semibold">
-                                ${rm.aum.avgPerClient.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                              <span className="font-semibold flex items-center">
+                                <DirhamIcon className="h-3 w-3 mr-1" />
+                                {rm.aum.avgPerClient.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Gain/Loss:</span>
                               <span
-                                className={`font-semibold ${isPositiveGain ? 'text-green-600' : 'text-red-600'
+                                className={`font-semibold flex items-center ${isPositiveGain ? 'text-green-600' : 'text-red-600'
                                   }`}
                               >
-                                {isPositiveGain ? '+' : ''}$
+                                {isPositiveGain ? '+' : ''}
+                                <DirhamIcon className="h-3 w-3 mx-1" />
                                 {rm.aum.gainLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                               </span>
                             </div>

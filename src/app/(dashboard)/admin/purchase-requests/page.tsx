@@ -145,7 +145,7 @@ export default function AdminPurchaseRequestsPage() {
 
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-full sm:max-w-7xl">
+    <div className="container px-8 py-8">
       <div className="mb-8">
         <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">Purchase Requests - Admin</h1>
         <p className="font-georgia text-brand-grey">

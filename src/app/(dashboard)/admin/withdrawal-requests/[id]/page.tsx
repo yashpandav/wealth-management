@@ -220,7 +220,7 @@ export default function AdminWithdrawalRequestDetailPage({ params }: { params: {
     request.status === WithdrawalStatus.ADMIN_REVIEW;
 
   return (
-    <div className="container mx-auto py-4 md:py-6 lg:py-8 max-w-6xl">
+    <div className="container px-8 py-8">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"

@@ -19,6 +19,13 @@ import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface RM {
   id: string;
@@ -277,7 +284,7 @@ function AssignmentsContent() {
   };
 
   return (
-    <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+    <div className="container px-8 py-8">
       {/* Header */}
       <div className="mb-6">
         <h1 className="font-optima text-2xl font-bold text-brand-blue">Client-RM Assignments</h1>
@@ -342,19 +349,22 @@ function AssignmentsContent() {
               <label htmlFor="assignment" className="block text-sm font-medium text-gray-700">
                 Assignment Status
               </label>
-              <select
-                id="assignment"
+              <Select
                 value={assignmentFilter}
-                onChange={(e) => {
-                  setAssignmentFilter(e.target.value);
+                onValueChange={(value) => {
+                  setAssignmentFilter(value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="all">All Clients</option>
-                <option value="assigned">Assigned</option>
-                <option value="unassigned">Unassigned</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Clients" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Clients</SelectItem>
+                  <SelectItem value="assigned">Assigned</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* RM Filter */}
@@ -362,22 +372,25 @@ function AssignmentsContent() {
               <label htmlFor="rm" className="block text-sm font-medium text-gray-700">
                 Relationship Manager
               </label>
-              <select
-                id="rm"
+              <Select
                 value={rmFilter}
-                onChange={(e) => {
-                  setRMFilter(e.target.value);
+                onValueChange={(value) => {
+                  setRMFilter(value === 'all' ? '' : value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="">All RMs</option>
-                {rms.map((rm) => (
-                  <option key={rm.id} value={rm.id}>
-                    {rm.fullName} ({rm.assignedClientsCount})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All RMs" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All RMs</SelectItem>
+                  {rms.map((rm) => (
+                    <SelectItem key={rm.id} value={rm.id}>
+                      {rm.fullName} ({rm.assignedClientsCount})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -607,25 +620,27 @@ function AssignmentsContent() {
                       <label htmlFor="rmSelect" className="block text-sm font-medium text-gray-700">
                         Select Relationship Manager
                       </label>
-                      <select
-                        id="rmSelect"
+                      <Select
                         value={selectedRMId}
-                        onChange={(e) => setSelectedRMId(e.target.value)}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                        onValueChange={setSelectedRMId}
                       >
-                        <option value="">-- Select RM --</option>
-                        {rms
-                          .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
-                          .map((rm) => (
-                            <option key={rm.id} value={rm.id}>
-                              {rm.fullName} - {rm.assignedClientsCount}
-                              {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
-                              {rm.utilizationPercentage !== null
-                                ? ` (${rm.utilizationPercentage}%)`
-                                : ''}
-                            </option>
-                          ))}
-                      </select>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="-- Select RM --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {rms
+                            .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
+                            .map((rm) => (
+                              <SelectItem key={rm.id} value={rm.id}>
+                                {rm.fullName} - {rm.assignedClientsCount}
+                                {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
+                                {rm.utilizationPercentage !== null
+                                  ? ` (${rm.utilizationPercentage}%)`
+                                  : ''}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {selectedRMId && (
@@ -728,25 +743,27 @@ function AssignmentsContent() {
                       <label htmlFor="bulkRmSelect" className="block text-sm font-medium text-gray-700">
                         Select Relationship Manager
                       </label>
-                      <select
-                        id="bulkRmSelect"
+                      <Select
                         value={bulkRMId}
-                        onChange={(e) => setBulkRMId(e.target.value)}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                        onValueChange={setBulkRMId}
                       >
-                        <option value="">-- Select RM --</option>
-                        {rms
-                          .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
-                          .map((rm) => (
-                            <option key={rm.id} value={rm.id}>
-                              {rm.fullName} - {rm.assignedClientsCount}
-                              {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
-                              {rm.utilizationPercentage !== null
-                                ? ` (${rm.utilizationPercentage}%)`
-                                : ''}
-                            </option>
-                          ))}
-                      </select>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="-- Select RM --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {rms
+                            .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
+                            .map((rm) => (
+                              <SelectItem key={rm.id} value={rm.id}>
+                                {rm.fullName} - {rm.assignedClientsCount}
+                                {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
+                                {rm.utilizationPercentage !== null
+                                  ? ` (${rm.utilizationPercentage}%)`
+                                  : ''}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {bulkRMId && (

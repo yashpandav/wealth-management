@@ -21,6 +21,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface User {
   id: string;
@@ -251,7 +258,7 @@ function AdminUsersContent() {
   };
 
   return (
-    <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+    <div className="container px-8 py-8">
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -292,20 +299,23 @@ function AdminUsersContent() {
               <label htmlFor="role" className="block text-sm font-medium text-gray-700">
                 Role
               </label>
-              <select
-                id="role"
+              <Select
                 value={roleFilter}
-                onChange={(e) => {
-                  setRoleFilter(e.target.value);
+                onValueChange={(value) => {
+                  setRoleFilter(value === 'all' ? '' : value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="">All Roles</option>
-                <option value="ADMIN">Admin</option>
-                <option value="RM">RM</option>
-                <option value="CLIENT">Client</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Roles" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="ADMIN">Admin</SelectItem>
+                  <SelectItem value="RM">RM</SelectItem>
+                  <SelectItem value="CLIENT">Client</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Status Filter */}
@@ -313,20 +323,23 @@ function AdminUsersContent() {
               <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                 Status
               </label>
-              <select
-                id="status"
+              <Select
                 value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
+                onValueChange={(value) => {
+                  setStatusFilter(value === 'all' ? '' : value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="INACTIVE">Inactive</option>
-                <option value="LOCKED">Locked</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="ACTIVE">Active</SelectItem>
+                  <SelectItem value="INACTIVE">Inactive</SelectItem>
+                  <SelectItem value="LOCKED">Locked</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -375,18 +388,21 @@ function AdminUsersContent() {
               <span className="text-sm font-medium text-blue-900">
                 {selectedUsers.length} user(s) selected
               </span>
-              <select
+              <Select
                 value={bulkOperation}
-                onChange={(e) => setBulkOperation(e.target.value)}
-                className="rounded-md border border-brand-blue bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                onValueChange={setBulkOperation}
               >
-                <option value="">Select Operation</option>
-                <option value="activate">Activate</option>
-                <option value="deactivate">Deactivate</option>
-                <option value="lock">Lock</option>
-                <option value="unlock">Unlock</option>
-                <option value="delete">Delete (Soft)</option>
-              </select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select Operation" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="activate">Activate</SelectItem>
+                  <SelectItem value="deactivate">Deactivate</SelectItem>
+                  <SelectItem value="lock">Lock</SelectItem>
+                  <SelectItem value="unlock">Unlock</SelectItem>
+                  <SelectItem value="delete">Delete (Soft)</SelectItem>
+                </SelectContent>
+              </Select>
               <button
                 onClick={handleBulkOperation}
                 disabled={!bulkOperation || isBulkProcessing}
@@ -520,16 +536,20 @@ function AdminUsersContent() {
                         )}
 
                       {/* Status Dropdown - simplified to native for now as replacing with Select inside Table might be tricky layout-wise, but let's stick to native for simplicity or native styled. Actually let's use the native one for now to minimize complex interaction changes, or better yet, just keep the actions simple. */}
-                      <select
+                      {/* Status Dropdown */}
+                      <Select
                         value={user.status}
-                        onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                        className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
-                        title="Change Status"
+                        onValueChange={(value) => handleStatusChange(user.id, value)}
                       >
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
-                        <option value="LOCKED">Locked</option>
-                      </select>
+                        <SelectTrigger className="h-8 w-[100px] text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ACTIVE">Active</SelectItem>
+                          <SelectItem value="INACTIVE">Inactive</SelectItem>
+                          <SelectItem value="LOCKED">Locked</SelectItem>
+                        </SelectContent>
+                      </Select>
 
                       {/* Edit Link */}
                       <Link

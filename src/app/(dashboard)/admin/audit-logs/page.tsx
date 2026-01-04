@@ -7,6 +7,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { RequireAdmin } from '@/lib/auth';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface AuditLog {
   id: string;
@@ -137,7 +144,7 @@ function AuditLogsContent() {
   };
 
   return (
-    <div className="mx-auto max-w-full sm:max-w-7xl px-4 py-4 md:py-6 lg:py-8">
+    <div className="container px-8 py-8">
       {/* Header */}
       <div className="mb-6">
         <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Audit Logs</h1>
@@ -170,24 +177,27 @@ function AuditLogsContent() {
               <label htmlFor="action" className="block text-sm font-medium text-gray-700">
                 Action
               </label>
-              <select
-                id="action"
+              <Select
                 value={actionFilter}
-                onChange={(e) => {
-                  setActionFilter(e.target.value);
+                onValueChange={(value) => {
+                  setActionFilter(value === 'all' ? '' : value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="">All Actions</option>
-                <option value="LOGIN">Login</option>
-                <option value="LOGOUT">Logout</option>
-                <option value="USER_CREATE">User Create</option>
-                <option value="USER_UPDATE">User Update</option>
-                <option value="USER_DELETE">User Delete</option>
-                <option value="USER_ACTIVATE">User Activate</option>
-                <option value="USER_DEACTIVATE">User Deactivate</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Actions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Actions</SelectItem>
+                  <SelectItem value="LOGIN">Login</SelectItem>
+                  <SelectItem value="LOGOUT">Logout</SelectItem>
+                  <SelectItem value="USER_CREATE">User Create</SelectItem>
+                  <SelectItem value="USER_UPDATE">User Update</SelectItem>
+                  <SelectItem value="USER_DELETE">User Delete</SelectItem>
+                  <SelectItem value="USER_ACTIVATE">User Activate</SelectItem>
+                  <SelectItem value="USER_DEACTIVATE">User Deactivate</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Entity Type Filter */}
@@ -195,21 +205,24 @@ function AuditLogsContent() {
               <label htmlFor="entityType" className="block text-sm font-medium text-gray-700">
                 Entity Type
               </label>
-              <select
-                id="entityType"
+              <Select
                 value={entityTypeFilter}
-                onChange={(e) => {
-                  setEntityTypeFilter(e.target.value);
+                onValueChange={(value) => {
+                  setEntityTypeFilter(value === 'all' ? '' : value);
                   setCurrentPage(1);
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               >
-                <option value="">All Types</option>
-                <option value="User">User</option>
-                <option value="Client">Client</option>
-                <option value="RM">Relationship Manager</option>
-                <option value="Transaction">Transaction</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="User">User</SelectItem>
+                  <SelectItem value="Client">Client</SelectItem>
+                  <SelectItem value="RM">Relationship Manager</SelectItem>
+                  <SelectItem value="Transaction">Transaction</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -409,8 +422,8 @@ function AuditLogsContent() {
                           key={page}
                           onClick={() => setCurrentPage(page)}
                           className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium ${currentPage === page
-                              ? 'z-10 border-brand-blue bg-brand-blue/10 text-brand-blue'
-                              : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            ? 'z-10 border-brand-blue bg-brand-blue/10 text-brand-blue'
+                            : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
                             }`}
                         >
                           {page}

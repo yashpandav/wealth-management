@@ -19,7 +19,7 @@ export default async function CreateInstrumentPage() {
   await requireAdmin();
 
   return (
-    <div className="container mx-auto max-w-4xl py-4 md:py-6 lg:py-8">
+    <div className="container px-8 py-8">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
