@@ -19,12 +19,15 @@ import {
   AlertCircle,
   RefreshCw,
   FileText,
+  TrendingUp,
+  Hourglass,
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { RequestStatus } from '@prisma/client';
 import { toast } from 'react-hot-toast';
 
 interface PurchaseRequest {
+  type: 'INSTRUMENT';
   id: string;
   trackingNumber: string;
   status: RequestStatus;
@@ -48,18 +51,39 @@ interface PurchaseRequest {
   };
 }
 
-interface ApiResponse {
-  success: boolean;
-  data?: {
-    requests: PurchaseRequest[];
+interface ProductPurchaseRequest {
+  type: 'PRODUCT';
+  id: string;
+  trackingNumber: string;
+  status: RequestStatus;
+  amount: number;
+  clientNotes: string | null;
+  rmNotes: string | null;
+  createdAt: string;
+  updatedAt: string;
+  processedAt: string | null;
+  contractDocumentId: string | null;
+  isWaitingForContract?: boolean;
+  product: {
+    id: string;
+    name: string;
+    currency: string;
   };
-  error?: string;
+  productOption: {
+    id: string;
+    duration: string;
+    withdrawalFrequency: string;
+    roi: number;
+    annualReturn: number;
+  };
 }
+
+type AnyRequest = PurchaseRequest | ProductPurchaseRequest;
 
 export default function ClientRequestsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [requests, setRequests] = useState<PurchaseRequest[]>([]);
+  const [requests, setRequests] = useState<AnyRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<RequestStatus | 'ALL'>('ALL');
 
@@ -82,13 +106,52 @@ export default function ClientRequestsPage() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/client/purchase-requests');
-      const data: ApiResponse = await response.json();
+      const [purchaseRes, productRes] = await Promise.all([
+        fetch('/api/client/purchase-requests'),
+        fetch('/api/client/product-requests')
+      ]);
 
-      if (data.success && data.data) {
-        setRequests(data.data.requests);
-      } else {
-        toast.error(data.error || 'Failed to fetch requests');
+      const purchaseData = await purchaseRes.json();
+      const productData = await productRes.json();
+
+      let allRequests: AnyRequest[] = [];
+
+      if (purchaseData.success && purchaseData.data?.requests) {
+        const instrumentRequests = purchaseData.data.requests.map((req: Omit<PurchaseRequest, 'type'>) => ({
+          ...req,
+          type: 'INSTRUMENT' as const,
+        }));
+        allRequests = [...allRequests, ...instrumentRequests];
+      }
+
+      if (productData.success && productData.data?.requests) {
+        const productRequests = productData.data.requests.map((req: Omit<ProductPurchaseRequest, 'type' | 'isWaitingForContract'>) => {
+          let requestStatus = req.status;
+          let isWaitingForContract = false;
+
+          // If request is approved but no contract document yet, show as PROCESSING
+          if (requestStatus === 'APPROVED' && !req.contractDocumentId) {
+            requestStatus = 'PROCESSING' as RequestStatus;
+            isWaitingForContract = true;
+          }
+
+          return {
+            ...req,
+            type: 'PRODUCT' as const,
+            status: requestStatus,
+            isWaitingForContract
+          };
+        });
+        allRequests = [...allRequests, ...productRequests];
+      }
+
+      // Sort by createdAt desc
+      allRequests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      setRequests(allRequests);
+
+      if (!purchaseData.success && !productData.success) {
+        toast.error('Failed to fetch requests');
       }
     } catch (error) {
       console.error('Error fetching requests:', error);
@@ -103,7 +166,7 @@ export default function ClientRequestsPage() {
       case RequestStatus.PENDING:
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case RequestStatus.PROCESSING:
-        return <RefreshCw className="h-5 w-5 text-brand-blue animate-spin" />;
+        return <Hourglass className="h-5 w-5 text-brand-blue" />;
       case RequestStatus.APPROVED:
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case RequestStatus.REJECTED:
@@ -135,11 +198,14 @@ export default function ClientRequestsPage() {
     );
   };
 
-  const getStatusMessage = (request: PurchaseRequest) => {
+  const getStatusMessage = (request: AnyRequest) => {
     switch (request.status) {
       case RequestStatus.PENDING:
         return 'Your request is awaiting review by your Relationship Manager.';
       case RequestStatus.PROCESSING:
+        if (request.type === 'PRODUCT' && request.isWaitingForContract) {
+          return 'Your request has been approved by your Relationship Manager. Initial contract is being prepared.';
+        }
         return 'Your request is being processed by your Relationship Manager.';
       case RequestStatus.APPROVED:
         return 'Your request has been approved! The transaction will be completed shortly.';
@@ -239,12 +305,14 @@ export default function ClientRequestsPage() {
                   : 'Try selecting a different status filter'}
               </p>
               {selectedStatus === 'ALL' && (
-                <Button
-                  onClick={() => router.push('/instruments')}
-                  className="mt-4"
-                >
-                  Browse Instruments
-                </Button>
+                <div className="flex justify-center gap-4 mt-4">
+                  <Button onClick={() => router.push('/instruments')}>
+                    Browse Instruments
+                  </Button>
+                  <Button variant="outline" onClick={() => router.push('/client/products')}>
+                    Browse Products
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -257,7 +325,10 @@ export default function ClientRequestsPage() {
                     <div className="flex items-center gap-3">
                       {getStatusIcon(request.status)}
                       <CardTitle className="text-xl">
-                        {request.instrument.symbol} - {request.instrument.name}
+                        {request.type === 'INSTRUMENT'
+                          ? `${request.instrument.symbol} - ${request.instrument.name}`
+                          : `${request.product.name}`
+                        }
                       </CardTitle>
                     </div>
                     <CardDescription className="font-mono">
@@ -297,14 +368,14 @@ export default function ClientRequestsPage() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
                     <p className="mt-1 text-2xl font-bold">
-                      {request.instrument.currency} {request.amount.toLocaleString('en-US', {
+                      {request.type === 'INSTRUMENT' ? request.instrument.currency : request.product.currency} {request.amount.toLocaleString('en-US', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </p>
                   </div>
 
-                  {request.quantity && (
+                  {request.type === 'INSTRUMENT' && request.quantity && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Quantity</p>
                       <p className="mt-1 text-2xl font-bold">
@@ -316,7 +387,7 @@ export default function ClientRequestsPage() {
                     </div>
                   )}
 
-                  {request.requestedPrice && (
+                  {request.type === 'INSTRUMENT' && request.requestedPrice && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Requested Price</p>
                       <p className="mt-1 text-2xl font-bold">
@@ -326,6 +397,26 @@ export default function ClientRequestsPage() {
                         })}
                       </p>
                     </div>
+                  )}
+
+                  {request.type === 'PRODUCT' && (
+                    <>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Plan Details</p>
+                        <div className="mt-1">
+                          <Badge variant="outline" className="mr-2">{request.productOption.duration}</Badge>
+                          <Badge variant="outline">{request.productOption.withdrawalFrequency}</Badge>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">Projected Return</p>
+                        <div className="flex items-center mt-1">
+                          <TrendingUp className="h-4 w-4 text-green-600 mr-2" />
+                          <span className="text-xl font-bold text-green-600">{request.productOption.annualReturn}%</span>
+                          <span className="text-sm text-muted-foreground ml-1">Annual</span>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
 

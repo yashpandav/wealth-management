@@ -251,7 +251,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       if (data.success) {
         toast.success('Product purchase request submitted successfully!');
         setShowConfirmDialog(false);
-        router.push(`/client/product-requests?tracking=${data.data.trackingNumber}`);
+        router.push(`/client/requests?tracking=${data.data.trackingNumber}`);
       } else {
         if (data.code === 'NO_RM_ASSIGNED') {
           toast.error('You must have an assigned Relationship Manager to request a product');

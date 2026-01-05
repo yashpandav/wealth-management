@@ -110,10 +110,10 @@ export async function POST(request: NextRequest) {
       const errorMessage = !identityProof
         ? 'Identity Proof document is required. Please upload your Identity Proof document.'
         : identityProof.verificationStatus === 'REJECTED'
-        ? 'Your Identity Proof document was rejected. Please re-upload a valid Identity Proof document.'
-        : identityProof.verificationStatus === 'PENDING' || identityProof.verificationStatus === 'UNDER_REVIEW'
-        ? 'Your Identity Proof document is still being verified. Please wait for verification to complete.'
-        : 'Identity Proof document must be verified before submitting product requests.';
+          ? 'Your Identity Proof document was rejected. Please re-upload a valid Identity Proof document.'
+          : identityProof.verificationStatus === 'PENDING' || identityProof.verificationStatus === 'UNDER_REVIEW'
+            ? 'Your Identity Proof document is still being verified. Please wait for verification to complete.'
+            : 'Identity Proof document must be verified before submitting product requests.';
 
       return NextResponse.json(
         {
@@ -129,10 +129,10 @@ export async function POST(request: NextRequest) {
       const errorMessage = !addressProof
         ? 'Address Proof document is required. Please upload your Address Proof document.'
         : addressProof.verificationStatus === 'REJECTED'
-        ? 'Your Address Proof document was rejected. Please re-upload a valid Address Proof document.'
-        : addressProof.verificationStatus === 'PENDING' || addressProof.verificationStatus === 'UNDER_REVIEW'
-        ? 'Your Address Proof document is still being verified. Please wait for verification to complete.'
-        : 'Address Proof document must be verified before submitting product requests.';
+          ? 'Your Address Proof document was rejected. Please re-upload a valid Address Proof document.'
+          : addressProof.verificationStatus === 'PENDING' || addressProof.verificationStatus === 'UNDER_REVIEW'
+            ? 'Your Address Proof document is still being verified. Please wait for verification to complete.'
+            : 'Address Proof document must be verified before submitting product requests.';
 
       return NextResponse.json(
         {
@@ -572,6 +572,7 @@ export async function GET(request: NextRequest) {
       createdAt: req.createdAt.toISOString(),
       updatedAt: req.updatedAt.toISOString(),
       processedAt: req.processedAt?.toISOString() || null,
+      contractDocumentId: req.contractDocumentId,
     }));
 
     // Calculate pagination metadata
