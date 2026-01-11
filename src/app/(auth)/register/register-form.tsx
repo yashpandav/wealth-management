@@ -8,14 +8,26 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Eye, EyeOff } from 'lucide-react';
+
 interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
   firstName: string;
   lastName: string;
-  phone: string;
+  countryCode: string;
+  phoneNumber: string;
 }
+
+const COUNTRY_CODES = [
+  { code: '+971', label: 'UAE' },
+  { code: '+1', label: 'USA' },
+  { code: '+44', label: 'UK' },
+  { code: '+91', label: 'IND' },
+  { code: '+966', label: 'KSA' },
+  { code: '+65', label: 'SGP' },
+];
 
 export function RegisterForm() {
   const router = useRouter();
@@ -26,11 +38,14 @@ export function RegisterForm() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    phone: '',
+    countryCode: '+971',
+    phoneNumber: '',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Load and prefill lead data from localStorage
   useEffect(() => {
@@ -44,7 +59,7 @@ export function RegisterForm() {
           firstName: leadData.firstName || '',
           lastName: leadData.lastName || '',
           email: leadData.email || '',
-          phone: leadData.phoneNumber || '',
+          phoneNumber: leadData.phoneNumber || '',
         }));
 
         // Clear localStorage after reading to avoid stale data
@@ -56,7 +71,7 @@ export function RegisterForm() {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -75,7 +90,10 @@ export function RegisterForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          phone: `${formData.countryCode}${formData.phoneNumber}`,
+        }),
       });
 
       const data = await response.json();
@@ -94,7 +112,7 @@ export function RegisterForm() {
 
       setSuccess(
         data.message +
-          ' After verifying your email, you will need to upload your KYC documents.'
+        ' After verifying your email, you will need to upload your KYC documents.'
       );
       // Redirect to login after 3 seconds
       setTimeout(() => {
@@ -177,58 +195,97 @@ export function RegisterForm() {
         </div>
 
         <div>
-          <label htmlFor="phone" className="block text-comments font-optima font-medium text-brand-blue">
-            Phone Number (Optional)
+          <label htmlFor="phoneNumber" className="block text-comments font-optima font-medium text-brand-blue">
+            Phone Number
           </label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
-            placeholder="+1 (555) 123-4567"
-            disabled={isLoading}
-          />
+          <div className="flex mt-1 rounded-md shadow-sm">
+            <select
+              id="countryCode"
+              name="countryCode"
+              value={formData.countryCode}
+              onChange={handleChange}
+              className="rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 py-2 text-comments font-optima text-brand-blue focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey w-24"
+              disabled={isLoading}
+            >
+              {COUNTRY_CODES.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {country.code} ({country.label})
+                </option>
+              ))}
+            </select>
+            <input
+              id="phoneNumber"
+              name="phoneNumber"
+              type="tel"
+              required
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              className="block w-full rounded-r-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
+              placeholder="551234567"
+              disabled={isLoading}
+            />
+          </div>
         </div>
 
-        <div>
+        <div className="relative">
           <label htmlFor="password" className="block text-comments font-optima font-medium text-brand-blue">
             Password
           </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
-            placeholder="••••••••"
-            disabled={isLoading}
-          />
+          <div className="relative mt-1">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10"
+              placeholder="••••••••"
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={() => setShowPassword(!showPassword)}
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
           <p className="mt-1 text-xs font-optima text-brand-grey">
             Must be at least 8 characters with uppercase, lowercase, number, and special character
           </p>
         </div>
 
-        <div>
+        <div className="relative">
           <label htmlFor="confirmPassword" className="block text-comments font-optima font-medium text-brand-blue">
             Confirm Password
           </label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            required
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
-            placeholder="••••••••"
-            disabled={isLoading}
-          />
+          <div className="relative mt-1">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10"
+              placeholder="••••••••"
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
       </div>
 

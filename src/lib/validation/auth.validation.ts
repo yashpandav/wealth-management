@@ -22,7 +22,7 @@ export const registerSchema = z
     confirmPassword: z.string(),
     firstName: z.string().min(1, 'First name is required').max(100),
     lastName: z.string().min(1, 'Last name is required').max(100),
-    phone: z.string().optional(),
+    phone: z.string().min(5, 'Phone number is required'),
     role: z.enum(['CLIENT', 'RM', 'ADMIN']).optional().default('CLIENT'),
   })
   .refine((data) => data.password === data.confirmPassword, {

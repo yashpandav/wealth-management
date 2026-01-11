@@ -60,7 +60,7 @@ export default function ClientProductsPage() {
           </Link>
           <h1 className="font-optima text-heading font-bold mb-3 leading-tight">Investment Products</h1>
           <p className="font-georgia text-body text-white/90 max-w-3xl leading-relaxed">
-            Explore our curated investment ventures designed to deliver sustainable returns with flexible withdrawal options
+            Explore our curated investment products designed to deliver sustainable returns with flexible withdrawal options
           </p>
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function ClientProductsPage() {
               </div>
               <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Choose a Product</h3>
               <p className="font-georgia text-brand-grey leading-relaxed text-sm">
-                Select a venture aligned with your investment goals and financial capacity
+                Select a product aligned with your investment goals and financial capacity
               </p>
             </div>
             <div className="text-center">

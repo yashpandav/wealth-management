@@ -46,10 +46,22 @@ export function ClientStatusBanner({
         ? 'border-yellow-500/50 bg-yellow-50 text-yellow-900 dark:border-yellow-500 dark:bg-yellow-950 dark:text-yellow-200'
         : 'border-brand-blue/50 bg-brand-blue/10 text-blue-900 dark:border-brand-blue dark:bg-blue-950 dark:text-blue-200';
 
+  const showUploadLink = verificationStatus === 'NOT_SUBMITTED' || verificationStatus === 'REJECTED' || verificationStatus === 'EXPIRED';
+
   return (
     <Alert className={`${variantClass} ${className}`}>
       <Icon className="h-4 w-4" />
-      <AlertDescription>{banner.message}</AlertDescription>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
+        <AlertDescription>{banner.message}</AlertDescription>
+        {showUploadLink && (
+          <a
+            href="/upload-documents"
+            className="mt-2 sm:mt-0 sm:ml-4 text-sm font-semibold underline hover:text-brand-blue/80 whitespace-nowrap"
+          >
+            Upload Documents &rarr;
+          </a>
+        )}
+      </div>
     </Alert>
   );
 }

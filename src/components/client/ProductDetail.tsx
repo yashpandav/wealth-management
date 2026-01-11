@@ -17,9 +17,6 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  ChevronDown,
-  ChevronUp,
-  Info,
   ArrowRight,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
@@ -84,33 +81,7 @@ interface KYCStatus {
   addressProofStatus?: string;
 }
 
-interface FAQ {
-  question: string;
-  answer: string;
-}
 
-const DEFAULT_FAQS: FAQ[] = [
-  {
-    question: 'How does the investment process work?',
-    answer:
-      'After selecting your preferred investment plan and amount, submit a product request. Your Relationship Manager will review your request and verify the bank transfer. Once approved, your investment will be activated in your portfolio.',
-  },
-  {
-    question: 'When will I receive my returns?',
-    answer:
-      'Returns are calculated based on the annual percentage specified in your selected plan. The withdrawal frequency determines how often you can access your returns - either monthly, quarterly, semi-annually, or at maturity.',
-  },
-  {
-    question: 'Can I withdraw my principal amount early?',
-    answer:
-      'Early withdrawal terms depend on your selected investment plan. Please review the specific terms of your chosen plan or contact your Relationship Manager for details.',
-  },
-  {
-    question: 'What documents do I need to submit?',
-    answer:
-      'You need to complete KYC verification by submitting Identity Proof and Address Proof documents. These must be verified before you can submit any investment requests.',
-  },
-];
 
 export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailProps) {
   const router = useRouter();
@@ -121,7 +92,6 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
   const [submitting, setSubmitting] = useState(false);
   const [kycStatus, setKycStatus] = useState<KYCStatus | null>(null);
   const [kycLoading, setKycLoading] = useState(true);
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
   // Fetch KYC status on component mount
   useEffect(() => {
@@ -532,37 +502,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
               </CardContent>
             </Card>
 
-            {/* FAQ Section */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Info className="h-5 w-5 text-gray-700" />
-                  <CardTitle>Frequently Asked Questions</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {DEFAULT_FAQS.map((faq, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
-                      className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-brand-blue/10 transition-colors duration-200 text-left"
-                    >
-                      <span className="font-medium text-gray-900">{faq.question}</span>
-                      {expandedFAQ === index ? (
-                        <ChevronUp className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                      )}
-                    </button>
-                    {expandedFAQ === index && (
-                      <div className="p-4 bg-white border-t border-gray-200">
-                        <p className="text-gray-700 text-sm leading-relaxed">{faq.answer}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+
           </div>
 
           {/* Sidebar - Investment Form */}

@@ -182,7 +182,7 @@ export function ProductsBrowse() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-brand-grey/20">
         <div>
-          <h1 className="font-optima text-2xl font-bold text-brand-blue">Available Ventures</h1>
+          <h1 className="font-optima text-2xl font-bold text-brand-blue">Available Products</h1>
           <p className="font-georgia text-comments text-brand-grey mt-1">
             {products.length} {products.length === 1 ? 'product' : 'products'} available
           </p>
