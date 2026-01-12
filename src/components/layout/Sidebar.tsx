@@ -32,7 +32,6 @@ import {
   Users,
   UserPlus,
   BarChart2,
-  LineChart,
   ShoppingCart,
   Wallet,
   ClipboardList,
@@ -73,12 +72,7 @@ const navItems: NavItem[] = [
     icon: <BarChart2 className="h-5 w-5" />,
     roles: ['ADMIN'],
   },
-  {
-    href: '/admin/instruments',
-    label: 'Instruments',
-    icon: <LineChart className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
+
   {
     href: '/admin/purchase-requests',
     label: 'Purchase Requests',
@@ -124,7 +118,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/docadmin/product-requests',
-    label: 'Product Requests',
+    label: 'Plan Requests',
     icon: <ShoppingCart className="h-5 w-5" />,
     roles: ['DOCADMIN'],
   },
@@ -173,7 +167,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/rm/product-requests',
-    label: 'Product Requests',
+    label: 'Plan Requests',
     icon: <ShoppingCart className="h-5 w-5" />,
     roles: ['RM'],
   },
@@ -198,7 +192,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/client/products',
-    label: 'Investment Products',
+    label: 'Investment Plans',
     icon: <ShoppingBag className="h-5 w-5" />,
     roles: ['CLIENT'],
   },

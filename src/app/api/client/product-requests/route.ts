@@ -1,7 +1,7 @@
 /**
- * Client Product Purchase Requests API
- * POST: Submit a new product purchase request
- * GET: List client's product purchase requests
+ * Client Plan Purchase Requests API
+ * POST: Submit a new plan purchase request
+ * GET: List client's plan purchase requests
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -36,7 +36,7 @@ function generateTrackingNumber(): string {
 
 /**
  * POST /api/client/product-requests
- * Submit a new product purchase request
+ * Submit a new plan purchase request
  */
 export async function POST(request: NextRequest) {
   try {
@@ -307,8 +307,8 @@ export async function POST(request: NextRequest) {
         userId: rmUserId,
         type: 'ALERT',
         category: 'REQUEST',
-        title: 'New Product Purchase Request',
-        message: `${clientName} has submitted a new product purchase request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
+        title: 'New Plan Purchase Request',
+        message: `${clientName} has submitted a new plan purchase request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
         isRead: false,
         actionUrl: '/rm/product-requests',
         actionText: 'Review Request',
@@ -337,18 +337,18 @@ export async function POST(request: NextRequest) {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>New Product Purchase Request</title>
+          <title>New Plan Purchase Request</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">New Product Purchase Request</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">New Plan Purchase Request</h1>
           </div>
 
           <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
             <h2 style="color: #1f2937; margin-top: 0;">Hi ${rmName},</h2>
 
             <p style="font-size: 16px; color: #4b5563;">
-              A new product purchase request has been submitted by one of your clients and requires your review.
+              A new plan purchase request has been submitted by one of your clients and requires your review.
             </p>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
@@ -395,7 +395,7 @@ export async function POST(request: NextRequest) {
     const emailText = `
 Hi ${rmName},
 
-A new product purchase request has been submitted by one of your clients and requires your review.
+A new plan purchase request has been submitted by one of your clients and requires your review.
 
 Request Details:
 - Client Name: ${clientName}
@@ -416,7 +416,7 @@ Please log in to your dashboard to review and process this request.
     // Send email (non-blocking)
     sendEmail({
       to: rmEmail,
-      subject: `New Product Purchase Request - ${purchaseRequest.trackingNumber}`,
+      subject: `New Plan Purchase Request - ${purchaseRequest.trackingNumber}`,
       html: emailHtml,
       text: emailText,
     }).catch((err) => {
@@ -430,7 +430,7 @@ Please log in to your dashboard to review and process this request.
         action: 'PURCHASE_REQUEST_CREATE',
         entityType: 'ProductPurchaseRequest',
         entityId: purchaseRequest.id,
-        description: `Client ${clientName} submitted product purchase request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
+        description: `Client ${clientName} submitted plan purchase request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
         metadata: {
           trackingNumber: purchaseRequest.trackingNumber,
           clientId: client.id,
@@ -461,7 +461,7 @@ Please log in to your dashboard to review and process this request.
 
     return NextResponse.json({
       success: true,
-      message: 'Product purchase request submitted successfully',
+      message: 'Plan purchase request submitted successfully',
       data: {
         id: purchaseRequest.id,
         trackingNumber: purchaseRequest.trackingNumber,
@@ -482,7 +482,7 @@ Please log in to your dashboard to review and process this request.
     console.error('Error submitting product purchase request:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to submit product purchase request' },
+      { success: false, error: 'Failed to submit plan purchase request' },
       { status: 500 }
     );
   }
@@ -596,7 +596,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching product purchase requests:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch product purchase requests' },
+      { success: false, error: 'Failed to fetch plan purchase requests' },
       { status: 500 }
     );
   }

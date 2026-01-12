@@ -306,11 +306,9 @@ export default function ClientRequestsPage() {
               </p>
               {selectedStatus === 'ALL' && (
                 <div className="flex justify-center gap-4 mt-4">
-                  <Button onClick={() => router.push('/instruments')}>
-                    Browse Instruments
-                  </Button>
-                  <Button variant="outline" onClick={() => router.push('/client/products')}>
-                    Browse Products
+
+                  <Button onClick={() => router.push('/client/products')}>
+                    Browse Plans
                   </Button>
                 </div>
               )}

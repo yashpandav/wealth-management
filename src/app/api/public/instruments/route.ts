@@ -1,6 +1,6 @@
 /**
- * API Route: Public Instruments Browse
- * GET - Fetch instruments for public browsing (no authentication required)
+ * API Route: Public Plan Browse
+ * GET - Fetch plans for public browsing (no authentication required)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching public instruments:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch instruments' },
+      { success: false, error: 'Failed to fetch plans' },
       { status: 500 }
     );
   }

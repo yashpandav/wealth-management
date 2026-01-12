@@ -287,10 +287,10 @@ export async function PATCH(
         userId: clientUserId,
         type: action === 'APPROVE' ? 'SUCCESS' : 'WARNING',
         category: 'REQUEST',
-        title: action === 'APPROVE' ? 'Product Request Approved' : 'Product Request Rejected',
+        title: action === 'APPROVE' ? 'Plan Request Approved' : 'Plan Request Rejected',
         message: action === 'APPROVE'
-          ? `Your product purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been approved.`
-          : `Your product purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
+          ? `Your plan purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been approved.`
+          : `Your plan purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
         isRead: false,
         actionUrl: '/client/product-requests',
         actionText: 'View Details',
@@ -318,18 +318,18 @@ export async function PATCH(
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Product Request ${statusText}</title>
+          <title>Plan Request ${statusText}</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Product Request ${statusText}</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">Plan Request ${statusText}</h1>
           </div>
 
           <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
             <h2 style="color: #1f2937; margin-top: 0;">Hi ${clientName},</h2>
 
             <p style="font-size: 16px; color: #4b5563;">
-              Your product purchase request has been ${statusText.toLowerCase()} by your Relationship Manager.
+              Your plan purchase request has been ${statusText.toLowerCase()} by your Relationship Manager.
             </p>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${statusColor};">
@@ -337,7 +337,7 @@ export async function PATCH(
                 <strong style="color: #1f2937;">Tracking Number:</strong> ${productRequest.trackingNumber}
               </p>
               <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
-                <strong style="color: #1f2937;">Product:</strong> ${productName}
+                <strong style="color: #1f2937;">Plan:</strong> ${productName}
               </p>
               <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
                 <strong style="color: #1f2937;">Amount:</strong> ${currency} ${amount.toLocaleString()}
@@ -377,9 +377,9 @@ export async function PATCH(
     // Send email (non-blocking)
     sendEmail({
       to: clientEmail,
-      subject: `Product Request ${statusText} - ${productRequest.trackingNumber}`,
+      subject: `Plan Request ${statusText} - ${productRequest.trackingNumber}`,
       html: emailHtml,
-      text: `Hi ${clientName}, Your product purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been ${statusText.toLowerCase()}.${action === 'REJECT' && rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
+      text: `Hi ${clientName}, Your plan purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been ${statusText.toLowerCase()}.${action === 'REJECT' && rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
     }).catch((err) => {
       console.error('Failed to send client notification email:', err);
     });
@@ -392,7 +392,7 @@ export async function PATCH(
         action: auditAction,
         entityType: 'ProductPurchaseRequest',
         entityId: productRequest.id,
-        description: `RM ${action === 'APPROVE' ? 'approved' : 'rejected'} product purchase request ${productRequest.trackingNumber} for client ${clientName}`,
+        description: `RM ${action === 'APPROVE' ? 'approved' : 'rejected'} plan purchase request ${productRequest.trackingNumber} for client ${clientName}`,
         metadata: {
           trackingNumber: productRequest.trackingNumber,
           clientId: productRequest.clientId,
@@ -449,7 +449,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: `Product purchase request ${statusText.toLowerCase()} successfully`,
+      message: `Plan purchase request ${statusText.toLowerCase()} successfully`,
       data: {
         id: updatedRequest.id,
         trackingNumber: updatedRequest.trackingNumber,

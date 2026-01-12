@@ -8,7 +8,7 @@ This plan outlines the steps to implement the requested changes for the Client a
 - [x] **Modify `src/app/(auth)/login/login-form.tsx`**:
     - Add `useState` for password visibility.
     - Add "eye" icon button to toggle password visibility.
-    - Add "Remember Me" checkbox (UI only, or leveraging `next-auth` if applicable).
+    - ~~Add "Remember Me" checkbox~~ (Removed as per request).
 - [x] **Modify `src/app/(auth)/register/register-form.tsx`**:
     - Split `phone` field into `countryCode` (select) and `phoneNumber` (input).
     - Add "eye" icon to both `password` and `confirmPassword` fields.
@@ -22,8 +22,8 @@ This plan outlines the steps to implement the requested changes for the Client a
 - [x] **Modify `src/app/(dashboard)/client/portfolio/page.tsx`** (or `PortfolioDashboard`):
     - Add buttons: "Go to Investment Products" and "Upload KYC".
 
-### Investment Products
-- [x] **Global Rename**: Rename "Investment Ventures" to "Investment Products" in all UI text (check `src/app/(dashboard)/client/products/page.tsx` and `src/components/client/ProductsBrowse.tsx`).
+### Investment Plans
+- [x] **Global Rename**: Rename "Investment Products" to "Investment Plans" in all UI text (check `src/app/(dashboard)/client/products/page.tsx` and `src/components/client/ProductsBrowse.tsx`).
 - [x] **Modify `src/app/(dashboard)/client/products/page.tsx`**:
     - Remove "FAQs" section.
     - **Task**: Update Product Names. (Need to clarify new names or use "Investment Products" as generic. Will check for `prisma/seed.ts` updates if names need to change in DB).
@@ -31,7 +31,7 @@ This plan outlines the steps to implement the requested changes for the Client a
 ## 3. Client Portal - Requests & Withdrawal
 
 ### My Requests
-- [ ] **Modify `src/app/(dashboard)/client/requests/page.tsx`**:
+- [x] **Modify `src/app/(dashboard)/client/requests/page.tsx`**:
     - Remove "Browse Instruments" button/link.
     - Logic change: "Show only Browse Plans".
     - Logic change: Filter out `INSTRUMENT` type requests (show only `PRODUCT` type).
@@ -44,8 +44,14 @@ This plan outlines the steps to implement the requested changes for the Client a
     - Show: Investment history, ROI paid history.
 
 ### Instrument Removal
-- [ ] **Global**: Remove "Instrument" related links/pages from Client, RM, and Admin sidebars/navs.
+- [x] **Global**: Remove "Instrument" related links/pages from Client, RM, and Admin sidebars/navs.
     - Check `src/components/layout/Sidebar.tsx` or similar.
+    - Updated `src/middleware.ts` to remove `/instruments` from public routes.
+    - Updated `src/app/sitemap.ts` to remove instrument-related sitemap entries.
+    - Updated `src/components/public/InstrumentDetail.tsx` to change navigation links from `/instruments` to `/products`.
+    - Updated `src/components/public/InstrumentsBrowse.tsx` to change detail links from `/instruments` to `/products`.
+    - **Created** `src/app/products` and `src/app/products/[id]` pages (mirrored from instruments) to handle the new links.
+    - **Updated** `src/middleware.ts` to allow `/products` as a public route.
 
 ## 4. Client Portal - KYC Documents
 

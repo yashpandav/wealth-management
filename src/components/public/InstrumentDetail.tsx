@@ -189,8 +189,8 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                 Home
               </Link>
               <ChevronRight className="h-4 w-4" />
-              <Link href="/instruments" className="hover:text-brand-blue">
-                Instruments
+              <Link href="/products" className="hover:text-brand-blue">
+                Plans
               </Link>
               <ChevronRight className="h-4 w-4" />
               <span className="text-gray-900 font-medium">{instrument.symbol}</span>
@@ -458,7 +458,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                     </Button>
                   </Link>
                   <p className="text-xs text-gray-500 text-center">
-                    Sign up to start investing in this instrument
+                    Sign up to start investing in this plan
                   </p>
                 </CardContent>
               </Card>
@@ -467,13 +467,13 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
               {relatedInstruments.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Related Instruments</CardTitle>
+                    <CardTitle>Related Plans</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {relatedInstruments.map((related) => (
                       <Link
                         key={related.id}
-                        href={`/instruments/${related.id}`}
+                        href={`/products/${related.id}`}
                         className="block p-3 border rounded-lg hover:bg-brand-blue/5 transition-colors"
                       >
                         <div className="flex justify-between items-start mb-1">
@@ -519,9 +519,9 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                   Create Account
                 </Button>
               </Link>
-              <Link href="/instruments">
+              <Link href="/products">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  Browse More Instruments
+                  Browse More Plans
                 </Button>
               </Link>
             </div>

@@ -5,7 +5,7 @@ import { ProductPurchaseRequestsTable } from '@/components/rm/ProductPurchaseReq
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const metadata = {
-  title: 'Product Requests | RM Dashboard',
+  title: 'Plan Requests | RM Dashboard',
   description: 'Manage client product purchase requests',
 };
 
@@ -25,7 +25,7 @@ export default async function RMProductRequestsPage() {
   return (
     <div className="container mx-auto py-8 px-8">
       <div className="mb-8">
-        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Product Requests</h1>
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Plan Requests</h1>
         <p className="font-georgia text-brand-grey mt-2">
           Review and process product purchase requests from your assigned clients
         </p>
@@ -33,7 +33,7 @@ export default async function RMProductRequestsPage() {
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Product Request Processing</CardTitle>
+          <CardTitle>Plan Request Processing</CardTitle>
           <CardDescription>
             Review client product requests for Venture A, B, and C products. Verify investment details and approve or reject requests.
           </CardDescription>

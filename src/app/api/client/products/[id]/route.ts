@@ -1,6 +1,6 @@
 /**
- * Client Product Detail API
- * GET: Get a single product with its options
+ * Client Plan Detail API
+ * GET: Get a single plan with its options
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +14,7 @@ interface RouteParams {
 
 /**
  * GET /api/client/products/[id]
- * Get a single product with its options
+ * Get a single plan with its options
  */
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
@@ -50,7 +50,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     if (!product) {
       return NextResponse.json(
-        { success: false, error: 'Product not found' },
+        { success: false, error: 'Plan not found' },
         { status: 404 }
       );
     }
@@ -84,7 +84,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     console.error('Error fetching product:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch product' },
+      { success: false, error: 'Failed to fetch plan' },
       { status: 500 }
     );
   }

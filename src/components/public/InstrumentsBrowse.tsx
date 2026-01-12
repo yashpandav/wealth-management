@@ -186,9 +186,9 @@ export function InstrumentsBrowse() {
       {/* Header with View Toggle */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Browse Investment Instruments</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Browse Investment Plans</h2>
           <p className="text-gray-600 mt-1">
-            {pagination?.totalCount || 0} instruments available
+            {pagination?.totalCount || 0} plans available
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -353,7 +353,7 @@ export function InstrumentsBrowse() {
                       </div>
                     </div>
 
-                    <Link href={`/instruments/${instrument.id}`}>
+                    <Link href={`/products/${instrument.id}`}>
                       <Button className="w-full">View Details</Button>
                     </Link>
                   </CardContent>
@@ -400,7 +400,7 @@ export function InstrumentsBrowse() {
                             {instrument.minimumInvestment.toLocaleString()}
                           </p>
                         </div>
-                        <Link href={`/instruments/${instrument.id}`}>
+                        <Link href={`/products/${instrument.id}`}>
                           <Button size="sm">View Details</Button>
                         </Link>
                       </div>

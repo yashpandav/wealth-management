@@ -1,6 +1,6 @@
 /**
  * Client Products Browse Component
- * Professional investment products showcase
+ * Professional investment plans showcase
  */
 
 'use client';
@@ -161,7 +161,7 @@ export function ProductsBrowse() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner text="Loading products..." />;
+    return <LoadingSpinner text="Loading plans..." />;
   }
 
   if (error) {
@@ -169,7 +169,7 @@ export function ProductsBrowse() {
       <Alert variant="destructive" className="mx-auto max-w-2xl border-red-200 bg-red-50">
         <AlertCircle className="h-5 w-5" />
         <AlertDescription className="font-georgia text-comments">
-          Failed to load products. Please try again later.
+          Failed to load plans. Please try again later.
         </AlertDescription>
       </Alert>
     );
@@ -182,9 +182,9 @@ export function ProductsBrowse() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-brand-grey/20">
         <div>
-          <h1 className="font-optima text-2xl font-bold text-brand-blue">Available Products</h1>
+          <h1 className="font-optima text-2xl font-bold text-brand-blue">Available Plans</h1>
           <p className="font-georgia text-comments text-brand-grey mt-1">
-            {products.length} {products.length === 1 ? 'product' : 'products'} available
+            {products.length} {products.length === 1 ? 'plan' : 'plans'} available
           </p>
         </div>
         <div className="flex items-center gap-2 bg-white border border-brand-grey/20 rounded-lg p-1 shadow-sm">
@@ -218,7 +218,7 @@ export function ProductsBrowse() {
           <AlertDescription className="text-brand-blue">
             <div className="font-optima font-semibold mb-3 text-lg">KYC Verification Required</div>
             <p className="font-georgia text-comments mb-4 text-brand-grey">
-              Complete your KYC verification to submit product requests and begin investing.
+              Complete your KYC verification to submit plan requests and begin investing.
             </p>
             <div className="space-y-2 text-comments mb-5">
               {!kycStatus.data.identityProofVerified && (
@@ -422,9 +422,9 @@ export function ProductsBrowse() {
             <div className="mx-auto h-14 w-14 bg-brand-blue/10 rounded-full flex items-center justify-center mb-5 border-2 border-brand-blue/20">
               <TrendingUp className="h-7 w-7 text-brand-blue" />
             </div>
-            <h3 className="font-optima text-lg font-semibold text-brand-blue mb-2">No Products Available</h3>
+            <h3 className="font-optima text-lg font-semibold text-brand-blue mb-2">No Plans Available</h3>
             <p className="font-georgia text-brand-grey text-comments leading-relaxed">
-              No investment products are currently available. Please check back later.
+              No investment plans are currently available. Please check back later.
             </p>
           </div>
         </div>

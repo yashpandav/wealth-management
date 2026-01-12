@@ -164,7 +164,7 @@ export function RMDashboard() {
 
         {/* Pending Product Requests */}
         <StatCard
-          title="Products"
+          title="Plans"
           value={stats?.pendingProductRequests || 0}
           icon={Package}
           status={(stats?.pendingProductRequests ?? 0) > 0 ? "info" : "default"}
@@ -199,7 +199,7 @@ export function RMDashboard() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Products</span>
+                    <span className="text-sm text-gray-600">Plans</span>
                     <span className="text-base font-bold text-purple-600">
                       {charts.approvalRates.productApprovalRate.toFixed(0)}%
                     </span>
@@ -349,7 +349,7 @@ export function RMDashboard() {
                         strokeWidth={3}
                         dot={false}
                         activeDot={{ r: 6 }}
-                        name="Products"
+                        name="Plans"
                       />
                     </LineChart>
                   </ResponsiveContainer>

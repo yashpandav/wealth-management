@@ -12,7 +12,7 @@ import { authOptions } from '@/lib/auth';
 import { ProductRequestsClient } from './product-requests-client';
 
 export const metadata = {
-  title: 'Product Requests | DocAdmin | Wealth Management CRM',
+  title: 'Plan Requests | DocAdmin | Wealth Management CRM',
   description: 'Manage product purchase requests and upload contracts',
 };
 
@@ -26,7 +26,7 @@ export default async function DocAdminProductRequestsPage() {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6">
-        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Product Requests</h1>
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Plan Requests</h1>
         <p className="font-georgia text-brand-grey mt-2">
           View product requests submitted by clients that are pending RM approval or rejection.
         </p>

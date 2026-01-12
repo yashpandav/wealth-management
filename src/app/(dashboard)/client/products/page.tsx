@@ -1,6 +1,6 @@
 /**
  * Client - Products Browse Page
- * Display investment products (Venture A, B, C) for clients to browse
+ * Display investment plans (Venture A, B, C) for clients to browse
  * Styled to match the Instruments page
  */
 
@@ -58,9 +58,9 @@ export default function ClientProductsPage() {
             </svg>
             Back to Dashboard
           </Link>
-          <h1 className="font-optima text-heading font-bold mb-3 leading-tight">Investment Products</h1>
+          <h1 className="font-optima text-heading font-bold mb-3 leading-tight">Investment Plans</h1>
           <p className="font-georgia text-body text-white/90 max-w-3xl leading-relaxed">
-            Explore our curated investment products designed to deliver sustainable returns with flexible withdrawal options
+            Explore our curated investment plans designed to deliver sustainable returns with flexible withdrawal options
           </p>
         </div>
       </div>
@@ -79,9 +79,9 @@ export default function ClientProductsPage() {
               <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
                 <span className="font-optima text-2xl font-bold">1</span>
               </div>
-              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Choose a Product</h3>
+              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Choose a Plan</h3>
               <p className="font-georgia text-brand-grey leading-relaxed text-sm">
-                Select a product aligned with your investment goals and financial capacity
+                Select a plan aligned with your investment goals and financial capacity
               </p>
             </div>
             <div className="text-center">

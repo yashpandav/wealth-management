@@ -262,7 +262,7 @@ export async function POST(
           userId: productRequest.client.user.id,
           type: 'SUCCESS',
           category: 'TRANSACTION',
-          title: 'Product Purchase Completed',
+          title: 'Plan Purchase Completed',
           message: `Your product purchase request (${productRequest.trackingNumber}) has been completed. Contract has been uploaded and your investment is now active.`,
           metadata: {
             productRequestId: requestId,

@@ -1,6 +1,6 @@
 /**
  * Client Product Detail Component
- * Professional product view with manual amount entry and slider
+ * Professional plan view with manual amount entry and slider
  */
 
 'use client';
@@ -188,12 +188,12 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       return;
     }
     if (!clientRM?.hasRM) {
-      toast.error('You must have an assigned Relationship Manager to request a product');
+      toast.error('You must have an assigned Relationship Manager to request a plan');
       return;
     }
     if (!kycStatus?.canSubmitRequests) {
       toast.error(
-        'Your KYC documents must be verified before submitting product requests. Please upload and verify your documents.'
+        'Your KYC documents must be verified before submitting plan requests. Please upload and verify your documents.'
       );
       return;
     }
@@ -219,12 +219,12 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Product purchase request submitted successfully!');
+        toast.success('Plan purchase request submitted successfully!');
         setShowConfirmDialog(false);
         router.push(`/client/requests?tracking=${data.data.trackingNumber}`);
       } else {
         if (data.code === 'NO_RM_ASSIGNED') {
-          toast.error('You must have an assigned Relationship Manager to request a product');
+          toast.error('You must have an assigned Relationship Manager to request a plan');
         } else if (data.code === 'IDENTITY_PROOF_NOT_VERIFIED') {
           toast.error(
             'Your Identity Proof document must be verified. Please upload and verify your documents.'
@@ -292,7 +292,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
             </Link>
             <ChevronRight className="h-4 w-4" />
             <Link href="/client/products" className="hover:text-brand-blue transition-colors duration-200">
-              Products
+              Plans
             </Link>
             <ChevronRight className="h-4 w-4" />
             <span className="text-gray-900 font-medium">{product.name}</span>
@@ -309,7 +309,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
             <div>
               <p className="font-medium text-yellow-800">No Relationship Manager Assigned</p>
               <p className="text-sm text-yellow-700">
-                You must have an assigned RM to request product purchases. Please contact support.
+                You must have an assigned RM to request plan purchases. Please contact support.
               </p>
             </div>
           </div>
@@ -323,7 +323,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
               <div className="flex-1">
                 <p className="font-medium text-orange-800">KYC Verification Required</p>
                 <p className="text-sm text-orange-700 mt-1">
-                  You must complete your KYC verification before submitting product requests.
+                  You must complete your KYC verification before submitting plan requests.
                 </p>
                 <div className="mt-3 space-y-1 text-sm">
                   {!kycStatus.identityProofVerified && (
@@ -701,7 +701,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">Product</p>
+                <p className="text-gray-600">Plan</p>
                 <p className="font-semibold">{product.name}</p>
               </div>
               <div>

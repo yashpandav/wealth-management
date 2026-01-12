@@ -488,7 +488,7 @@ export function ProductRequestsClient({
       }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Product Request Details</DialogTitle>
+            <DialogTitle>Plan Request Details</DialogTitle>
           </DialogHeader>
           {detailDialog.request && (
             <div className="space-y-4">
