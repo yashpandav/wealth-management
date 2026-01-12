@@ -142,9 +142,9 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
   const avgClientsPerRM =
     relationshipManagers.length > 0
       ? Math.round(
-          relationshipManagers.reduce((sum, rm) => sum + rm.clientCount, 0) /
-            relationshipManagers.length
-        )
+        relationshipManagers.reduce((sum, rm) => sum + rm.clientCount, 0) /
+        relationshipManagers.length
+      )
       : 0;
 
   return (
@@ -152,11 +152,10 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
       {/* Alert Messages */}
       {message && (
         <div
-          className={`flex items-center gap-3 rounded-lg border p-4 ${
-            message.type === 'success'
-              ? 'border-green-200 bg-green-50 text-green-800'
-              : 'border-red-200 bg-red-50 text-red-800'
-          }`}
+          className={`flex items-center gap-3 rounded-lg border p-4 ${message.type === 'success'
+            ? 'border-green-200 bg-green-50 text-green-800'
+            : 'border-red-200 bg-red-50 text-red-800'
+            }`}
         >
           {message.type === 'success' ? (
             <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
@@ -329,29 +328,29 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-3 sm:grid sm:grid-cols-2 sm:gap-3 sm:space-y-0 lg:grid-cols-3">
               {relationshipManagers.map((rm) => (
                 <div
                   key={rm.id}
-                  className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
+                  className="rounded-lg border p-4 transition-colors hover:bg-muted/50"
                 >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
+                  <div className="flex items-start gap-3">
+                    <Avatar className="h-10 w-10 flex-shrink-0">
                       <AvatarFallback className="bg-secondary text-secondary-foreground">
                         {getInitials(rm.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="font-medium">{rm.name}</div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Mail className="h-3 w-3" />
-                        {rm.email}
+                      <div className="flex items-start gap-1 text-xs text-muted-foreground mt-1">
+                        <Mail className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                        <span className="break-all">{rm.email}</span>
+                      </div>
+                      <div className="mt-3 flex items-baseline gap-1">
+                        <div className="text-2xl font-bold text-primary">{rm.clientCount}</div>
+                        <div className="text-xs text-muted-foreground">clients</div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-primary">{rm.clientCount}</div>
-                    <div className="text-xs text-muted-foreground">clients</div>
                   </div>
                 </div>
               ))}

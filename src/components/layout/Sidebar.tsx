@@ -9,6 +9,7 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { shouldShowKycUpload } from '@/lib/utils/client-utils';
 
@@ -25,6 +26,8 @@ interface NavItem {
   disabled?: boolean;
   /** If true, this item is only shown when KYC upload is needed */
   kycUploadOnly?: boolean;
+  /** Badge key to identify items that need count badges */
+  badgeKey?: 'documentVerification' | 'rmAssignment';
 }
 
 import {
@@ -103,12 +106,14 @@ const navItems: NavItem[] = [
     label: 'Document Verification',
     icon: <FileCheck className="h-5 w-5" />,
     roles: ['DOCADMIN'],
+    badgeKey: 'documentVerification',
   },
   {
     href: '/docadmin/assign-rm',
     label: 'RM Assignment Pending',
     icon: <UserPlus className="h-5 w-5" />,
     roles: ['DOCADMIN'],
+    badgeKey: 'rmAssignment',
   },
   {
     href: '/docadmin/leads',
@@ -229,6 +234,31 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const userRole = session?.user?.role || '';
   const verificationStatus = session?.user?.verificationStatus || null;
 
+  // State for pending counts (for DOCADMIN badges)
+  const [pendingCounts, setPendingCounts] = useState<{
+    documentVerification: number;
+    rmAssignment: number;
+  }>({
+    documentVerification: 0,
+    rmAssignment: 0,
+  });
+
+  // Fetch pending counts for DOCADMIN
+  useEffect(() => {
+    if (userRole === 'DOCADMIN') {
+      fetch('/api/docadmin/pending-counts')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setPendingCounts(data.data);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching pending counts:', error);
+        });
+    }
+  }, [userRole]);
+
   // Filter nav items based on role and KYC status
   const filteredNavItems = navItems.filter((item) => {
     // First check role
@@ -243,6 +273,18 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
     return true;
   });
+
+  // Helper function to get badge count for an item
+  const getBadgeCount = (badgeKey?: 'documentVerification' | 'rmAssignment'): number | null => {
+    if (!badgeKey || userRole !== 'DOCADMIN') return null;
+    const count = pendingCounts[badgeKey];
+    return count > 0 ? count : null;
+  };
+
+  // Helper function to format badge display (show 99+ if count > 99)
+  const formatBadgeCount = (count: number): string => {
+    return count > 99 ? '99+' : count.toString();
+  };
 
   return (
     <>
@@ -280,13 +322,15 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               // Only highlight if this item is the most specific match
               const isActive = bestMatch?.href === item.href;
 
+              const badgeCount = getBadgeCount(item.badgeKey);
+
               return (
                 <Link
                   key={item.href}
                   href={item.href as any} // eslint-disable-line @typescript-eslint/no-explicit-any
                   onClick={onClose}
                   className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium font-optima transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-1',
+                    'relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium font-optima transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-1',
                     isActive
                       ? 'bg-brand-blue text-white'
                       : 'text-brand-grey hover:bg-brand-blue/10 hover:text-brand-blue active:bg-brand-blue/20'
@@ -295,6 +339,19 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                 >
                   {item.icon}
                   {item.label}
+                  {badgeCount !== null && (
+                    <span
+                      className={cn(
+                        'absolute right-2 top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold',
+                        isActive
+                          ? 'bg-white text-brand-blue'
+                          : 'bg-red-500 text-white'
+                      )}
+                      aria-label={`${badgeCount} pending items`}
+                    >
+                      {formatBadgeCount(badgeCount)}
+                    </span>
+                  )}
                 </Link>
               );
             })}
