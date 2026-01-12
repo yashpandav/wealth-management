@@ -1,6 +1,6 @@
 /**
- * Admin - Purchase Requests Dashboard
- * View and monitor all purchase requests across the platform
+ * Admin - Investment Requests Dashboard
+ * View and monitor all investment requests across the platform
  */
 
 'use client';
@@ -99,11 +99,11 @@ export default function AdminPurchaseRequestsPage() {
       if (data.success && data.data) {
         setRequests(data.data.requests);
       } else {
-        toast.error(data.error || 'Failed to fetch purchase requests');
+        toast.error(data.error || 'Failed to fetch investment requests');
       }
     } catch (error) {
       console.error('Error fetching requests:', error);
-      toast.error('Failed to fetch purchase requests');
+      toast.error('Failed to fetch investment requests');
     } finally {
       setLoading(false);
     }
@@ -147,9 +147,9 @@ export default function AdminPurchaseRequestsPage() {
   return (
     <div className="container px-8 py-8">
       <div className="mb-8">
-        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">Purchase Requests - Admin</h1>
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">Investment Requests - Admin</h1>
         <p className="font-georgia text-brand-grey">
-          Monitor all purchase requests across the platform
+          Monitor all investment requests across the platform
         </p>
       </div>
 
@@ -211,7 +211,7 @@ export default function AdminPurchaseRequestsPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>All Purchase Requests</CardTitle>
+            <CardTitle>All Investment Requests</CardTitle>
             <CardDescription>
               {selectedStatus === 'ALL' ? 'All statuses' : selectedStatus}
             </CardDescription>
@@ -248,7 +248,7 @@ export default function AdminPurchaseRequestsPage() {
                   <TableCell colSpan={9} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center text-gray-500">
                       <AlertCircle className="h-8 w-8 mb-2 opacity-50" />
-                      <p>No purchase requests found</p>
+                      <p>No investment requests found</p>
                     </div>
                   </TableCell>
                 </TableRow>

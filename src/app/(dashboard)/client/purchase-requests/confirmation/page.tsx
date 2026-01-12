@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 
 export const metadata: Metadata = {
   title: 'Request Confirmed | Client',
-  description: 'Purchase request confirmation',
+  description: 'Investment request confirmation',
 };
 
 interface ConfirmationPageProps {
@@ -58,7 +58,7 @@ export default async function ConfirmationPage({ searchParams }: ConfirmationPag
         </div>
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Request Submitted Successfully!</h1>
         <p className="mt-2 text-muted-foreground">
-          Your purchase request has been submitted for review
+          Your investment request has been submitted for review
         </p>
       </div>
 

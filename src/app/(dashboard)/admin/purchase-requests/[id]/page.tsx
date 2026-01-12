@@ -1,6 +1,6 @@
 /**
- * Admin - Purchase Request Detail Page
- * View detailed information about a specific purchase request
+ * Admin - Investment Request Detail Page
+ * View detailed information about a specific investment request
  */
 
 'use client';
@@ -180,11 +180,11 @@ export default function AdminPurchaseRequestDetailPage() {
       <div className="mb-6">
         <Button variant="ghost" onClick={() => router.back()} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Purchase Requests
+          Back to Investment Requests
         </Button>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Purchase Request Details</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Investment Request Details</h1>
             <p className="text-gray-600">Tracking Number: {request.trackingNumber}</p>
           </div>
           <StatusBadge status={request.status} />
@@ -245,13 +245,13 @@ export default function AdminPurchaseRequestDetailPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5" />
-                Purchase Details
+                Investment Details
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">Purchase Amount</p>
+                  <p className="text-sm text-gray-600">Investment Amount</p>
                   <p className="text-2xl font-bold">
                     {request.instrument.currency} {request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </p>

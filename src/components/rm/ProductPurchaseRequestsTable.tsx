@@ -504,8 +504,8 @@ export function ProductPurchaseRequestsTable() {
               {actionDialog.request && (
                 <>
                   {actionDialog.action === 'APPROVE'
-                    ? `Approve the product purchase request for ${actionDialog.request.product.name}`
-                    : `Reject the product purchase request for ${actionDialog.request.product.name}`}
+                    ? `Approve the investment request for ${actionDialog.request.product.name}`
+                    : `Reject the investment request for ${actionDialog.request.product.name}`}
                   {' '}- {actionDialog.request.product.currency !== 'USD' ? actionDialog.request.product.currency : <span className="inline-flex items-center baseline"><DirhamIcon className="w-3 h-3 mx-1 self-center" /></span>} {actionDialog.request.amount.toLocaleString()}
                 </>
               )}

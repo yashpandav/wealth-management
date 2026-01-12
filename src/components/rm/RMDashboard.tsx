@@ -135,7 +135,7 @@ export function RMDashboard() {
 
         {/* Total AUM */}
         <StatCard
-          title="Total AUM"
+          title="Total Investment Amount"
           value={
             stats ? (
               <div className="flex items-center">
@@ -255,7 +255,7 @@ export function RMDashboard() {
             {charts.topClientsByAUM.length > 0 && (
               <Card className="border-gray-200 shadow-sm h-full">
                 <CardHeader className="pb-2 pt-4 px-4">
-                  <CardTitle className="text-sm font-semibold text-gray-900">Top Clients by AUM</CardTitle>
+                  <CardTitle className="text-sm font-semibold text-gray-900">Top Clients by Investment Amount</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
                   <div className="w-full h-[250px]">

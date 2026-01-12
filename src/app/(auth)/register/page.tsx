@@ -29,7 +29,7 @@ export default function RegisterPage() {
 
           {/* Tagline */}
           <p className="mt-3 text-sm font-optima tracking-wide text-brand-grey">
-            A Better Tomorrow
+            For a Better Tomorrow
           </p>
         </div>
 

@@ -211,7 +211,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Plan purchase request submitted successfully!');
+        toast.success('Plan investment request submitted successfully!');
         setShowConfirmDialog(false);
         router.push(`/client/requests?tracking=${data.data.trackingNumber}`);
       } else {
@@ -296,7 +296,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
             <div>
               <p className="font-medium text-yellow-800">No Relationship Manager Assigned</p>
               <p className="text-sm text-yellow-700">
-                You must have an assigned RM to request plan purchases. Please contact support.
+                You must have an assigned RM to request plan investments. Please contact support.
               </p>
             </div>
           </div>
@@ -614,7 +614,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                     kycLoading
                   }
                 >
-                  <span>Request Purchase</span>
+                  <span>Request Investment</span>
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
 
@@ -670,7 +670,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Purchase Request</DialogTitle>
+            <DialogTitle>Confirm Investment Request</DialogTitle>
             <DialogDescription>
               Please review your investment details before submitting.
             </DialogDescription>

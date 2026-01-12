@@ -21,7 +21,7 @@ export function Footer() {
               Investment and Holding Company
             </p>
             <p className="mt-2 text-xs italic font-optima text-brand-grey">
-              A Better Tomorrow
+              For a Better Tomorrow
             </p>
           </div>
 

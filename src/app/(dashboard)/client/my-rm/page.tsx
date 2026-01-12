@@ -235,7 +235,7 @@ export default function MyRMPage() {
                 <DollarSign className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Assets Under Management</p>
+                <p className="text-sm text-gray-600">Total Investment Amount</p>
                 <p className="text-2xl font-bold text-gray-900">
                   ${rm.trackRecord.totalAUM.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
@@ -251,7 +251,7 @@ export default function MyRMPage() {
                 <CheckCircle className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Purchase Requests Approved</p>
+                <p className="text-sm text-gray-600">Investment Requests Approved</p>
                 <p className="text-2xl font-bold text-gray-900">{rm.trackRecord.approvedPurchases}</p>
               </div>
             </div>

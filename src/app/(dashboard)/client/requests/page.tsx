@@ -1,5 +1,5 @@
 /**
- * Client - Purchase Requests Page
+ * Client - Investment Requests Page
  * View and track purchase request status
  */
 
@@ -238,9 +238,9 @@ export default function ClientRequestsPage() {
     <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Purchase Requests</h1>
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Investment Requests</h1>
           <p className="font-georgia text-brand-grey mt-2">
-            Track the status of your investment purchase requests
+            Track the status of your investment requests
           </p>
         </div>
         <Button onClick={fetchRequests} variant="outline" size="sm" className="font-optima">
@@ -296,12 +296,12 @@ export default function ClientRequestsPage() {
               <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
               <p className="mt-4 text-lg font-medium">
                 {selectedStatus === 'ALL'
-                  ? 'No purchase requests yet'
+                  ? 'No investment requests yet'
                   : `No ${selectedStatus.toLowerCase()} requests`}
               </p>
               <p className="mt-2 text-muted-foreground">
                 {selectedStatus === 'ALL'
-                  ? 'Submit your first purchase request to start investing'
+                  ? 'Submit your first investment request to start investing'
                   : 'Try selecting a different status filter'}
               </p>
               {selectedStatus === 'ALL' && (

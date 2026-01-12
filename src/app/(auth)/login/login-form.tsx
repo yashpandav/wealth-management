@@ -139,9 +139,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="flex items-center justify-end">
-
-
+      <div className="flex items-center justify-start">
         <div className="text-comments font-optima">
           <a
             href="/forgot-password"

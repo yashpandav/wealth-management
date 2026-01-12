@@ -135,7 +135,7 @@ function ProfileContent() {
         />
         <div className="mt-3 h-px w-32 bg-brand-grey/40" />
         <p className="mt-2 text-xs font-optima tracking-wide text-brand-grey">
-          A Better Tomorrow
+          For a Better Tomorrow
         </p>
       </div>
 
@@ -285,11 +285,10 @@ function ProfileContent() {
               <div>
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Account Status</dt>
                 <dd className="mt-2">
-                  <span className={`inline-flex rounded-full px-3 py-1 font-optima text-xs font-semibold tracking-wide ${
-                    profile.status === 'ACTIVE' ? 'bg-green-50 border border-green-200 text-green-700' :
-                    profile.status === 'INACTIVE' ? 'bg-gray-50 border border-gray-200 text-gray-700' :
-                    'bg-red-50 border border-red-200 text-red-700'
-                  }`}>
+                  <span className={`inline-flex rounded-full px-3 py-1 font-optima text-xs font-semibold tracking-wide ${profile.status === 'ACTIVE' ? 'bg-green-50 border border-green-200 text-green-700' :
+                      profile.status === 'INACTIVE' ? 'bg-gray-50 border border-gray-200 text-gray-700' :
+                        'bg-red-50 border border-red-200 text-red-700'
+                    }`}>
                     {profile.status}
                   </span>
                 </dd>

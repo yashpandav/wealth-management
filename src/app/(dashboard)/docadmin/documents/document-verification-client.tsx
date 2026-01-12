@@ -289,7 +289,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
         <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
           <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter by Status:</label>
           <div className="flex flex-wrap gap-2">
-            {['PENDING', 'UNDER_REVIEW', 'VERIFIED', 'REJECTED', 'ALL'].map((status) => (
+            {['PENDING', 'UNDER_REVIEW', 'VERIFIED', 'REJECTED'].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}

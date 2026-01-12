@@ -220,7 +220,7 @@ export function TransactionHistory() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="PURCHASE">Purchase</SelectItem>
+                <SelectItem value="PURCHASE">Investment</SelectItem>
                 <SelectItem value="WITHDRAWAL">Withdrawal</SelectItem>
                 <SelectItem value="DIVIDEND">Dividend</SelectItem>
                 <SelectItem value="ADJUSTMENT">Adjustment</SelectItem>

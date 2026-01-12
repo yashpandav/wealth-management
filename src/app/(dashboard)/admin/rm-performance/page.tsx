@@ -174,7 +174,7 @@ export default function RMPerformancePage() {
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Total AUM</CardDescription>
+            <CardDescription>Total Investment Amount</CardDescription>
             <CardTitle className="text-2xl md:text-3xl text-purple-600 flex items-center">
               <DirhamIcon className="h-6 w-6 mr-1" />
               {(totalAUM / 1000000).toFixed(1)}M
@@ -201,7 +201,7 @@ export default function RMPerformancePage() {
             {[
               { key: 'name', label: 'Name' },
               { key: 'clients', label: 'Client Count' },
-              { key: 'aum', label: 'Total AUM' },
+              { key: 'aum', label: 'Total Investment Amount' },
               { key: 'approval', label: 'Approval Rate' },
             ].map((option) => (
               <button
@@ -308,11 +308,11 @@ export default function RMPerformancePage() {
                         <div className="space-y-3">
                           <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
                             <DirhamIcon className="h-4 w-4" />
-                            Assets Under Management
+                            Investment Amount
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Total AUM:</span>
+                              <span className="text-gray-600">Total Investment Amount:</span>
                               <span className="font-semibold flex items-center">
                                 <DirhamIcon className="h-3 w-3 mr-1" />
                                 {rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -347,7 +347,7 @@ export default function RMPerformancePage() {
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purchase Approved:</span>
+                              <span className="text-gray-600">Investment Approved:</span>
                               <span className="font-semibold text-green-600">
                                 {rm.purchaseRequests.approved}/{rm.purchaseRequests.total}
                                 {rm.purchaseRequests.total > 0 && (

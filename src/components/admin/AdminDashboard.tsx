@@ -109,7 +109,7 @@ export function AdminDashboard() {
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total AUM Card */}
         <StatCard
-          title="Total AUM"
+          title="Total Investment Amount"
           value={
             <div className="flex items-center">
               <DirhamIcon className="w-5 h-5 mr-1" />
@@ -189,7 +189,7 @@ export function AdminDashboard() {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-600">Avg AUM/Client</span>
+              <span className="text-xs text-gray-600">Avg Investment/Client</span>
               <span className="text-sm font-semibold flex items-center">
                 <DirhamIcon className="w-3 h-3 mr-1" />
                 {overview.totalClients > 0 ? ((overview.totalAUM / overview.totalClients) / 1000).toFixed(1) + 'K' : '0'}
@@ -207,7 +207,7 @@ export function AdminDashboard() {
           </CardHeader>
           <CardContent className="px-3 pb-3 space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-600">Purchase Requests</span>
+              <span className="text-xs text-gray-600">Investment Requests</span>
               <span className="text-sm font-semibold text-brand-blue">{overview.pendingPurchaseRequests}</span>
             </div>
             <div className="flex justify-between items-center">
@@ -294,7 +294,7 @@ export function AdminDashboard() {
                             }
                           />
                           <Legend />
-                          <Bar dataKey="aum" fill="#3b82f6" name="AUM" radius={[0, 4, 4, 0]} />
+                          <Bar dataKey="aum" fill="#3b82f6" name="Investment Amount" radius={[0, 4, 4, 0]} />
                           <Bar dataKey="clients" fill="#10b981" name="Clients" radius={[0, 4, 4, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -384,7 +384,7 @@ export function AdminDashboard() {
                           stroke="#3b82f6"
                           fill="#3b82f6"
                           fillOpacity={0.6}
-                          name="Purchases"
+                          name="Investments"
                         />
                         <Area
                           type="monotone"

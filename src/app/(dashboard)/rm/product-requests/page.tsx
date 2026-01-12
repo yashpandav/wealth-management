@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export const metadata = {
   title: 'Plan Requests | RM Dashboard',
-  description: 'Manage client product purchase requests',
+  description: 'Manage client investment requests',
 };
 
 export default async function RMProductRequestsPage() {
@@ -27,7 +27,7 @@ export default async function RMProductRequestsPage() {
       <div className="mb-8">
         <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Plan Requests</h1>
         <p className="font-georgia text-brand-grey mt-2">
-          Review and process product purchase requests from your assigned clients
+          Review and process investment requests from your assigned clients
         </p>
       </div>
 
@@ -35,7 +35,7 @@ export default async function RMProductRequestsPage() {
         <CardHeader>
           <CardTitle>Plan Request Processing</CardTitle>
           <CardDescription>
-            Review client product requests for Venture A, B, and C products. Verify investment details and approve or reject requests.
+            Review client investment requests for Venture A, B, and C products. Verify investment details and approve or reject requests.
           </CardDescription>
         </CardHeader>
         <CardContent>

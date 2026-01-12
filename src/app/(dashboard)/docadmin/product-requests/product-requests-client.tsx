@@ -229,7 +229,7 @@ export function ProductRequestsClient({
           {summary.byStatus.map((s) => (
             <Card key={s.status}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">{s.status}</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground capitalize">{s.status.toLowerCase().replace(/_/g, ' ')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{s.count}</div>

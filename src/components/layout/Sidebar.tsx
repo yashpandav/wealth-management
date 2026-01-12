@@ -75,7 +75,7 @@ const navItems: NavItem[] = [
 
   {
     href: '/admin/purchase-requests',
-    label: 'Purchase Requests',
+    label: 'Investment Requests',
     icon: <ShoppingCart className="h-5 w-5" />,
     roles: ['ADMIN'],
   },

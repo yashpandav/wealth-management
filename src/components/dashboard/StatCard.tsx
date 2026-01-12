@@ -53,7 +53,7 @@ export function StatCard({
     const Content = (
         <>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-4 pt-4">
-                <CardTitle className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <CardTitle className="text-xs font-medium text-gray-600">
                     {title}
                 </CardTitle>
                 <div className="p-1.5">

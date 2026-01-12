@@ -1,7 +1,7 @@
 /**
- * RM Product Purchase Request Detail API
- * GET: Get a single product purchase request
- * PATCH: Update product purchase request (approve/reject)
+ * RM Product Investment Request Detail API
+ * GET: Get a single product investment request
+ * PATCH: Update product investment request (approve/reject)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -21,7 +21,7 @@ const updateProductRequestSchema = z.object({
 
 /**
  * GET /api/rm/product-requests/[id]
- * Get a single product purchase request details
+ * Get a single product investment request details
  */
 export async function GET(
   _request: NextRequest,
@@ -91,7 +91,7 @@ export async function GET(
     });
 
     if (!productRequest) {
-      return NextResponse.json({ success: false, error: 'Product request not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Product investment request not found' }, { status: 404 });
     }
 
     // Verify the request belongs to one of RM's clients
@@ -145,7 +145,7 @@ export async function GET(
     console.error('Error fetching product purchase request:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch product purchase request' },
+      { success: false, error: 'Failed to fetch product investment request' },
       { status: 500 }
     );
   }
@@ -153,7 +153,7 @@ export async function GET(
 
 /**
  * PATCH /api/rm/product-requests/[id]
- * Approve or reject a product purchase request
+ * Approve or reject a product investment request
  */
 export async function PATCH(
   request: NextRequest,
@@ -289,8 +289,8 @@ export async function PATCH(
         category: 'REQUEST',
         title: action === 'APPROVE' ? 'Plan Request Approved' : 'Plan Request Rejected',
         message: action === 'APPROVE'
-          ? `Your plan purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been approved.`
-          : `Your plan purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
+          ? `Your plan investment request for ${productName} - ${currency} ${amount.toLocaleString()} has been approved.`
+          : `Your plan investment request for ${productName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
         isRead: false,
         actionUrl: '/client/product-requests',
         actionText: 'View Details',
@@ -329,7 +329,7 @@ export async function PATCH(
             <h2 style="color: #1f2937; margin-top: 0;">Hi ${clientName},</h2>
 
             <p style="font-size: 16px; color: #4b5563;">
-              Your plan purchase request has been ${statusText.toLowerCase()} by your Relationship Manager.
+              Your plan investment request has been ${statusText.toLowerCase()} by your Relationship Manager.
             </p>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${statusColor};">
@@ -379,7 +379,7 @@ export async function PATCH(
       to: clientEmail,
       subject: `Plan Request ${statusText} - ${productRequest.trackingNumber}`,
       html: emailHtml,
-      text: `Hi ${clientName}, Your plan purchase request for ${productName} - ${currency} ${amount.toLocaleString()} has been ${statusText.toLowerCase()}.${action === 'REJECT' && rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
+      text: `Hi ${clientName}, Your plan investment request for ${productName} - ${currency} ${amount.toLocaleString()} has been ${statusText.toLowerCase()}.${action === 'REJECT' && rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
     }).catch((err) => {
       console.error('Failed to send client notification email:', err);
     });
@@ -449,7 +449,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: `Plan purchase request ${statusText.toLowerCase()} successfully`,
+      message: `Plan investment request ${statusText.toLowerCase()} successfully`,
       data: {
         id: updatedRequest.id,
         trackingNumber: updatedRequest.trackingNumber,
@@ -460,7 +460,7 @@ export async function PATCH(
     console.error('Error updating product purchase request:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to update product purchase request' },
+      { success: false, error: 'Failed to update product investment request' },
       { status: 500 }
     );
   }

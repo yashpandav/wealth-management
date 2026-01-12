@@ -201,7 +201,7 @@ function ClientProductRequestsContent() {
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">My Plan Requests</h1>
             <p className="mt-2 text-muted-foreground">
-              Track the status of your plan purchase requests
+              Track the status of your plan investment requests
             </p>
           </div>
           <div className="flex gap-2">
