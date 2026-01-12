@@ -100,7 +100,7 @@ export function PortfolioDashboard() {
     <div className="space-y-4 sm:space-y-6">
       {/* Welcome Section */}
       <div>
-        <h2 className="text-2xl font-semibold font-optima text-gray-900">
+        <h2 className="text-2xl font-georgia">
           Welcome back, {portfolio.client.user.firstName}
         </h2>
         <p className="text-muted-foreground font-georgia mt-1">

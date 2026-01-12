@@ -8,10 +8,11 @@
  */
 
 import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, AlertTriangle, Info, Upload } from 'lucide-react';
 import { VerificationStatus } from '@prisma/client';
 import { getClientStatusBanner } from '@/lib/utils/client-utils';
+import Link from 'next/link';
 
 interface ClientStatusBannerProps {
   hasRM: boolean;
@@ -43,23 +44,57 @@ export function ClientStatusBanner({
     banner.type === 'error'
       ? 'border-red-500/50 bg-red-50 text-red-900 dark:border-red-500 dark:bg-red-950 dark:text-red-200'
       : banner.type === 'warning'
-        ? 'border-yellow-500/50 bg-yellow-50 text-yellow-900 dark:border-yellow-500 dark:bg-yellow-950 dark:text-yellow-200'
-        : 'border-brand-blue/50 bg-brand-blue/10 text-blue-900 dark:border-brand-blue dark:bg-blue-950 dark:text-blue-200';
+        ? 'border-orange-500/50 bg-orange-50 text-orange-900 dark:border-orange-500 dark:bg-orange-950 dark:text-orange-200'
+        : 'border-orange-500/50 bg-orange-50 text-orange-900 dark:border-orange-500 dark:bg-orange-950 dark:text-orange-200';
 
   const showUploadLink = verificationStatus === 'NOT_SUBMITTED' || verificationStatus === 'REJECTED' || verificationStatus === 'EXPIRED';
 
+  // Get document status text
+  const getDocumentStatus = () => {
+    if (verificationStatus === 'NOT_SUBMITTED') {
+      return 'Identity Proof (not verified)';
+    } else if (verificationStatus === 'REJECTED') {
+      return 'Identity Proof (rejected)';
+    } else if (verificationStatus === 'EXPIRED') {
+      return 'Identity Proof (expired)';
+    } else if (verificationStatus === 'PENDING' || verificationStatus === 'UNDER_REVIEW') {
+      return 'Identity Proof (under review)';
+    }
+    return null;
+  };
+
+  const documentStatus = getDocumentStatus();
+
   return (
     <Alert className={`${variantClass} ${className}`}>
-      <Icon className="h-4 w-4" />
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between w-full">
-        <AlertDescription>{banner.message}</AlertDescription>
+      <Icon className="h-5 w-5" />
+      <div className="flex flex-col w-full">
+        <AlertTitle className="font-optima text-base font-semibold mb-2">
+          KYC Verification Required
+        </AlertTitle>
+        <AlertDescription className="font-optima text-comments mb-3">
+          Complete your KYC verification to submit plan requests and begin investing.
+        </AlertDescription>
+
+        {documentStatus && (
+          <div className="mb-4">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-current"></div>
+              <span className="font-optima text-sm">{documentStatus}</span>
+            </div>
+          </div>
+        )}
+
         {showUploadLink && (
-          <a
-            href="/upload-documents"
-            className="mt-2 sm:mt-0 sm:ml-4 text-sm font-semibold underline hover:text-brand-blue/80 whitespace-nowrap"
-          >
-            Upload Documents &rarr;
-          </a>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/client/documents"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-blue px-6 py-2.5 font-optima text-comments font-semibold text-white shadow-md transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+            >
+              <Upload className="h-4 w-4" />
+              Upload Documents
+            </Link>
+          </div>
         )}
       </div>
     </Alert>

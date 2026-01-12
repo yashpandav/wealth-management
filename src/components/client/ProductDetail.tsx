@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Loader2,
   ArrowRight,
+  Upload,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { Button } from '@/components/ui/button';
@@ -304,32 +305,37 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
 
         {/* KYC Verification Warning */}
         {!kycLoading && kycStatus && !kycStatus.canSubmitRequests && (
-          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="mb-6 p-5 bg-orange-50 border border-orange-500/50 rounded-lg">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-orange-900 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <p className="font-medium text-orange-800">KYC Verification Required</p>
-                <p className="text-sm text-orange-700 mt-1">
+                <h3 className="font-optima text-base font-semibold text-orange-900 mb-2">
+                  KYC Verification Required
+                </h3>
+                <p className="font-optima text-comments text-orange-900 mb-3">
                   You must complete your KYC verification before submitting plan requests.
                 </p>
-                <div className="mt-3 space-y-1 text-sm">
-                  {!kycStatus.identityProofVerified && (
+
+                {!kycStatus.identityProofVerified && (
+                  <div className="mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-orange-700">
+                      <div className="h-2 w-2 rounded-full bg-orange-900"></div>
+                      <span className="font-optima text-sm text-orange-900">
                         Identity Proof{' '}
                         {kycStatus.identityProofStatus === 'REJECTED'
-                          ? 'rejected - please re-upload'
-                          : 'not verified'}
+                          ? '(rejected)'
+                          : '(not verified)'}
                       </span>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                </div>
                 <Link
-                  href="/upload-documents"
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm font-medium"
+                  href="/client/documents"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-blue px-6 py-2.5 font-optima text-comments font-semibold text-white shadow-md transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
                 >
-                  Upload & Verify Documents
+                  <Upload className="h-4 w-4" />
+                  Upload Documents
                 </Link>
               </div>
             </div>

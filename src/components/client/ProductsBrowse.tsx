@@ -227,7 +227,7 @@ export function ProductsBrowse() {
               )}
 
             </div>
-            <Link href="/upload-documents">
+            <Link href="/client/documents">
               <Button className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima shadow-lg">
                 Upload Documents
               </Button>
