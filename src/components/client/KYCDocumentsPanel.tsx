@@ -1,6 +1,6 @@
 /**
  * KYC Documents Panel Component
- * Displays client's KYC documents with status and upload functionality
+ * Displays client's Index Proof document with status and upload functionality
  */
 
 'use client';
@@ -29,35 +29,13 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { VerificationStatus } from '@prisma/client';
 import { formatFileSize } from '@/lib/utils';
 
-// Document types for upload
-const DOCUMENT_TYPES = [
-  {
-    id: 'IDENTITY_PROOF',
-    name: 'Identity Proof',
-    description: 'Aadhaar/Passport/Driving License',
-    required: true,
-  },
-  {
-    id: 'ADDRESS_PROOF',
-    name: 'Address Proof',
-    description: 'Utility Bill/Bank Statement (less than 3 months old)',
-    required: true,
-  },
-  {
-    id: 'INCOME_PROOF',
-    name: 'Income Proof',
-    description: 'Salary Slip/Tax Return',
-    required: false,
-  },
-  {
-    id: 'BANK_STATEMENT',
-    name: 'Bank Statement',
-    description: 'Last 3 months',
-    required: false,
-  },
-] as const;
-
-type DocumentType = (typeof DOCUMENT_TYPES)[number]['id'];
+// Single document type
+const DOCUMENT_TYPE = {
+  id: 'IDENTITY_PROOF',
+  name: 'Identity Proof',
+  description: 'Aadhaar/Passport/Driving License',
+  required: true,
+};
 
 interface Document {
   id: string;
@@ -75,8 +53,8 @@ interface Document {
 interface DocumentsResponse {
   success: boolean;
   data: {
-    documents: Document[];
-    verificationStatus: VerificationStatus;
+    identityProof: Document | null;
+    kycStatus: VerificationStatus;
   };
   error?: string;
 }
@@ -99,12 +77,11 @@ async function fetchDocuments(): Promise<DocumentsResponse> {
 
 async function uploadDocument(
   file: File,
-  documentType: string,
   description: string
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('documentType', documentType);
+  formData.append('documentType', DOCUMENT_TYPE.id);
   if (description) {
     formData.append('description', description);
   }
@@ -124,7 +101,7 @@ async function uploadDocument(
 
 export function KYCDocumentsPanel() {
   const queryClient = useQueryClient();
-  const [uploadingType, setUploadingType] = useState<DocumentType | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadState, setUploadState] = useState<FileUploadState>({
     file: null,
     progress: 0,
@@ -135,19 +112,17 @@ export function KYCDocumentsPanel() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['documents'],
     queryFn: fetchDocuments,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
 
   const uploadMutation = useMutation({
     mutationFn: ({
       file,
-      documentType,
       description,
     }: {
       file: File;
-      documentType: string;
       description: string;
-    }) => uploadDocument(file, documentType, description),
+    }) => uploadDocument(file, description),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['documents'] });
       setUploadState({
@@ -157,7 +132,7 @@ export function KYCDocumentsPanel() {
         description: '',
       });
       setTimeout(() => {
-        setUploadingType(null);
+        setIsUploading(false);
         setUploadState({
           file: null,
           progress: 0,
@@ -212,11 +187,10 @@ export function KYCDocumentsPanel() {
   }, []);
 
   const handleUpload = async () => {
-    if (!uploadState.file || !uploadingType) return;
+    if (!uploadState.file) return;
 
     setUploadState((prev) => ({ ...prev, status: 'uploading', progress: 10 }));
 
-    // Simulate progress
     const progressInterval = setInterval(() => {
       setUploadState((prev) =>
         prev.progress < 90
@@ -228,7 +202,6 @@ export function KYCDocumentsPanel() {
     try {
       await uploadMutation.mutateAsync({
         file: uploadState.file,
-        documentType: uploadingType,
         description: uploadState.description,
       });
     } finally {
@@ -269,10 +242,6 @@ export function KYCDocumentsPanel() {
     }
   };
 
-  const getDocumentByType = (type: string) => {
-    return data?.data.documents.find((doc) => doc.documentType === type);
-  };
-
   if (isLoading) {
     return <LoadingSpinner text="Loading documents..." />;
   }
@@ -289,237 +258,225 @@ export function KYCDocumentsPanel() {
     );
   }
 
-  const documents = data?.data.documents || [];
-  const verificationStatus = data?.data.verificationStatus;
+  const identityProof = data?.data.identityProof;
+  const kycStatus = data?.data.kycStatus;
 
-  // Show banner if documents are under review
-  const showUnderReviewBanner = verificationStatus === 'PENDING' || verificationStatus === 'UNDER_REVIEW';
+  // Show banner if Identity Proof is under review
+  const showUnderReviewBanner = kycStatus === 'PENDING' || kycStatus === 'UNDER_REVIEW' || (identityProof?.verificationStatus === 'PENDING');
 
-  // Upload interface - show document types with upload buttons
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">KYC Documents</h2>
         <p className="text-muted-foreground mt-1">
-          Upload and manage your verification documents
+          Upload your Identity Proof (Aadhaar/Passport/Driving License) to complete verification.
         </p>
       </div>
 
       {showUnderReviewBanner && (
         <Alert className="border-blue-200 bg-brand-blue/10">
           <Clock className="h-4 w-4 text-brand-blue" />
-          <AlertTitle className="text-blue-900">Documents Under Review</AlertTitle>
+          <AlertTitle className="text-blue-900">Document Under Review</AlertTitle>
           <AlertDescription className="text-blue-800">
-            Your submitted documents are being reviewed by our team.
-            You can continue uploading any remaining documents.
+            Your submitted Identity Proof is being reviewed by our team.
             You will receive an email notification once the verification is complete.
           </AlertDescription>
         </Alert>
       )}
 
-      {!showUnderReviewBanner && documents.length > 0 && (
+      {kycStatus === 'VERIFIED' && (
         <Alert className="border-green-200 bg-green-50">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-900">
-            {documents.filter((d) => d.verificationStatus === 'VERIFIED').length} of{' '}
-            {documents.length} documents verified
+            Identity Proof Verified
           </AlertTitle>
           <AlertDescription className="text-green-800">
-            Continue uploading remaining documents to complete your verification.
+            Your KYC verification is complete. You can now purchase investment plans.
           </AlertDescription>
         </Alert>
       )}
 
       <div className="space-y-4">
-        {DOCUMENT_TYPES.map((docType) => {
-          const existingDoc = getDocumentByType(docType.id);
-          const isUploading = uploadingType === docType.id;
-
-          return (
-            <Card key={docType.id} className="border-border">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      {docType.name}
-                      {docType.required && (
-                        <span className="text-xs font-normal text-destructive">
-                          (Required)
-                        </span>
-                      )}
-                    </CardTitle>
-                    <CardDescription className="text-sm">
-                      {docType.description}
-                    </CardDescription>
-                  </div>
-                  {existingDoc && getStatusBadge(existingDoc.verificationStatus)}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {existingDoc && (
-                  <div className="rounded-md bg-muted p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">{existingDoc.fileName}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatFileSize(existingDoc.fileSize)} • Uploaded{' '}
-                            {new Date(existingDoc.uploadedAt).toLocaleDateString('en-IN')}
-                          </p>
-                        </div>
-                      </div>
-                      <a
-                        href={existingDoc.filePath}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-brand-blue hover:text-brand-blue/80 hover:underline transition-colors duration-200"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        View
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
+        <Card className="border-border">
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  {DOCUMENT_TYPE.name}
+                  <span className="text-xs font-normal text-destructive">
+                    (Required)
+                  </span>
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  {DOCUMENT_TYPE.description}
+                </CardDescription>
+              </div>
+              {identityProof && getStatusBadge(identityProof.verificationStatus)}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {identityProof && (
+              <div className="rounded-md bg-muted p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">{identityProof.fileName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatFileSize(identityProof.fileSize)} • Uploaded{' '}
+                        {new Date(identityProof.uploadedAt).toLocaleDateString('en-IN')}
+                      </p>
                     </div>
-                    {existingDoc.rejectionReason && (
-                      <Alert variant="destructive" className="mt-3">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription className="text-sm">
-                          {existingDoc.rejectionReason}
-                        </AlertDescription>
-                      </Alert>
-                    )}
                   </div>
-                )}
-
-                {!isUploading && (
-                  <Button
-                    variant={existingDoc ? 'outline' : 'default'}
-                    size="sm"
-                    onClick={() => setUploadingType(docType.id as DocumentType)}
-                    className="w-full"
+                  <a
+                    href={identityProof.filePath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs text-brand-blue hover:text-brand-blue/80 hover:underline transition-colors duration-200"
                   >
-                    <Upload className="mr-2 h-4 w-4" />
-                    {existingDoc ? 'Replace Document' : 'Upload Document'}
-                  </Button>
+                    <Eye className="h-3.5 w-3.5" />
+                    View
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+                {identityProof.rejectionReason && (
+                  <Alert variant="destructive" className="mt-3">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-sm">
+                      {identityProof.rejectionReason}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            )}
+
+            {!isUploading && (
+              <Button
+                variant={identityProof ? 'outline' : 'default'}
+                size="sm"
+                onClick={() => setIsUploading(true)}
+                className="w-full"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {identityProof ? 'Replace Document' : 'Upload Document'}
+              </Button>
+            )}
+
+            {isUploading && (
+              <div className="space-y-3 rounded-md border border-border p-4">
+                <Label htmlFor="file-upload" className="text-sm font-medium">
+                  Select File
+                </Label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
+                  disabled={uploadState.status === 'uploading'}
+                  className="block w-full text-sm text-muted-foreground
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-medium
+                    file:bg-primary file:text-primary-foreground
+                    hover:file:bg-primary/90
+                    disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+
+                {uploadState.file && (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      {uploadState.file.name} (
+                      {formatFileSize(uploadState.file.size)})
+                    </p>
+
+                    <Textarea
+                      placeholder="Optional: Add a description"
+                      value={uploadState.description}
+                      onChange={(e) =>
+                        setUploadState((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                      disabled={uploadState.status === 'uploading'}
+                      className="h-20 text-sm"
+                    />
+                  </>
                 )}
 
-                {isUploading && (
-                  <div className="space-y-3 rounded-md border border-border p-4">
-                    <Label htmlFor={`file-${docType.id}`} className="text-sm font-medium">
-                      Select File
-                    </Label>
-                    <input
-                      id={`file-${docType.id}`}
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.pdf"
-                      onChange={(e) => handleFileSelect(e.target.files?.[0] || null)}
-                      disabled={uploadState.status === 'uploading'}
-                      className="block w-full text-sm text-muted-foreground
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0
-                        file:text-sm file:font-medium
-                        file:bg-primary file:text-primary-foreground
-                        hover:file:bg-primary/90
-                        disabled:opacity-50 disabled:cursor-not-allowed"
-                    />
-
-                    {uploadState.file && (
-                      <>
-                        <p className="text-sm text-muted-foreground">
-                          {uploadState.file.name} (
-                          {formatFileSize(uploadState.file.size)})
-                        </p>
-
-                        <Textarea
-                          placeholder="Optional: Add a description"
-                          value={uploadState.description}
-                          onChange={(e) =>
-                            setUploadState((prev) => ({
-                              ...prev,
-                              description: e.target.value,
-                            }))
-                          }
-                          disabled={uploadState.status === 'uploading'}
-                          className="h-20 text-sm"
-                        />
-                      </>
-                    )}
-
-                    {uploadState.status === 'uploading' && (
-                      <div className="space-y-2">
-                        <Progress value={uploadState.progress} className="h-2" />
-                        <p className="text-xs text-muted-foreground">
-                          Uploading... {uploadState.progress}%
-                        </p>
-                      </div>
-                    )}
-
-                    {uploadState.status === 'error' && uploadState.error && (
-                      <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription className="text-sm">
-                          {uploadState.error}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-
-                    {uploadState.status === 'success' && (
-                      <Alert className="border-green-200 bg-green-50">
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <AlertDescription className="text-sm text-green-800">
-                          Document uploaded successfully!
-                        </AlertDescription>
-                      </Alert>
-                    )}
-
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setUploadingType(null);
-                          setUploadState({
-                            file: null,
-                            progress: 0,
-                            status: 'idle',
-                            description: '',
-                          });
-                        }}
-                        disabled={uploadState.status === 'uploading'}
-                        className="flex-1"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={handleUpload}
-                        disabled={
-                          !uploadState.file || uploadState.status === 'uploading'
-                        }
-                        className="flex-1"
-                      >
-                        {uploadState.status === 'uploading' ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Uploading...
-                          </>
-                        ) : (
-                          'Upload'
-                        )}
-                      </Button>
-                    </div>
+                {uploadState.status === 'uploading' && (
+                  <div className="space-y-2">
+                    <Progress value={uploadState.progress} className="h-2" />
+                    <p className="text-xs text-muted-foreground">
+                      Uploading... {uploadState.progress}%
+                    </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          );
-        })}
+
+                {uploadState.status === 'error' && uploadState.error && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-sm">
+                      {uploadState.error}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {uploadState.status === 'success' && (
+                  <Alert className="border-green-200 bg-green-50">
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-sm text-green-800">
+                      Document uploaded successfully!
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsUploading(false);
+                      setUploadState({
+                        file: null,
+                        progress: 0,
+                        status: 'idle',
+                        description: '',
+                      });
+                    }}
+                    disabled={uploadState.status === 'uploading'}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleUpload}
+                    disabled={
+                      !uploadState.file || uploadState.status === 'uploading'
+                    }
+                    className="flex-1"
+                  >
+                    {uploadState.status === 'uploading' ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      'Upload'
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="text-sm">
-          Accepted formats: JPG, PNG, PDF (Max 5MB each). Your documents will be
+          Accepted formats: JPG, PNG, PDF (Max 5MB each). Your document will be
           securely stored and used only for verification purposes.
         </AlertDescription>
       </Alert>

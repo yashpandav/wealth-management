@@ -169,12 +169,7 @@ enum NotificationCategory {
 
 enum DocumentType {
   IDENTITY_PROOF       // Government ID, Passport, Driver's License
-  ADDRESS_PROOF        // Utility bill, Bank statement with address
-  INCOME_PROOF         // Salary slip, Tax return, Employment letter
-  BANK_STATEMENT       // Bank account statements
-  TAX_DOCUMENT         // Tax returns, W-2, 1099
   INVESTMENT_AGREEMENT // Signed investment agreements
-  KYC_FORM             // KYC/AML compliance forms
   OTHER                // Other document types
 }
 
@@ -816,6 +811,7 @@ model Document {
 
   // Indexes
   @@index([clientId])
+  @@index([clientId, documentType]) // Composite index for faster lookup
   @@index([documentType])
   @@index([verificationStatus])
   @@index([verifiedById])

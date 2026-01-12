@@ -75,10 +75,8 @@ interface ProductDetailProps {
 
 interface KYCStatus {
   identityProofVerified: boolean;
-  addressProofVerified: boolean;
   canSubmitRequests: boolean;
   identityProofStatus?: string;
-  addressProofStatus?: string;
 }
 
 
@@ -106,26 +104,20 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
         throw new Error('Failed to fetch KYC status');
       }
       const result = await response.json();
-      const documents = result.data?.documents || [];
 
-      const identityProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'IDENTITY_PROOF');
-      const addressProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'ADDRESS_PROOF');
-
+      // New API structure: { identityProof, kycStatus }
+      const identityProof = result.data?.identityProof;
       const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
-      const addressProofVerified = addressProof?.verificationStatus === 'VERIFIED';
 
       setKycStatus({
         identityProofVerified,
-        addressProofVerified,
-        canSubmitRequests: identityProofVerified && addressProofVerified,
+        canSubmitRequests: identityProofVerified,
         identityProofStatus: identityProof?.verificationStatus,
-        addressProofStatus: addressProof?.verificationStatus,
       });
     } catch (error) {
       console.error('Error fetching KYC status:', error);
       setKycStatus({
         identityProofVerified: false,
-        addressProofVerified: false,
         canSubmitRequests: false,
       });
     } finally {
@@ -229,11 +221,6 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           toast.error(
             'Your Identity Proof document must be verified. Please upload and verify your documents.'
           );
-        } else if (data.code === 'ADDRESS_PROOF_NOT_VERIFIED') {
-          toast.error(
-            'Your Address Proof document must be verified. Please upload and verify your documents.'
-          );
-        } else {
           toast.error(data.error || 'Failed to submit request');
         }
       }
@@ -336,16 +323,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                       </span>
                     </div>
                   )}
-                  {!kycStatus.addressProofVerified && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-orange-700">
-                        Address Proof{' '}
-                        {kycStatus.addressProofStatus === 'REJECTED'
-                          ? 'rejected - please re-upload'
-                          : 'not verified'}
-                      </span>
-                    </div>
-                  )}
+
                 </div>
                 <Link
                   href="/upload-documents"

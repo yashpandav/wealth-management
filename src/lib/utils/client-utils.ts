@@ -64,7 +64,7 @@ export function getOnboardingStatus(
       canTransact: false,
       showKycUpload: true,
       banner: {
-        message: 'Please upload your KYC documents to continue.',
+        message: 'Please upload your Identity Proof to continue.',
         type: 'warning',
       },
     };
@@ -77,7 +77,7 @@ export function getOnboardingStatus(
       canTransact: false,
       showKycUpload: true,
       banner: {
-        message: 'Your documents are under verification. Please wait.',
+        message: 'Your Identity Proof is under verification. Please wait.',
         type: 'info',
       },
     };
@@ -91,8 +91,8 @@ export function getOnboardingStatus(
       showKycUpload: true,
       banner: {
         message: verificationStatus === 'REJECTED'
-          ? 'Your KYC documents were rejected. Please resubmit.'
-          : 'Your KYC verification has expired. Please resubmit your documents.',
+          ? 'Your Identity Proof was rejected. Please resubmit.'
+          : 'Your Identity Proof verification has expired. Please resubmit.',
         type: 'error',
       },
     };
@@ -159,9 +159,9 @@ export function checkTransactionEligibility(
     reason: status.banner?.message || 'Cannot make transactions at this time',
     banner: status.banner
       ? {
-          message: status.banner.message,
-          type: status.banner.type === 'success' ? 'info' : status.banner.type,
-        }
+        message: status.banner.message,
+        type: status.banner.type === 'success' ? 'info' : status.banner.type,
+      }
       : undefined,
   };
 }

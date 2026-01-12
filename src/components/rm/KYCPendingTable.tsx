@@ -104,7 +104,7 @@ export function KYCPendingTable() {
       <Alert>
         <Clock className="h-4 w-4" />
         <AlertDescription>
-          These clients have submitted KYC documents and are awaiting verification by DocAdmin. You cannot take action at this stage.
+          These clients have submitted Identity Proof and are awaiting verification by DocAdmin. You cannot take action at this stage.
         </AlertDescription>
       </Alert>
 

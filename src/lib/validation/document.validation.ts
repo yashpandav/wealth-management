@@ -22,12 +22,7 @@ export const MAX_FILE_SIZE = 5 * 1024 * 1024;
 // Document types enum matching Prisma schema
 export const DocumentTypeEnum = z.enum([
   'IDENTITY_PROOF',
-  'ADDRESS_PROOF',
-  'INCOME_PROOF',
-  'BANK_STATEMENT',
-  'TAX_DOCUMENT',
   'INVESTMENT_AGREEMENT',
-  'KYC_FORM',
   'OTHER',
 ]);
 

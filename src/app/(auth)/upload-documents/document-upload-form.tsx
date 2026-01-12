@@ -23,24 +23,6 @@ const DOCUMENT_TYPES = [
     description: 'Upload a clear copy of your government-issued ID',
     required: true,
   },
-  {
-    id: 'ADDRESS_PROOF',
-    name: 'Address Proof (Utility Bill/Bank Statement)',
-    description: 'Document should be less than 3 months old',
-    required: true,
-  },
-  {
-    id: 'INCOME_PROOF',
-    name: 'Income Proof (Salary Slip/Tax Return)',
-    description: 'Latest income proof document',
-    required: false,
-  },
-  {
-    id: 'BANK_STATEMENT',
-    name: 'Bank Statement',
-    description: 'Last 3 months bank statement',
-    required: false,
-  },
 ] as const;
 
 type DocumentType = (typeof DOCUMENT_TYPES)[number]['id'];
@@ -439,13 +421,12 @@ export function DocumentUploadForm({
             return (
               <div
                 key={docType.id}
-                className={`p-4 border rounded-lg ${
-                  upload.status === 'success'
+                className={`p-4 border rounded-lg ${upload.status === 'success'
                     ? 'border-green-200 bg-green-50'
                     : upload.status === 'error'
                       ? 'border-red-200 bg-red-50'
                       : 'border-gray-200'
-                }`}
+                  }`}
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between">

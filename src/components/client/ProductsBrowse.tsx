@@ -59,11 +59,9 @@ async function fetchProducts(): Promise<ProductsResponse> {
 async function fetchKYCStatus(): Promise<{
   success: boolean;
   data: {
-    identityProofVerified: boolean;
-    addressProofVerified: boolean;
     canSubmitRequests: boolean;
+    identityProofVerified: boolean;
     identityProofStatus?: string;
-    addressProofStatus?: string;
   };
 }> {
   const response = await fetch('/api/documents');
@@ -72,21 +70,16 @@ async function fetchKYCStatus(): Promise<{
   }
   const result = await response.json();
 
-  const documents = result.data?.documents || [];
-  const identityProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'IDENTITY_PROOF');
-  const addressProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'ADDRESS_PROOF');
 
+  const identityProof = result.data?.identityProof;
   const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
-  const addressProofVerified = addressProof?.verificationStatus === 'VERIFIED';
 
   return {
     success: true,
     data: {
       identityProofVerified,
-      addressProofVerified,
-      canSubmitRequests: identityProofVerified && addressProofVerified,
+      canSubmitRequests: identityProofVerified,
       identityProofStatus: identityProof?.verificationStatus,
-      addressProofStatus: addressProof?.verificationStatus,
     },
   };
 }
@@ -232,17 +225,7 @@ export function ProductsBrowse() {
                   </span>
                 </div>
               )}
-              {!kycStatus.data.addressProofVerified && (
-                <div className="flex items-center gap-2 font-georgia text-brand-grey">
-                  <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
-                  <span>
-                    Address Proof{' '}
-                    {kycStatus.data.addressProofStatus === 'REJECTED'
-                      ? '(rejected - please re-upload)'
-                      : '(not verified)'}
-                  </span>
-                </div>
-              )}
+
             </div>
             <Link href="/upload-documents">
               <Button className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima shadow-lg">

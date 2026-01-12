@@ -1173,7 +1173,7 @@ export async function sendDocumentVerificationResult(
           </div>
 
           <p style="font-size: 14px; color: #4b5563;">
-            This document is now on file and meets our verification requirements. If all your required documents are verified, you'll have full access to investment features.
+            This document is now on file and meets our verification requirements. Since Identity Proof is the only required document, you now have full access to investment features.
           </p>
           ` : `
           <p style="font-size: 16px; color: #4b5563;">
@@ -1234,7 +1234,7 @@ DOCUMENT VERIFIED
 =================
 Document Type: ${documentTypeFormatted}
 
-This document is now on file and meets our verification requirements. If all your required documents are verified, you'll have full access to investment features.
+This document is now on file and meets our verification requirements. Since Identity Proof is the only required document, you now have full access to investment features.
 
 Login to Platform: ${loginUrl}
 

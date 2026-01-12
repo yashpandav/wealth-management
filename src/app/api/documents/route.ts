@@ -41,9 +41,12 @@ export async function GET() {
       );
     }
 
-    // Fetch all documents for this client
-    const documents = await prisma.document.findMany({
-      where: { clientId: client.id },
+    // Fetch only Identity Proof document for this client
+    const identityProof = await prisma.document.findFirst({
+      where: {
+        clientId: client.id,
+        documentType: 'IDENTITY_PROOF'
+      },
       select: {
         id: true,
         documentType: true,
@@ -64,8 +67,8 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
-        documents,
-        verificationStatus: client.verificationStatus,
+        identityProof,
+        kycStatus: client.verificationStatus,
       },
     });
   } catch (error) {

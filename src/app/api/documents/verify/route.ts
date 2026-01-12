@@ -120,8 +120,8 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Define mandatory document types
-      const MANDATORY_DOCUMENTS = ['IDENTITY_PROOF', 'ADDRESS_PROOF'] as const;
+      // Define mandatory document types - ONLY Identity Proof is required now
+      const MANDATORY_DOCUMENTS = ['IDENTITY_PROOF'] as const;
 
       // Determine overall client verification status
       let clientVerificationStatus: 'PENDING' | 'UNDER_REVIEW' | 'VERIFIED' | 'REJECTED' = 'PENDING';
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       // Check if any document is rejected
       const hasRejected = allClientDocs.some((d) => d.verificationStatus === 'REJECTED');
 
-      // Check if all mandatory documents are verified
+      // Check if Identity Proof is verified
       const mandatoryDocs = allClientDocs.filter((d) =>
         MANDATORY_DOCUMENTS.includes(d.documentType as typeof MANDATORY_DOCUMENTS[number])
       );
@@ -268,8 +268,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where clause
+    // Build where clause
     type VerificationStatus = 'PENDING' | 'UNDER_REVIEW' | 'VERIFIED' | 'REJECTED';
-    const whereClause = status === 'ALL' ? {} : { verificationStatus: status as VerificationStatus };
+    const whereClause: any = status === 'ALL' ? {} : { verificationStatus: status as VerificationStatus };
+
+    // Filter only Identity Proof documents
+    whereClause.documentType = 'IDENTITY_PROOF';
 
     // Get documents with pagination
     const [documents, total] = await Promise.all([
