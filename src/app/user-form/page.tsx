@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast, Toaster } from 'react-hot-toast';
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import {
   Select,
   SelectContent,
@@ -185,22 +186,26 @@ export default function UserFormPage() {
                 <label htmlFor="phoneNumber" className="block text-comments font-optima font-medium text-brand-blue">
                   Phone Number <span className="text-red-500">*</span>
                 </label>
-                <input
+                <PhoneInput
                   id="phoneNumber"
-                  type="tel"
-                  {...form.register('phoneNumber')}
-                  placeholder="+1 (555) 123-4567"
+                  name="phoneNumber"
+                  value={form.watch('phoneNumber')}
+                  onChange={(value) => form.setValue('phoneNumber', value || '', { shouldValidate: true })}
+                  defaultCountry="AE"
+                  international
+                  withCountryCallingCode
                   disabled={isSubmitting}
-                  className="mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue placeholder-brand-grey/50 shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50"
+                  smartCaret={true}
+                  limitMaxLength={true}
+                  className="mt-2"
+                  placeholder="Enter phone number"
+                  error={form.watch('phoneNumber') ? (isPossiblePhoneNumber(form.watch('phoneNumber')) ? undefined : 'Invalid phone number') : 'Phone number required'}
                 />
                 {form.formState.errors.phoneNumber && (
                   <p className="mt-1.5 text-xs font-georgia text-red-600">
                     {form.formState.errors.phoneNumber.message}
                   </p>
                 )}
-                <p className="mt-1.5 text-xs font-georgia text-brand-grey">
-                  Include country code for international numbers
-                </p>
               </div>
 
               {/* Lead Source */}

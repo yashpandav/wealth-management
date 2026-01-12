@@ -8,6 +8,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
+
 import { Eye, EyeOff } from 'lucide-react';
 
 interface FormData {
@@ -16,18 +18,10 @@ interface FormData {
   confirmPassword: string;
   firstName: string;
   lastName: string;
-  countryCode: string;
-  phoneNumber: string;
+  phone: string;
 }
 
-const COUNTRY_CODES = [
-  { code: '+971', label: 'UAE' },
-  { code: '+1', label: 'USA' },
-  { code: '+44', label: 'UK' },
-  { code: '+91', label: 'IND' },
-  { code: '+966', label: 'KSA' },
-  { code: '+65', label: 'SGP' },
-];
+
 
 export function RegisterForm() {
   const router = useRouter();
@@ -38,8 +32,7 @@ export function RegisterForm() {
     confirmPassword: '',
     firstName: '',
     lastName: '',
-    countryCode: '+971',
-    phoneNumber: '',
+    phone: '',
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -59,7 +52,7 @@ export function RegisterForm() {
           firstName: leadData.firstName || '',
           lastName: leadData.lastName || '',
           email: leadData.email || '',
-          phoneNumber: leadData.phoneNumber || '',
+          phone: leadData.phoneNumber || '', // Assumes leadData has phoneNumber
         }));
 
         // Clear localStorage after reading to avoid stale data
@@ -78,6 +71,13 @@ export function RegisterForm() {
     }));
   };
 
+  const handlePhoneChange = (value: string | undefined) => {
+    setFormData((prev) => ({
+      ...prev,
+      phone: value || '',
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -92,7 +92,6 @@ export function RegisterForm() {
         },
         body: JSON.stringify({
           ...formData,
-          phone: `${formData.countryCode}${formData.phoneNumber}`,
         }),
       });
 
@@ -195,36 +194,24 @@ export function RegisterForm() {
         </div>
 
         <div>
-          <label htmlFor="phoneNumber" className="block text-comments font-optima font-medium text-brand-blue">
+          <label htmlFor="phone" className="block text-comments font-optima font-medium text-brand-blue">
             Phone Number
           </label>
-          <div className="flex mt-1 rounded-md shadow-sm">
-            <select
-              id="countryCode"
-              name="countryCode"
-              value={formData.countryCode}
-              onChange={handleChange}
-              className="rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 py-2 text-comments font-optima text-brand-blue focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey w-24"
-              disabled={isLoading}
-            >
-              {COUNTRY_CODES.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {country.code} ({country.label})
-                </option>
-              ))}
-            </select>
-            <input
-              id="phoneNumber"
-              name="phoneNumber"
-              type="tel"
-              required
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="block w-full rounded-r-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
-              placeholder="551234567"
-              disabled={isLoading}
-            />
-          </div>
+          <PhoneInput
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handlePhoneChange}
+            defaultCountry="AE"
+            international
+            withCountryCallingCode
+            disabled={isLoading}
+            smartCaret={true}
+            limitMaxLength={true}
+            className="mt-1"
+            placeholder="Enter phone number"
+            error={formData.phone ? (isPossiblePhoneNumber(formData.phone) ? undefined : 'Invalid phone number') : 'Phone number required'}
+          />
         </div>
 
         <div className="relative">

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import 'react-phone-number-input/style.css';
 import { SessionProvider } from '@/lib/auth';
 
 export const metadata: Metadata = {

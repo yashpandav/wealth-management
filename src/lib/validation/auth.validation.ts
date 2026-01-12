@@ -22,7 +22,13 @@ export const registerSchema = z
     confirmPassword: z.string(),
     firstName: z.string().min(1, 'First name is required').max(100),
     lastName: z.string().min(1, 'Last name is required').max(100),
-    phone: z.string().min(5, 'Phone number is required'),
+    phone: z.string().min(5, 'Phone number is required').refine(
+      (val) => {
+        // E.164 format validation (starts with + and has 7-15 digits)
+        return /^\+[1-9]\d{1,14}$/.test(val);
+      },
+      { message: 'Please enter a valid phone number with country code' }
+    ),
     role: z.enum(['CLIENT', 'RM', 'ADMIN']).optional().default('CLIENT'),
   })
   .refine((data) => data.password === data.confirmPassword, {

@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 
 interface UserProfile {
   id: string;
@@ -223,12 +224,19 @@ function ProfileContent() {
                   <label htmlFor="phone" className="font-optima block text-comments font-medium text-brand-blue tracking-wide">
                     Phone Number
                   </label>
-                  <input
-                    type="tel"
+                  <PhoneInput
                     id="phone"
+                    name="phone"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="font-georgia mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 text-comments leading-relaxed shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
+                    onChange={(value) => setPhone(value || '')}
+                    defaultCountry="AE"
+                    international
+                    withCountryCallingCode
+                    smartCaret={true}
+                    limitMaxLength={true}
+                    className="mt-2"
+                    placeholder="Enter phone number"
+                    error={phone ? (isPossiblePhoneNumber(phone) ? undefined : 'Invalid phone number') : undefined}
                   />
                 </div>
               </div>
@@ -286,8 +294,8 @@ function ProfileContent() {
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Account Status</dt>
                 <dd className="mt-2">
                   <span className={`inline-flex rounded-full px-3 py-1 font-optima text-xs font-semibold tracking-wide ${profile.status === 'ACTIVE' ? 'bg-green-50 border border-green-200 text-green-700' :
-                      profile.status === 'INACTIVE' ? 'bg-gray-50 border border-gray-200 text-gray-700' :
-                        'bg-red-50 border border-red-200 text-red-700'
+                    profile.status === 'INACTIVE' ? 'bg-gray-50 border border-gray-200 text-gray-700' :
+                      'bg-red-50 border border-red-200 text-red-700'
                     }`}>
                     {profile.status}
                   </span>
