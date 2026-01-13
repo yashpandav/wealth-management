@@ -53,7 +53,7 @@ export function StatCard({
     const Content = (
         <>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-4 pt-4">
-                <CardTitle className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <CardTitle className="text-xs font-medium text-gray-600">
                     {title}
                 </CardTitle>
                 <div className="p-1.5">
@@ -69,7 +69,7 @@ export function StatCard({
                 {loading ? (
                     <div className="h-7 w-24 bg-gray-200 rounded animate-pulse" />
                 ) : (
-                    <div className={cn("text-2xl font-bold truncate", statusColorClass)}>
+                    <div className={cn("text-2xl font-bold truncate font-nums", statusColorClass)}>
                         {value}
                     </div>
                 )}
@@ -78,7 +78,7 @@ export function StatCard({
                         {trend && (
                             <span
                                 className={cn(
-                                    "text-xs font-medium flex items-center",
+                                    "text-xs font-medium flex items-center font-nums",
                                     trend === "up"
                                         ? "text-emerald-600"
                                         : trend === "down"

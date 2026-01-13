@@ -506,17 +506,17 @@ function AdminUsersContent() {
                       {user.status}
                     </Badge>
                     {user.accountLockedUntil && new Date(user.accountLockedUntil) > new Date() && (
-                      <div className="mt-1 text-xs text-destructive">
+                      <div className="mt-1 text-xs text-destructive font-nums">
                         Locked until {new Date(user.accountLockedUntil).toLocaleTimeString()}
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-muted-foreground font-nums">
                     {new Date(user.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {user.lastLogin
-                      ? new Date(user.lastLogin).toLocaleDateString()
+                      ? <span className="font-nums">{new Date(user.lastLogin).toLocaleDateString()}</span>
                       : 'Never'}
                   </TableCell>
                   <TableCell className="text-right">
@@ -590,14 +590,14 @@ function AdminUsersContent() {
             <div>
               <p className="text-sm text-gray-700">
                 Showing{' '}
-                <span className="font-medium">
+                <span className="font-medium font-nums">
                   {(currentPage - 1) * pagination.limit + 1}
                 </span>{' '}
                 to{' '}
-                <span className="font-medium">
+                <span className="font-medium font-nums">
                   {Math.min(currentPage * pagination.limit, pagination.totalCount)}
                 </span>{' '}
-                of <span className="font-medium">{pagination.totalCount}</span> results
+                of <span className="font-medium font-nums">{pagination.totalCount}</span> results
               </p>
             </div>
             <div>
@@ -609,7 +609,7 @@ function AdminUsersContent() {
                 >
                   Previous
                 </button>
-                <span className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700">
+                <span className="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 font-nums">
                   Page {currentPage} of {pagination.totalPages}
                 </span>
                 <button

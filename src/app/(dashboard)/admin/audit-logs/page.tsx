@@ -337,7 +337,7 @@ function AuditLogsContent() {
                 {logs.map((log) => (
                   <tr key={log.id} className="hover:bg-gray-50">
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {new Date(log.createdAt).toLocaleString()}
+                      <span className="font-nums">{new Date(log.createdAt).toLocaleString()}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm font-medium text-gray-900">
@@ -401,9 +401,9 @@ function AuditLogsContent() {
               <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
-                    Showing page <span className="font-medium">{pagination.page}</span> of{' '}
-                    <span className="font-medium">{pagination.totalPages}</span> (
-                    <span className="font-medium">{pagination.totalCount}</span> total logs)
+                    Showing page <span className="font-medium font-nums">{pagination.page}</span> of{' '}
+                    <span className="font-medium font-nums">{pagination.totalPages}</span> (
+                    <span className="font-medium font-nums">{pagination.totalCount}</span> total logs)
                   </p>
                 </div>
                 <div>
@@ -422,8 +422,8 @@ function AuditLogsContent() {
                           key={page}
                           onClick={() => setCurrentPage(page)}
                           className={`relative inline-flex items-center border px-4 py-2 text-sm font-medium ${currentPage === page
-                            ? 'z-10 border-brand-blue bg-brand-blue/10 text-brand-blue'
-                            : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50'
+                            ? 'z-10 border-brand-blue bg-brand-blue/10 text-brand-blue font-nums'
+                            : 'border-gray-300 bg-white text-gray-500 hover:bg-gray-50 font-nums'
                             }`}
                         >
                           {page}

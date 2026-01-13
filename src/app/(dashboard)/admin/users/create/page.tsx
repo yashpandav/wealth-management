@@ -117,7 +117,7 @@ function CreateUserContent() {
                   type="text"
                   value={createdUserEmail}
                   readOnly
-                  className="flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-mono"
+                  className="flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-mono font-nums"
                 />
                 <Button
                   type="button"
@@ -140,7 +140,7 @@ function CreateUserContent() {
                   type="text"
                   value={tempPassword}
                   readOnly
-                  className="flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-mono"
+                  className="flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm font-mono font-nums"
                 />
                 <Button
                   type="button"
@@ -247,7 +247,7 @@ function CreateUserContent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue font-nums"
                   placeholder="user@example.com"
                 />
                 <p className="mt-1 text-xs text-gray-500">
@@ -267,7 +267,7 @@ function CreateUserContent() {
                   onChange={(e) => setFirstName(e.target.value)}
                   required
                   maxLength={100}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue font-nums"
                   placeholder="John"
                 />
               </div>
@@ -284,7 +284,7 @@ function CreateUserContent() {
                   onChange={(e) => setLastName(e.target.value)}
                   required
                   maxLength={100}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue font-nums"
                   placeholder="Doe"
                 />
               </div>
@@ -300,7 +300,7 @@ function CreateUserContent() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   maxLength={20}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue font-nums"
                   placeholder="+1 (555) 000-0000"
                 />
               </div>

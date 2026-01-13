@@ -135,10 +135,10 @@ export function RMDashboard() {
 
         {/* Total AUM */}
         <StatCard
-          title="Total AUM"
+          title="Total Investment Amount"
           value={
             stats ? (
-              <div className="flex items-center">
+              <div className="flex items-center font-nums">
                 <DirhamIcon className="w-5 h-5 mr-1" />
                 {stats.totalAUM >= 1000000
                   ? `${(stats.totalAUM / 1000000).toFixed(2)}M`
@@ -164,7 +164,7 @@ export function RMDashboard() {
 
         {/* Pending Product Requests */}
         <StatCard
-          title="Products"
+          title="Plans"
           value={stats?.pendingProductRequests || 0}
           icon={Package}
           status={(stats?.pendingProductRequests ?? 0) > 0 ? "info" : "default"}
@@ -186,7 +186,7 @@ export function RMDashboard() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Withdrawals</span>
-                    <span className="text-base font-bold text-brand-blue">
+                    <span className="text-base font-bold text-brand-blue font-nums">
                       {charts.approvalRates.withdrawalApprovalRate.toFixed(0)}%
                     </span>
                   </div>
@@ -199,8 +199,8 @@ export function RMDashboard() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Products</span>
-                    <span className="text-base font-bold text-purple-600">
+                    <span className="text-sm text-gray-600">Plans</span>
+                    <span className="text-base font-bold text-purple-600 font-nums">
                       {charts.approvalRates.productApprovalRate.toFixed(0)}%
                     </span>
                   </div>
@@ -255,7 +255,7 @@ export function RMDashboard() {
             {charts.topClientsByAUM.length > 0 && (
               <Card className="border-gray-200 shadow-sm h-full">
                 <CardHeader className="pb-2 pt-4 px-4">
-                  <CardTitle className="text-sm font-semibold text-gray-900">Top Clients by AUM</CardTitle>
+                  <CardTitle className="text-sm font-semibold text-gray-900">Top Clients by Investment Amount</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
                   <div className="w-full h-[250px]">
@@ -349,7 +349,7 @@ export function RMDashboard() {
                         strokeWidth={3}
                         dot={false}
                         activeDot={{ r: 6 }}
-                        name="Products"
+                        name="Plans"
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -399,13 +399,13 @@ export function RMDashboard() {
                       <p className="text-sm text-gray-500 truncate">
                         {activity.type === 'PRODUCT' ? activity.instrumentName : 'Withdrawal Request'}
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-gray-400 mt-1 font-nums">
                         {format(new Date(activity.createdAt), 'MMM dd, yyyy • h:mm a')}
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center w-full sm:w-auto gap-2 sm:gap-1 pl-11 sm:pl-0">
-                    <span className="font-semibold text-gray-900 flex items-center">
+                    <span className="font-semibold text-gray-900 flex items-center font-nums">
                       {activity.type === 'PRODUCT' ? (
                         <>
                           {activity.instrumentSymbol} {activity.amount.toLocaleString()}
@@ -427,6 +427,6 @@ export function RMDashboard() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </div >
   );
 }

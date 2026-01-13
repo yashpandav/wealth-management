@@ -160,11 +160,11 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
       const result = await response.json();
 
       if (!result.success) {
-        toast.error(result.error || 'Failed to submit purchase request');
+        toast.error(result.error || 'Failed to submit investment request');
         return;
       }
 
-      toast.success('Purchase request submitted successfully');
+      toast.success('Investment request submitted successfully');
 
       if (onSuccess && result.data?.trackingNumber) {
         onSuccess(result.data.trackingNumber);
@@ -186,7 +186,7 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
       <Card>
         <CardHeader>
           <CardTitle>Select Instrument</CardTitle>
-          <CardDescription>Choose the investment instrument you want to purchase</CardDescription>
+          <CardDescription>Choose the investment instrument you want to invest in</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -341,10 +341,10 @@ export function PurchaseRequestForm({ onSuccess }: PurchaseRequestFormProps) {
         <Button
           type="submit"
           disabled={!canTransact || !selectedInstrument || isSubmitting || !!amountError}
-          title={!canTransact ? 'You must have an assigned RM and verified KYC to submit purchase requests' : undefined}
+          title={!canTransact ? 'You must have an assigned RM and verified KYC to submit investment requests' : undefined}
           className="w-full sm:w-auto"
         >
-          {isSubmitting ? 'Submitting...' : 'Submit Purchase Request'}
+          {isSubmitting ? 'Submitting...' : 'Submit Investment Request'}
         </Button>
       </div>
     </form>

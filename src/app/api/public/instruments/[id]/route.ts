@@ -1,6 +1,6 @@
 /**
- * API Route: Public Instrument Detail
- * GET - Fetch single instrument details (no authentication required)
+ * API Route: Public Plan Detail
+ * GET - Fetch single plan details (no authentication required)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -45,7 +45,7 @@ export async function GET(
 
     if (!instrument) {
       return NextResponse.json(
-        { success: false, error: 'Instrument not found' },
+        { success: false, error: 'Plan not found' },
         { status: 404 }
       );
     }
@@ -100,7 +100,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching instrument details:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch instrument details' },
+      { success: false, error: 'Failed to fetch plan details' },
       { status: 500 }
     );
   }

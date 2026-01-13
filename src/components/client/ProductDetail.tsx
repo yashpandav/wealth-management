@@ -1,6 +1,6 @@
 /**
  * Client Product Detail Component
- * Professional product view with manual amount entry and slider
+ * Professional plan view with manual amount entry and slider
  */
 
 'use client';
@@ -17,10 +17,8 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  ChevronDown,
-  ChevronUp,
-  Info,
   ArrowRight,
+  Upload,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { Button } from '@/components/ui/button';
@@ -78,39 +76,11 @@ interface ProductDetailProps {
 
 interface KYCStatus {
   identityProofVerified: boolean;
-  addressProofVerified: boolean;
   canSubmitRequests: boolean;
   identityProofStatus?: string;
-  addressProofStatus?: string;
 }
 
-interface FAQ {
-  question: string;
-  answer: string;
-}
 
-const DEFAULT_FAQS: FAQ[] = [
-  {
-    question: 'How does the investment process work?',
-    answer:
-      'After selecting your preferred investment plan and amount, submit a product request. Your Relationship Manager will review your request and verify the bank transfer. Once approved, your investment will be activated in your portfolio.',
-  },
-  {
-    question: 'When will I receive my returns?',
-    answer:
-      'Returns are calculated based on the annual percentage specified in your selected plan. The withdrawal frequency determines how often you can access your returns - either monthly, quarterly, semi-annually, or at maturity.',
-  },
-  {
-    question: 'Can I withdraw my principal amount early?',
-    answer:
-      'Early withdrawal terms depend on your selected investment plan. Please review the specific terms of your chosen plan or contact your Relationship Manager for details.',
-  },
-  {
-    question: 'What documents do I need to submit?',
-    answer:
-      'You need to complete KYC verification by submitting Identity Proof and Address Proof documents. These must be verified before you can submit any investment requests.',
-  },
-];
 
 export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailProps) {
   const router = useRouter();
@@ -121,7 +91,6 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
   const [submitting, setSubmitting] = useState(false);
   const [kycStatus, setKycStatus] = useState<KYCStatus | null>(null);
   const [kycLoading, setKycLoading] = useState(true);
-  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
 
   // Fetch KYC status on component mount
   useEffect(() => {
@@ -136,26 +105,20 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
         throw new Error('Failed to fetch KYC status');
       }
       const result = await response.json();
-      const documents = result.data?.documents || [];
 
-      const identityProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'IDENTITY_PROOF');
-      const addressProof = documents.find((d: { documentType: string; verificationStatus: string }) => d.documentType === 'ADDRESS_PROOF');
-
+      // New API structure: { identityProof, kycStatus }
+      const identityProof = result.data?.identityProof;
       const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
-      const addressProofVerified = addressProof?.verificationStatus === 'VERIFIED';
 
       setKycStatus({
         identityProofVerified,
-        addressProofVerified,
-        canSubmitRequests: identityProofVerified && addressProofVerified,
+        canSubmitRequests: identityProofVerified,
         identityProofStatus: identityProof?.verificationStatus,
-        addressProofStatus: addressProof?.verificationStatus,
       });
     } catch (error) {
       console.error('Error fetching KYC status:', error);
       setKycStatus({
         identityProofVerified: false,
-        addressProofVerified: false,
         canSubmitRequests: false,
       });
     } finally {
@@ -218,12 +181,12 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       return;
     }
     if (!clientRM?.hasRM) {
-      toast.error('You must have an assigned Relationship Manager to request a product');
+      toast.error('You must have an assigned Relationship Manager to request a plan');
       return;
     }
     if (!kycStatus?.canSubmitRequests) {
       toast.error(
-        'Your KYC documents must be verified before submitting product requests. Please upload and verify your documents.'
+        'Your KYC documents must be verified before submitting plan requests. Please upload and verify your documents.'
       );
       return;
     }
@@ -249,21 +212,16 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       const data = await response.json();
 
       if (data.success) {
-        toast.success('Product purchase request submitted successfully!');
+        toast.success('Plan investment request submitted successfully!');
         setShowConfirmDialog(false);
         router.push(`/client/requests?tracking=${data.data.trackingNumber}`);
       } else {
         if (data.code === 'NO_RM_ASSIGNED') {
-          toast.error('You must have an assigned Relationship Manager to request a product');
+          toast.error('You must have an assigned Relationship Manager to request a plan');
         } else if (data.code === 'IDENTITY_PROOF_NOT_VERIFIED') {
           toast.error(
             'Your Identity Proof document must be verified. Please upload and verify your documents.'
           );
-        } else if (data.code === 'ADDRESS_PROOF_NOT_VERIFIED') {
-          toast.error(
-            'Your Address Proof document must be verified. Please upload and verify your documents.'
-          );
-        } else {
           toast.error(data.error || 'Failed to submit request');
         }
       }
@@ -322,7 +280,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
             </Link>
             <ChevronRight className="h-4 w-4" />
             <Link href="/client/products" className="hover:text-brand-blue transition-colors duration-200">
-              Products
+              Plans
             </Link>
             <ChevronRight className="h-4 w-4" />
             <span className="text-gray-900 font-medium">{product.name}</span>
@@ -339,7 +297,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
             <div>
               <p className="font-medium text-yellow-800">No Relationship Manager Assigned</p>
               <p className="text-sm text-yellow-700">
-                You must have an assigned RM to request product purchases. Please contact support.
+                You must have an assigned RM to request plan investments. Please contact support.
               </p>
             </div>
           </div>
@@ -347,41 +305,37 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
 
         {/* KYC Verification Warning */}
         {!kycLoading && kycStatus && !kycStatus.canSubmitRequests && (
-          <div className="mb-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+          <div className="mb-6 p-5 bg-orange-50 border border-orange-500/50 rounded-lg">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-orange-900 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <p className="font-medium text-orange-800">KYC Verification Required</p>
-                <p className="text-sm text-orange-700 mt-1">
-                  You must complete your KYC verification before submitting product requests.
+                <h3 className="font-optima text-base font-semibold text-orange-900 mb-2">
+                  KYC Verification Required
+                </h3>
+                <p className="font-optima text-comments text-orange-900 mb-3">
+                  You must complete your KYC verification before submitting plan requests.
                 </p>
-                <div className="mt-3 space-y-1 text-sm">
-                  {!kycStatus.identityProofVerified && (
+
+                {!kycStatus.identityProofVerified && (
+                  <div className="mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-orange-700">
+                      <div className="h-2 w-2 rounded-full bg-orange-900"></div>
+                      <span className="font-optima text-sm text-orange-900">
                         Identity Proof{' '}
                         {kycStatus.identityProofStatus === 'REJECTED'
-                          ? 'rejected - please re-upload'
-                          : 'not verified'}
+                          ? '(rejected)'
+                          : '(not verified)'}
                       </span>
                     </div>
-                  )}
-                  {!kycStatus.addressProofVerified && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-orange-700">
-                        Address Proof{' '}
-                        {kycStatus.addressProofStatus === 'REJECTED'
-                          ? 'rejected - please re-upload'
-                          : 'not verified'}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
+
                 <Link
-                  href="/upload-documents"
-                  className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors text-sm font-medium"
+                  href="/client/documents"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-blue px-6 py-2.5 font-optima text-comments font-semibold text-white shadow-md transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
                 >
-                  Upload & Verify Documents
+                  <Upload className="h-4 w-4" />
+                  Upload Documents
                 </Link>
               </div>
             </div>
@@ -532,37 +486,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
               </CardContent>
             </Card>
 
-            {/* FAQ Section */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Info className="h-5 w-5 text-gray-700" />
-                  <CardTitle>Frequently Asked Questions</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {DEFAULT_FAQS.map((faq, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
-                      className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-brand-blue/10 transition-colors duration-200 text-left"
-                    >
-                      <span className="font-medium text-gray-900">{faq.question}</span>
-                      {expandedFAQ === index ? (
-                        <ChevronUp className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-500 flex-shrink-0" />
-                      )}
-                    </button>
-                    {expandedFAQ === index && (
-                      <div className="p-4 bg-white border-t border-gray-200">
-                        <p className="text-gray-700 text-sm leading-relaxed">{faq.answer}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+
           </div>
 
           {/* Sidebar - Investment Form */}
@@ -696,7 +620,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                     kycLoading
                   }
                 >
-                  <span>Request Purchase</span>
+                  <span>Request Investment</span>
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
 
@@ -752,7 +676,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Purchase Request</DialogTitle>
+            <DialogTitle>Confirm Investment Request</DialogTitle>
             <DialogDescription>
               Please review your investment details before submitting.
             </DialogDescription>
@@ -761,7 +685,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-600">Product</p>
+                <p className="text-gray-600">Plan</p>
                 <p className="font-semibold">{product.name}</p>
               </div>
               <div>

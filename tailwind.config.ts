@@ -65,6 +65,7 @@ const config: Config = {
       fontFamily: {
         optima: ['Optima', 'Georgia', 'serif'],
         georgia: ['Georgia', 'serif'],
+        nums: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
       },
       fontSize: {
         'heading': '50px',

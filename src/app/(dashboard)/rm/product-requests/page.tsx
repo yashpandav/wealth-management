@@ -5,8 +5,8 @@ import { ProductPurchaseRequestsTable } from '@/components/rm/ProductPurchaseReq
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const metadata = {
-  title: 'Product Requests | RM Dashboard',
-  description: 'Manage client product purchase requests',
+  title: 'Plan Requests | RM Dashboard',
+  description: 'Manage client investment requests',
 };
 
 export default async function RMProductRequestsPage() {
@@ -25,17 +25,17 @@ export default async function RMProductRequestsPage() {
   return (
     <div className="container mx-auto py-8 px-8">
       <div className="mb-8">
-        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Product Requests</h1>
+        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Plan Requests</h1>
         <p className="font-georgia text-brand-grey mt-2">
-          Review and process product purchase requests from your assigned clients
+          Review and process investment requests from your assigned clients
         </p>
       </div>
 
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Product Request Processing</CardTitle>
+          <CardTitle>Plan Request Processing</CardTitle>
           <CardDescription>
-            Review client product requests for Venture A, B, and C products. Verify investment details and approve or reject requests.
+            Review client investment requests for Venture A, B, and C products. Verify investment details and approve or reject requests.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -49,7 +49,13 @@ export default async function RMProductRequestsPage() {
             <div className="flex items-start gap-2">
               <div className="mt-0.5 h-2 w-2 rounded-full bg-green-600" />
               <div>
-                <strong>Approved:</strong> Verified and approved investment requests
+                <strong>Approved:</strong> Approved and waiting for docadmin approval
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="mt-0.5 h-2 w-2 rounded-full bg-brand-blue" />
+              <div>
+                <strong>Completed:</strong> Investment successfully processed and active
               </div>
             </div>
             <div className="flex items-start gap-2">

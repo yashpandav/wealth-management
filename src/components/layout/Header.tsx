@@ -61,13 +61,21 @@ export function Header({ onMenuClick }: HeaderProps) {
         </button>
 
         {/* EMDEE VENTURES Logo */}
-        <Link href="/" className="mr-6 flex items-center space-x-3">
-          <img
-            src="/images/logo/primary-logo-1.png"
-            alt="EMDEE VENTURES"
-            className="h-10 w-auto object-contain"
-          />
+        <Link href="/" className="mr-6 flex items-center">
+          <div className="flex h-9 items-center">
+            <img
+              src="/images/logo/primary-logo-1.png"
+              alt="EMDEE VENTURES"
+              className="
+              w-[90px]
+              h-auto
+              object-contain
+            "
+            />
+          </div>
         </Link>
+
+
 
         {/* Desktop Navigation */}
         <nav className="hidden flex-1 items-center space-x-6 text-sm font-medium font-optima lg:flex">

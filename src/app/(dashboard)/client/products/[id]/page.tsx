@@ -1,6 +1,6 @@
 /**
- * Client - Product Detail Page
- * Display product options and allow purchase requests
+ * Client - Plan Detail Page
+ * Display plan options and allow purchase requests
  */
 
 'use client';
@@ -86,12 +86,12 @@ export default function ProductDetailPage() {
       if (data.success && data.data) {
         setProduct(data.data.product);
       } else {
-        toast.error(data.error || 'Failed to fetch product');
+        toast.error(data.error || 'Failed to fetch plan');
         router.push('/client/products');
       }
     } catch (error) {
       console.error('Error fetching product:', error);
-      toast.error('Failed to fetch product');
+      toast.error('Failed to fetch plan');
       router.push('/client/products');
     } finally {
       setLoading(false);
@@ -121,7 +121,7 @@ export default function ProductDetailPage() {
   };
 
   if (status === 'loading' || (status === 'authenticated' && session?.user?.role === 'CLIENT' && loading)) {
-    return <LoadingSpinner text="Loading product..." className="min-h-screen bg-gray-50" />;
+    return <LoadingSpinner text="Loading plan..." className="min-h-screen bg-gray-50" />;
   }
 
   if (status === 'unauthenticated' || (status === 'authenticated' && session?.user?.role !== 'CLIENT')) {

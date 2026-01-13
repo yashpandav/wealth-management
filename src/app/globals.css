@@ -7,31 +7,39 @@
     /* EMDEE VENTURES Brand Theme */
 
     /* Base colors - EMDEE White background */
-    --background: 0 0% 96.5%; /* #F6F6F6 */
-    --foreground: 217 100% 21%; /* #002369 - EMDEE Blue */
+    --background: 0 0% 96.5%;
+    /* #F6F6F6 */
+    --foreground: 217 100% 21%;
+    /* #002369 - EMDEE Blue */
 
     /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 217 100% 21%; /* #002369 */
+    --card-foreground: 217 100% 21%;
+    /* #002369 */
 
     /* Popovers and dropdowns */
     --popover: 0 0% 100%;
     --popover-foreground: 217 100% 21%;
 
     /* Primary: EMDEE Blue for trust and stability */
-    --primary: 217 100% 21%; /* #002369 */
-    --primary-foreground: 0 0% 96.5%; /* #F6F6F6 */
+    --primary: 217 100% 21%;
+    /* #002369 */
+    --primary-foreground: 0 0% 96.5%;
+    /* #F6F6F6 */
 
     /* Secondary: EMDEE Grey for secondary actions */
-    --secondary: 216 21% 50%; /* #657997 */
+    --secondary: 216 21% 50%;
+    /* #657997 */
     --secondary-foreground: 0 0% 96.5%;
 
     /* Muted: Subtle backgrounds using EMDEE White */
     --muted: 0 0% 96.5%;
-    --muted-foreground: 216 21% 50%; /* #657997 */
+    --muted-foreground: 216 21% 50%;
+    /* #657997 */
 
     /* Accent: EMDEE Grey for interactive elements */
-    --accent: 216 21% 50%; /* #657997 */
+    --accent: 216 21% 50%;
+    /* #657997 */
     --accent-foreground: 0 0% 96.5%;
 
     /* Destructive: Error and critical actions */
@@ -53,7 +61,8 @@
     /* Borders and inputs - EMDEE Grey tint */
     --border: 216 21% 85%;
     --input: 216 21% 85%;
-    --ring: 217 100% 21%; /* #002369 */
+    --ring: 217 100% 21%;
+    /* #002369 */
 
     /* Border radius */
     --radius: 0.5rem;
@@ -63,8 +72,10 @@
     /* EMDEE VENTURES Dark Mode */
 
     /* Base colors */
-    --background: 217 100% 10%; /* Dark EMDEE Blue */
-    --foreground: 0 0% 96.5%; /* EMDEE White */
+    --background: 217 100% 10%;
+    /* Dark EMDEE Blue */
+    --foreground: 0 0% 96.5%;
+    /* EMDEE White */
 
     /* Card surfaces */
     --card: 217 100% 15%;
@@ -117,6 +128,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Optima', 'Georgia', serif;
@@ -128,8 +140,96 @@
     font-weight: 700;
   }
 
-  h2, h3, h4, h5, h6 {
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Optima', 'Georgia', serif;
     font-weight: 700;
+  }
+}
+
+@layer components {
+  .PhoneInput {
+    @apply flex items-center gap-2 mt-1 w-full rounded-md border border-gray-300 px-3 py-2 transition-all duration-200 focus-within:border-brand-blue focus-within:ring-1 focus-within:ring-brand-blue hover:border-brand-grey bg-white;
+  }
+
+  .PhoneInput--invalid {
+    @apply border-red-500 focus-within:border-red-500 focus-within:ring-red-500;
+  }
+
+  .PhoneInputInput {
+    @apply w-full bg-transparent p-0 text-comments font-optima text-brand-blue placeholder-gray-400;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .PhoneInputInput:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .PhoneInputCountry {
+    @apply mr-1 flex items-center;
+    border: none !important;
+    outline: none !important;
+  }
+
+  .PhoneInputCountrySelect {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+  }
+
+  .PhoneInputCountrySelect:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .PhoneInputCountryIcon {
+    border: none !important;
+    outline: none !important;
+  }
+
+  .PhoneInputCountrySelectArrow {
+    border: none !important;
+    outline: none !important;
+  }
+
+  /* Remove any default input styling */
+  .PhoneInput input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .PhoneInput input:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .PhoneInput select {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .PhoneInput select:focus {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .PhoneInput-error {
+    @apply mt-1 text-xs text-red-500 font-optima;
+  }
+
+  .font-nums {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
   }
 }

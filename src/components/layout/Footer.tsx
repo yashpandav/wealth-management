@@ -11,7 +11,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-white">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-4 md:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-2">
           {/* Company Info */}
           <div>
             <h3 className="mb-3 text-sm font-semibold font-optima text-brand-blue">
@@ -21,33 +21,11 @@ export function Footer() {
               Investment and Holding Company
             </p>
             <p className="mt-2 text-xs italic font-optima text-brand-grey">
-              A Better Tomorrow
+              For a Better Tomorrow
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="mb-3 text-sm font-semibold font-optima text-brand-blue">
-              Quick Links
-            </h3>
-            <ul className="space-y-2 text-sm font-optima">
-              <li>
-                <button className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue">
-                  About Us
-                </button>
-              </li>
-              <li>
-                <button className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue">
-                  Help Center
-                </button>
-              </li>
-              <li>
-                <button className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue">
-                  Contact Support
-                </button>
-              </li>
-            </ul>
-          </div>
+
 
           {/* Legal */}
           <div>
@@ -65,11 +43,7 @@ export function Footer() {
                   Terms of Service
                 </button>
               </li>
-              <li>
-                <button className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue">
-                  Security
-                </button>
-              </li>
+
             </ul>
           </div>
         </div>

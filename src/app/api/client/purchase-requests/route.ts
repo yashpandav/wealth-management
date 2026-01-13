@@ -1,7 +1,7 @@
 /**
- * Client Purchase Requests API
- * POST: Submit a new purchase request
- * GET: List client's purchase requests
+ * Client Investment Requests API
+ * POST: Submit a new investment request
+ * GET: List client's investment requests
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -32,7 +32,7 @@ function generateTrackingNumber(): string {
 
 /**
  * POST /api/client/purchase-requests
- * Submit a new purchase request
+ * Submit a new investment request
  */
 export async function POST(request: NextRequest) {
   try {
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: eligibility.reason || 'You are not eligible to make purchase requests',
+          error: eligibility.reason || 'You are not eligible to make investment requests',
           details: eligibility.banner?.message,
         },
         { status: 403 }
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid purchase request data',
+          error: 'Invalid investment request data',
           details: validationResult.error.format(),
         },
         { status: 400 }
@@ -233,7 +233,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Purchase request submitted successfully',
+      message: 'Investment request submitted successfully',
       data: {
         id: purchaseRequest.id,
         trackingNumber: purchaseRequest.trackingNumber,
@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
     console.error('Error submitting purchase request:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to submit purchase request' },
+      { success: false, error: 'Failed to submit investment request' },
       { status: 500 }
     );
   }
@@ -353,7 +353,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching purchase requests:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch purchase requests' },
+      { success: false, error: 'Failed to fetch investment requests' },
       { status: 500 }
     );
   }

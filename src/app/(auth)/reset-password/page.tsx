@@ -7,6 +7,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -18,6 +19,8 @@ function ResetPasswordForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -101,18 +104,29 @@ function ResetPasswordForm() {
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 New Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm"
-                placeholder="••••••••"
-                disabled={isLoading || !token}
-              />
+              <div className="relative mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm pr-10 font-nums"
+                  placeholder="••••••••"
+                  disabled={isLoading || !token}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
               <p className="mt-1 text-xs text-gray-500">
                 Must be at least 8 characters with uppercase, lowercase, number, and special character
               </p>
@@ -122,18 +136,29 @@ function ResetPasswordForm() {
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirm New Password
               </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm"
-                placeholder="••••••••"
-                disabled={isLoading || !token}
-              />
+              <div className="relative mt-1">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  autoComplete="new-password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm pr-10 font-nums"
+                  placeholder="••••••••"
+                  disabled={isLoading || !token}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  tabIndex={-1}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
           </div>
 

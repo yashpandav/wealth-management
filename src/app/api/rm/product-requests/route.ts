@@ -1,6 +1,6 @@
 /**
- * RM Product Purchase Requests API
- * GET: List product purchase requests for RM's assigned clients
+ * RM Product Investment Requests API
+ * GET: List product investment requests for RM's assigned clients
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -11,7 +11,7 @@ import { Prisma, RequestStatus } from '@prisma/client';
 
 /**
  * GET /api/rm/product-requests
- * List product purchase requests for RM's assigned clients with filtering and sorting
+ * List product investment requests for RM's assigned clients with filtering and sorting
  */
 export async function GET(request: NextRequest) {
   try {
@@ -210,7 +210,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching product purchase requests:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch product purchase requests' },
+      { success: false, error: 'Failed to fetch product investment requests' },
       { status: 500 }
     );
   }

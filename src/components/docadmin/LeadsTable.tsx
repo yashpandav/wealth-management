@@ -333,6 +333,7 @@ export function LeadsTable() {
         <StatCard
           title="Total Enquiries"
           value={totalCount}
+          // font-nums is handled by StatCard
           icon={Users}
           subValue="All submitted leads"
           status="default"
@@ -408,7 +409,11 @@ export function LeadsTable() {
                     {lead.firstName} {lead.lastName}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{lead.email}</TableCell>
-                  <TableCell className="text-muted-foreground">{lead.phoneNumber}</TableCell>
+                  <TableCell className="text-muted-foreground font-nums">
+                    <a href={`tel:${lead.phoneNumber}`} className="hover:underline hover:text-primary">
+                      {lead.phoneNumber}
+                    </a>
+                  </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="font-normal">
                       {getSourceLabel(lead.leadSource)}
@@ -428,7 +433,7 @@ export function LeadsTable() {
                       <span className="text-muted-foreground italic">Not assigned</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-sm text-muted-foreground font-nums">
                     {formatDate(lead.createdAt)}
                   </TableCell>
                   <TableCell className="text-right">
@@ -465,8 +470,8 @@ export function LeadsTable() {
             </SelectContent>
           </Select>
           <span className="text-sm text-muted-foreground">
-            Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
-            {Math.min(page * limit, totalCount)} of {totalCount} leads
+            Showing {totalCount === 0 ? 0 : <span className="font-nums">{(page - 1) * limit + 1}</span>} to{' '}
+            <span className="font-nums">{Math.min(page * limit, totalCount)}</span> of <span className="font-nums">{totalCount}</span> leads
           </span>
         </div>
 
@@ -480,7 +485,7 @@ export function LeadsTable() {
             Previous
           </Button>
           <span className="text-sm">
-            Page {page} of {totalPages || 1}
+            Page <span className="font-nums">{page}</span> of <span className="font-nums">{totalPages || 1}</span>
           </span>
           <Button
             variant="outline"
@@ -523,7 +528,11 @@ export function LeadsTable() {
                   </div>
                   <div className="flex justify-between py-2 border-b">
                     <span className="text-sm text-muted-foreground">Phone</span>
-                    <span className="text-sm font-medium">{selectedLead.phoneNumber}</span>
+                    <span className="text-sm font-medium font-nums">
+                      <a href={`tel:${selectedLead.phoneNumber}`} className="hover:underline hover:text-primary">
+                        {selectedLead.phoneNumber}
+                      </a>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -558,7 +567,7 @@ export function LeadsTable() {
                   </div>
                   <div className="flex justify-between py-2 border-b">
                     <span className="text-sm text-muted-foreground">Submitted</span>
-                    <span className="text-sm font-medium">{formatDate(selectedLead.createdAt)}</span>
+                    <span className="text-sm font-medium font-nums">{formatDate(selectedLead.createdAt)}</span>
                   </div>
                 </div>
               </div>
@@ -629,7 +638,7 @@ export function LeadsTable() {
                         <SelectItem key={rm.id} value={rm.id}>
                           <div className="flex justify-between items-center w-full">
                             <span>{rm.name}</span>
-                            <span className="text-xs text-gray-500 ml-2">
+                            <span className="text-xs text-gray-500 ml-2 font-nums">
                               {rm.clientCount} {rm.clientCount === 1 ? 'client' : 'clients'}
                             </span>
                           </div>

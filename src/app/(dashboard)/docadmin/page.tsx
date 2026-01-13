@@ -162,7 +162,7 @@ export default async function DocAdminDashboardPage() {
 
       {/* Product Request Stats */}
       <div className="mb-8">
-        <h2 className="font-optima text-sm font-semibold text-brand-blue mb-3">Product Requests</h2>
+        <h2 className="font-optima text-sm font-semibold text-brand-blue mb-3">Plan Requests</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <StatCard
             title="Pending Requests"
@@ -236,7 +236,7 @@ export default async function DocAdminDashboardPage() {
                           }`}>
                           {doc.verificationStatus.replace('_', ' ')}
                         </span>
-                        <p className="text-[10px] text-brand-grey min-w-fit">
+                        <p className="text-[10px] text-brand-grey min-w-fit font-nums">
                           {new Date(doc.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </p>
                       </div>
@@ -251,7 +251,7 @@ export default async function DocAdminDashboardPage() {
         {/* Recent Product Requests */}
         <div className="bg-white border border-gray-200 rounded-lg p-3">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="font-optima text-sm font-semibold text-brand-blue">Recent Product Requests</h2>
+            <h2 className="font-optima text-sm font-semibold text-brand-blue">Recent Plan Requests</h2>
             <Link href="/docadmin/product-requests" className="text-xs text-brand-blue hover:text-brand-blue/80 font-medium">
               View All
             </Link>
@@ -288,12 +288,12 @@ export default async function DocAdminDashboardPage() {
                           {req.product.currency === 'USD' ? (
                             <>
                               <span className="text-[10px] mr-1">USD</span>
-                              {(Number(req.amount) / 1000).toFixed(1)}K
+                              <span className="font-nums">{(Number(req.amount) / 1000).toFixed(1)}K</span>
                             </>
                           ) : (
                             <>
                               <DirhamIcon className="w-3 h-3 mr-1" />
-                              {(Number(req.amount) / 1000).toFixed(1)}K
+                              <span className="font-nums">{(Number(req.amount) / 1000).toFixed(1)}K</span>
                             </>
                           )}
                         </p>

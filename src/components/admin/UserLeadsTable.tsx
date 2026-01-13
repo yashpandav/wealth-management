@@ -127,7 +127,7 @@ export function UserLeadsTable() {
   // Format currency
   const formatCurrency = (value: number) => {
     return (
-      <span className="flex items-center">
+      <span className="flex items-center font-nums">
         <DirhamIcon className="w-3 h-3 mr-1" />
         {value.toLocaleString('en-US', {
           minimumFractionDigits: 2,
@@ -261,7 +261,7 @@ export function UserLeadsTable() {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground font-nums">
             Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
             {Math.min(page * limit, totalCount)} of {totalCount} leads
           </span>
@@ -276,7 +276,7 @@ export function UserLeadsTable() {
           >
             Previous
           </Button>
-          <span className="text-sm">
+          <span className="text-sm font-nums">
             Page {page} of {totalPages || 1}
           </span>
           <Button
@@ -322,7 +322,7 @@ export function UserLeadsTable() {
                   </div>
                   <div>
                     <Label className="text-muted-foreground">Age</Label>
-                    <p className="font-medium">{selectedLead.age} years</p>
+                    <p className="font-medium font-nums">{selectedLead.age} years</p>
                   </div>
                 </CardContent>
               </Card>

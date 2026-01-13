@@ -144,7 +144,7 @@ export default function MyRMPage() {
                 {rm.trackRecord.yearsOfExperience && (
                   <div className="flex items-center gap-1 mt-2 text-sm text-gray-600">
                     <Award className="h-4 w-4" />
-                    {rm.trackRecord.yearsOfExperience} years of experience
+                    <span className="font-nums">{rm.trackRecord.yearsOfExperience}</span> years of experience
                   </div>
                 )}
               </div>
@@ -175,7 +175,7 @@ export default function MyRMPage() {
                     <Phone className="h-5 w-5 text-gray-500" />
                     <a
                       href={`tel:${rm.phone}`}
-                      className="text-brand-blue hover:underline"
+                      className="text-brand-blue hover:underline font-nums"
                     >
                       {rm.phone}
                     </a>
@@ -225,7 +225,7 @@ export default function MyRMPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Clients Managed</p>
-                <p className="text-2xl font-bold text-gray-900">{rm.trackRecord.totalClients}</p>
+                <p className="text-2xl font-bold text-gray-900 font-nums">{rm.trackRecord.totalClients}</p>
               </div>
             </div>
 
@@ -235,8 +235,8 @@ export default function MyRMPage() {
                 <DollarSign className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Assets Under Management</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm text-gray-600">Total Investment Amount</p>
+                <p className="text-2xl font-bold text-gray-900 font-nums">
                   ${rm.trackRecord.totalAUM.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
@@ -251,8 +251,8 @@ export default function MyRMPage() {
                 <CheckCircle className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Purchase Requests Approved</p>
-                <p className="text-2xl font-bold text-gray-900">{rm.trackRecord.approvedPurchases}</p>
+                <p className="text-sm text-gray-600">Investment Requests Approved</p>
+                <p className="text-2xl font-bold text-gray-900 font-nums">{rm.trackRecord.approvedPurchases}</p>
               </div>
             </div>
 
@@ -263,7 +263,7 @@ export default function MyRMPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Withdrawal Requests Processed</p>
-                <p className="text-2xl font-bold text-gray-900">{rm.trackRecord.approvedWithdrawals}</p>
+                <p className="text-2xl font-bold text-gray-900 font-nums">{rm.trackRecord.approvedWithdrawals}</p>
               </div>
             </div>
           </div>

@@ -16,21 +16,19 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-brand-white px-4 py-12 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         {/* EMDEE VENTURES Branding */}
-        <div className="flex flex-col items-center">
-          {/* Logo */}
+        <div className="flex justify-center">
           <img
             src="/images/logo/primary-logo-1.png"
             alt="EMDEE VENTURES"
-            className="h-20 w-auto object-contain"
+            className="
+            w-full
+            max-w-[180px]
+            sm:max-w-[200px]
+            md:max-w-[220px]
+            lg:max-w-[240px]
+            object-contain
+          "
           />
-
-          {/* Divider */}
-          <div className="mt-4 h-px w-40 bg-brand-grey/40" />
-
-          {/* Tagline */}
-          <p className="mt-3 text-sm font-optima tracking-wide text-brand-grey">
-            A Better Tomorrow
-          </p>
         </div>
 
 

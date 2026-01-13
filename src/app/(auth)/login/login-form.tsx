@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function LoginForm() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,31 +102,44 @@ export function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="relative block w-full rounded-t-md border-0 px-3 py-2 text-comments font-optima text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey"
+            className="relative block w-full rounded-t-md border-0 px-3 py-2 text-comments text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey font-nums"
             placeholder="Email address"
             disabled={isLoading}
           />
         </div>
-        <div>
+        <div className="relative">
           <label htmlFor="password" className="sr-only">
             Password
           </label>
           <input
             id="password"
             name="password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="relative block w-full rounded-b-md border-0 px-3 py-2 text-comments font-optima text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey"
+            className="relative block w-full rounded-b-md border-0 px-3 py-2 text-comments text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey pr-10 font-nums"
             placeholder="Password"
             disabled={isLoading}
           />
+          <button
+            type="button"
+            className="absolute inset-y-0 right-0 flex items-center pr-3 z-20 text-gray-400 hover:text-gray-600 focus:outline-none"
+            onClick={() => setShowPassword(!showPassword)}
+            tabIndex={-1}
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Eye className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-start">
         <div className="text-comments font-optima">
           <a
             href="/forgot-password"

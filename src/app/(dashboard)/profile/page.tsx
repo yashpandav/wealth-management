@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 
 interface UserProfile {
   id: string;
@@ -126,19 +127,6 @@ function ProfileContent() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
-      {/* Header with Logo */}
-      <div className="mb-8 flex flex-col items-center">
-        <img
-          src="/images/logo/primary-logo-1.png"
-          alt="EMDEE VENTURES"
-          className="h-16 w-auto object-contain"
-        />
-        <div className="mt-3 h-px w-32 bg-brand-grey/40" />
-        <p className="mt-2 text-xs font-optima tracking-wide text-brand-grey">
-          A Better Tomorrow
-        </p>
-      </div>
-
       <div className="mb-8 text-center">
         <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue tracking-wide leading-tight">My Profile</h1>
         <p className="font-georgia text-comments text-brand-grey mt-2 leading-relaxed">View and manage your profile information</p>
@@ -223,12 +211,19 @@ function ProfileContent() {
                   <label htmlFor="phone" className="font-optima block text-comments font-medium text-brand-blue tracking-wide">
                     Phone Number
                   </label>
-                  <input
-                    type="tel"
+                  <PhoneInput
                     id="phone"
+                    name="phone"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="font-georgia mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 text-comments leading-relaxed shadow-sm focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 transition-all"
+                    onChange={(value) => setPhone(value || '')}
+                    defaultCountry="AE"
+                    international
+                    withCountryCallingCode
+                    smartCaret={true}
+                    limitMaxLength={true}
+                    className="mt-2 font-nums"
+                    placeholder="Enter phone number"
+                    error={phone ? (isPossiblePhoneNumber(phone) ? undefined : 'Invalid phone number') : undefined}
                   />
                 </div>
               </div>
@@ -270,7 +265,7 @@ function ProfileContent() {
 
               <div>
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Phone Number</dt>
-                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">{profile.phone || 'Not provided'}</dd>
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed font-nums">{profile.phone || 'Not provided'}</dd>
               </div>
 
               <div>
@@ -285,11 +280,10 @@ function ProfileContent() {
               <div>
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Account Status</dt>
                 <dd className="mt-2">
-                  <span className={`inline-flex rounded-full px-3 py-1 font-optima text-xs font-semibold tracking-wide ${
-                    profile.status === 'ACTIVE' ? 'bg-green-50 border border-green-200 text-green-700' :
+                  <span className={`inline-flex rounded-full px-3 py-1 font-optima text-xs font-semibold tracking-wide ${profile.status === 'ACTIVE' ? 'bg-green-50 border border-green-200 text-green-700' :
                     profile.status === 'INACTIVE' ? 'bg-gray-50 border border-gray-200 text-gray-700' :
-                    'bg-red-50 border border-red-200 text-red-700'
-                  }`}>
+                      'bg-red-50 border border-red-200 text-red-700'
+                    }`}>
                     {profile.status}
                   </span>
                 </dd>
@@ -308,7 +302,7 @@ function ProfileContent() {
 
               <div>
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Member Since</dt>
-                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed font-nums">
                   {new Date(profile.createdAt).toLocaleDateString()}
                 </dd>
               </div>
@@ -316,7 +310,7 @@ function ProfileContent() {
               {profile.lastLogin && (
                 <div>
                   <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Last Login</dt>
-                  <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">
+                  <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed font-nums">
                     {new Date(profile.lastLogin).toLocaleString()}
                   </dd>
                 </div>

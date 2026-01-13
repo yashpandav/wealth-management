@@ -189,8 +189,8 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                 Home
               </Link>
               <ChevronRight className="h-4 w-4" />
-              <Link href="/instruments" className="hover:text-brand-blue">
-                Instruments
+              <Link href="/products" className="hover:text-brand-blue">
+                Plans
               </Link>
               <ChevronRight className="h-4 w-4" />
               <span className="text-gray-900 font-medium">{instrument.symbol}</span>
@@ -226,21 +226,21 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
 
             {/* Current Price */}
             <div className="flex items-baseline gap-4">
-              <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center">
+              <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center font-nums">
                 {instrument.currency !== 'USD' && <span className="mr-2">{instrument.currency}</span>}
                 {instrument.currency === 'USD' && <DirhamIcon className="w-8 h-8 mr-2" />}
                 {instrument.currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
               <div className={`flex items-center gap-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                 {isPositive ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
-                <span className="text-lg font-semibold">
+                <span className="text-lg font-semibold font-nums">
                   {isPositive ? '+' : ''}
                   {priceChange.toFixed(2)} ({isPositive ? '+' : ''}
                   {priceChangePercent.toFixed(2)}%)
                 </span>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 mt-2 font-nums">
               Last updated: {format(new Date(instrument.lastPriceUpdate), 'MMM dd, yyyy HH:mm')}
             </p>
           </div>
@@ -273,7 +273,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                   <YAxis />
                   <Tooltip
                     formatter={(value: number) => [
-                      <div key="price-value" className="flex items-center">
+                      <div key="price-value" className="flex items-center font-nums">
                         <DirhamIcon className="w-3 h-3 mr-1" />
                         {value.toFixed(2)}
                       </div>,
@@ -340,7 +340,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                           <DirhamIcon className="h-4 w-4" />
                           <span className="text-sm">Market Cap</span>
                         </div>
-                        <p className="font-semibold text-lg flex items-center">
+                        <p className="font-semibold text-lg flex items-center font-nums">
                           <DirhamIcon className="w-4 h-4 mr-1" />
                           {(instrument.marketCap / 1000000000).toFixed(2)}B
                         </p>
@@ -352,13 +352,13 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                         <TrendingUp className="h-4 w-4" />
                         <span className="text-sm">Dividend Yield</span>
                       </div>
-                      <p className="font-semibold text-lg">{instrument.dividendYield.toFixed(2)}%</p>
+                      <p className="font-semibold text-lg font-nums">{instrument.dividendYield.toFixed(2)}%</p>
                     </div>
 
                     {instrument.yearlyHigh !== null && (
                       <div>
                         <div className="text-gray-600 text-sm mb-1">52-Week High</div>
-                        <p className="font-semibold text-lg flex items-center">
+                        <p className="font-semibold text-lg flex items-center font-nums">
                           {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-4 h-4 mr-1" />}
                           {instrument.yearlyHigh.toFixed(2)}
                         </p>
@@ -368,7 +368,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                     {instrument.yearlyLow !== null && (
                       <div>
                         <div className="text-gray-600 text-sm mb-1">52-Week Low</div>
-                        <p className="font-semibold text-lg flex items-center">
+                        <p className="font-semibold text-lg flex items-center font-nums">
                           {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-4 h-4 mr-1" />}
                           {instrument.yearlyLow.toFixed(2)}
                         </p>
@@ -378,7 +378,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                     {instrument.peRatio !== null && (
                       <div>
                         <div className="text-gray-600 text-sm mb-1">P/E Ratio</div>
-                        <p className="font-semibold text-lg">{instrument.peRatio.toFixed(2)}</p>
+                        <p className="font-semibold text-lg font-nums">{instrument.peRatio.toFixed(2)}</p>
                       </div>
                     )}
 
@@ -439,7 +439,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                 <CardContent className="space-y-4">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Minimum Investment</p>
-                    <div className="text-2xl font-bold flex items-center">
+                    <div className="text-2xl font-bold flex items-center font-nums">
                       <DirhamIcon className="w-6 h-6 mr-2" />
                       {instrument.minimumInvestment.toLocaleString()}
                     </div>
@@ -458,7 +458,7 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                     </Button>
                   </Link>
                   <p className="text-xs text-gray-500 text-center">
-                    Sign up to start investing in this instrument
+                    Sign up to start investing in this plan
                   </p>
                 </CardContent>
               </Card>
@@ -467,13 +467,13 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
               {relatedInstruments.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Related Instruments</CardTitle>
+                    <CardTitle>Related Plans</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {relatedInstruments.map((related) => (
                       <Link
                         key={related.id}
-                        href={`/instruments/${related.id}`}
+                        href={`/products/${related.id}`}
                         className="block p-3 border rounded-lg hover:bg-brand-blue/5 transition-colors"
                       >
                         <div className="flex justify-between items-start mb-1">
@@ -486,11 +486,11 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                           </Badge>
                         </div>
                         <div className="flex justify-between items-center mt-2">
-                          <span className="text-sm font-semibold flex items-center">
+                          <span className="text-sm font-semibold flex items-center font-nums">
                             <DirhamIcon className="w-3 h-3 mr-1" />
                             {related.currentPrice.toFixed(2)}
                           </span>
-                          <span className="text-xs text-green-600">
+                          <span className="text-xs text-green-600 font-nums">
                             {related.dividendYield.toFixed(2)}% yield
                           </span>
                         </div>
@@ -519,9 +519,9 @@ export function InstrumentDetail({ instrument, relatedInstruments }: InstrumentD
                   Create Account
                 </Button>
               </Link>
-              <Link href="/instruments">
+              <Link href="/products">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  Browse More Instruments
+                  Browse More Plans
                 </Button>
               </Link>
             </div>

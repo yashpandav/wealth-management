@@ -8,6 +8,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
+
+import { Eye, EyeOff } from 'lucide-react';
+
 interface FormData {
   email: string;
   password: string;
@@ -16,6 +20,8 @@ interface FormData {
   lastName: string;
   phone: string;
 }
+
+
 
 export function RegisterForm() {
   const router = useRouter();
@@ -31,6 +37,8 @@ export function RegisterForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Load and prefill lead data from localStorage
   useEffect(() => {
@@ -44,7 +52,7 @@ export function RegisterForm() {
           firstName: leadData.firstName || '',
           lastName: leadData.lastName || '',
           email: leadData.email || '',
-          phone: leadData.phoneNumber || '',
+          phone: leadData.phoneNumber || '', // Assumes leadData has phoneNumber
         }));
 
         // Clear localStorage after reading to avoid stale data
@@ -56,10 +64,17 @@ export function RegisterForm() {
     }
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handlePhoneChange = (value: string | undefined) => {
+    setFormData((prev) => ({
+      ...prev,
+      phone: value || '',
     }));
   };
 
@@ -75,7 +90,9 @@ export function RegisterForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+        }),
       });
 
       const data = await response.json();
@@ -94,7 +111,7 @@ export function RegisterForm() {
 
       setSuccess(
         data.message +
-          ' After verifying your email, you will need to upload your KYC documents.'
+        ' After verifying your email, you will need to upload your KYC documents.'
       );
       // Redirect to login after 3 seconds
       setTimeout(() => {
@@ -134,7 +151,7 @@ export function RegisterForm() {
               required
               value={formData.firstName}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey font-nums"
               placeholder="John"
               disabled={isLoading}
             />
@@ -151,7 +168,7 @@ export function RegisterForm() {
               required
               value={formData.lastName}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey font-nums"
               placeholder="Doe"
               disabled={isLoading}
             />
@@ -170,7 +187,7 @@ export function RegisterForm() {
             required
             value={formData.email}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey font-nums"
             placeholder="john@example.com"
             disabled={isLoading}
           />
@@ -178,57 +195,84 @@ export function RegisterForm() {
 
         <div>
           <label htmlFor="phone" className="block text-comments font-optima font-medium text-brand-blue">
-            Phone Number (Optional)
+            Phone Number
           </label>
-          <input
+          <PhoneInput
             id="phone"
             name="phone"
-            type="tel"
             value={formData.phone}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
-            placeholder="+1 (555) 123-4567"
+            onChange={handlePhoneChange}
+            defaultCountry="AE"
+            international
+            withCountryCallingCode
             disabled={isLoading}
+            smartCaret={true}
+            limitMaxLength={true}
+            className="mt-1 font-nums"
+            placeholder="Enter phone number"
+            error={formData.phone ? (isPossiblePhoneNumber(formData.phone) ? undefined : 'Invalid phone number') : 'Phone number required'}
           />
         </div>
 
-        <div>
+        <div className="relative">
           <label htmlFor="password" className="block text-comments font-optima font-medium text-brand-blue">
             Password
           </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
-            placeholder="••••••••"
-            disabled={isLoading}
-          />
+          <div className="relative mt-1">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10 font-nums"
+              placeholder="••••••••"
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={() => setShowPassword(!showPassword)}
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
           <p className="mt-1 text-xs font-optima text-brand-grey">
             Must be at least 8 characters with uppercase, lowercase, number, and special character
           </p>
         </div>
 
-        <div>
+        <div className="relative">
           <label htmlFor="confirmPassword" className="block text-comments font-optima font-medium text-brand-blue">
             Confirm Password
           </label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            required
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
-            placeholder="••••••••"
-            disabled={isLoading}
-          />
+          <div className="relative mt-1">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10 font-nums"
+              placeholder="••••••••"
+              disabled={isLoading}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              tabIndex={-1}
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
       </div>
 

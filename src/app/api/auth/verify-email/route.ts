@@ -78,18 +78,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Update user as verified and mark token as used
+    // Update user as verified and delete used token
     await prisma.$transaction([
       prisma.user.update({
         where: { id: user.id },
         data: { emailVerified: true },
       }),
-      prisma.verificationToken.update({
+      prisma.verificationToken.delete({
         where: { id: verificationToken.id },
-        data: {
-          used: true,
-          usedAt: new Date(),
-        },
       }),
       prisma.auditLog.create({
         data: {

@@ -13,8 +13,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { prisma } from '@/lib/db/prisma';
 
 export const metadata: Metadata = {
-  title: 'New Purchase Request | Client',
-  description: 'Submit a new purchase request',
+  title: 'New Investment Request | Client',
+  description: 'Submit a new investment request',
 };
 
 export default async function NewPurchaseRequestPage() {
@@ -42,9 +42,9 @@ export default async function NewPurchaseRequestPage() {
     <div className="container mx-auto max-w-4xl py-4 md:py-6 lg:py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">New Purchase Request</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">New Investment Request</h1>
         <p className="mt-2 text-muted-foreground">
-          Submit a request to purchase an investment instrument
+          Submit a request to invest in an investment instrument
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 /**
- * Client Products API
- * GET: List available investment products (Venture A, B, C)
+ * Client Plans API
+ * GET: List available investment plans (Venture A, B, C)
  */
 
 import { NextResponse } from 'next/server';
@@ -10,7 +10,7 @@ import { prisma } from '@/lib/db/prisma';
 
 /**
  * GET /api/client/products
- * List active products with their options
+ * List active plans with their options
  */
 export async function GET() {
   try {

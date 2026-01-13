@@ -163,28 +163,28 @@ export default function RMPerformancePage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total RMs</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-brand-blue">{totalRMs}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-brand-blue font-nums">{totalRMs}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total Clients</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-green-600">{totalClients}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-green-600 font-nums">{totalClients}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Total AUM</CardDescription>
+            <CardDescription>Total Investment Amount</CardDescription>
             <CardTitle className="text-2xl md:text-3xl text-purple-600 flex items-center">
               <DirhamIcon className="h-6 w-6 mr-1" />
-              {(totalAUM / 1000000).toFixed(1)}M
+              <span className="font-nums">{(totalAUM / 1000000).toFixed(1)}M</span>
             </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Avg Clients/RM</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-orange-600">
+            <CardTitle className="text-2xl md:text-3xl text-orange-600 font-nums">
               {avgClientsPerRM.toFixed(1)}
             </CardTitle>
           </CardHeader>
@@ -201,7 +201,7 @@ export default function RMPerformancePage() {
             {[
               { key: 'name', label: 'Name' },
               { key: 'clients', label: 'Client Count' },
-              { key: 'aum', label: 'Total AUM' },
+              { key: 'aum', label: 'Total Investment Amount' },
               { key: 'approval', label: 'Approval Rate' },
             ].map((option) => (
               <button
@@ -260,7 +260,7 @@ export default function RMPerformancePage() {
                             {rm.yearsOfExperience && (
                               <Badge variant="secondary" className="ml-2">
                                 <Award className="mr-1 h-3 w-3" />
-                                {rm.yearsOfExperience} years
+                                <span className="font-nums">{rm.yearsOfExperience}</span> years
                               </Badge>
                             )}
                             <Badge
@@ -287,17 +287,17 @@ export default function RMPerformancePage() {
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-600">Total Clients:</span>
-                              <span className="font-semibold">{rm.clients.total}</span>
+                              <span className="font-semibold font-nums">{rm.clients.total}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Active Clients:</span>
-                              <span className="font-semibold">{rm.clients.active}</span>
+                              <span className="font-semibold font-nums">{rm.clients.active}</span>
                             </div>
                             {rm.maxClientLimit && (
                               <div className="flex justify-between">
                                 <span className="text-gray-600">Capacity:</span>
                                 <span className="font-semibold">
-                                  {rm.clients.utilization.toFixed(0)}%
+                                  <span className="font-nums">{rm.clients.utilization.toFixed(0)}%</span>
                                 </span>
                               </div>
                             )}
@@ -308,21 +308,21 @@ export default function RMPerformancePage() {
                         <div className="space-y-3">
                           <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
                             <DirhamIcon className="h-4 w-4" />
-                            Assets Under Management
+                            Investment Amount
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Total AUM:</span>
+                              <span className="text-gray-600">Total Investment Amount:</span>
                               <span className="font-semibold flex items-center">
                                 <DirhamIcon className="h-3 w-3 mr-1" />
-                                {rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                <span className="font-nums">{rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Avg per Client:</span>
                               <span className="font-semibold flex items-center">
                                 <DirhamIcon className="h-3 w-3 mr-1" />
-                                {rm.aum.avgPerClient.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                <span className="font-nums">{rm.aum.avgPerClient.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -333,7 +333,7 @@ export default function RMPerformancePage() {
                               >
                                 {isPositiveGain ? '+' : ''}
                                 <DirhamIcon className="h-3 w-3 mx-1" />
-                                {rm.aum.gainLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                <span className="font-nums">{rm.aum.gainLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                               </span>
                             </div>
                           </div>
@@ -347,11 +347,11 @@ export default function RMPerformancePage() {
                           </h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purchase Approved:</span>
+                              <span className="text-gray-600">Investment Approved:</span>
                               <span className="font-semibold text-green-600">
-                                {rm.purchaseRequests.approved}/{rm.purchaseRequests.total}
+                                <span className="font-nums">{rm.purchaseRequests.approved}/{rm.purchaseRequests.total}</span>
                                 {rm.purchaseRequests.total > 0 && (
-                                  <span className="ml-1 text-xs">
+                                  <span className="ml-1 text-xs font-nums">
                                     ({rm.purchaseRequests.approvalRate.toFixed(0)}%)
                                   </span>
                                 )}
@@ -360,9 +360,9 @@ export default function RMPerformancePage() {
                             <div className="flex justify-between">
                               <span className="text-gray-600">Withdrawal Approved:</span>
                               <span className="font-semibold text-green-600">
-                                {rm.withdrawalRequests.approved}/{rm.withdrawalRequests.total}
+                                <span className="font-nums">{rm.withdrawalRequests.approved}/{rm.withdrawalRequests.total}</span>
                                 {rm.withdrawalRequests.total > 0 && (
-                                  <span className="ml-1 text-xs">
+                                  <span className="ml-1 text-xs font-nums">
                                     ({rm.withdrawalRequests.approvalRate.toFixed(0)}%)
                                   </span>
                                 )}
@@ -370,7 +370,7 @@ export default function RMPerformancePage() {
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Pending Actions:</span>
-                              <span className="font-semibold text-orange-600">
+                              <span className="font-semibold text-orange-600 font-nums">
                                 {rm.purchaseRequests.pending + rm.withdrawalRequests.pending}
                               </span>
                             </div>
@@ -396,7 +396,7 @@ export default function RMPerformancePage() {
                           ) : (
                             <XCircle className="mr-1 h-3 w-3" />
                           )}
-                          {avgApprovalRate.toFixed(1)}% Approval Rate
+                          <span className="font-nums">{avgApprovalRate.toFixed(1)}%</span> Approval Rate
                         </Badge>
                       </div>
                     </CardContent>

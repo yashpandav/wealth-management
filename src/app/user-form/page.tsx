@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast, Toaster } from 'react-hot-toast';
+import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import {
   Select,
   SelectContent,
@@ -93,23 +94,21 @@ export default function UserFormPage() {
     <div className="min-h-screen bg-brand-white py-12 px-4 sm:px-6 lg:px-4 md:px-6 lg:px-8">
       <Toaster position="top-right" />
       <div className="max-w-2xl mx-auto">
-        {/* Header with Logo */}
-        <div className="flex flex-col items-center mb-8">
-          {/* Logo */}
+        <div className="flex justify-center">
           <img
             src="/images/logo/primary-logo-1.png"
             alt="EMDEE VENTURES"
-            className="h-20 w-auto object-contain"
+            className="
+            w-full
+            max-w-[180px]
+            sm:max-w-[200px]
+            md:max-w-[220px]
+            lg:max-w-[240px]
+            object-contain
+          "
           />
-
-          {/* Divider */}
-          <div className="mt-4 h-px w-40 bg-brand-grey/40" />
-
-          {/* Tagline */}
-          <p className="mt-3 text-sm font-optima tracking-wide text-brand-grey">
-            A Better Tomorrow
-          </p>
         </div>
+
 
         {/* Form Card */}
         <div className="rounded-xl bg-white shadow-lg border-2 border-brand-blue/20">
@@ -185,22 +184,26 @@ export default function UserFormPage() {
                 <label htmlFor="phoneNumber" className="block text-comments font-optima font-medium text-brand-blue">
                   Phone Number <span className="text-red-500">*</span>
                 </label>
-                <input
+                <PhoneInput
                   id="phoneNumber"
-                  type="tel"
-                  {...form.register('phoneNumber')}
-                  placeholder="+1 (555) 123-4567"
+                  name="phoneNumber"
+                  value={form.watch('phoneNumber')}
+                  onChange={(value) => form.setValue('phoneNumber', value || '', { shouldValidate: true })}
+                  defaultCountry="AE"
+                  international
+                  withCountryCallingCode
                   disabled={isSubmitting}
-                  className="mt-2 block w-full rounded-lg border-2 border-brand-grey/30 px-4 py-2.5 font-georgia text-comments text-brand-blue placeholder-brand-grey/50 shadow-sm transition-all focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20 hover:border-brand-grey/50"
+                  smartCaret={true}
+                  limitMaxLength={true}
+                  className="mt-2 font-nums"
+                  placeholder="Enter phone number"
+                  error={form.watch('phoneNumber') ? (isPossiblePhoneNumber(form.watch('phoneNumber')) ? undefined : 'Invalid phone number') : 'Phone number required'}
                 />
                 {form.formState.errors.phoneNumber && (
                   <p className="mt-1.5 text-xs font-georgia text-red-600">
                     {form.formState.errors.phoneNumber.message}
                   </p>
                 )}
-                <p className="mt-1.5 text-xs font-georgia text-brand-grey">
-                  Include country code for international numbers
-                </p>
               </div>
 
               {/* Lead Source */}

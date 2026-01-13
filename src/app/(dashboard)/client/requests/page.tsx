@@ -1,5 +1,5 @@
 /**
- * Client - Purchase Requests Page
+ * Client - Investment Requests Page
  * View and track purchase request status
  */
 
@@ -238,9 +238,9 @@ export default function ClientRequestsPage() {
     <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Purchase Requests</h1>
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">My Investment Requests</h1>
           <p className="font-georgia text-brand-grey mt-2">
-            Track the status of your investment purchase requests
+            Track the status of your investment requests
           </p>
         </div>
         <Button onClick={fetchRequests} variant="outline" size="sm" className="font-optima">
@@ -296,21 +296,19 @@ export default function ClientRequestsPage() {
               <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
               <p className="mt-4 text-lg font-medium">
                 {selectedStatus === 'ALL'
-                  ? 'No purchase requests yet'
+                  ? 'No investment requests yet'
                   : `No ${selectedStatus.toLowerCase()} requests`}
               </p>
               <p className="mt-2 text-muted-foreground">
                 {selectedStatus === 'ALL'
-                  ? 'Submit your first purchase request to start investing'
+                  ? 'Submit your first investment request to start investing'
                   : 'Try selecting a different status filter'}
               </p>
               {selectedStatus === 'ALL' && (
                 <div className="flex justify-center gap-4 mt-4">
-                  <Button onClick={() => router.push('/instruments')}>
-                    Browse Instruments
-                  </Button>
-                  <Button variant="outline" onClick={() => router.push('/client/products')}>
-                    Browse Products
+
+                  <Button onClick={() => router.push('/client/products')}>
+                    Browse Plans
                   </Button>
                 </div>
               )}
@@ -367,7 +365,7 @@ export default function ClientRequestsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
-                    <p className="mt-1 text-2xl font-bold">
+                    <p className="mt-1 text-2xl font-bold font-nums">
                       {request.type === 'INSTRUMENT' ? request.instrument.currency : request.product.currency} {request.amount.toLocaleString('en-US', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -412,7 +410,7 @@ export default function ClientRequestsPage() {
                         <p className="text-sm font-medium text-muted-foreground">Projected Return</p>
                         <div className="flex items-center mt-1">
                           <TrendingUp className="h-4 w-4 text-green-600 mr-2" />
-                          <span className="text-xl font-bold text-green-600">{request.productOption.annualReturn}%</span>
+                          <span className="text-xl font-bold text-green-600 font-nums">{request.productOption.annualReturn}%</span>
                           <span className="text-sm text-muted-foreground ml-1">Annual</span>
                         </div>
                       </div>
@@ -433,7 +431,7 @@ export default function ClientRequestsPage() {
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">Submitted</p>
-                        <p className="text-muted-foreground">
+                        <p className="text-muted-foreground font-nums">
                           {new Date(request.createdAt).toLocaleString('en-US', {
                             month: 'short',
                             day: 'numeric',
@@ -463,7 +461,7 @@ export default function ClientRequestsPage() {
                                 ? 'Rejected'
                                 : 'Processed'}
                           </p>
-                          <p className="text-muted-foreground">
+                          <p className="text-muted-foreground font-nums">
                             {new Date(request.processedAt).toLocaleString('en-US', {
                               month: 'short',
                               day: 'numeric',

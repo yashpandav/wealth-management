@@ -1,7 +1,7 @@
 /**
- * Client Product Purchase Requests API
- * POST: Submit a new product purchase request
- * GET: List client's product purchase requests
+ * Client Plan Purchase Requests API
+ * POST: Submit a new plan purchase request
+ * GET: List client's plan purchase requests
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -36,7 +36,7 @@ function generateTrackingNumber(): string {
 
 /**
  * POST /api/client/product-requests
- * Submit a new product purchase request
+ * Submit a new plan purchase request
  */
 export async function POST(request: NextRequest) {
   try {
@@ -88,24 +88,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // CRITICAL: Check if all mandatory KYC documents are verified
-    const documents = await prisma.document.findMany({
+    // CRITICAL: Check if Identity Proof is verified
+    const identityProof = await prisma.document.findFirst({
       where: {
         clientId: client.id,
-        documentType: {
-          in: ['IDENTITY_PROOF', 'ADDRESS_PROOF'], // Mandatory documents
-        },
+        documentType: 'IDENTITY_PROOF',
       },
       select: {
         documentType: true,
         verificationStatus: true,
       },
+      orderBy: {
+        uploadedAt: 'desc', // Get the latest one if multiple exist (shouldn't happen in new flow but safe)
+      }
     });
 
-    // Check if both mandatory documents exist and are VERIFIED
-    const identityProof = documents.find((d) => d.documentType === 'IDENTITY_PROOF');
-    const addressProof = documents.find((d) => d.documentType === 'ADDRESS_PROOF');
-
+    // Check if Identity Proof exists and is VERIFIED
     if (!identityProof || identityProof.verificationStatus !== 'VERIFIED') {
       const errorMessage = !identityProof
         ? 'Identity Proof document is required. Please upload your Identity Proof document.'
@@ -113,32 +111,13 @@ export async function POST(request: NextRequest) {
           ? 'Your Identity Proof document was rejected. Please re-upload a valid Identity Proof document.'
           : identityProof.verificationStatus === 'PENDING' || identityProof.verificationStatus === 'UNDER_REVIEW'
             ? 'Your Identity Proof document is still being verified. Please wait for verification to complete.'
-            : 'Identity Proof document must be verified before submitting product requests.';
+            : 'Identity Proof document must be verified before submitting plan investment requests.';
 
       return NextResponse.json(
         {
           success: false,
           error: errorMessage,
           code: 'IDENTITY_PROOF_NOT_VERIFIED',
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!addressProof || addressProof.verificationStatus !== 'VERIFIED') {
-      const errorMessage = !addressProof
-        ? 'Address Proof document is required. Please upload your Address Proof document.'
-        : addressProof.verificationStatus === 'REJECTED'
-          ? 'Your Address Proof document was rejected. Please re-upload a valid Address Proof document.'
-          : addressProof.verificationStatus === 'PENDING' || addressProof.verificationStatus === 'UNDER_REVIEW'
-            ? 'Your Address Proof document is still being verified. Please wait for verification to complete.'
-            : 'Address Proof document must be verified before submitting product requests.';
-
-      return NextResponse.json(
-        {
-          success: false,
-          error: errorMessage,
-          code: 'ADDRESS_PROOF_NOT_VERIFIED',
         },
         { status: 400 }
       );
@@ -307,8 +286,8 @@ export async function POST(request: NextRequest) {
         userId: rmUserId,
         type: 'ALERT',
         category: 'REQUEST',
-        title: 'New Product Purchase Request',
-        message: `${clientName} has submitted a new product purchase request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
+        title: 'New Plan Investment Request',
+        message: `${clientName} has submitted a new plan investment request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
         isRead: false,
         actionUrl: '/rm/product-requests',
         actionText: 'Review Request',
@@ -337,18 +316,18 @@ export async function POST(request: NextRequest) {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>New Product Purchase Request</title>
+          <title>New Plan Investment Request</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">New Product Purchase Request</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">New Plan Investment Request</h1>
           </div>
 
           <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
             <h2 style="color: #1f2937; margin-top: 0;">Hi ${rmName},</h2>
 
             <p style="font-size: 16px; color: #4b5563;">
-              A new product purchase request has been submitted by one of your clients and requires your review.
+              A new plan investment request has been submitted by one of your clients and requires your review.
             </p>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #667eea;">
@@ -395,7 +374,7 @@ export async function POST(request: NextRequest) {
     const emailText = `
 Hi ${rmName},
 
-A new product purchase request has been submitted by one of your clients and requires your review.
+A new plan investment request has been submitted by one of your clients and requires your review.
 
 Request Details:
 - Client Name: ${clientName}
@@ -416,7 +395,7 @@ Please log in to your dashboard to review and process this request.
     // Send email (non-blocking)
     sendEmail({
       to: rmEmail,
-      subject: `New Product Purchase Request - ${purchaseRequest.trackingNumber}`,
+      subject: `New Plan Investment Request - ${purchaseRequest.trackingNumber}`,
       html: emailHtml,
       text: emailText,
     }).catch((err) => {
@@ -430,7 +409,7 @@ Please log in to your dashboard to review and process this request.
         action: 'PURCHASE_REQUEST_CREATE',
         entityType: 'ProductPurchaseRequest',
         entityId: purchaseRequest.id,
-        description: `Client ${clientName} submitted product purchase request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
+        description: `Client ${clientName} submitted plan investment request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
         metadata: {
           trackingNumber: purchaseRequest.trackingNumber,
           clientId: client.id,
@@ -461,7 +440,7 @@ Please log in to your dashboard to review and process this request.
 
     return NextResponse.json({
       success: true,
-      message: 'Product purchase request submitted successfully',
+      message: 'Plan investment request submitted successfully',
       data: {
         id: purchaseRequest.id,
         trackingNumber: purchaseRequest.trackingNumber,
@@ -482,7 +461,7 @@ Please log in to your dashboard to review and process this request.
     console.error('Error submitting product purchase request:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to submit product purchase request' },
+      { success: false, error: 'Failed to submit plan investment request' },
       { status: 500 }
     );
   }
@@ -596,7 +575,7 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching product purchase requests:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch product purchase requests' },
+      { success: false, error: 'Failed to fetch plan investment requests' },
       { status: 500 }
     );
   }

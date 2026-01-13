@@ -266,18 +266,18 @@ export async function sendPurchaseRequestApprovedEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Purchase Request Approved</title>
+        <title>Investment Request Approved</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Purchase Request Approved</h1>
+          <h1 style="color: white; margin: 0; font-size: 28px;">Investment Request Approved</h1>
         </div>
 
         <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
 
           <p style="font-size: 16px; color: #4b5563;">
-            Great news! Your purchase request has been approved by your Relationship Manager.
+            Great news! Your investment request has been approved by your Relationship Manager.
           </p>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
@@ -293,7 +293,7 @@ export async function sendPurchaseRequestApprovedEmail(
           </div>
 
           <p style="font-size: 16px; color: #4b5563;">
-            Your purchase will be processed and reflected in your portfolio shortly.
+            Your investment will be processed and reflected in your portfolio shortly.
           </p>
 
           <div style="text-align: center; margin: 30px 0;">
@@ -338,7 +338,7 @@ If you have any questions about this transaction, please contact your Relationsh
 
   return await sendEmail({
     to: email,
-    subject: `Purchase Request Approved - ${trackingNumber}`,
+    subject: `Investment Request Approved - ${trackingNumber}`,
     html,
     text,
   });
@@ -365,18 +365,18 @@ export async function sendPurchaseRequestRejectedEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Purchase Request Update</title>
+        <title>Investment Request Update</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Purchase Request Update</h1>
+          <h1 style="color: white; margin: 0; font-size: 28px;">Investment Request Update</h1>
         </div>
 
         <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
 
           <p style="font-size: 16px; color: #4b5563;">
-            We're writing to inform you that your purchase request could not be approved at this time.
+            We're writing to inform you that your investment request could not be approved at this time.
           </p>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
@@ -448,7 +448,7 @@ If you have questions about this decision, please reach out to your Relationship
 
   return await sendEmail({
     to: email,
-    subject: `Purchase Request Update - ${trackingNumber}`,
+    subject: `Investment Request Update - ${trackingNumber}`,
     html,
     text,
   });
@@ -1173,7 +1173,7 @@ export async function sendDocumentVerificationResult(
           </div>
 
           <p style="font-size: 14px; color: #4b5563;">
-            This document is now on file and meets our verification requirements. If all your required documents are verified, you'll have full access to investment features.
+            This document is now on file and meets our verification requirements. Since Identity Proof is the only required document, you now have full access to investment features.
           </p>
           ` : `
           <p style="font-size: 16px; color: #4b5563;">
@@ -1234,7 +1234,7 @@ DOCUMENT VERIFIED
 =================
 Document Type: ${documentTypeFormatted}
 
-This document is now on file and meets our verification requirements. If all your required documents are verified, you'll have full access to investment features.
+This document is now on file and meets our verification requirements. Since Identity Proof is the only required document, you now have full access to investment features.
 
 Login to Platform: ${loginUrl}
 
@@ -1298,18 +1298,18 @@ export async function sendPurchaseRequestSubmittedEmail(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Purchase Request Received</title>
+        <title>Investment Request Received</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">Purchase Request Received</h1>
+          <h1 style="color: white; margin: 0; font-size: 28px;">Investment Request Received</h1>
         </div>
 
         <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
 
           <p style="font-size: 16px; color: #4b5563;">
-            Thank you for your interest. We've received your purchase request and your Relationship Manager is now reviewing it.
+            Thank you for your interest. We've received your investment request and your Relationship Manager is now reviewing it.
           </p>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6;">
@@ -1374,7 +1374,7 @@ If you have questions, please contact your Relationship Manager.
 
   return await sendEmail({
     to: email,
-    subject: `Purchase Request Received - ${trackingNumber}`,
+    subject: `Investment Request Received - ${trackingNumber}`,
     html,
     text,
   });
@@ -1898,18 +1898,18 @@ export async function sendRMPurchaseRequestNotification(
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>New Purchase Request to Review</title>
+        <title>New Investment Request to Review</title>
       </head>
       <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 28px;">New Purchase Request</h1>
+          <h1 style="color: white; margin: 0; font-size: 28px;">New Investment Request</h1>
         </div>
 
         <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
           <h2 style="color: #1f2937; margin-top: 0;">Hi ${rmName},</h2>
 
           <p style="font-size: 16px; color: #4b5563;">
-            One of your clients has submitted a new purchase request that requires your review.
+            One of your clients has submitted a new investment request that requires your review.
           </p>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b;">
@@ -1953,7 +1953,7 @@ export async function sendRMPurchaseRequestNotification(
   const text = `
 Hi ${rmName},
 
-One of your clients has submitted a new purchase request that requires your review.
+One of your clients has submitted a new investment request that requires your review.
 
 Request Details:
 - Client Name: ${clientName}
@@ -1970,7 +1970,7 @@ Review request: ${reviewUrl}
 
   return await sendEmail({
     to: rmEmail,
-    subject: `New Purchase Request - ${trackingNumber}`,
+    subject: `New Investment Request - ${trackingNumber}`,
     html,
     text,
   });
@@ -2201,7 +2201,7 @@ export async function sendDocAdminContractUploadRequiredEmail(
           <h2 style="color: #1f2937; margin-top: 0;">Hi ${docAdminName},</h2>
 
           <p style="font-size: 16px; color: #4b5563;">
-            A product purchase request has been approved by the RM. Please prepare and upload the investment contract for the client to review.
+            A product investment request has been approved by the RM. Please prepare and upload the investment contract for the client to review.
           </p>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #6366f1;">
@@ -2245,7 +2245,7 @@ export async function sendDocAdminContractUploadRequiredEmail(
   const text = `
 Hi ${docAdminName},
 
-A product purchase request has been approved by the RM. Please prepare and upload the investment contract for the client to review.
+A product investment request has been approved by the RM. Please prepare and upload the investment contract for the client to review.
 
 Request Details:
 - Client Name: ${clientName}

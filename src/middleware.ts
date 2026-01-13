@@ -9,7 +9,7 @@ import { getToken } from 'next-auth/jwt';
 import { applySecurityHeaders, generateNonce } from '@/lib/security/headers';
 
 // Define public routes that don't require authentication
-const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/instruments', '/user-form', '/upload-documents'];
+const publicRoutes = ['/', '/login', '/register', '/error', '/forgot-password', '/reset-password', '/verify-email', '/verify-request', '/products', '/user-form', '/upload-documents'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

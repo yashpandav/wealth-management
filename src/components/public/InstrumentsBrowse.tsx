@@ -186,9 +186,9 @@ export function InstrumentsBrowse() {
       {/* Header with View Toggle */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Browse Investment Instruments</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Browse Investment Plans</h2>
           <p className="text-gray-600 mt-1">
-            {pagination?.totalCount || 0} instruments available
+            <span className="font-nums">{pagination?.totalCount || 0}</span> plans available
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -338,7 +338,7 @@ export function InstrumentsBrowse() {
                         </div>
                         <p className="font-semibold text-green-600 flex items-center">
                           <DirhamIcon className="h-3 w-3 mr-1" />
-                          {Number(instrument.currentPrice).toFixed(2)}
+                          <span className="font-nums">{Number(instrument.currentPrice).toFixed(2)}</span>
                         </p>
                       </div>
                       <div>
@@ -348,12 +348,12 @@ export function InstrumentsBrowse() {
                         </div>
                         <p className="font-semibold flex items-center">
                           <DirhamIcon className="h-3 w-3 mr-1" />
-                          {instrument.minimumInvestment.toLocaleString()}
+                          <span className="font-nums">{instrument.minimumInvestment.toLocaleString()}</span>
                         </p>
                       </div>
                     </div>
 
-                    <Link href={`/instruments/${instrument.id}`}>
+                    <Link href={`/products/${instrument.id}`}>
                       <Button className="w-full">View Details</Button>
                     </Link>
                   </CardContent>
@@ -390,17 +390,17 @@ export function InstrumentsBrowse() {
                           <p className="text-xs text-gray-600 mb-1">Current Price</p>
                           <p className="font-semibold text-green-600 flex items-center justify-end">
                             <DirhamIcon className="h-3 w-3 mr-1" />
-                            {Number(instrument.currentPrice).toFixed(2)}
+                            <span className="font-nums">{Number(instrument.currentPrice).toFixed(2)}</span>
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-gray-600 mb-1">Min Investment</p>
                           <p className="font-semibold flex items-center justify-end">
                             <DirhamIcon className="h-3 w-3 mr-1" />
-                            {instrument.minimumInvestment.toLocaleString()}
+                            <span className="font-nums">{instrument.minimumInvestment.toLocaleString()}</span>
                           </p>
                         </div>
-                        <Link href={`/instruments/${instrument.id}`}>
+                        <Link href={`/products/${instrument.id}`}>
                           <Button size="sm">View Details</Button>
                         </Link>
                       </div>
@@ -437,9 +437,9 @@ export function InstrumentsBrowse() {
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-gray-600">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
-            {pagination.totalCount} instruments
+            Showing <span className="font-nums">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
+            <span className="font-nums">{Math.min(pagination.page * pagination.limit, pagination.totalCount)}</span> of{' '}
+            <span className="font-nums">{pagination.totalCount}</span> instruments
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -451,7 +451,7 @@ export function InstrumentsBrowse() {
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            <div className="text-sm">
+            <div className="text-sm font-nums">
               Page {pagination.page} of {pagination.totalPages}
             </div>
             <Button

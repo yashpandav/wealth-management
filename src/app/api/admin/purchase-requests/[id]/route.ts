@@ -1,7 +1,7 @@
 /**
- * Admin - Purchase Request Detail API
+ * Admin - Investment Request Detail API
  * GET /api/admin/purchase-requests/[id]
- * Fetch detailed information about a specific purchase request
+ * Fetch detailed information about a specific investment request
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,7 +16,7 @@ interface RouteContext {
 }
 
 /**
- * GET - Fetch purchase request details
+ * GET - Fetch investment request details
  */
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
@@ -101,7 +101,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 
     if (!request) {
       return NextResponse.json(
-        { success: false, error: 'Purchase request not found' },
+        { success: false, error: 'Investment request not found' },
         { status: 404 }
       );
     }
@@ -132,7 +132,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
   } catch (error) {
     console.error('Error fetching purchase request:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch purchase request' },
+      { success: false, error: 'Failed to fetch investment request' },
       { status: 500 }
     );
   }

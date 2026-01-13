@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import 'react-phone-number-input/style.css';
 import { SessionProvider } from '@/lib/auth';
 
 export const metadata: Metadata = {
   title: 'EMDEE VENTURES | Wealth Management',
-  description: 'EMDEE VENTURES - A Better Tomorrow. Investment and Holding Company.',
+  description: 'EMDEE VENTURES - For a Better Tomorrow. Investment and Holding Company.',
 };
 
 export default function RootLayout({

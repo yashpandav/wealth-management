@@ -298,14 +298,16 @@ async function notifyDocAdmins(
         isActive: true,
       },
       select: {
+        id: true,
         email: true,
         firstName: true,
       },
     });
 
-    // Send email to each DocAdmin
-    const emailPromises = docAdmins.map((admin) =>
-      sendDocumentUploadNotification(
+    // Send email and create in-app notification for each DocAdmin
+    const promises = docAdmins.map(async (admin) => {
+      // 1. Send Email
+      await sendDocumentUploadNotification(
         admin.email,
         admin.firstName,
         `${clientFirstName} ${clientLastName}`,
@@ -314,10 +316,29 @@ async function notifyDocAdmins(
         documentId
       ).catch((err) => {
         console.error(`Failed to send notification to ${admin.email}:`, err);
-      })
-    );
+      });
 
-    await Promise.allSettled(emailPromises);
+      // 2. Create In-App Notification
+      await prisma.notification.create({
+        data: {
+          userId: admin.id,
+          type: 'INFO',
+          category: 'REQUEST',
+          title: 'New Document Uploaded',
+          message: `${clientFirstName} ${clientLastName} has uploaded a new ${documentType} for verification.`,
+          isRead: false,
+          actionUrl: '/docadmin/documents',
+          actionText: 'Review Documents',
+          entityType: 'Document',
+          entityId: documentId,
+          priority: 'NORMAL',
+        },
+      }).catch((err) => {
+        console.error(`Failed to create notification for ${admin.email}:`, err);
+      });
+    });
+
+    await Promise.allSettled(promises);
   } catch (error) {
     console.error('Failed to notify DocAdmins:', error);
   }

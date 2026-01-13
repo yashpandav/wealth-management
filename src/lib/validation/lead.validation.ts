@@ -43,10 +43,13 @@ export const createLeadSchema = z.object({
   phoneNumber: z
     .string()
     .min(1, 'Phone number is required')
-    .max(50, 'Phone number is too long')
-    .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
-      'Please enter a valid phone number')
-    .trim(),
+    .refine(
+      (val) => {
+        // E.164 format validation (starts with + and has 7-15 digits)
+        return /^\+[1-9]\d{1,14}$/.test(val);
+      },
+      { message: 'Please enter a valid phone number with country code' }
+    ),
   leadSource: leadSourceEnum,
   rmReference: z
     .string()

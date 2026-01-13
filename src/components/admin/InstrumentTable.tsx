@@ -397,7 +397,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center">
+                      <div className="flex items-center font-nums">
                         {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
                         {Number(instrument.currentPrice).toFixed(2)}
                       </div>
@@ -422,7 +422,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
                     <TableCell>
                       {instrument.minimumInvestment
                         ? (
-                          <div className="flex items-center">
+                          <div className="flex items-center font-nums">
                             {instrument.currency !== 'USD' ? instrument.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
                             {Number(instrument.minimumInvestment).toFixed(2)}
                           </div>
@@ -434,7 +434,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
                         {instrument.isActive ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{instrument._count.holdings}</TableCell>
+                    <TableCell className="font-nums">{instrument._count.holdings}</TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -473,7 +473,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
               <SelectItem value="100">100</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground font-nums">
             Showing {totalCount === 0 ? 0 : (page - 1) * limit + 1} to{' '}
             {Math.min(page * limit, totalCount)} of {totalCount} instruments
           </span>
@@ -488,7 +488,7 @@ export function InstrumentTable({ initialData = [] }: InstrumentTableProps) {
           >
             Previous
           </Button>
-          <span className="text-sm">
+          <span className="text-sm font-nums">
             Page {page} of {totalPages || 1}
           </span>
           <Button
