@@ -49,7 +49,13 @@ export default async function RMProductRequestsPage() {
             <div className="flex items-start gap-2">
               <div className="mt-0.5 h-2 w-2 rounded-full bg-green-600" />
               <div>
-                <strong>Approved:</strong> Verified and approved investment requests
+                <strong>Approved:</strong> Approved and waiting for docadmin approval
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="mt-0.5 h-2 w-2 rounded-full bg-brand-blue" />
+              <div>
+                <strong>Completed:</strong> Investment successfully processed and active
               </div>
             </div>
             <div className="flex items-start gap-2">

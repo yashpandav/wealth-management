@@ -114,7 +114,7 @@ export function RegisteredClientsTable() {
           />
         </div>
         <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden sm:block">
-          {pagination?.totalCount || 0} total clients
+          <span className="font-nums">{pagination?.totalCount || 0}</span> total clients
         </div>
       </div>
 
@@ -153,7 +153,7 @@ export function RegisteredClientsTable() {
                       {client.user.phone && (
                         <div className="flex items-center gap-2 text-sm">
                           <Phone className="h-3 w-3 text-muted-foreground" />
-                          <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline">
+                          <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline font-nums">
                             {client.user.phone}
                           </a>
                         </div>
@@ -161,10 +161,10 @@ export function RegisteredClientsTable() {
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {format(new Date(client.createdAt), 'MMM dd, yyyy')}
+                    <span className="font-nums">{format(new Date(client.createdAt), 'MMM dd, yyyy')}</span>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {format(new Date(client.assignedAt), 'MMM dd, yyyy')}
+                    <span className="font-nums">{format(new Date(client.assignedAt), 'MMM dd, yyyy')}</span>
                   </TableCell>
                 </TableRow>
               ))
@@ -187,7 +187,7 @@ export function RegisteredClientsTable() {
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground font-nums">
             Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
             {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
             {pagination?.totalCount} clients
@@ -202,7 +202,7 @@ export function RegisteredClientsTable() {
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            <div className="text-sm">
+            <div className="text-sm font-nums">
               Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button

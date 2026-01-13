@@ -228,4 +228,8 @@
   .PhoneInput-error {
     @apply mt-1 text-xs text-red-500 font-optima;
   }
+
+  .font-nums {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+  }
 }

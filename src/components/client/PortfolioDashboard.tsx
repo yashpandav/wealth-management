@@ -114,7 +114,7 @@ export function PortfolioDashboard() {
         <StatCard
           title="Portfolio Value"
           value={
-            <div className="flex items-center">
+            <div className="flex items-center font-nums">
               <DirhamIcon className="w-5 h-5 mr-1" />
               {portfolio.totalValue >= 1000000
                 ? `${(portfolio.totalValue / 1000000).toFixed(2)}M`
@@ -131,7 +131,7 @@ export function PortfolioDashboard() {
         <StatCard
           title="Invested"
           value={
-            <div className="flex items-center">
+            <div className="flex items-center font-nums">
               <DirhamIcon className="w-5 h-5 mr-1" />
               {portfolio.totalInvested >= 1000000
                 ? `${(portfolio.totalInvested / 1000000).toFixed(2)}M`
@@ -148,7 +148,7 @@ export function PortfolioDashboard() {
         <StatCard
           title="Gain/Loss"
           value={
-            <div className="flex items-center">
+            <div className="flex items-center font-nums">
               {isPositiveGain ? '+' : ''}
               <DirhamIcon className="w-5 h-5 mx-1" />
               {Math.abs(portfolio.totalGainLoss) >= 1000
@@ -167,7 +167,7 @@ export function PortfolioDashboard() {
         <StatCard
           title="Today"
           value={
-            <div className="flex items-center">
+            <div className="flex items-center font-nums">
               {isPositiveDayChange ? '+' : ''}
               <DirhamIcon className="w-5 h-5 mx-1" />
               {Math.abs(portfolio.dayChange) >= 1000

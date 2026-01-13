@@ -113,7 +113,7 @@ function ResetPasswordForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm pr-10"
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm pr-10 font-nums"
                   placeholder="••••••••"
                   disabled={isLoading || !token}
                 />
@@ -145,7 +145,7 @@ function ResetPasswordForm() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm pr-10"
+                  className="block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-brand-blue focus:outline-none focus:ring-brand-blue sm:text-sm pr-10 font-nums"
                   placeholder="••••••••"
                   disabled={isLoading || !token}
                 />

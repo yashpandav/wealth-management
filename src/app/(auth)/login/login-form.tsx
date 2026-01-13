@@ -102,7 +102,7 @@ export function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="relative block w-full rounded-t-md border-0 px-3 py-2 text-comments font-optima text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey"
+            className="relative block w-full rounded-t-md border-0 px-3 py-2 text-comments text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey font-nums"
             placeholder="Email address"
             disabled={isLoading}
           />
@@ -119,7 +119,7 @@ export function LoginForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="relative block w-full rounded-b-md border-0 px-3 py-2 text-comments font-optima text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey pr-10"
+            className="relative block w-full rounded-b-md border-0 px-3 py-2 text-comments text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey pr-10 font-nums"
             placeholder="Password"
             disabled={isLoading}
           />

@@ -253,27 +253,27 @@ export default function AdminPurchaseRequestDetailPage() {
                 <div>
                   <p className="text-sm text-gray-600">Investment Amount</p>
                   <p className="text-2xl font-bold">
-                    {request.instrument.currency} {request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {request.instrument.currency} <span className="font-nums">{request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                   </p>
                 </div>
                 {request.quantity && (
                   <div>
                     <p className="text-sm text-gray-600">Quantity</p>
-                    <p className="text-2xl font-bold">{request.quantity.toLocaleString()}</p>
+                    <p className="text-2xl font-bold font-nums">{request.quantity.toLocaleString()}</p>
                   </div>
                 )}
                 {request.requestedPrice && (
                   <div>
                     <p className="text-sm text-gray-600">Requested Price</p>
                     <p className="text-lg font-semibold">
-                      {request.instrument.currency} {request.requestedPrice.toFixed(2)}
+                      {request.instrument.currency} <span className="font-nums">{request.requestedPrice.toFixed(2)}</span>
                     </p>
                   </div>
                 )}
                 <div>
                   <p className="text-sm text-gray-600">Total Cost</p>
                   <p className="text-lg font-semibold">
-                    {request.instrument.currency} {totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {request.instrument.currency} <span className="font-nums">{totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                   </p>
                 </div>
               </div>
@@ -354,7 +354,7 @@ export default function AdminPurchaseRequestDetailPage() {
               {request.client.user.phone && (
                 <div className="flex items-center gap-2 text-sm">
                   <Phone className="h-4 w-4 text-gray-500" />
-                  <a href={`tel:${request.client.user.phone}`} className="text-brand-blue hover:underline">
+                  <a href={`tel:${request.client.user.phone}`} className="text-brand-blue hover:underline font-nums">
                     {request.client.user.phone}
                   </a>
                 </div>
@@ -377,13 +377,13 @@ export default function AdminPurchaseRequestDetailPage() {
                 <div>
                   <p className="text-sm text-gray-600">Total Value</p>
                   <p className="text-xl font-bold">
-                    ${request.client.portfolio.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    $<span className="font-nums">{request.client.portfolio.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Total Invested</p>
                   <p className="text-lg font-semibold">
-                    ${request.client.portfolio.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    $<span className="font-nums">{request.client.portfolio.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                   </p>
                 </div>
               </CardContent>

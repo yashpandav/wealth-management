@@ -223,7 +223,7 @@ export function ProductRequestsClient({
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Requests</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{summary.total}</div>
+              <div className="text-2xl font-bold font-nums">{summary.total}</div>
             </CardContent>
           </Card>
           {summary.byStatus.map((s) => (
@@ -232,8 +232,8 @@ export function ProductRequestsClient({
                 <CardTitle className="text-sm font-medium text-muted-foreground capitalize">{s.status.toLowerCase().replace(/_/g, ' ')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{s.count}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold font-nums">{s.count}</div>
+                <p className="text-xs text-muted-foreground font-nums">
                   Total: ${Number(s.totalAmount).toLocaleString()}
                 </p>
               </CardContent>
@@ -314,15 +314,15 @@ export function ProductRequestsClient({
                     <div className="text-sm">
                       <p>{req.productOption.duration}</p>
                       <p className="text-xs text-muted-foreground">
-                        {req.productOption.annualReturn}% Annual
+                        <span className="font-nums">{req.productOption.annualReturn}</span>% Annual
                       </p>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-medium">
+                  <TableCell className="text-right font-medium font-nums">
                     {req.product.currency} {Number(req.amount).toLocaleString()}
                   </TableCell>
                   <TableCell>{getStatusBadge(req.status)}</TableCell>
-                  <TableCell>{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
+                  <TableCell className="font-nums">{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
@@ -361,9 +361,9 @@ export function ProductRequestsClient({
       {pagination && pagination.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-            {pagination.total} requests
+            Showing <span className="font-nums">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
+            <span className="font-nums">{Math.min(pagination.page * pagination.limit, pagination.total)}</span> of{' '}
+            <span className="font-nums">{pagination.total}</span> requests
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -375,7 +375,7 @@ export function ProductRequestsClient({
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            <div className="text-sm">
+            <div className="text-sm font-nums">
               Page {pagination.page} of {pagination.totalPages}
             </div>
             <Button
@@ -433,7 +433,7 @@ export function ProductRequestsClient({
                 />
                 {contractFile && (
                   <p className="text-sm text-muted-foreground">
-                    Selected: {contractFile.name} ({(contractFile.size / 1024).toFixed(2)} KB)
+                    Selected: {contractFile.name} (<span className="font-nums">{(contractFile.size / 1024).toFixed(2)}</span> KB)
                   </p>
                 )}
               </div>
@@ -514,7 +514,7 @@ export function ProductRequestsClient({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium">{detailDialog.request.product.currency} {Number(detailDialog.request.amount).toLocaleString()}</p>
+                  <p className="font-medium font-nums">{detailDialog.request.product.currency} {Number(detailDialog.request.amount).toLocaleString()}</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -524,12 +524,12 @@ export function ProductRequestsClient({
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Annual Return</p>
-                  <p className="text-green-600 font-medium">{detailDialog.request.productOption.annualReturn}%</p>
+                  <p className="text-green-600 font-medium"><span className="font-nums">{detailDialog.request.productOption.annualReturn}</span>%</p>
                 </div>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Submitted</p>
-                <p>{format(new Date(detailDialog.request.createdAt), 'PPp')}</p>
+                <p className="font-nums">{format(new Date(detailDialog.request.createdAt), 'PPp')}</p>
               </div>
               {detailDialog.request.clientNotes && (
                 <div>

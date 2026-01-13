@@ -142,7 +142,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right">{row.original.quantity?.toLocaleString() || '0'}</div>
+          <div className="text-right font-nums">{row.original.quantity?.toLocaleString() || '0'}</div>
         ),
       },
       {
@@ -158,7 +158,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right flex items-center justify-end">
+          <div className="text-right flex items-center justify-end font-nums">
             <DirhamIcon className="w-3 h-3 mr-1" />
             {row.original.averagePurchasePrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
@@ -177,7 +177,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right flex items-center justify-end">
+          <div className="text-right flex items-center justify-end font-nums">
             <DirhamIcon className="w-3 h-3 mr-1" />
             {row.original.currentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
@@ -196,7 +196,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right font-medium flex items-center justify-end">
+          <div className="text-right font-medium flex items-center justify-end font-nums">
             <DirhamIcon className="w-3 h-3 mr-1" />
             {row.original.currentValue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
           </div>
@@ -218,7 +218,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           const gainLoss = row.original.gainLoss ?? 0;
           const isPositive = gainLoss >= 0;
           return (
-            <div className={`flex items-center justify-end font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`flex items-center justify-end font-medium font-nums ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? (
                 <TrendingUp className="mr-1 h-4 w-4" />
               ) : (
@@ -247,7 +247,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           const gainLossPercent = row.original.gainLossPercent ?? 0;
           const isPositive = gainLossPercent >= 0;
           return (
-            <div className={`text-right font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-right font-medium font-nums ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}{gainLossPercent.toFixed(2)}%
             </div>
           );
@@ -266,7 +266,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
           </Button>
         ),
         cell: ({ row }) => (
-          <div className="text-right">{(row.original.allocationPercent ?? 0).toFixed(2)}%</div>
+          <div className="text-right font-nums">{(row.original.allocationPercent ?? 0).toFixed(2)}%</div>
         ),
       },
     ],
@@ -384,7 +384,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground font-nums">
           Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
           {Math.min(
             (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
@@ -402,7 +402,7 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
-          <div className="text-sm">
+          <div className="text-sm font-nums">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </div>
           <Button

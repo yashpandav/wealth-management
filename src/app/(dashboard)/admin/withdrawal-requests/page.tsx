@@ -162,25 +162,25 @@ export default function AdminWithdrawalRequestsPage() {
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Pending Approval</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-orange-600">{pendingApproval}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-orange-600 font-nums">{pendingApproval}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Under Review</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-brand-blue">{underReview}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-brand-blue font-nums">{underReview}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Approved</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-green-600">{approved}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-green-600 font-nums">{approved}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Rejected</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-red-600">{rejected}</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl text-red-600 font-nums">{rejected}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -208,7 +208,7 @@ export default function AdminWithdrawalRequestsPage() {
               >
                 {status.replace(/_/g, ' ')}
                 {status !== 'ALL' && (
-                  <span className="ml-2 text-xs">
+                  <span className="ml-2 text-xs font-nums">
                     ({requests.filter((r) => r.status === status).length})
                   </span>
                 )}
@@ -284,10 +284,10 @@ export default function AdminWithdrawalRequestsPage() {
                         <span className="text-gray-400">No RM</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right font-semibold">
+                    <TableCell className="text-right font-semibold font-nums">
                       ${request.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right font-nums">
                       {request.client.portfolio ? (
                         `$${request.client.portfolio.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
                       ) : (
@@ -297,7 +297,7 @@ export default function AdminWithdrawalRequestsPage() {
                     <TableCell>
                       <StatusBadge status={request.status} />
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600">
+                    <TableCell className="text-sm text-gray-600 font-nums">
                       {new Date(request.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">

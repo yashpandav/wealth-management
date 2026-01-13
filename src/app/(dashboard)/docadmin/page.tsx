@@ -236,7 +236,7 @@ export default async function DocAdminDashboardPage() {
                           }`}>
                           {doc.verificationStatus.replace('_', ' ')}
                         </span>
-                        <p className="text-[10px] text-brand-grey min-w-fit">
+                        <p className="text-[10px] text-brand-grey min-w-fit font-nums">
                           {new Date(doc.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                         </p>
                       </div>
@@ -288,12 +288,12 @@ export default async function DocAdminDashboardPage() {
                           {req.product.currency === 'USD' ? (
                             <>
                               <span className="text-[10px] mr-1">USD</span>
-                              {(Number(req.amount) / 1000).toFixed(1)}K
+                              <span className="font-nums">{(Number(req.amount) / 1000).toFixed(1)}K</span>
                             </>
                           ) : (
                             <>
                               <DirhamIcon className="w-3 h-3 mr-1" />
-                              {(Number(req.amount) / 1000).toFixed(1)}K
+                              <span className="font-nums">{(Number(req.amount) / 1000).toFixed(1)}K</span>
                             </>
                           )}
                         </p>

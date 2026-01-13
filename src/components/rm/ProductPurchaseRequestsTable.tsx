@@ -279,15 +279,15 @@ export function ProductPurchaseRequestsTable() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-lg border shadow-sm">
             <p className="text-sm text-brand-grey font-medium">Total Requests</p>
-            <p className="text-2xl font-bold text-brand-blue mt-1">{summary.total}</p>
+            <p className="text-2xl font-bold text-brand-blue mt-1 font-nums">{summary.total}</p>
           </div>
           {summary.byStatus.map((s) => (
             <div key={s.status} className="bg-white p-4 rounded-lg border shadow-sm">
               <p className="text-sm text-brand-grey font-medium capitalize">{s.status.toLowerCase()}</p>
               <div className="flex items-end justify-between mt-1">
-                <p className="text-2xl font-bold text-gray-900">{s.count}</p>
-                <div className="flex items-center text-xs text-brand-grey mb-1">
-                  <span className="mr-1">Total:</span>
+                <p className="text-2xl font-bold text-gray-900 font-nums">{s.count}</p>
+                <div className="flex items-center text-xs text-brand-grey mb-1 font-nums">
+                  <span className="mr-1 font-sans">Total:</span>
                   <DirhamIcon className="w-3 h-3 text-brand-grey mr-1" />
                   {s.totalAmount.toLocaleString()}
                 </div>
@@ -331,7 +331,7 @@ export function ProductPurchaseRequestsTable() {
           </Select>
         </div>
         <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden md:block">
-          {pagination?.totalCount || 0} total requests
+          <span className="font-nums">{pagination?.totalCount || 0}</span> total requests
         </div>
       </div>
 
@@ -381,7 +381,7 @@ export function ProductPurchaseRequestsTable() {
               ) : requests.length > 0 ? (
                 requests.map((req) => (
                   <TableRow key={req.id}>
-                    <TableCell className="font-mono text-sm">{req.trackingNumber}</TableCell>
+                    <TableCell className="font-mono text-sm font-nums">{req.trackingNumber}</TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{req.client.firstName} {req.client.lastName}</p>
@@ -394,20 +394,20 @@ export function ProductPurchaseRequestsTable() {
                     <TableCell>
                       <div className="text-sm">
                         <p>{req.productOption.duration}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground font-nums">
                           {req.productOption.withdrawalFrequency} | {req.productOption.annualReturn}% Annual
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      <div className="flex items-center justify-end">
-                        <span className="mr-1 text-xs text-muted-foreground">{req.product.currency}</span>
+                      <div className="flex items-center justify-end font-nums">
+                        <span className="mr-1 text-xs text-muted-foreground font-sans">{req.product.currency}</span>
                         {req.product.currency === 'USD' ? <DirhamIcon className="w-3 h-3 mx-1" /> : null}
                         {req.amount.toLocaleString()}
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(req.status)}</TableCell>
-                    <TableCell>{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell className="font-nums">{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button
@@ -456,7 +456,7 @@ export function ProductPurchaseRequestsTable() {
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground font-nums">
             Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
             {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
             {pagination?.totalCount} requests
@@ -471,7 +471,7 @@ export function ProductPurchaseRequestsTable() {
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            <div className="text-sm">
+            <div className="text-sm font-nums">
               Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button
@@ -581,7 +581,7 @@ export function ProductPurchaseRequestsTable() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Tracking Number</p>
-                  <p className="font-mono">{detailDialog.request.trackingNumber}</p>
+                  <p className="font-mono font-nums">{detailDialog.request.trackingNumber}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
@@ -600,7 +600,7 @@ export function ProductPurchaseRequestsTable() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium flex items-center">
+                  <p className="font-medium flex items-center font-nums">
                     {detailDialog.request.product.currency !== 'USD' ? detailDialog.request.product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
                     {detailDialog.request.amount.toLocaleString()}
                   </p>

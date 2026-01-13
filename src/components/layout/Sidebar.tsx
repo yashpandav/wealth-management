@@ -342,7 +342,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                   {badgeCount !== null && (
                     <span
                       className={cn(
-                        'absolute right-2 top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold',
+                        'absolute right-2 top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold font-nums',
                         isActive
                           ? 'bg-white text-brand-blue'
                           : 'bg-red-500 text-white'

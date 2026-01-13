@@ -414,7 +414,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                                 ({formatFileSize(doc.fileSize)})
                               </span>
                             </td>
-                            <td className="py-3 text-sm text-gray-500">
+                            <td className="py-3 text-sm text-gray-500 font-nums">
                               {new Date(doc.uploadedAt).toLocaleDateString()}
                             </td>
                             <td className="py-3">

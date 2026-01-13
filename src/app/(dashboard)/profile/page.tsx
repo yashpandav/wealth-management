@@ -127,19 +127,6 @@ function ProfileContent() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
-      {/* Header with Logo */}
-      <div className="mb-8 flex flex-col items-center">
-        <img
-          src="/images/logo/primary-logo-1.png"
-          alt="EMDEE VENTURES"
-          className="h-16 w-auto object-contain"
-        />
-        <div className="mt-3 h-px w-32 bg-brand-grey/40" />
-        <p className="mt-2 text-xs font-optima tracking-wide text-brand-grey">
-          For a Better Tomorrow
-        </p>
-      </div>
-
       <div className="mb-8 text-center">
         <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue tracking-wide leading-tight">My Profile</h1>
         <p className="font-georgia text-comments text-brand-grey mt-2 leading-relaxed">View and manage your profile information</p>
@@ -234,7 +221,7 @@ function ProfileContent() {
                     withCountryCallingCode
                     smartCaret={true}
                     limitMaxLength={true}
-                    className="mt-2"
+                    className="mt-2 font-nums"
                     placeholder="Enter phone number"
                     error={phone ? (isPossiblePhoneNumber(phone) ? undefined : 'Invalid phone number') : undefined}
                   />
@@ -278,7 +265,7 @@ function ProfileContent() {
 
               <div>
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Phone Number</dt>
-                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">{profile.phone || 'Not provided'}</dd>
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed font-nums">{profile.phone || 'Not provided'}</dd>
               </div>
 
               <div>
@@ -315,7 +302,7 @@ function ProfileContent() {
 
               <div>
                 <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Member Since</dt>
-                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">
+                <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed font-nums">
                   {new Date(profile.createdAt).toLocaleDateString()}
                 </dd>
               </div>
@@ -323,7 +310,7 @@ function ProfileContent() {
               {profile.lastLogin && (
                 <div>
                   <dt className="font-optima text-comments font-medium text-brand-grey tracking-wide">Last Login</dt>
-                  <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed">
+                  <dd className="font-georgia mt-2 text-comments text-brand-blue font-medium leading-relaxed font-nums">
                     {new Date(profile.lastLogin).toLocaleString()}
                   </dd>
                 </div>

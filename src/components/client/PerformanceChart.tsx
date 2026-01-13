@@ -102,14 +102,14 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
         <div className="rounded-lg border bg-background p-3 shadow-lg">
           <p className="mb-2 font-medium">{payload[0].payload.date}</p>
           <p className="text-sm flex items-center">
-            Portfolio: <span className="font-medium flex items-center">
+            Portfolio: <span className="font-medium flex items-center font-nums">
               <DirhamIcon className="w-3 h-3 mx-1" />
               {payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
             </span>
           </p>
           {payload[1] && (
             <p className="text-sm text-muted-foreground flex items-center">
-              Invested: <span className="font-medium flex items-center">
+              Invested: <span className="font-medium flex items-center font-nums">
                 <DirhamIcon className="w-3 h-3 mx-1" />
                 {payload[1].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
@@ -127,12 +127,12 @@ export function PerformanceChart({ currentValue, totalInvested }: PerformanceCha
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <CardTitle className="text-lg">Portfolio Performance</CardTitle>
-            <div className={`mt-1 text-sm flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`mt-1 text-sm flex items-center font-nums ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}
               <DirhamIcon className="w-3 h-3 mx-1" />
               {performanceMetrics.change.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               ({isPositive ? '+' : ''}{performanceMetrics.changePercent.toFixed(2)}%)
-              <span className="ml-2 text-muted-foreground">
+              <span className="ml-2 text-muted-foreground font-sans">
                 {selectedPeriod === 'ALL' ? 'All time' : `Last ${selectedPeriod}`}
               </span>
             </div>

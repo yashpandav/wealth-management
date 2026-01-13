@@ -111,7 +111,7 @@ export function AdminDashboard() {
         <StatCard
           title="Total Investment Amount"
           value={
-            <div className="flex items-center">
+            <div className="flex items-center font-nums">
               <DirhamIcon className="w-5 h-5 mr-1" />
               {overview.totalAUM >= 1000000
                 ? `${(overview.totalAUM / 1000000).toFixed(2)}M`
@@ -184,13 +184,13 @@ export function AdminDashboard() {
           <CardContent className="px-3 pb-3 space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-600">Client/RM Ratio</span>
-              <span className="text-sm font-semibold">
+              <span className="text-sm font-semibold font-nums">
                 {overview.totalRMs > 0 ? `${(overview.totalClients / overview.totalRMs).toFixed(1)}:1` : 'N/A'}
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-600">Avg Investment/Client</span>
-              <span className="text-sm font-semibold flex items-center">
+              <span className="text-sm font-semibold flex items-center font-nums">
                 <DirhamIcon className="w-3 h-3 mr-1" />
                 {overview.totalClients > 0 ? ((overview.totalAUM / overview.totalClients) / 1000).toFixed(1) + 'K' : '0'}
               </span>
@@ -208,11 +208,11 @@ export function AdminDashboard() {
           <CardContent className="px-3 pb-3 space-y-2">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-600">Investment Requests</span>
-              <span className="text-sm font-semibold text-brand-blue">{overview.pendingPurchaseRequests}</span>
+              <span className="text-sm font-semibold text-brand-blue font-nums">{overview.pendingPurchaseRequests}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-600">Withdrawal Requests</span>
-              <span className="text-sm font-semibold text-orange-600">{overview.pendingWithdrawalRequests}</span>
+              <span className="text-sm font-semibold text-orange-600 font-nums">{overview.pendingWithdrawalRequests}</span>
             </div>
           </CardContent>
         </Card>
@@ -283,7 +283,7 @@ export function AdminDashboard() {
                             formatter={(value: number, name: string) => {
                               if (name === 'aum') {
                                 return (
-                                  <div className="flex items-center">
+                                  <div className="flex items-center font-nums">
                                     <DirhamIcon className="w-3 h-3 mr-1" />
                                     {value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                   </div>
@@ -370,7 +370,7 @@ export function AdminDashboard() {
                             return date.toLocaleDateString();
                           }}
                           formatter={(value: number) => (
-                            <div className="flex items-center">
+                            <div className="flex items-center font-nums">
                               <DirhamIcon className="w-3 h-3 mr-1" />
                               {value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </div>

@@ -116,7 +116,7 @@ export function NotificationDropdown({
         <div>
           <h3 className="font-semibold text-sm">Notifications</h3>
           {unreadCount > 0 && (
-            <p className="text-xs text-muted-foreground">{unreadCount} unread</p>
+            <p className="text-xs text-muted-foreground font-nums">{unreadCount} unread</p>
           )}
         </div>
         {unreadCount > 0 && (
@@ -180,7 +180,7 @@ export function NotificationDropdown({
                       {notification.message}
                     </p>
                     <div className="flex flex-wrap items-center justify-between gap-y-1 pt-1">
-                      <p className="text-[10px] text-muted-foreground font-medium">
+                      <p className="text-[10px] text-muted-foreground font-medium font-nums">
                         {formatDistanceToNow(new Date(notification.createdAt), {
                           addSuffix: true,
                         })}

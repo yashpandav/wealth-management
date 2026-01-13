@@ -297,17 +297,17 @@ function AssignmentsContent() {
       <div className="mb-6 grid gap-3 grid-cols-2 md:grid-cols-4">
         <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
           <div className="text-xs font-medium text-gray-600">Relationship Managers</div>
-          <div className="mt-1.5 text-2xl font-bold text-brand-blue">{rms.length}</div>
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue font-nums">{rms.length}</div>
         </div>
         <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
           <div className="text-xs font-medium text-gray-600">Assigned Clients</div>
-          <div className="mt-1.5 text-2xl font-bold text-brand-blue">
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue font-nums">
             {rms.reduce((sum, rm) => sum + rm.assignedClientsCount, 0)}
           </div>
         </div>
         <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
           <div className="text-xs font-medium text-gray-600">Clients per RM</div>
-          <div className="mt-1.5 text-2xl font-bold text-brand-blue">
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue font-nums">
             {rms.length > 0
               ? Math.round(
                 rms.reduce((sum, rm) => sum + rm.assignedClientsCount, 0) / rms.length
@@ -317,7 +317,7 @@ function AssignmentsContent() {
         </div>
         <div className="rounded-lg bg-white border border-gray-200 p-3 shadow-sm">
           <div className="text-xs font-medium text-gray-600">Total Capacity</div>
-          <div className="mt-1.5 text-2xl font-bold text-brand-blue">
+          <div className="mt-1.5 text-2xl font-bold text-brand-blue font-nums">
             {rms
               .filter((rm) => rm.maxClientLimit !== null)
               .reduce((sum, rm) => sum + (rm.maxClientLimit || 0), 0)}
@@ -386,7 +386,7 @@ function AssignmentsContent() {
                   <SelectItem value="all">All RMs</SelectItem>
                   {rms.map((rm) => (
                     <SelectItem key={rm.id} value={rm.id}>
-                      {rm.fullName} ({rm.assignedClientsCount})
+                      {rm.fullName} (<span className="font-nums">{rm.assignedClientsCount}</span>)
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -436,7 +436,7 @@ function AssignmentsContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-blue-900">
-                {selectedClients.length} client(s) selected
+                <span className="font-nums">{selectedClients.length}</span> client(s) selected
               </span>
               <button
                 onClick={openBulkModal}
@@ -521,7 +521,7 @@ function AssignmentsContent() {
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {client.assignedAt ? new Date(client.assignedAt).toLocaleDateString() : '-'}
+                    {client.assignedAt ? <span className="font-nums">{new Date(client.assignedAt).toLocaleDateString()}</span> : '-'}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
@@ -561,9 +561,9 @@ function AssignmentsContent() {
           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700">
-                Showing page <span className="font-medium">{pagination.page}</span> of{' '}
-                <span className="font-medium">{pagination.totalPages}</span> (
-                <span className="font-medium">{pagination.totalCount}</span> total clients)
+                Showing page <span className="font-medium font-nums">{pagination.page}</span> of{' '}
+                <span className="font-medium font-nums">{pagination.totalPages}</span> (
+                <span className="font-medium font-nums">{pagination.totalCount}</span> total clients)
               </p>
             </div>
             <div>
@@ -632,10 +632,10 @@ function AssignmentsContent() {
                             .filter((rm) => rm.isActive && rm.status === 'ACTIVE')
                             .map((rm) => (
                               <SelectItem key={rm.id} value={rm.id}>
-                                {rm.fullName} - {rm.assignedClientsCount}
-                                {rm.maxClientLimit ? `/${rm.maxClientLimit}` : ''} clients
+                                {rm.fullName} - <span className="font-nums">{rm.assignedClientsCount}</span>
+                                {rm.maxClientLimit ? <span className="font-nums">/{rm.maxClientLimit}</span> : ''} clients
                                 {rm.utilizationPercentage !== null
-                                  ? ` (${rm.utilizationPercentage}%)`
+                                  ? <span className="font-nums"> ({rm.utilizationPercentage}%)</span>
                                   : ''}
                               </SelectItem>
                             ))}
@@ -656,7 +656,7 @@ function AssignmentsContent() {
                                   className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getUtilizationColor(selectedRM.utilizationPercentage)}`}
                                 >
                                   {selectedRM.utilizationPercentage !== null
-                                    ? `${selectedRM.utilizationPercentage}%`
+                                    ? <span className="font-nums">{selectedRM.utilizationPercentage}%</span>
                                     : 'No limit'}
                                 </span>
                               </div>
@@ -730,12 +730,12 @@ function AssignmentsContent() {
                   <div className="mt-4">
                     <div className="mb-4 rounded-md bg-brand-blue/10 p-3">
                       <p className="text-sm font-medium text-blue-900">
-                        Selected Clients: {selectedClients.length}
+                        Selected Clients: <span className="font-nums">{selectedClients.length}</span>
                       </p>
                       <p className="mt-1 text-xs text-brand-blue">
                         {selectedClients.length === 1
                           ? '1 client will be assigned/reassigned'
-                          : `${selectedClients.length} clients will be assigned/reassigned`}
+                          : <span className="font-nums">{selectedClients.length} clients will be assigned/reassigned</span>}
                       </p>
                     </div>
 
@@ -783,13 +783,13 @@ function AssignmentsContent() {
                                   className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${getUtilizationColor(selectedRM.utilizationPercentage)}`}
                                 >
                                   {selectedRM.utilizationPercentage !== null
-                                    ? `${selectedRM.utilizationPercentage}%`
+                                    ? <span className="font-nums">{selectedRM.utilizationPercentage}%</span>
                                     : 'No limit'}
                                 </span>
                               </div>
                               <div className="mt-2 text-xs text-gray-600">
-                                After assignment: {newLoad} clients
-                                {selectedRM.maxClientLimit ? ` / ${selectedRM.maxClientLimit}` : ''}
+                                After assignment: <span className="font-nums">{newLoad}</span> clients
+                                {selectedRM.maxClientLimit ? <span className="font-nums"> / {selectedRM.maxClientLimit}</span> : ''}
                               </div>
                               {wouldExceed && (
                                 <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-800">

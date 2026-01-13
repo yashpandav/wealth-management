@@ -203,7 +203,7 @@ export function RMLeadsTable() {
           </Select>
         </div>
         <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden md:block">
-          {pagination?.totalCount || 0} total leads
+          <span className="font-nums">{pagination?.totalCount || 0}</span> total leads
         </div>
       </div>
 
@@ -243,7 +243,7 @@ export function RMLeadsTable() {
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Phone className="h-3 w-3 text-muted-foreground" />
-                        <a href={`tel:${lead.phoneNumber}`} className="text-brand-blue hover:underline">
+                        <a href={`tel:${lead.phoneNumber}`} className="text-brand-blue hover:underline font-nums">
                           {lead.phoneNumber}
                         </a>
                       </div>
@@ -276,8 +276,8 @@ export function RMLeadsTable() {
                       </SelectContent>
                     </Select>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {format(new Date(lead.createdAt), 'MMM dd, yyyy')}
+                  <TableCell className="text-muted-foreground font-nums">
+                    <span className="font-nums">{format(new Date(lead.createdAt), 'MMM dd, yyyy')}</span>
                   </TableCell>
                 </TableRow>
               ))
@@ -300,7 +300,7 @@ export function RMLeadsTable() {
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground font-nums">
             Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
             {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
             {pagination?.totalCount} leads
@@ -315,7 +315,7 @@ export function RMLeadsTable() {
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            <div className="text-sm">
+            <div className="text-sm font-nums">
               Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button

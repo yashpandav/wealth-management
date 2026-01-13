@@ -151,7 +151,7 @@ export function RegisterForm() {
               required
               value={formData.firstName}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey font-nums"
               placeholder="John"
               disabled={isLoading}
             />
@@ -168,7 +168,7 @@ export function RegisterForm() {
               required
               value={formData.lastName}
               onChange={handleChange}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey font-nums"
               placeholder="Doe"
               disabled={isLoading}
             />
@@ -187,7 +187,7 @@ export function RegisterForm() {
             required
             value={formData.email}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey"
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey font-nums"
             placeholder="john@example.com"
             disabled={isLoading}
           />
@@ -208,7 +208,7 @@ export function RegisterForm() {
             disabled={isLoading}
             smartCaret={true}
             limitMaxLength={true}
-            className="mt-1"
+            className="mt-1 font-nums"
             placeholder="Enter phone number"
             error={formData.phone ? (isPossiblePhoneNumber(formData.phone) ? undefined : 'Invalid phone number') : 'Phone number required'}
           />
@@ -227,7 +227,7 @@ export function RegisterForm() {
               required
               value={formData.password}
               onChange={handleChange}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10"
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10 font-nums"
               placeholder="••••••••"
               disabled={isLoading}
             />
@@ -259,7 +259,7 @@ export function RegisterForm() {
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments font-optima text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10"
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey pr-10 font-nums"
               placeholder="••••••••"
               disabled={isLoading}
             />

@@ -305,7 +305,7 @@ export function TransactionHistory() {
               ) : transactions.length > 0 ? (
                 transactions.map((txn) => (
                   <TableRow key={txn.id}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium font-nums">
                       {format(new Date(txn.completedAt), 'MMM dd, yyyy HH:mm')}
                     </TableCell>
                     <TableCell>
@@ -323,12 +323,12 @@ export function TransactionHistory() {
                         <span className="text-muted-foreground">N/A</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right font-nums">
                       {txn.quantity ? txn.quantity.toLocaleString() : '-'}
                     </TableCell>
                     <TableCell className="text-right">
                       {txn.price ? (
-                        <div className="flex items-center justify-end">
+                        <div className="flex items-center justify-end font-nums">
                           <DirhamIcon className="w-3 h-3 mr-1" />
                           {txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
                         </div>
@@ -337,7 +337,7 @@ export function TransactionHistory() {
                       )}
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      <div className="flex items-center justify-end">
+                      <div className="flex items-center justify-end font-nums">
                         <DirhamIcon className="w-3 h-3 mr-1" />
                         {txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
@@ -374,7 +374,7 @@ export function TransactionHistory() {
       {
         pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground font-nums">
               Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
               {Math.min(pagination.page * pagination.limit, pagination.totalCount)} of{' '}
               {pagination.totalCount} transactions
@@ -389,7 +389,7 @@ export function TransactionHistory() {
                 <ChevronLeft className="h-4 w-4" />
                 Previous
               </Button>
-              <div className="text-sm">
+              <div className="text-sm font-nums">
                 Page {pagination.page} of {pagination.totalPages}
               </div>
               <Button
@@ -417,11 +417,11 @@ export function TransactionHistory() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Transaction ID</p>
-                  <p className="font-mono text-sm">{selectedTransaction.id}</p>
+                  <p className="font-mono text-sm font-nums">{selectedTransaction.id}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Date</p>
-                  <p>{format(new Date(selectedTransaction.completedAt), 'PPpp')}</p>
+                  <p className="font-nums">{format(new Date(selectedTransaction.completedAt), 'PPpp')}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Type</p>
@@ -449,13 +449,13 @@ export function TransactionHistory() {
                 {selectedTransaction.quantity && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Quantity</p>
-                    <p className="font-medium">{selectedTransaction.quantity.toLocaleString()}</p>
+                    <p className="font-medium font-nums">{selectedTransaction.quantity.toLocaleString()}</p>
                   </div>
                 )}
                 {selectedTransaction.price && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Price per Unit</p>
-                    <p className="font-medium flex items-center">
+                    <p className="font-medium flex items-center font-nums">
                       <DirhamIcon className="w-3 h-3 mr-1" />
                       {selectedTransaction.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
                     </p>
@@ -463,28 +463,28 @@ export function TransactionHistory() {
                 )}
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Amount</p>
-                  <p className="font-medium flex items-center">
+                  <p className="font-medium flex items-center font-nums">
                     <DirhamIcon className="w-3 h-3 mr-1" />
                     {selectedTransaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Fees</p>
-                  <p className="font-medium flex items-center">
+                  <p className="font-medium flex items-center font-nums">
                     <DirhamIcon className="w-3 h-3 mr-1" />
                     {selectedTransaction.fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total</p>
-                  <p className="font-medium flex items-center">
+                  <p className="font-medium flex items-center font-nums">
                     <DirhamIcon className="w-3 h-3 mr-1" />
                     {selectedTransaction.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Net Amount</p>
-                  <p className="font-medium flex items-center">
+                  <p className="font-medium flex items-center font-nums">
                     <DirhamIcon className="w-3 h-3 mr-1" />
                     {selectedTransaction.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </p>

@@ -162,9 +162,9 @@ export function ClientAnalyticsDashboard() {
           <p className="font-medium">{payload[0].name}</p>
           <p className="text-sm flex items-center">
             Value: <DirhamIcon className="w-3 h-3 mx-1" />
-            <span className="font-medium">{payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            <span className="font-medium font-nums">{payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-nums">
             {payload[0].payload.percentage.toFixed(2)}% of portfolio
           </p>
         </div>
@@ -183,14 +183,14 @@ export function ClientAnalyticsDashboard() {
           <p className="font-medium">{data.name}</p>
           <p className="text-sm flex items-center">
             Value: <DirhamIcon className="w-3 h-3 mx-1" />
-            <span className="font-medium">{data.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+            <span className="font-medium font-nums">{data.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
           </p>
-          <p className={`text-sm flex items-center ${isGainPositive ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-sm flex items-center font-nums ${isGainPositive ? 'text-green-600' : 'text-red-600'}`}>
             Gain/Loss: {isGainPositive ? '+' : ''}
             <DirhamIcon className="w-3 h-3 mx-1" />
             {data.gainLoss.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-nums">
             {data.percentage.toFixed(2)}% of portfolio
           </p>
         </div>
@@ -213,14 +213,14 @@ export function ClientAnalyticsDashboard() {
             )}
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className={`text-2xl font-bold flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <div className={`text-2xl font-bold flex items-center font-nums ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}
               <DirhamIcon className="w-5 h-5 mx-1" />
               {Math.abs(analytics.overview.gainLoss) >= 1000
                 ? `${(analytics.overview.gainLoss / 1000).toFixed(1)}K`
                 : analytics.overview.gainLoss.toFixed(0)}
             </div>
-            <p className={`text-xs mt-0.5 font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-xs mt-0.5 font-medium font-nums ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}{analytics.overview.gainLossPercent.toFixed(1)}%
             </p>
           </CardContent>
@@ -232,10 +232,10 @@ export function ClientAnalyticsDashboard() {
             <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className="text-2xl font-bold text-brand-blue">
+            <div className="text-2xl font-bold text-brand-blue font-nums">
               {analytics.overview.annualizedReturn.toFixed(1)}%
             </div>
-            <p className="text-xs mt-0.5 text-gray-600">
+            <p className="text-xs mt-0.5 text-gray-600 font-nums">
               {analytics.performance.yearsSinceCreation.toFixed(1)} years
             </p>
           </CardContent>
@@ -247,10 +247,10 @@ export function ClientAnalyticsDashboard() {
             <PieChart className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className="text-2xl font-bold text-brand-blue">
+            <div className="text-2xl font-bold text-brand-blue font-nums">
               {analytics.riskMetrics.diversificationScore.toFixed(0)}/100
             </div>
-            <p className="text-xs mt-0.5 text-gray-600">
+            <p className="text-xs mt-0.5 text-gray-600 font-nums">
               {analytics.riskMetrics.numberOfHoldings} holdings
             </p>
           </CardContent>
@@ -262,7 +262,7 @@ export function ClientAnalyticsDashboard() {
             <BarChart3 className="h-3.5 w-3.5 text-gray-400" />
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className="text-2xl font-bold text-brand-blue">
+            <div className="text-2xl font-bold text-brand-blue font-nums">
               {analytics.riskMetrics.concentrationRisk.toFixed(0)}%
             </div>
             <p className="text-xs mt-0.5 text-gray-600">
@@ -371,7 +371,7 @@ export function ClientAnalyticsDashboard() {
                 <p className="text-xs font-medium text-gray-600">Portfolio Value</p>
               </div>
               <div className="text-right">
-                <p className="text-base font-bold text-brand-blue flex items-center justify-end">
+                <p className="text-base font-bold text-brand-blue flex items-center justify-end font-nums">
                   <DirhamIcon className="w-4 h-4 mr-1" />
                   {analytics.overview.totalValue >= 1000000
                     ? `${(analytics.overview.totalValue / 1000000).toFixed(2)}M`
@@ -387,7 +387,7 @@ export function ClientAnalyticsDashboard() {
                 <p className="text-xs font-medium text-gray-600">Total Invested</p>
               </div>
               <div className="text-right">
-                <p className="text-base font-bold text-brand-blue flex items-center justify-end">
+                <p className="text-base font-bold text-brand-blue flex items-center justify-end font-nums">
                   <DirhamIcon className="w-4 h-4 mr-1" />
                   {analytics.overview.totalInvested >= 1000000
                     ? `${(analytics.overview.totalInvested / 1000000).toFixed(2)}M`
@@ -403,14 +403,14 @@ export function ClientAnalyticsDashboard() {
                 <p className="text-xs font-medium text-gray-600">Today&apos;s Change</p>
               </div>
               <div className="text-right">
-                <p className={`text-base font-bold flex items-center justify-end ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`text-base font-bold flex items-center justify-end font-nums ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {analytics.overview.dayChange >= 0 ? '+' : ''}
                   <DirhamIcon className="w-4 h-4 mx-1" />
                   {Math.abs(analytics.overview.dayChange) >= 1000
                     ? `${(analytics.overview.dayChange / 1000).toFixed(1)}K`
                     : analytics.overview.dayChange.toFixed(0)}
                 </p>
-                <p className={`text-xs ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`text-xs font-nums ${analytics.overview.dayChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {analytics.overview.dayChange >= 0 ? '+' : ''}{analytics.overview.dayChangePercent.toFixed(1)}%
                 </p>
               </div>
@@ -421,10 +421,10 @@ export function ClientAnalyticsDashboard() {
                 <p className="text-xs font-medium text-gray-600">Time in Market</p>
               </div>
               <div className="text-right">
-                <p className="text-base font-bold text-brand-blue">
+                <p className="text-base font-bold text-brand-blue font-nums">
                   {analytics.performance.daysSinceCreation} days
                 </p>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 font-nums">
                   {analytics.performance.yearsSinceCreation.toFixed(1)} years
                 </p>
               </div>

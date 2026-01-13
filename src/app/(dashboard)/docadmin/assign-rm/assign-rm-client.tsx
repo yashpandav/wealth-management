@@ -176,14 +176,14 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-muted-foreground font-optima">
               Pending Assignment
             </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{clients.length}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold font-nums">{clients.length}</div>
+            <p className="text-xs text-muted-foreground font-optima">
               Clients awaiting RM
             </p>
           </CardContent>
@@ -191,14 +191,14 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-muted-foreground font-optima">
               Available RMs
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{relationshipManagers.length}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold font-nums">{relationshipManagers.length}</div>
+            <p className="text-xs text-muted-foreground font-optima">
               Active relationship managers
             </p>
           </CardContent>
@@ -206,14 +206,14 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+            <CardTitle className="text-sm font-medium text-muted-foreground font-optima">
               Avg Clients per RM
             </CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{avgClientsPerRM}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold font-nums">{avgClientsPerRM}</div>
+            <p className="text-xs text-muted-foreground font-optima">
               Current workload distribution
             </p>
           </CardContent>
@@ -269,9 +269,11 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                     </TableCell>
                     <TableCell>
                       {client.phone ? (
-                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-nums">
                           <Phone className="h-3.5 w-3.5" />
-                          {client.phone}
+                          <a href={`tel:${client.phone}`} className="hover:underline hover:text-primary">
+                            {client.phone}
+                          </a>
                         </div>
                       ) : (
                         <span className="text-sm text-muted-foreground">—</span>
@@ -283,7 +285,7 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                           <CheckCircle2 className="mr-1 h-3 w-3" />
                           Verified
                         </Badge>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground font-nums">
                           {client.documentsCount} document{client.documentsCount !== 1 ? 's' : ''}
                         </span>
                       </div>
@@ -291,14 +293,14 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm">
                         <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                        {formatDate(client.registeredAt)}
+                        <span className="font-nums">{formatDate(client.registeredAt)}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       {client.verifiedAt ? (
                         <div className="flex items-center gap-1.5 text-sm">
                           <FileCheck className="h-3.5 w-3.5 text-green-600" />
-                          {formatDate(client.verifiedAt)}
+                          <span className="font-nums">{formatDate(client.verifiedAt)}</span>
                         </div>
                       ) : (
                         <span className="text-sm text-muted-foreground">—</span>
@@ -336,19 +338,19 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                 >
                   <div className="flex items-start gap-3">
                     <Avatar className="h-10 w-10 flex-shrink-0">
-                      <AvatarFallback className="bg-secondary text-secondary-foreground">
+                      <AvatarFallback className="bg-secondary text-secondary-foreground font-optima">
                         {getInitials(rm.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium">{rm.name}</div>
-                      <div className="flex items-start gap-1 text-xs text-muted-foreground mt-1">
+                      <div className="font-medium font-optima">{rm.name}</div>
+                      <div className="flex items-start gap-1 text-xs text-muted-foreground mt-1 font-optima">
                         <Mail className="h-3 w-3 flex-shrink-0 mt-0.5" />
                         <span className="break-all">{rm.email}</span>
                       </div>
                       <div className="mt-3 flex items-baseline gap-1">
-                        <div className="text-2xl font-bold text-primary">{rm.clientCount}</div>
-                        <div className="text-xs text-muted-foreground">clients</div>
+                        <div className="text-2xl font-bold text-primary font-nums">{rm.clientCount}</div>
+                        <div className="text-xs text-muted-foreground font-optima">clients</div>
                       </div>
                     </div>
                   </div>
@@ -386,9 +388,11 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                       {selectedClient.email}
                     </div>
                     {selectedClient.phone && (
-                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground font-nums">
                         <Phone className="h-3.5 w-3.5" />
-                        {selectedClient.phone}
+                        <a href={`tel:${selectedClient.phone}`} className="hover:underline hover:text-primary">
+                          {selectedClient.phone}
+                        </a>
                       </div>
                     )}
                   </div>
@@ -404,7 +408,7 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                   </div>
                   <div>
                     <div className="text-xs text-muted-foreground">Documents</div>
-                    <div className="mt-1 text-sm font-medium">
+                    <div className="mt-1 text-sm font-medium font-nums">
                       {selectedClient.documentsCount} verified
                     </div>
                   </div>
@@ -425,7 +429,7 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                       <SelectItem key={rm.id} value={rm.id}>
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{rm.name}</span>
-                          <span className="text-muted-foreground">
+                          <span className="text-muted-foreground font-nums">
                             ({rm.clientCount} clients)
                           </span>
                         </div>
@@ -456,9 +460,9 @@ export function AssignRMClient({ clients, relationshipManagers }: AssignRMClient
                         </div>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Users className="h-4 w-4" />
-                          {rm.clientCount} clients
+                          <span className="font-nums">{rm.clientCount}</span> clients
                           <ChevronRight className="h-4 w-4" />
-                          {rm.clientCount + 1}
+                          <span className="font-nums">{rm.clientCount + 1}</span>
                         </div>
                       </div>
                     );

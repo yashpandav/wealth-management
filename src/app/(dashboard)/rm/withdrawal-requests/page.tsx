@@ -199,7 +199,7 @@ export default function RMWithdrawalRequestsPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingCount}</div>
+            <div className="text-2xl font-bold font-nums">{pendingCount}</div>
             <p className="text-xs text-muted-foreground">Awaiting RM action</p>
           </CardContent>
         </Card>
@@ -210,7 +210,7 @@ export default function RMWithdrawalRequestsPage() {
             <AlertCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{reviewCount}</div>
+            <div className="text-2xl font-bold font-nums">{reviewCount}</div>
             <p className="text-xs text-muted-foreground">Currently reviewing</p>
           </CardContent>
         </Card>
@@ -221,7 +221,7 @@ export default function RMWithdrawalRequestsPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{approvedCount}</div>
+            <div className="text-2xl font-bold font-nums">{approvedCount}</div>
             <p className="text-xs text-muted-foreground">Awaiting admin approval</p>
           </CardContent>
         </Card>
@@ -241,21 +241,21 @@ export default function RMWithdrawalRequestsPage() {
           size="sm"
           onClick={() => setSelectedStatus(WithdrawalStatus.PENDING)}
         >
-          Pending ({requests.filter((r) => r.status === WithdrawalStatus.PENDING).length})
+          Pending (<span className="font-nums">{requests.filter((r) => r.status === WithdrawalStatus.PENDING).length}</span>)
         </Button>
         <Button
           variant={selectedStatus === WithdrawalStatus.RM_REVIEW ? 'default' : 'outline'}
           size="sm"
           onClick={() => setSelectedStatus(WithdrawalStatus.RM_REVIEW)}
         >
-          Under Review ({requests.filter((r) => r.status === WithdrawalStatus.RM_REVIEW).length})
+          Under Review (<span className="font-nums">{requests.filter((r) => r.status === WithdrawalStatus.RM_REVIEW).length}</span>)
         </Button>
         <Button
           variant={selectedStatus === WithdrawalStatus.RM_APPROVED ? 'default' : 'outline'}
           size="sm"
           onClick={() => setSelectedStatus(WithdrawalStatus.RM_APPROVED)}
         >
-          Approved ({requests.filter((r) => r.status === WithdrawalStatus.RM_APPROVED).length})
+          Approved (<span className="font-nums">{requests.filter((r) => r.status === WithdrawalStatus.RM_APPROVED).length}</span>)
         </Button>
       </div>
 
@@ -311,7 +311,7 @@ export default function RMWithdrawalRequestsPage() {
                         </div>
                       </TableCell>
                       <TableCell className="font-semibold">
-                        <div className="flex items-center">
+                        <div className="flex items-center font-nums">
                           <DirhamIcon className="w-4 h-4 mr-1" />
                           {request.amount.toLocaleString('en-US', {
                             minimumFractionDigits: 2,
@@ -321,7 +321,7 @@ export default function RMWithdrawalRequestsPage() {
                       </TableCell>
                       <TableCell>
                         {request.client.portfolio ? (
-                          <span className="text-sm flex items-center">
+                          <span className="text-sm flex items-center font-nums">
                             <DirhamIcon className="w-3 h-3 mr-1" />
                             {request.client.portfolio.totalValue.toLocaleString('en-US', {
                               minimumFractionDigits: 2,
@@ -333,7 +333,7 @@ export default function RMWithdrawalRequestsPage() {
                         )}
                       </TableCell>
                       <TableCell>{getStatusBadge(request.status)}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
+                      <TableCell className="text-sm text-muted-foreground font-nums">
                         {new Date(request.createdAt).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',

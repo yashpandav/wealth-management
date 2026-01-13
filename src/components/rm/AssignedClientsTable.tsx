@@ -146,7 +146,7 @@ export function AssignedClientsTable() {
           />
         </div>
         <div className="text-sm text-brand-grey ml-auto whitespace-nowrap hidden sm:block">
-          {pagination?.totalCount || 0} total clients
+          <span className="font-nums">{pagination?.totalCount || 0}</span> total clients
         </div>
       </div>
 
@@ -207,7 +207,7 @@ export function AssignedClientsTable() {
                     <TableCell>{client.user.email}</TableCell>
                     <TableCell>
                       {client.user.phone ? (
-                        <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline">
+                        <a href={`tel:${client.user.phone}`} className="text-brand-blue hover:underline font-nums">
                           {client.user.phone}
                         </a>
                       ) : (
@@ -239,7 +239,7 @@ export function AssignedClientsTable() {
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {client.portfolio ? (
-                        <div className="flex items-center justify-end">
+                        <div className="flex items-center justify-end font-nums">
                           <DirhamIcon className="w-3 h-3 mr-1" />
                           {client.portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
@@ -255,12 +255,12 @@ export function AssignedClientsTable() {
                           ) : (
                             <TrendingDown className="h-4 w-4" />
                           )}
-                          <span className="font-medium flex items-center">
+                          <span className="font-medium flex items-center font-nums">
                             {isPositiveGain ? '+' : ''}
                             <DirhamIcon className="w-3 h-3 mx-1" />
                             {client.portfolio.totalGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </span>
-                          <span className="text-xs">
+                          <span className="text-xs font-nums">
                             ({isPositiveGain ? '+' : ''}{client.portfolio.totalGainLossPercent.toFixed(2)}%)
                           </span>
                         </div>
@@ -268,7 +268,7 @@ export function AssignedClientsTable() {
                         '-'
                       )}
                     </TableCell>
-                    <TableCell>{format(new Date(client.assignedAt), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell className="font-nums">{format(new Date(client.assignedAt), 'MMM dd, yyyy')}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/rm/clients/${client.id}`}>
@@ -299,7 +299,7 @@ export function AssignedClientsTable() {
       {/* Pagination */}
       {pagination && pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-sm text-muted-foreground font-nums">
             Showing {(pagination?.page - 1) * pagination?.limit + 1} to{' '}
             {Math.min(pagination?.page * pagination?.limit, pagination?.totalCount)} of{' '}
             {pagination?.totalCount} clients
@@ -314,7 +314,7 @@ export function AssignedClientsTable() {
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
-            <div className="text-sm">
+            <div className="text-sm font-nums">
               Page {pagination?.page || 1} of {pagination?.totalPages || 1}
             </div>
             <Button
