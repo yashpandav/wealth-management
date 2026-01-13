@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
-import { RequestStatus } from '@prisma/client';
+import { RequestStatus, Prisma } from '@prisma/client';
 
 export async function GET(request: NextRequest) {
     try {
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
         const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
 
         // Build filter conditions
-        const where: any = {};
+        const where: Prisma.ProductPurchaseRequestWhereInput = {};
 
         if (status) {
             where.status = status;

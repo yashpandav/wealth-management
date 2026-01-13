@@ -10,7 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -22,12 +22,10 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  User,
   Mail,
   Phone,
   MessageCircle,
   TrendingUp,
-  TrendingDown,
   Calendar,
   DollarSign,
   ArrowLeft,
@@ -35,8 +33,6 @@ import {
   PieChart,
   ArrowUpRight,
   ArrowDownRight,
-  Shield,
-  FileText
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { RequestStatus, WithdrawalStatus } from '@prisma/client';

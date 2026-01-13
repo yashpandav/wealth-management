@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { Prisma } from '@prisma/client';
 import { getCurrentUser } from '@/lib/auth/session';
 import { sendDocumentVerificationResult } from '@/lib/email';
 import { config } from '@/lib/config';
@@ -270,7 +271,7 @@ export async function GET(request: NextRequest) {
     // Build where clause
     // Build where clause
     type VerificationStatus = 'PENDING' | 'UNDER_REVIEW' | 'VERIFIED' | 'REJECTED';
-    const whereClause: any = status === 'ALL' ? {} : { verificationStatus: status as VerificationStatus };
+    const whereClause: Prisma.DocumentWhereInput = status === 'ALL' ? {} : { verificationStatus: status as VerificationStatus };
 
     // Filter only Identity Proof documents
     whereClause.documentType = 'IDENTITY_PROOF';
