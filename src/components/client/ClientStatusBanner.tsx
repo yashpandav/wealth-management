@@ -42,10 +42,8 @@ export function ClientStatusBanner({
 
   const variantClass =
     banner.type === 'error'
-      ? 'border-red-500/50 bg-red-50 text-red-900 dark:border-red-500 dark:bg-red-950 dark:text-red-200'
-      : banner.type === 'warning'
-        ? 'border-orange-500/50 bg-orange-50 text-orange-900 dark:border-orange-500 dark:bg-orange-950 dark:text-orange-200'
-        : 'border-orange-500/50 bg-orange-50 text-orange-900 dark:border-orange-500 dark:bg-orange-950 dark:text-orange-200';
+      ? 'border-red-500/50 bg-red-50 text-red-900'
+      : 'border-orange-500/50 bg-orange-50 text-orange-900';
 
   const showUploadLink = verificationStatus === 'NOT_SUBMITTED' || verificationStatus === 'REJECTED' || verificationStatus === 'EXPIRED';
 
@@ -70,10 +68,10 @@ export function ClientStatusBanner({
       <Icon className="h-5 w-5" />
       <div className="flex flex-col w-full">
         <AlertTitle className="font-optima text-base font-semibold mb-2">
-          KYC Verification Required
+          {banner.title}
         </AlertTitle>
         <AlertDescription className="font-optima text-comments mb-3">
-          Complete your KYC verification to submit plan requests and begin investing.
+          {banner.message}
         </AlertDescription>
 
         {documentStatus && (

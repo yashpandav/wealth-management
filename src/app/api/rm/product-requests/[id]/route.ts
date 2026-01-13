@@ -428,23 +428,53 @@ export async function PATCH(
     // If approved, notify all DocAdmins for contract upload
     if (action === 'APPROVE') {
       const docAdmins = await prisma.user.findMany({
-        where: { role: 'DOCADMIN', status: 'ACTIVE' },
-        select: { email: true, firstName: true, lastName: true },
+        where: {
+          role: { in: ['DOCADMIN', 'ADMIN'] },
+          status: 'ACTIVE',
+          isActive: true
+        },
+        select: { id: true, email: true, firstName: true, lastName: true },
       });
 
-      for (const docAdmin of docAdmins) {
-        const docAdminName = `${docAdmin.firstName} ${docAdmin.lastName}`;
-
-        sendDocAdminContractUploadRequiredEmail(
-          docAdmin.email,
-          docAdminName,
+      // Create in-app notifications and send emails
+      const promises = docAdmins.map(async (admin) => {
+        // 1. Send Email
+        await sendDocAdminContractUploadRequiredEmail(
+          admin.email,
+          `${admin.firstName} ${admin.lastName}`,
           clientName,
           productName,
           productRequest.trackingNumber,
           amount,
           currency
         ).catch(err => console.error('Failed to send DocAdmin notification email:', err));
-      }
+
+        // 2. Create In-App Notification
+        await prisma.notification.create({
+          data: {
+            userId: admin.id,
+            type: 'INFO',
+            category: 'REQUEST',
+            title: 'Contract Upload Required',
+            message: `Plan investment request for ${clientName} (${productName}) has been approved and requires contract upload.`,
+            isRead: false,
+            actionUrl: '/docadmin/contract-requests',
+            actionText: 'Upload Contract',
+            entityType: 'ProductPurchaseRequest',
+            entityId: productRequest.id,
+            priority: 'HIGH',
+            metadata: {
+              trackingNumber: productRequest.trackingNumber,
+              clientName,
+              productName,
+              amount,
+              currency
+            }
+          }
+        }).catch(err => console.error(`Failed to create notification for admin ${admin.id}:`, err));
+      });
+
+      await Promise.allSettled(promises);
     }
 
     return NextResponse.json({

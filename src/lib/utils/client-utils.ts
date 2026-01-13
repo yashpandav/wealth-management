@@ -29,6 +29,7 @@ export interface OnboardingStatus {
   canTransact: boolean;
   showKycUpload: boolean;
   banner: {
+    title: string;
     message: string;
     type: 'warning' | 'info' | 'error' | 'success';
   } | null;
@@ -41,6 +42,7 @@ export interface TransactionEligibility {
   canTransact: boolean;
   reason?: string;
   banner?: {
+    title: string;
     message: string;
     type: 'warning' | 'info' | 'error';
   };
@@ -64,7 +66,8 @@ export function getOnboardingStatus(
       canTransact: false,
       showKycUpload: true,
       banner: {
-        message: 'Please upload your Identity Proof to continue.',
+        title: 'KYC Verification Required',
+        message: 'Complete your KYC verification to submit plan requests and begin investing.',
         type: 'warning',
       },
     };
@@ -77,7 +80,8 @@ export function getOnboardingStatus(
       canTransact: false,
       showKycUpload: true,
       banner: {
-        message: 'Your Identity Proof is under verification. Please wait.',
+        title: 'Verification In Progress',
+        message: 'Your Identity Proof is under verification. You will be notified once complete.',
         type: 'info',
       },
     };
@@ -90,9 +94,10 @@ export function getOnboardingStatus(
       canTransact: false,
       showKycUpload: true,
       banner: {
+        title: 'Action Required',
         message: verificationStatus === 'REJECTED'
-          ? 'Your Identity Proof was rejected. Please resubmit.'
-          : 'Your Identity Proof verification has expired. Please resubmit.',
+          ? 'Your Identity Proof was rejected. Please upload a valid document.'
+          : 'Your Identity Proof verification has expired. Please upload a new document.',
         type: 'error',
       },
     };
@@ -105,7 +110,8 @@ export function getOnboardingStatus(
       canTransact: false,
       showKycUpload: false,
       banner: {
-        message: 'Your KYC is approved. Relationship Manager assignment is in progress.',
+        title: 'Pending Relationship Manager',
+        message: 'Your KYC is approved. We are assigning a Relationship Manager to you.',
         type: 'info',
       },
     };
@@ -127,7 +133,8 @@ export function getOnboardingStatus(
     canTransact: false,
     showKycUpload: true,
     banner: {
-      message: 'Please complete your onboarding to continue.',
+      title: 'Complete Onboarding',
+      message: 'Please complete your onboarding requirements to continue.',
       type: 'warning',
     },
   };
@@ -159,6 +166,7 @@ export function checkTransactionEligibility(
     reason: status.banner?.message || 'Cannot make transactions at this time',
     banner: status.banner
       ? {
+        title: status.banner.title,
         message: status.banner.message,
         type: status.banner.type === 'success' ? 'info' : status.banner.type,
       }
@@ -177,12 +185,13 @@ export function checkTransactionEligibility(
 export function getClientStatusBanner(
   hasRM: boolean,
   verificationStatus: VerificationStatus | null
-): { message: string; type: 'warning' | 'info' | 'error' } | null {
+): { title: string; message: string; type: 'warning' | 'info' | 'error' } | null {
   const status = getOnboardingStatus(hasRM, verificationStatus);
 
   if (!status.banner) return null;
 
   return {
+    title: status.banner.title,
     message: status.banner.message,
     type: status.banner.type === 'success' ? 'info' : status.banner.type,
   };
