@@ -51,7 +51,7 @@ interface ApiResponse {
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const productId = params.id as string;
+  const investmentId = params.id as string;
   const { data: session, status } = useSession();
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
@@ -70,17 +70,17 @@ export default function ProductDetailPage() {
 
   // Fetch product details
   useEffect(() => {
-    if (status === 'authenticated' && session?.user?.role === 'CLIENT' && productId) {
+    if (status === 'authenticated' && session?.user?.role === 'CLIENT' && investmentId) {
       fetchProduct();
       checkClientRM();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, session, productId]);
+  }, [status, session, investmentId]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/client/products/${productId}`);
+      const response = await fetch(`/api/client/products/${investmentId}`);
       const data: ApiResponse = await response.json();
 
       if (data.success && data.data) {

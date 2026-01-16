@@ -172,7 +172,7 @@ export async function GET() {
             },
           },
         },
-        product: {
+        investment: {
           select: {
             name: true,
             currency: true,
@@ -195,10 +195,10 @@ export async function GET() {
       })),
       ...recentProductRequests.map((req) => ({
         id: req.id,
-        type: 'PRODUCT' as const,
+        type: 'INVESTMENT' as const,
         clientName: `${req.client.user.firstName} ${req.client.user.lastName}`,
-        instrumentName: req.product.name,
-        instrumentSymbol: req.product.currency,
+        instrumentName: req.investment.name,
+        instrumentSymbol: req.investment.currency,
         amount: Number(req.amount),
         status: req.status,
         createdAt: req.createdAt.toISOString(),
@@ -230,9 +230,9 @@ export async function GET() {
         value: (withdrawalStatusCounts['RM_REJECTED'] || 0) + (withdrawalStatusCounts['ADMIN_REJECTED'] || 0),
         fill: '#dc2626',
       },
-      { name: 'Product - Pending', value: productStatusCounts['PENDING'] || 0, fill: '#8b5cf6' },
-      { name: 'Product - Approved', value: productStatusCounts['APPROVED'] || 0, fill: '#06b6d4' },
-      { name: 'Product - Rejected', value: productStatusCounts['REJECTED'] || 0, fill: '#f43f5e' },
+      { name: 'Investment - Pending', value: productStatusCounts['PENDING'] || 0, fill: '#8b5cf6' },
+      { name: 'Investment - Approved', value: productStatusCounts['APPROVED'] || 0, fill: '#06b6d4' },
+      { name: 'Investment - Rejected', value: productStatusCounts['REJECTED'] || 0, fill: '#f43f5e' },
     ].filter((item) => item.value > 0);
 
     // Top clients by AUM
@@ -267,7 +267,7 @@ export async function GET() {
       activityTrend.push({
         date: dateStr,
         withdrawals: withdrawalCount,
-        products: productCount,
+        investments: productCount,
       });
     }
 

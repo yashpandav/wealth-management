@@ -12,10 +12,10 @@ import { z } from 'zod';
 import { RequestStatus } from '@prisma/client';
 import { sendEmail, sendProductRequestSubmittedEmail } from '@/lib/email';
 
-// Validation schema for creating a product purchase request
+// Validation schema for creating an investment purchase request
 const createProductPurchaseRequestSchema = z.object({
-  productId: z.string().uuid('Invalid product ID'),
-  productOptionId: z.string().uuid('Invalid product option ID'),
+  investmentId: z.string().uuid('Invalid investment ID'),
+  investmentOptionId: z.string().uuid('Invalid investment option ID'),
   amount: z.number().positive('Amount must be positive'),
   clientNotes: z.string().max(1000, 'Notes must be less than 1000 characters').optional(),
 });
@@ -140,9 +140,9 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data;
 
-    // Verify product exists and is active
-    const product = await prisma.product.findUnique({
-      where: { id: data.productId, isActive: true },
+    // Verify investment exists and is active
+    const product = await prisma.investment.findUnique({
+      where: { id: data.investmentId, isActive: true },
       select: {
         id: true,
         name: true,
@@ -154,16 +154,16 @@ export async function POST(request: NextRequest) {
 
     if (!product) {
       return NextResponse.json(
-        { success: false, error: 'Product not found or not available' },
+        { success: false, error: 'Investment not found or not available' },
         { status: 404 }
       );
     }
 
-    // Verify product option exists and belongs to the product
-    const productOption = await prisma.productOption.findUnique({
+    // Verify investment option exists and belongs to the investment
+    const productOption = await prisma.investmentOption.findUnique({
       where: {
-        id: data.productOptionId,
-        productId: data.productId,
+        id: data.investmentOptionId,
+        investmentId: data.investmentId,
         isActive: true,
       },
       select: {
@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
 
     if (!productOption) {
       return NextResponse.json(
-        { success: false, error: 'Product option not found or not available' },
+        { success: false, error: 'Investment option not found or not available' },
         { status: 404 }
       );
     }
@@ -231,27 +231,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create product purchase request
+    // Create investment purchase request
     const purchaseRequest = await prisma.productPurchaseRequest.create({
       data: {
         trackingNumber: trackingNumber!,
         clientId: client.id,
-        productId: data.productId,
-        productOptionId: data.productOptionId,
+        investmentId: data.investmentId,
+        investmentOptionId: data.investmentOptionId,
         amount: data.amount,
         status: RequestStatus.PENDING,
         assignedRMId: client.assignedRM.id,
         clientNotes: data.clientNotes || null,
       },
       include: {
-        product: {
+        investment: {
           select: {
             id: true,
             name: true,
             currency: true,
           },
         },
-        productOption: {
+        investmentOption: {
           select: {
             duration: true,
             withdrawalFrequency: true,
@@ -415,9 +415,9 @@ Please log in to your dashboard to review and process this request.
           clientId: client.id,
           clientName,
           clientEmail: client.user.email,
-          productId: data.productId,
+          investmentId: data.investmentId,
           productName: product.name,
-          productOptionId: data.productOptionId,
+          investmentOptionId: data.investmentOptionId,
           amount: data.amount,
           currency: product.currency,
           duration: productOption.duration,
@@ -440,19 +440,19 @@ Please log in to your dashboard to review and process this request.
 
     return NextResponse.json({
       success: true,
-      message: 'Plan investment request submitted successfully',
+      message: 'Investment request submitted successfully',
       data: {
         id: purchaseRequest.id,
         trackingNumber: purchaseRequest.trackingNumber,
         status: purchaseRequest.status,
         amount: Number(purchaseRequest.amount),
-        product: {
-          ...purchaseRequest.product,
+        investment: {
+          ...purchaseRequest.investment,
         },
-        productOption: {
-          ...purchaseRequest.productOption,
-          roi: Number(purchaseRequest.productOption.roi),
-          annualReturn: Number(purchaseRequest.productOption.annualReturn),
+        investmentOption: {
+          ...purchaseRequest.investmentOption,
+          roi: Number(purchaseRequest.investmentOption.roi),
+          annualReturn: Number(purchaseRequest.investmentOption.annualReturn),
         },
         createdAt: purchaseRequest.createdAt.toISOString(),
       },
@@ -514,14 +514,14 @@ export async function GET(request: NextRequest) {
       skip: (page - 1) * limit,
       take: limit,
       include: {
-        product: {
+        investment: {
           select: {
             id: true,
             name: true,
             currency: true,
           },
         },
-        productOption: {
+        investmentOption: {
           select: {
             id: true,
             duration: true,
@@ -542,11 +542,11 @@ export async function GET(request: NextRequest) {
       clientNotes: req.clientNotes,
       rmNotes: req.rmNotes,
       rejectionReason: req.rejectionReason,
-      product: req.product,
-      productOption: {
-        ...req.productOption,
-        roi: Number(req.productOption.roi),
-        annualReturn: Number(req.productOption.annualReturn),
+      investment: req.investment,
+      investmentOption: {
+        ...req.investmentOption,
+        roi: Number(req.investmentOption.roi),
+        annualReturn: Number(req.investmentOption.annualReturn),
       },
       createdAt: req.createdAt.toISOString(),
       updatedAt: req.updatedAt.toISOString(),

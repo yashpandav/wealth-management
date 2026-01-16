@@ -35,12 +35,12 @@ interface ProductPurchaseRequest {
   createdAt: string;
   updatedAt: string;
   processedAt: string | null;
-  product: {
+  investment: {
     id: string;
     name: string;
     currency: string;
   };
-  productOption: {
+  investmentOption: {
     id: string;
     duration: string;
     withdrawalFrequency: string;
@@ -289,7 +289,7 @@ function ClientProductRequestsContent() {
                       <div className="flex items-center gap-3">
                         {getStatusIcon(request.status)}
                         <CardTitle className="text-xl">
-                          {request.product.name}
+                          {request.investment.name}
                         </CardTitle>
                       </div>
                       <CardDescription className="font-mono">
@@ -329,21 +329,21 @@ function ClientProductRequestsContent() {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
                       <p className="mt-1 text-2xl font-bold">
-                        {request.product.currency} {request.amount.toLocaleString()}
+                        {request.investment.currency} {request.amount.toLocaleString()}
                       </p>
                     </div>
 
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Duration</p>
                       <p className="mt-1 text-xl font-semibold">
-                        {request.productOption.duration}
+                        {request.investmentOption.duration}
                       </p>
                     </div>
 
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Withdrawal</p>
                       <p className="mt-1 text-xl font-semibold">
-                        {request.productOption.withdrawalFrequency}
+                        {request.investmentOption.withdrawalFrequency}
                       </p>
                     </div>
 
@@ -351,7 +351,7 @@ function ClientProductRequestsContent() {
                       <p className="text-sm font-medium text-muted-foreground">Annual Return</p>
                       <p className="mt-1 text-xl font-bold text-green-600 flex items-center gap-1">
                         <TrendingUp className="h-5 w-5" />
-                        {request.productOption.annualReturn}%
+                        {request.investmentOption.annualReturn}%
                       </p>
                     </div>
                   </div>
@@ -361,7 +361,7 @@ function ClientProductRequestsContent() {
                   {/* ROI Info */}
                   <div className="flex items-center gap-4 text-sm">
                     <span className="text-muted-foreground">ROI per period:</span>
-                    <Badge variant="secondary">{request.productOption.roi}%</Badge>
+                    <Badge variant="secondary">{request.investmentOption.roi}%</Badge>
                   </div>
 
                   {/* Timeline */}

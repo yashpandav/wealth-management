@@ -862,18 +862,18 @@ model UserLead {
 }
 
 // ====================================
-// PRODUCT PURCHASE REQUEST MODULE
+// INVESTMENT PURCHASE REQUEST MODULE
 // ====================================
 
-/// Investment Products (Venture A, B, C)
-model Product {
+/// Investment Range Categories (Amount-based investment tiers)
+model Investment {
   id String @id @default(uuid())
 
-  // Product identification
-  name        String @db.VarChar(255) // e.g., "Venture A", "Venture B", "Venture C"
+  // Investment range identification
+  name        String @db.VarChar(255) // e.g., "AED 50,000 - 99,999", "AED 500,000 and Above"
   description String? @db.Text
 
-  // Amount range for the product
+  // Amount range for the investment tier
   minAmount Decimal @db.Decimal(15, 2) // Minimum investment amount
   maxAmount Decimal? @db.Decimal(15, 2) // Maximum investment amount (null for "and Above")
   currency  String  @default("AED") @db.VarChar(3)
@@ -889,28 +889,28 @@ model Product {
   updatedAt DateTime @updatedAt
 
   // Relations
-  options         ProductOption[]
+  options         InvestmentOption[]
   purchaseRequests ProductPurchaseRequest[]
 
   // Indexes
   @@index([isActive])
   @@index([displayOrder])
-  @@map("products")
+  @@map("investments")
 }
 
-/// Product Options (subcategories with duration, withdrawal frequency, ROI)
-model ProductOption {
+/// Investment Options (duration, withdrawal frequency, ROI combinations)
+model InvestmentOption {
   id String @id @default(uuid())
 
-  // Product reference
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // Investment reference
+  investmentId String
+  investment   Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
 
   // Option details
   duration            String @db.VarChar(50) // e.g., "1 Year", "2 Years"
   withdrawalFrequency String @db.VarChar(50) // e.g., "Monthly", "Quarterly"
-  roi                 Decimal @db.Decimal(5, 2) // ROI percentage (e.g., 3.00, 10.00, 15.00)
-  annualReturn        Decimal @db.Decimal(5, 2) // Annual return percentage (e.g., 36.00, 40.00)
+  roi                 Decimal @db.Decimal(5, 2) // ROI percentage (e.g., 2.00, 3.00, 10.00, 15.00)
+  annualReturn        Decimal @db.Decimal(5, 2) // Annual return percentage (e.g., 24.00, 36.00, 60.00)
 
   // Display order
   displayOrder Int @default(0)
@@ -926,12 +926,12 @@ model ProductOption {
   purchaseRequests ProductPurchaseRequest[]
 
   // Indexes
-  @@index([productId])
+  @@index([investmentId])
   @@index([isActive])
-  @@map("product_options")
+  @@map("investment_options")
 }
 
-/// Product Purchase Request submitted by clients
+/// Investment Purchase Request submitted by clients
 model ProductPurchaseRequest {
   id String @id @default(uuid())
 
@@ -942,12 +942,12 @@ model ProductPurchaseRequest {
   clientId String
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  // Product and option selected
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
+  // Investment and option selected
+  investmentId String
+  investment   Investment @relation(fields: [investmentId], references: [id])
 
-  productOptionId String
-  productOption   ProductOption @relation(fields: [productOptionId], references: [id])
+  investmentOptionId String
+  investmentOption   InvestmentOption @relation(fields: [investmentOptionId], references: [id])
 
   // Request details
   amount Decimal       @db.Decimal(15, 2) // Investment amount
@@ -981,11 +981,11 @@ model ProductPurchaseRequest {
 
   // Indexes
   @@index([clientId])
-  @@index([productId])
-  @@index([productOptionId])
+  @@index([investmentId])
+  @@index([investmentOptionId])
   @@index([assignedRMId])
   @@index([status])
   @@index([createdAt])
   @@index([contractDocumentId])
-  @@map("product_purchase_requests")
+  @@map("investment_purchase_requests")
 }

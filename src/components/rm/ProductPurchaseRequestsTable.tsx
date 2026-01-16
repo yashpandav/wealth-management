@@ -61,14 +61,14 @@ interface ProductRequest {
     lastName: string;
     email: string;
   };
-  product: {
+  investment: {
     id: string;
     name: string;
     currency: string;
     minAmount: number;
     maxAmount: number | null;
   };
-  productOption: {
+  investmentOption: {
     id: string;
     duration: string;
     withdrawalFrequency: string;
@@ -389,20 +389,20 @@ export function ProductPurchaseRequestsTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="font-medium">{req.product.name}</Badge>
+                      <Badge variant="outline" className="font-medium">{req.investment.name}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <p>{req.productOption.duration}</p>
+                        <p>{req.investmentOption.duration}</p>
                         <p className="text-xs text-muted-foreground font-nums">
-                          {req.productOption.withdrawalFrequency} | {req.productOption.annualReturn}% Annual
+                          {req.investmentOption.withdrawalFrequency} | {req.investmentOption.annualReturn}% Annual
                         </p>
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       <div className="flex items-center justify-end font-nums">
-                        <span className="mr-1 text-xs text-muted-foreground font-sans">{req.product.currency}</span>
-                        {req.product.currency === 'USD' ? <DirhamIcon className="w-3 h-3 mx-1" /> : null}
+                        <span className="mr-1 text-xs text-muted-foreground font-sans">{req.investment.currency}</span>
+                        {req.investment.currency === 'USD' ? <DirhamIcon className="w-3 h-3 mx-1" /> : null}
                         {req.amount.toLocaleString()}
                       </div>
                     </TableCell>
@@ -504,9 +504,9 @@ export function ProductPurchaseRequestsTable() {
               {actionDialog.request && (
                 <>
                   {actionDialog.action === 'APPROVE'
-                    ? `Approve the investment request for ${actionDialog.request.product.name}`
-                    : `Reject the investment request for ${actionDialog.request.product.name}`}
-                  {' '}- {actionDialog.request.product.currency !== 'USD' ? actionDialog.request.product.currency : <span className="inline-flex items-center baseline"><DirhamIcon className="w-3 h-3 mx-1 self-center" /></span>} {actionDialog.request.amount.toLocaleString()}
+                    ? `Approve the investment request for ${actionDialog.request.investment.name}`
+                    : `Reject the investment request for ${actionDialog.request.investment.name}`}
+                  {' '}- {actionDialog.request.investment.currency !== 'USD' ? actionDialog.request.investment.currency : <span className="inline-flex items-center baseline"><DirhamIcon className="w-3 h-3 mx-1 self-center" /></span>} {actionDialog.request.amount.toLocaleString()}
                 </>
               )}
             </DialogDescription>
@@ -515,14 +515,14 @@ export function ProductPurchaseRequestsTable() {
             {actionDialog.request && (
               <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
                 <p><strong>Client:</strong> {actionDialog.request.client.firstName} {actionDialog.request.client.lastName}</p>
-                <p><strong>Product:</strong> {actionDialog.request.product.name}</p>
+                <p><strong>Product:</strong> {actionDialog.request.investment.name}</p>
                 <div className="flex items-center">
                   <strong className="mr-1">Amount:</strong>
-                  {actionDialog.request.product.currency !== 'USD' ? actionDialog.request.product.currency : <DirhamIcon className="w-3 h-3 mx-1" />}
+                  {actionDialog.request.investment.currency !== 'USD' ? actionDialog.request.investment.currency : <DirhamIcon className="w-3 h-3 mx-1" />}
                   {actionDialog.request.amount.toLocaleString()}
                 </div>
-                <p><strong>Duration:</strong> {actionDialog.request.productOption.duration}</p>
-                <p><strong>Annual Return:</strong> {actionDialog.request.productOption.annualReturn}%</p>
+                <p><strong>Duration:</strong> {actionDialog.request.investmentOption.duration}</p>
+                <p><strong>Annual Return:</strong> {actionDialog.request.investmentOption.annualReturn}%</p>
                 {actionDialog.request.clientNotes && (
                   <p><strong>Client Notes:</strong> {actionDialog.request.clientNotes}</p>
                 )}
@@ -596,12 +596,12 @@ export function ProductPurchaseRequestsTable() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Product</p>
-                  <p className="font-medium">{detailDialog.request.product.name}</p>
+                  <p className="font-medium">{detailDialog.request.investment.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
                   <p className="font-medium flex items-center font-nums">
-                    {detailDialog.request.product.currency !== 'USD' ? detailDialog.request.product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
+                    {detailDialog.request.investment.currency !== 'USD' ? detailDialog.request.investment.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
                     {detailDialog.request.amount.toLocaleString()}
                   </p>
                 </div>
@@ -609,21 +609,21 @@ export function ProductPurchaseRequestsTable() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Duration</p>
-                  <p>{detailDialog.request.productOption.duration}</p>
+                  <p>{detailDialog.request.investmentOption.duration}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Withdrawal Frequency</p>
-                  <p>{detailDialog.request.productOption.withdrawalFrequency}</p>
+                  <p>{detailDialog.request.investmentOption.withdrawalFrequency}</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">ROI</p>
-                  <p>{detailDialog.request.productOption.roi}%</p>
+                  <p>{detailDialog.request.investmentOption.roi}%</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Annual Return</p>
-                  <p className="text-green-600 font-medium">{detailDialog.request.productOption.annualReturn}%</p>
+                  <p className="text-green-600 font-medium">{detailDialog.request.investmentOption.annualReturn}%</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

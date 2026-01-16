@@ -102,8 +102,8 @@ export async function POST(
             portfolio: true,
           },
         },
-        product: true,
-        productOption: true,
+        investment: true,
+        investmentOption: true,
       },
     });
 
@@ -161,7 +161,7 @@ export async function POST(
           fileName: file.name,
           fileSize: file.size,
           mimeType: file.type,
-          description: `Product purchase contract for ${productRequest.product.name}`,
+          description: `Product purchase contract for ${productRequest.investment.name}`,
           verificationStatus: 'VERIFIED', // Auto-verified since uploaded by DocAdmin
           verifiedById: user.id,
           verifiedAt: new Date(),
@@ -182,12 +182,12 @@ export async function POST(
           metadata: JSON.stringify({
             productRequestId: productRequest.id,
             trackingNumber: productRequest.trackingNumber,
-            productId: productRequest.productId,
-            productName: productRequest.product.name,
-            productOptionId: productRequest.productOptionId,
-            duration: productRequest.productOption.duration,
-            roi: productRequest.productOption.roi,
-            annualReturn: productRequest.productOption.annualReturn,
+            investmentId: productRequest.investmentId,
+            productName: productRequest.investment.name,
+            investmentOptionId: productRequest.investmentOptionId,
+            duration: productRequest.investmentOption.duration,
+            roi: productRequest.investmentOption.roi,
+            annualReturn: productRequest.investmentOption.annualReturn,
             contractDocumentId: contractDocument.id,
             contractStartDate: contractStartDate,
             notes: notes || null,
@@ -241,7 +241,7 @@ export async function POST(
               trackingNumber: productRequest.trackingNumber,
               clientId: productRequest.clientId,
               clientEmail: productRequest.client.user.email,
-              productName: productRequest.product.name,
+              productName: productRequest.investment.name,
               amount: productRequest.amount.toString(),
               transactionId: transaction.id,
               contractDocumentId: contractDocument.id,
@@ -267,7 +267,7 @@ export async function POST(
           metadata: {
             productRequestId: requestId,
             trackingNumber: productRequest.trackingNumber,
-            productName: productRequest.product.name,
+            productName: productRequest.investment.name,
             amount: productRequest.amount.toString(),
             transactionId: transaction.id,
           },
@@ -288,7 +288,7 @@ export async function POST(
     sendContractUploadedEmail(
       productRequest.client.user.email,
       productRequest.client.user.firstName,
-      productRequest.product.name,
+      productRequest.investment.name,
       productRequest.trackingNumber,
       contractUrl
     ).catch(err => console.error('Failed to send contract uploaded email:', err));

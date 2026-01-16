@@ -18,8 +18,8 @@ async function main() {
   await prisma.transaction.deleteMany();
   await prisma.purchaseRequest.deleteMany();
   await prisma.productPurchaseRequest.deleteMany();
-  await prisma.productOption.deleteMany();
-  await prisma.product.deleteMany();
+  await prisma.investmentOption.deleteMany();
+  await prisma.investment.deleteMany();
   await prisma.withdrawalRequest.deleteMany();
   await prisma.holding.deleteMany();
   await prisma.portfolio.deleteMany();
@@ -540,15 +540,15 @@ async function main() {
   console.log('✅ Created 5 instruments');
 
   // ========================================
-  // PRODUCTS (Investment Ventures)
+  // INVESTMENTS (Investment Range Categories)
   // ========================================
-  console.log('📦 Creating products...');
+  console.log('💼 Creating investments...');
 
-  // Venture A (AED 50,000 – 99,999)
-  const ventureA = await prisma.product.create({
+  // Investment Range 1: AED 50,000 – 99,999
+  const investment50k = await prisma.investment.create({
     data: {
-      name: 'Venture A',
-      description: 'Entry-level investment product for amounts between AED 50,000 and AED 99,999. Ideal for first-time investors looking for stable returns.',
+      name: 'AED 50,000 - 99,999',
+      description: 'Entry-level investment tier for amounts between AED 50,000 and AED 99,999. Ideal for first-time investors looking for stable returns.',
       minAmount: 50000,
       maxAmount: 99999,
       currency: 'AED',
@@ -557,11 +557,11 @@ async function main() {
     },
   });
 
-  // Venture A Options
-  await prisma.productOption.createMany({
+  // Investment Range 1 Options
+  await prisma.investmentOption.createMany({
     data: [
       {
-        productId: ventureA.id,
+        investmentId: investment50k.id,
         duration: '2 Years',
         withdrawalFrequency: 'Monthly',
         roi: 3.00,
@@ -570,7 +570,7 @@ async function main() {
         isActive: true,
       },
       {
-        productId: ventureA.id,
+        investmentId: investment50k.id,
         duration: '2 Years',
         withdrawalFrequency: 'Quarterly',
         roi: 10.00,
@@ -581,11 +581,11 @@ async function main() {
     ],
   });
 
-  // Venture B (AED 100,000 – 499,999)
-  const ventureB = await prisma.product.create({
+  // Investment Range 2: AED 100,000 – 499,999
+  const investment100k = await prisma.investment.create({
     data: {
-      name: 'Venture B',
-      description: 'Mid-tier investment product for amounts between AED 100,000 and AED 499,999. Offers flexible duration options with competitive returns.',
+      name: 'AED 100,000 - 499,999',
+      description: 'Mid-tier investment tier for amounts between AED 100,000 and AED 499,999. Offers flexible duration options with competitive returns.',
       minAmount: 100000,
       maxAmount: 499999,
       currency: 'AED',
@@ -594,44 +594,72 @@ async function main() {
     },
   });
 
-  // Venture B Options
-  await prisma.productOption.createMany({
+  // Investment Range 2 Options
+  await prisma.investmentOption.createMany({
     data: [
       {
-        productId: ventureB.id,
+        investmentId: investment100k.id,
         duration: '1 Year',
         withdrawalFrequency: 'Monthly',
         roi: 3.00,
         annualReturn: 36.00,
-        displayOrder: 1,
-        isActive: true,
-      },
-      {
-        productId: ventureB.id,
-        duration: '2 Years',
-        withdrawalFrequency: 'Monthly',
-        roi: 3.50,
-        annualReturn: 42.00,
         displayOrder: 2,
         isActive: true,
       },
       {
-        productId: ventureB.id,
+        investmentId: investment100k.id,
+        duration: '2 Years',
+        withdrawalFrequency: 'Monthly',
+        roi: 3.50,
+        annualReturn: 42.00,
+        displayOrder: 3,
+        isActive: true,
+      },
+      {
+        investmentId: investment100k.id,
         duration: '2 Years',
         withdrawalFrequency: 'Quarterly',
         roi: 11.00,
         annualReturn: 44.00,
-        displayOrder: 3,
+        displayOrder: 4,
         isActive: true,
       },
     ],
   });
 
-  // Venture C (AED 500,000 and Above)
-  const ventureC = await prisma.product.create({
+  // Investment Range 4: AED >100,000 (General tier for amounts above 100,000)
+  const investmentAbove100k = await prisma.investment.create({
     data: {
-      name: 'Venture C',
-      description: 'Premium investment product for amounts of AED 500,000 and above. Highest returns for substantial investments.',
+      name: 'AED >100,000',
+      description: 'General investment tier for amounts above AED 100,000 with flexible options.',
+      minAmount: 100000,
+      maxAmount: null,
+      currency: 'AED',
+      displayOrder: 4,
+      isActive: true,
+    },
+  });
+
+  // Investment Range 4 Options
+  await prisma.investmentOption.createMany({
+    data: [
+      {
+        investmentId: investmentAbove100k.id,
+        duration: '1 Year',
+        withdrawalFrequency: 'Monthly',
+        roi: 2.00,
+        annualReturn: 24.00,
+        displayOrder: 1,
+        isActive: true,
+      },
+    ],
+  });
+
+  // Investment Range 3: AED 500,000 and Above
+  const investment500k = await prisma.investment.create({
+    data: {
+      name: 'AED 500,000 and Above',
+      description: 'Premium investment tier for amounts of AED 500,000 and above. Highest returns for substantial investments.',
       minAmount: 500000,
       maxAmount: null, // No upper limit
       currency: 'AED',
@@ -640,11 +668,11 @@ async function main() {
     },
   });
 
-  // Venture C Options
-  await prisma.productOption.createMany({
+  // Investment Range 3 Options
+  await prisma.investmentOption.createMany({
     data: [
       {
-        productId: ventureC.id,
+        investmentId: investment500k.id,
         duration: '1 Year',
         withdrawalFrequency: 'Monthly',
         roi: 4.00,
@@ -653,7 +681,7 @@ async function main() {
         isActive: true,
       },
       {
-        productId: ventureC.id,
+        investmentId: investment500k.id,
         duration: '2 Years',
         withdrawalFrequency: 'Quarterly',
         roi: 15.00,
@@ -664,7 +692,7 @@ async function main() {
     ],
   });
 
-  console.log('✅ Created 3 products with 7 options');
+  console.log('✅ Created 4 investment ranges with 9 options');
 
   // ========================================
   // HOLDINGS
@@ -1196,7 +1224,7 @@ async function main() {
   console.log('  - 2 relationship managers');
   console.log('  - 3 clients with portfolios');
   console.log('  - 5 instruments (AAPL, GOOGL, MSFT, VTI, BND)');
-  console.log('  - 3 products (Venture A, B, C) with 7 options');
+  console.log('  - 4 investment ranges with 9 options');
   console.log('  - 7 holdings across portfolios');
   console.log('  - 3 purchase requests (approved, pending, rejected)');
   console.log('  - 3 withdrawal requests (admin approved, pending, RM rejected)');

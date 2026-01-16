@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status') as RequestStatus | null;
     const clientId = searchParams.get('clientId');
-    const productId = searchParams.get('productId');
+    const investmentId = searchParams.get('investmentId');
     const search = searchParams.get('search');
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = (searchParams.get('sortOrder') || 'desc') as 'asc' | 'desc';
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       clientId: { in: clientIds }, // Only show requests from RM's clients
       ...(status && { status }),
       ...(clientId && { clientId }),
-      ...(productId && { productId }),
+      ...(investmentId && { investmentId }),
       ...(search && {
         OR: [
           { trackingNumber: { contains: search, mode: 'insensitive' } },
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
             },
           },
           {
-            product: {
+            investment: {
               name: { contains: search, mode: 'insensitive' },
             },
           },
@@ -88,8 +88,8 @@ export async function GET(request: NextRequest) {
     let orderBy: Prisma.ProductPurchaseRequestOrderByWithRelationInput;
     if (sortBy === 'client') {
       orderBy = { client: { user: { firstName: sortOrder } } };
-    } else if (sortBy === 'product') {
-      orderBy = { product: { name: sortOrder } };
+    } else if (sortBy === 'investment') {
+      orderBy = { investment: { name: sortOrder } };
     } else {
       orderBy = { [sortBy]: sortOrder };
     }
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        product: {
+        investment: {
           select: {
             id: true,
             name: true,
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
             maxAmount: true,
           },
         },
-        productOption: {
+        investmentOption: {
           select: {
             id: true,
             duration: true,
@@ -144,20 +144,20 @@ export async function GET(request: NextRequest) {
         lastName: req.client.user.lastName,
         email: req.client.user.email,
       },
-      productId: req.productId,
-      product: {
-        id: req.product.id,
-        name: req.product.name,
-        currency: req.product.currency,
-        minAmount: Number(req.product.minAmount),
-        maxAmount: req.product.maxAmount ? Number(req.product.maxAmount) : null,
+      investmentId: req.investmentId,
+      investment: {
+        id: req.investment.id,
+        name: req.investment.name,
+        currency: req.investment.currency,
+        minAmount: Number(req.investment.minAmount),
+        maxAmount: req.investment.maxAmount ? Number(req.investment.maxAmount) : null,
       },
-      productOption: {
-        id: req.productOption.id,
-        duration: req.productOption.duration,
-        withdrawalFrequency: req.productOption.withdrawalFrequency,
-        roi: Number(req.productOption.roi),
-        annualReturn: Number(req.productOption.annualReturn),
+      investmentOption: {
+        id: req.investmentOption.id,
+        duration: req.investmentOption.duration,
+        withdrawalFrequency: req.investmentOption.withdrawalFrequency,
+        roi: Number(req.investmentOption.roi),
+        annualReturn: Number(req.investmentOption.annualReturn),
       },
       amount: Number(req.amount),
       status: req.status,

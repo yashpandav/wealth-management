@@ -86,7 +86,7 @@ async function getRecentProductRequests() {
           },
         },
       },
-      product: {
+      investment: {
         select: {
           name: true,
           currency: true,
@@ -281,11 +281,11 @@ export default async function DocAdminDashboardPage() {
                         <p className="font-medium text-sm text-gray-900 group-hover:text-brand-blue transition-colors">
                           {req.client.user.firstName} {req.client.user.lastName}
                         </p>
-                        <p className="text-xs text-brand-grey mt-0.5 truncate max-w-[150px]">{req.product.name}</p>
+                        <p className="text-xs text-brand-grey mt-0.5 truncate max-w-[150px]">{req.investment.name}</p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <p className="text-xs font-semibold text-gray-900 flex items-center">
-                          {req.product.currency === 'USD' ? (
+                          {req.investment.currency === 'USD' ? (
                             <>
                               <span className="text-[10px] mr-1">USD</span>
                               <span className="font-nums">{(Number(req.amount) / 1000).toFixed(1)}K</span>

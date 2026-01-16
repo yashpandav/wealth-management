@@ -38,12 +38,12 @@ interface ProductRequest {
     lastName: string;
     email: string;
   };
-  product: {
+  investment: {
     id: string;
     name: string;
     currency: string;
   };
-  productOption: {
+  investmentOption: {
     duration: string;
     roi: number;
     annualReturn: number;
@@ -308,18 +308,18 @@ export function ProductRequestsClient({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="font-medium">{req.product.name}</Badge>
+                    <Badge variant="outline" className="font-medium">{req.investment.name}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <p>{req.productOption.duration}</p>
+                      <p>{req.investmentOption.duration}</p>
                       <p className="text-xs text-muted-foreground">
-                        <span className="font-nums">{req.productOption.annualReturn}</span>% Annual
+                        <span className="font-nums">{req.investmentOption.annualReturn}</span>% Annual
                       </p>
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-medium font-nums">
-                    {req.product.currency} {Number(req.amount).toLocaleString()}
+                    {req.investment.currency} {Number(req.amount).toLocaleString()}
                   </TableCell>
                   <TableCell>{getStatusBadge(req.status)}</TableCell>
                   <TableCell className="font-nums">{format(new Date(req.createdAt), 'MMM dd, yyyy')}</TableCell>
@@ -415,10 +415,10 @@ export function ProductRequestsClient({
                   <strong>Client:</strong> {uploadDialog.request.client.firstName} {uploadDialog.request.client.lastName}
                 </p>
                 <p className="text-sm">
-                  <strong>Product:</strong> {uploadDialog.request.product.name}
+                  <strong>Product:</strong> {uploadDialog.request.investment.name}
                 </p>
                 <p className="text-sm">
-                  <strong>Amount:</strong> {uploadDialog.request.product.currency} {Number(uploadDialog.request.amount).toLocaleString()}
+                  <strong>Amount:</strong> {uploadDialog.request.investment.currency} {Number(uploadDialog.request.amount).toLocaleString()}
                 </p>
               </div>
 
@@ -510,21 +510,21 @@ export function ProductRequestsClient({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Product</p>
-                  <p className="font-medium">{detailDialog.request.product.name}</p>
+                  <p className="font-medium">{detailDialog.request.investment.name}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium font-nums">{detailDialog.request.product.currency} {Number(detailDialog.request.amount).toLocaleString()}</p>
+                  <p className="font-medium font-nums">{detailDialog.request.investment.currency} {Number(detailDialog.request.amount).toLocaleString()}</p>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Duration</p>
-                  <p>{detailDialog.request.productOption.duration}</p>
+                  <p>{detailDialog.request.investmentOption.duration}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Annual Return</p>
-                  <p className="text-green-600 font-medium"><span className="font-nums">{detailDialog.request.productOption.annualReturn}</span>%</p>
+                  <p className="text-green-600 font-medium"><span className="font-nums">{detailDialog.request.investmentOption.annualReturn}</span>%</p>
                 </div>
               </div>
               <div>
