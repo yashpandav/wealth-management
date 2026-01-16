@@ -20,8 +20,8 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get all active products with their options
-    const products = await prisma.product.findMany({
+    // Get all active investments with their options
+    const products = await prisma.investment.findMany({
       where: {
         isActive: true,
       },

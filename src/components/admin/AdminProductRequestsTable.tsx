@@ -60,12 +60,12 @@ interface ProductRequest {
             email: string;
         };
     };
-    product: {
+    investment: {
         id: string;
         name: string;
         currency: string;
     };
-    productOption: {
+    investmentOption: {
         id: string;
         duration: string;
         withdrawalFrequency: string;
@@ -314,9 +314,9 @@ export function AdminProductRequestsTable() {
                                         </TableCell>
                                         <TableCell>
                                             <div>
-                                                <Badge variant="outline" className="font-medium mb-1">{req.product.name}</Badge>
+                                                <Badge variant="outline" className="font-medium mb-1">{req.investment.name}</Badge>
                                                 <div className="text-xs text-muted-foreground font-nums">
-                                                    {req.productOption.duration} | {req.productOption.annualReturn}%
+                                                    {req.investmentOption.duration} | {req.investmentOption.annualReturn}%
                                                 </div>
                                             </div>
                                         </TableCell>
@@ -332,7 +332,7 @@ export function AdminProductRequestsTable() {
                                         </TableCell>
                                         <TableCell className="text-right font-medium">
                                             <div className="flex items-center justify-end font-nums">
-                                                {req.product.currency === 'USD' ? '$' : <DirhamIcon className="w-3 h-3 mr-1" />}
+                                                {req.investment.currency === 'USD' ? '$' : <DirhamIcon className="w-3 h-3 mr-1" />}
                                                 {req.amount.toLocaleString()}
                                             </div>
                                         </TableCell>
@@ -431,12 +431,12 @@ export function AdminProductRequestsTable() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-muted-foreground">Product</p>
-                                    <p className="font-medium text-brand-blue">{detailDialog.request.product.name}</p>
+                                    <p className="font-medium text-brand-blue">{detailDialog.request.investment.name}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-muted-foreground">Amount</p>
                                     <p className="font-medium flex items-center font-nums text-lg">
-                                        {detailDialog.request.product.currency === 'USD' ? '$' : <DirhamIcon className="w-3 h-3 mr-1" />}
+                                        {detailDialog.request.investment.currency === 'USD' ? '$' : <DirhamIcon className="w-3 h-3 mr-1" />}
                                         {detailDialog.request.amount.toLocaleString()}
                                     </p>
                                 </div>
@@ -444,11 +444,11 @@ export function AdminProductRequestsTable() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-muted-foreground">Options</p>
-                                    <p className="text-sm">{detailDialog.request.productOption.duration} @ {detailDialog.request.productOption.withdrawalFrequency}</p>
+                                    <p className="text-sm">{detailDialog.request.investmentOption.duration} @ {detailDialog.request.investmentOption.withdrawalFrequency}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-muted-foreground">Return</p>
-                                    <p className="text-green-600 font-medium">{detailDialog.request.productOption.annualReturn}% Annual</p>
+                                    <p className="text-green-600 font-medium">{detailDialog.request.investmentOption.annualReturn}% Annual</p>
                                 </div>
                             </div>
 

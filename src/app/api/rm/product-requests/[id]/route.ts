@@ -68,7 +68,7 @@ export async function GET(
             },
           },
         },
-        product: {
+        investment: {
           select: {
             id: true,
             name: true,
@@ -78,7 +78,7 @@ export async function GET(
             maxAmount: true,
           },
         },
-        productOption: {
+        investmentOption: {
           select: {
             id: true,
             duration: true,
@@ -91,7 +91,7 @@ export async function GET(
     });
 
     if (!productRequest) {
-      return NextResponse.json({ success: false, error: 'Product investment request not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Investment request not found' }, { status: 404 });
     }
 
     // Verify the request belongs to one of RM's clients
@@ -111,21 +111,21 @@ export async function GET(
         email: productRequest.client.user.email,
         phone: productRequest.client.user.phone,
       },
-      productId: productRequest.productId,
-      product: {
-        id: productRequest.product.id,
-        name: productRequest.product.name,
-        description: productRequest.product.description,
-        currency: productRequest.product.currency,
-        minAmount: Number(productRequest.product.minAmount),
-        maxAmount: productRequest.product.maxAmount ? Number(productRequest.product.maxAmount) : null,
+      investmentId: productRequest.investmentId,
+      investment: {
+        id: productRequest.investment.id,
+        name: productRequest.investment.name,
+        description: productRequest.investment.description,
+        currency: productRequest.investment.currency,
+        minAmount: Number(productRequest.investment.minAmount),
+        maxAmount: productRequest.investment.maxAmount ? Number(productRequest.investment.maxAmount) : null,
       },
-      productOption: {
-        id: productRequest.productOption.id,
-        duration: productRequest.productOption.duration,
-        withdrawalFrequency: productRequest.productOption.withdrawalFrequency,
-        roi: Number(productRequest.productOption.roi),
-        annualReturn: Number(productRequest.productOption.annualReturn),
+      investmentOption: {
+        id: productRequest.investmentOption.id,
+        duration: productRequest.investmentOption.duration,
+        withdrawalFrequency: productRequest.investmentOption.withdrawalFrequency,
+        roi: Number(productRequest.investmentOption.roi),
+        annualReturn: Number(productRequest.investmentOption.annualReturn),
       },
       amount: Number(productRequest.amount),
       status: productRequest.status,
@@ -142,10 +142,10 @@ export async function GET(
       data: { request: serializedRequest },
     });
   } catch (error: unknown) {
-    console.error('Error fetching product purchase request:', error);
+    console.error('Error fetching investment request:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch product investment request' },
+      { success: false, error: 'Failed to fetch investment request' },
       { status: 500 }
     );
   }
@@ -200,14 +200,14 @@ export async function PATCH(
             },
           },
         },
-        product: {
+        investment: {
           select: {
             id: true,
             name: true,
             currency: true,
           },
         },
-        productOption: {
+        investmentOption: {
           select: {
             duration: true,
             withdrawalFrequency: true,
@@ -219,7 +219,7 @@ export async function PATCH(
     });
 
     if (!productRequest) {
-      return NextResponse.json({ success: false, error: 'Product request not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Investment request not found' }, { status: 404 });
     }
 
     // Verify the request belongs to one of RM's clients
@@ -277,8 +277,8 @@ export async function PATCH(
     const clientUserId = productRequest.client.user.id;
     const clientEmail = productRequest.client.user.email;
     const clientName = `${productRequest.client.user.firstName} ${productRequest.client.user.lastName}`;
-    const productName = productRequest.product.name;
-    const currency = productRequest.product.currency;
+    const investmentName = productRequest.investment.name;
+    const currency = productRequest.investment.currency;
     const amount = Number(productRequest.amount);
 
     // Create in-app notification for client
@@ -287,10 +287,10 @@ export async function PATCH(
         userId: clientUserId,
         type: action === 'APPROVE' ? 'SUCCESS' : 'WARNING',
         category: 'REQUEST',
-        title: action === 'APPROVE' ? 'Plan Request Approved' : 'Plan Request Rejected',
+        title: action === 'APPROVE' ? 'Investment Request Approved' : 'Investment Request Rejected',
         message: action === 'APPROVE'
-          ? `Your plan investment request for ${productName} - ${currency} ${amount.toLocaleString()} has been approved.`
-          : `Your plan investment request for ${productName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
+          ? `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been approved.`
+          : `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
         isRead: false,
         actionUrl: '/client/product-requests',
         actionText: 'View Details',
@@ -299,7 +299,7 @@ export async function PATCH(
         priority: 'HIGH',
         metadata: {
           trackingNumber: productRequest.trackingNumber,
-          productName,
+          investmentName,
           amount,
           currency,
           status: newStatus,
@@ -318,18 +318,18 @@ export async function PATCH(
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Plan Request ${statusText}</title>
+          <title>Investment Request ${statusText}</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px;">Plan Request ${statusText}</h1>
+            <h1 style="color: white; margin: 0; font-size: 28px;">Investment Request ${statusText}</h1>
           </div>
 
           <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
             <h2 style="color: #1f2937; margin-top: 0;">Hi ${clientName},</h2>
 
             <p style="font-size: 16px; color: #4b5563;">
-              Your plan investment request has been ${statusText.toLowerCase()} by your Relationship Manager.
+              Your investment request has been ${statusText.toLowerCase()} by your Relationship Manager.
             </p>
 
             <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${statusColor};">
@@ -337,13 +337,13 @@ export async function PATCH(
                 <strong style="color: #1f2937;">Tracking Number:</strong> ${productRequest.trackingNumber}
               </p>
               <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
-                <strong style="color: #1f2937;">Plan:</strong> ${productName}
+                <strong style="color: #1f2937;">Investment:</strong> ${investmentName}
               </p>
               <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
                 <strong style="color: #1f2937;">Amount:</strong> ${currency} ${amount.toLocaleString()}
               </p>
               <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
-                <strong style="color: #1f2937;">Duration:</strong> ${productRequest.productOption.duration}
+                <strong style="color: #1f2937;">Duration:</strong> ${productRequest.investmentOption.duration}
               </p>
               <p style="margin: 5px 0; font-size: 14px; color: #6b7280;">
                 <strong style="color: #1f2937;">Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${statusText}</span>
@@ -377,9 +377,9 @@ export async function PATCH(
     // Send email (non-blocking)
     sendEmail({
       to: clientEmail,
-      subject: `Plan Request ${statusText} - ${productRequest.trackingNumber}`,
+      subject: `Investment Request ${statusText} - ${productRequest.trackingNumber}`,
       html: emailHtml,
-      text: `Hi ${clientName}, Your plan investment request for ${productName} - ${currency} ${amount.toLocaleString()} has been ${statusText.toLowerCase()}.${action === 'REJECT' && rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
+      text: `Hi ${clientName}, Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been ${statusText.toLowerCase()}.${action === 'REJECT' && rejectionReason ? ` Reason: ${rejectionReason}` : ''}`,
     }).catch((err) => {
       console.error('Failed to send client notification email:', err);
     });
@@ -392,20 +392,20 @@ export async function PATCH(
         action: auditAction,
         entityType: 'ProductPurchaseRequest',
         entityId: productRequest.id,
-        description: `RM ${action === 'APPROVE' ? 'approved' : 'rejected'} plan purchase request ${productRequest.trackingNumber} for client ${clientName}`,
+        description: `RM ${action === 'APPROVE' ? 'approved' : 'rejected'} investment request ${productRequest.trackingNumber} for client ${clientName}`,
         metadata: {
           trackingNumber: productRequest.trackingNumber,
           clientId: productRequest.clientId,
           clientName,
           clientEmail,
-          productId: productRequest.productId,
-          productName,
-          productOptionId: productRequest.productOptionId,
+          investmentId: productRequest.investmentId,
+          investmentName,
+          investmentOptionId: productRequest.investmentOptionId,
           amount,
           currency,
-          duration: productRequest.productOption.duration,
-          roi: Number(productRequest.productOption.roi),
-          annualReturn: Number(productRequest.productOption.annualReturn),
+          duration: productRequest.investmentOption.duration,
+          roi: Number(productRequest.investmentOption.roi),
+          annualReturn: Number(productRequest.investmentOption.annualReturn),
           rmId: rm.id,
           rmUserId: session.user.id,
           rmName: `${session.user.firstName} ${session.user.lastName}`,
@@ -443,7 +443,7 @@ export async function PATCH(
           admin.email,
           `${admin.firstName} ${admin.lastName}`,
           clientName,
-          productName,
+          investmentName,
           productRequest.trackingNumber,
           amount,
           currency
@@ -456,7 +456,7 @@ export async function PATCH(
             type: 'INFO',
             category: 'REQUEST',
             title: 'Contract Upload Required',
-            message: `Plan investment request for ${clientName} (${productName}) has been approved and requires contract upload.`,
+            message: `Investment request for ${clientName} (${investmentName}) has been approved and requires contract upload.`,
             isRead: false,
             actionUrl: '/docadmin/contract-requests',
             actionText: 'Upload Contract',
@@ -466,7 +466,7 @@ export async function PATCH(
             metadata: {
               trackingNumber: productRequest.trackingNumber,
               clientName,
-              productName,
+              investmentName,
               amount,
               currency
             }
@@ -479,7 +479,7 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: `Plan investment request ${statusText.toLowerCase()} successfully`,
+      message: `Investment request ${statusText.toLowerCase()} successfully`,
       data: {
         id: updatedRequest.id,
         trackingNumber: updatedRequest.trackingNumber,
@@ -487,10 +487,10 @@ export async function PATCH(
       },
     });
   } catch (error: unknown) {
-    console.error('Error updating product purchase request:', error);
+    console.error('Error updating investment request:', error);
 
     return NextResponse.json(
-      { success: false, error: 'Failed to update product investment request' },
+      { success: false, error: 'Failed to update investment request' },
       { status: 500 }
     );
   }

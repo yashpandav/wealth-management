@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
         { client: { user: { firstName: { contains: search, mode: 'insensitive' } } } },
         { client: { user: { lastName: { contains: search, mode: 'insensitive' } } } },
         { client: { user: { email: { contains: search, mode: 'insensitive' } } } },
-        { product: { name: { contains: search, mode: 'insensitive' } } },
+        { investment: { name: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
               },
             },
           },
-          product: {
+          investment: {
             select: {
               id: true,
               name: true,
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
               maxAmount: true,
             },
           },
-          productOption: {
+          investmentOption: {
             select: {
               id: true,
               duration: true,
@@ -152,8 +152,8 @@ export async function GET(request: NextRequest) {
             lastName: req.client.user.lastName,
             email: req.client.user.email,
           },
-          product: req.product,
-          productOption: req.productOption,
+          investment: req.investment,
+          investmentOption: req.investmentOption,
           amount: req.amount,
           status: req.status,
           assignedRM: req.assignedRM

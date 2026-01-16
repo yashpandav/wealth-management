@@ -26,8 +26,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     const { id } = await params;
 
-    // Get product with options
-    const product = await prisma.product.findUnique({
+    // Get investment with options
+    const product = await prisma.investment.findUnique({
       where: {
         id,
         isActive: true,

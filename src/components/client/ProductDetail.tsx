@@ -202,8 +202,8 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: product.id,
-          productOptionId: selectedOption.id,
+          investmentId: product.id,
+          investmentOptionId: selectedOption.id,
           amount: parseFloat(amount),
           clientNotes: notes || undefined,
         }),

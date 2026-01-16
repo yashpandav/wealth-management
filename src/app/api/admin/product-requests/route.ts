@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
                 { client: { user: { firstName: { contains: search, mode: 'insensitive' } } } },
                 { client: { user: { lastName: { contains: search, mode: 'insensitive' } } } },
                 { client: { user: { email: { contains: search, mode: 'insensitive' } } } },
-                { product: { name: { contains: search, mode: 'insensitive' } } },
+                { investment: { name: { contains: search, mode: 'insensitive' } } },
             ];
         }
 
@@ -80,8 +80,8 @@ export async function GET(request: NextRequest) {
                         },
                     },
                 },
-                product: true,
-                productOption: true,
+                investment: true,
+                investmentOption: true,
                 assignedRM: {
                     include: {
                         user: {
@@ -95,19 +95,19 @@ export async function GET(request: NextRequest) {
             },
         });
 
-        // Serialize Decimal fields
+        // Serialize Decimal fields - Keep field names consistent with schema
         const serializedRequests = requests.map((req) => ({
             ...req,
             amount: Number(req.amount),
-            product: {
-                ...req.product,
-                minAmount: Number(req.product.minAmount),
-                maxAmount: req.product.maxAmount ? Number(req.product.maxAmount) : null,
+            investment: {
+                ...req.investment,
+                minAmount: Number(req.investment.minAmount),
+                maxAmount: req.investment.maxAmount ? Number(req.investment.maxAmount) : null,
             },
-            productOption: {
-                ...req.productOption,
-                roi: Number(req.productOption.roi),
-                annualReturn: Number(req.productOption.annualReturn),
+            investmentOption: {
+                ...req.investmentOption,
+                roi: Number(req.investmentOption.roi),
+                annualReturn: Number(req.investmentOption.annualReturn),
             },
         }));
 

@@ -207,13 +207,13 @@ export async function sendMonthlyPayoutReminders() {
             },
           },
         },
-        product: {
+        investment: {
           select: {
             name: true,
             currency: true,
           },
         },
-        productOption: {
+        investmentOption: {
           select: {
             roi: true,
           },
@@ -225,14 +225,14 @@ export async function sendMonthlyPayoutReminders() {
 
     for (const investment of activeInvestments) {
       // Calculate expected payout based on investment amount and ROI
-      const expectedPayout = Number(investment.amount) * (Number(investment.productOption.roi) / 100) / 12; // Monthly
+      const expectedPayout = Number(investment.amount) * (Number(investment.investmentOption.roi) / 100) / 12; // Monthly
       const payoutDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-15`;
 
       await sendMonthlyPayoutReminderEmail(
         investment.client.user.email,
         investment.client.user.firstName,
         expectedPayout,
-        investment.product.currency,
+        investment.investment.currency,
         payoutDate
       );
     }
@@ -286,7 +286,7 @@ export async function sendContractRenewalReminders() {
             },
           },
         },
-        product: {
+        investment: {
           select: {
             name: true,
           },
@@ -305,7 +305,7 @@ export async function sendContractRenewalReminders() {
       await sendContractRenewalReminderEmail(
         investment.client.user.email,
         investment.client.user.firstName,
-        investment.product.name,
+        investment.investment.name,
         expiryDate,
         daysRemaining
       );
