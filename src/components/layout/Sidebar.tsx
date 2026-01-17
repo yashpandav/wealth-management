@@ -46,7 +46,8 @@ import {
   List,
   UserCheck,
   ShieldCheck,
-  Inbox
+  Inbox,
+  TrendingUp
 } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -75,7 +76,12 @@ const navItems: NavItem[] = [
     icon: <BarChart2 className="h-5 w-5" />,
     roles: ['ADMIN'],
   },
-
+  {
+    href: '/admin/investment-plans',
+    label: 'Investment Plans',
+    icon: <TrendingUp className="h-5 w-5" />,
+    roles: ['ADMIN'],
+  },
   {
     href: '/admin/purchase-requests',
     label: 'Investment Requests',
