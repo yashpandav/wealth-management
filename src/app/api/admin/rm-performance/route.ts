@@ -101,40 +101,6 @@ export async function GET(_request: NextRequest) {
           }),
         ]);
 
-        // Get withdrawal request statistics
-        const [
-          totalWithdrawalRequests,
-          approvedWithdrawalRequests,
-          rejectedWithdrawalRequests,
-          pendingWithdrawalRequests,
-        ] = await Promise.all([
-          prisma.withdrawalRequest.count({
-            where: { processedByRMId: rm.id },
-          }),
-          prisma.withdrawalRequest.count({
-            where: {
-              processedByRMId: rm.id,
-              status: {
-                in: ['RM_APPROVED', 'ADMIN_APPROVED', 'COMPLETED'],
-              },
-            },
-          }),
-          prisma.withdrawalRequest.count({
-            where: {
-              processedByRMId: rm.id,
-              status: 'RM_REJECTED',
-            },
-          }),
-          prisma.withdrawalRequest.count({
-            where: {
-              client: { assignedRMId: rm.id },
-              status: {
-                in: ['PENDING', 'RM_REVIEW'],
-              },
-            },
-          }),
-        ]);
-
         // Calculate client metrics
         const totalClients = rm.assignedClients.length;
         const activeClients = rm.assignedClients.filter(
@@ -162,11 +128,6 @@ export async function GET(_request: NextRequest) {
             ? (approvedPurchaseRequests / totalPurchaseRequests) * 100
             : 0;
 
-        const withdrawalApprovalRate =
-          totalWithdrawalRequests > 0
-            ? (approvedWithdrawalRequests / totalWithdrawalRequests) * 100
-            : 0;
-
         return {
           id: rm.id,
           user: rm.user,
@@ -189,13 +150,6 @@ export async function GET(_request: NextRequest) {
             rejected: rejectedPurchaseRequests,
             pending: pendingPurchaseRequests,
             approvalRate: purchaseApprovalRate,
-          },
-          withdrawalRequests: {
-            total: totalWithdrawalRequests,
-            approved: approvedWithdrawalRequests,
-            rejected: rejectedWithdrawalRequests,
-            pending: pendingWithdrawalRequests,
-            approvalRate: withdrawalApprovalRate,
           },
         };
       })

@@ -5,7 +5,7 @@
 
 import { prisma } from '@/lib/db/prisma';
 import { Prisma } from '@prisma/client';
-import { addMonths, addDays, endOfMonth, startOfMonth } from 'date-fns';
+import { addMonths, addDays, endOfMonth } from 'date-fns';
 
 /**
  * Generate all payout schedules for a completed contract
@@ -99,7 +99,6 @@ export async function generatePayoutSchedules(
     }
 
     schedules.push({
-      id: undefined as any, // Let Prisma generate
       productPurchaseRequestId: contract.id,
       clientId: contract.clientId,
       scheduledDate,

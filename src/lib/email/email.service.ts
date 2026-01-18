@@ -2711,10 +2711,26 @@ This is an automated message. Please do not reply directly to this email.
  * Send payout reminder email to DocAdmin
  * Triggered by cron job for payouts due on 15th or month-end
  */
+interface PendingPayoutData {
+  id: string;
+  amount: number | string | { toNumber(): number };
+  client: {
+    user: {
+      firstName: string;
+      lastName: string;
+    };
+  };
+  productPurchaseRequest: {
+    investment: {
+      name: string;
+    };
+  };
+}
+
 export async function sendDocAdminPayoutReminder(
   email: string,
   payoutDate: Date,
-  pendingPayouts: any[]
+  pendingPayouts: PendingPayoutData[]
 ): Promise<boolean> {
   const dashboardUrl = `${config.app.url}/docadmin/payouts`;
   const payoutDateFormatted = payoutDate.toLocaleDateString('en-US', {

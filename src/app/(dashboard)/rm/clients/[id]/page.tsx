@@ -8,7 +8,6 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -35,7 +34,7 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { RequestStatus, WithdrawalStatus } from '@prisma/client';
+import { RequestStatus } from '@prisma/client';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface ClientDetail {
@@ -83,13 +82,6 @@ interface ClientDetail {
       symbol: string;
       name: string;
     };
-  }>;
-  withdrawalRequests: Array<{
-    id: string;
-    trackingNumber: string;
-    status: WithdrawalStatus;
-    amount: number;
-    createdAt: string;
   }>;
 }
 
@@ -152,35 +144,6 @@ export default function RMClientDetailPage() {
   const formatPhoneForWhatsApp = (phone: string | null): string => {
     if (!phone) return '';
     return phone.replace(/\D/g, '');
-  };
-
-  // Status badge component for withdrawal requests
-  const WithdrawalStatusBadge = ({ status }: { status: WithdrawalStatus }) => {
-    const statusLabels: Record<WithdrawalStatus, string> = {
-      PENDING: 'Pending',
-      RM_REVIEW: 'RM Review',
-      RM_APPROVED: 'RM Approved',
-      RM_REJECTED: 'RM Rejected',
-      ADMIN_REVIEW: 'Admin Review',
-      ADMIN_APPROVED: 'Admin Approved',
-      ADMIN_REJECTED: 'Admin Rejected',
-      COMPLETED: 'Completed',
-      CANCELLED: 'Cancelled',
-    };
-
-    const variants: Record<WithdrawalStatus, "default" | "secondary" | "destructive" | "outline"> = {
-      PENDING: "secondary",
-      RM_REVIEW: "default",
-      RM_APPROVED: "default",
-      RM_REJECTED: "destructive",
-      ADMIN_REVIEW: "default",
-      ADMIN_APPROVED: "default",
-      ADMIN_REJECTED: "destructive",
-      COMPLETED: "default",
-      CANCELLED: "secondary"
-    };
-
-    return <Badge variant={variants[status]}>{statusLabels[status]}</Badge>;
   };
 
   if (loading) {
@@ -450,50 +413,6 @@ export default function RMClientDetailPage() {
               </Table>
             ) : (
               <div className="p-6 text-center text-sm text-gray-500">No purchase history</div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Withdrawal Requests */}
-        <Card className="rounded-xl border-border shadow-sm">
-          <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <CardTitle className="font-optima text-brand-blue text-lg flex items-center gap-2">
-                <ArrowDownRight className="h-5 w-5" /> Recent Withdrawals
-              </CardTitle>
-              <Button variant="ghost" size="sm" asChild className="text-xs h-8">
-                <Link href="/rm/withdrawal-requests">View All</Link>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {client.withdrawalRequests.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {client.withdrawalRequests.slice(0, 5).map((req) => (
-                    <TableRow key={req.id}>
-                      <TableCell className="font-nums text-sm">
-                        {format(new Date(req.createdAt), 'MMM dd, yyyy')}
-                      </TableCell>
-                      <TableCell className="text-right font-nums font-medium">
-                        ${req.amount.toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <WithdrawalStatusBadge status={req.status} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="p-6 text-center text-sm text-gray-500">No withdrawal history</div>
             )}
           </CardContent>
         </Card>

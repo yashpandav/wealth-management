@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
   Users,
-  Wallet,
   AlertCircle,
   TrendingUp,
   Package,

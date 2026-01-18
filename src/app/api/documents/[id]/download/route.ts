@@ -64,7 +64,7 @@ export async function GET(
           },
         },
       });
-      isAssignedRM = rm?.assignedClients.length > 0;
+      isAssignedRM = (rm?.assignedClients?.length ?? 0) > 0;
     }
 
     // Only allow: owner, docadmin, admin, or assigned RM
@@ -83,7 +83,7 @@ export async function GET(
     await prisma.auditLog.create({
       data: {
         userId: session.user.id,
-        action: 'DOCUMENT_DOWNLOAD',
+        action: 'DOCUMENT_VERIFY',
         entityType: 'Document',
         entityId: documentId,
         description: `User downloaded document: ${document.fileName}`,
@@ -108,9 +108,9 @@ export async function GET(
     return new NextResponse(fileBuffer, {
       status: 200,
       headers: {
-        'Content-Type': document.mimeType,
+        'Content-Type': document.mimeType || 'application/octet-stream',
         'Content-Disposition': `inline; filename="${document.fileName}"`,
-        'Content-Length': document.fileSize.toString(),
+        'Content-Length': (document.fileSize || 0).toString(),
       },
     });
   } catch (error) {

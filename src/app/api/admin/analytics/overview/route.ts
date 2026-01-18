@@ -24,13 +24,11 @@ export async function GET() {
       totalAUM,
       totalInstruments,
       pendingPurchaseRequests,
-      pendingWithdrawalRequests,
       totalTransactions,
       completedTransactions,
       allRMs,
       allInstruments,
       allPurchaseRequests,
-      allWithdrawalRequests,
       allTransactions,
     ] = await Promise.all([
       // Total clients
@@ -52,15 +50,6 @@ export async function GET() {
 
       // Pending purchase requests
       prisma.purchaseRequest.count({ where: { status: 'PENDING' } }),
-
-      // Pending withdrawal requests (RM_REVIEW and ADMIN_REVIEW)
-      prisma.withdrawalRequest.count({
-        where: {
-          status: {
-            in: ['RM_REVIEW', 'ADMIN_REVIEW'],
-          },
-        },
-      }),
 
       // Total transactions
       prisma.transaction.count(),
@@ -100,16 +89,6 @@ export async function GET() {
 
       // All purchase requests for trends
       prisma.purchaseRequest.findMany({
-        select: {
-          id: true,
-          status: true,
-          createdAt: true,
-          amount: true,
-        },
-      }),
-
-      // All withdrawal requests for trends
-      prisma.withdrawalRequest.findMany({
         select: {
           id: true,
           status: true,
@@ -188,38 +167,10 @@ export async function GET() {
       return acc;
     }, {} as Record<string, number>);
 
-    const withdrawalStatusCounts = allWithdrawalRequests.reduce((acc, req) => {
-      acc[req.status] = (acc[req.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
     const requestStatusDistribution = [
       { name: 'Purchase - Pending', value: purchaseStatusCounts['PENDING'] || 0, fill: '#fbbf24' },
       { name: 'Purchase - Approved', value: purchaseStatusCounts['APPROVED'] || 0, fill: '#10b981' },
       { name: 'Purchase - Rejected', value: purchaseStatusCounts['REJECTED'] || 0, fill: '#ef4444' },
-      {
-        name: 'Withdrawal - RM Review',
-        value: withdrawalStatusCounts['RM_REVIEW'] || 0,
-        fill: '#f97316',
-      },
-      {
-        name: 'Withdrawal - Admin Review',
-        value: withdrawalStatusCounts['ADMIN_REVIEW'] || 0,
-        fill: '#fb923c',
-      },
-      {
-        name: 'Withdrawal - Approved',
-        value:
-          (withdrawalStatusCounts['RM_APPROVED'] || 0) +
-          (withdrawalStatusCounts['ADMIN_APPROVED'] || 0) +
-          (withdrawalStatusCounts['COMPLETED'] || 0),
-        fill: '#22c55e',
-      },
-      {
-        name: 'Withdrawal - Rejected',
-        value: (withdrawalStatusCounts['RM_REJECTED'] || 0) + (withdrawalStatusCounts['ADMIN_REJECTED'] || 0),
-        fill: '#dc2626',
-      },
     ].filter((item) => item.value > 0);
 
     // User growth trend - simplified (using current counts)
@@ -241,9 +192,8 @@ export async function GET() {
           totalAdmins,
           totalAUM: totalAUM._sum.totalValue ? Number(totalAUM._sum.totalValue) : 0,
           totalInstruments,
-          pendingRequests: pendingPurchaseRequests + pendingWithdrawalRequests,
+          pendingRequests: pendingPurchaseRequests,
           pendingPurchaseRequests,
-          pendingWithdrawalRequests,
           totalTransactions,
           completedTransactions,
           transactionSuccessRate:
