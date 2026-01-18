@@ -530,6 +530,14 @@ export async function GET(request: NextRequest) {
             annualReturn: true,
           },
         },
+        contractDocument: {
+          select: {
+            id: true,
+            fileName: true,
+            fileSize: true,
+            uploadedAt: true,
+          },
+        },
       },
     });
 
@@ -552,6 +560,12 @@ export async function GET(request: NextRequest) {
       updatedAt: req.updatedAt.toISOString(),
       processedAt: req.processedAt?.toISOString() || null,
       contractDocumentId: req.contractDocumentId,
+      contractDocument: req.contractDocument ? {
+        id: req.contractDocument.id,
+        fileName: req.contractDocument.fileName,
+        fileSize: Number(req.contractDocument.fileSize),
+        uploadedAt: req.contractDocument.uploadedAt.toISOString(),
+      } : null,
     }));
 
     // Calculate pagination metadata

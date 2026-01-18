@@ -48,5 +48,9 @@ export {
   sendContractUploadedEmail,
   sendMonthlyPayoutReminderEmail,
   sendContractRenewalReminderEmail,
+
+  // Payout system emails
+  sendPayoutCompletedEmail,
+  sendDocAdminPayoutReminder,
 } from './email.service';
 export type { SendEmailOptions } from './email.service';

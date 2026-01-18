@@ -56,24 +56,14 @@ export async function GET() {
     // Fetch all statistics in parallel
     const [
       totalClients,
-      pendingWithdrawalRequests,
       pendingProductRequests,
       totalAUM,
-      allWithdrawalRequests,
       allProductPurchaseRequests,
       clientsWithPortfolios,
     ] = await Promise.all([
       // Total assigned clients
       prisma.client.count({
         where: { id: { in: clientIds } },
-      }),
-
-      // Pending withdrawal requests
-      prisma.withdrawalRequest.count({
-        where: {
-          clientId: { in: clientIds },
-          status: 'RM_REVIEW',
-        },
       }),
 
       // Pending product purchase requests
@@ -88,17 +78,6 @@ export async function GET() {
       prisma.portfolio.aggregate({
         where: { clientId: { in: clientIds } },
         _sum: { totalValue: true },
-      }),
-
-      // All withdrawal requests for stats
-      prisma.withdrawalRequest.findMany({
-        where: { clientId: { in: clientIds } },
-        select: {
-          id: true,
-          status: true,
-          createdAt: true,
-          amount: true,
-        },
       }),
 
       // All product purchase requests for stats
@@ -137,29 +116,10 @@ export async function GET() {
       }),
     ]);
 
-    // Recent withdrawal activities
-    const recentWithdrawalActivities = await prisma.withdrawalRequest.findMany({
-      where: { clientId: { in: clientIds } },
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        client: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
     // Recent product purchase requests
     const recentProductRequests = await prisma.productPurchaseRequest.findMany({
       where: { clientId: { in: clientIds } },
-      take: 5,
+      take: 10,
       orderBy: { createdAt: 'desc' },
       include: {
         client: {
@@ -181,58 +141,30 @@ export async function GET() {
       },
     });
 
-    // Combine and sort activities
-    const combinedActivities = [
-      ...recentWithdrawalActivities.map((req) => ({
-        id: req.id,
-        type: 'WITHDRAWAL' as const,
-        clientName: `${req.client.user.firstName} ${req.client.user.lastName}`,
-        instrumentName: '',
-        instrumentSymbol: '',
-        amount: Number(req.amount),
-        status: req.status,
-        createdAt: req.createdAt.toISOString(),
-      })),
-      ...recentProductRequests.map((req) => ({
-        id: req.id,
-        type: 'INVESTMENT' as const,
-        clientName: `${req.client.user.firstName} ${req.client.user.lastName}`,
-        instrumentName: req.investment.name,
-        instrumentSymbol: req.investment.currency,
-        amount: Number(req.amount),
-        status: req.status,
-        createdAt: req.createdAt.toISOString(),
-      })),
-    ]
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10);
+    // Map activities
+    const combinedActivities = recentProductRequests.map((req) => ({
+      id: req.id,
+      type: 'INVESTMENT' as const,
+      clientName: `${req.client.user.firstName} ${req.client.user.lastName}`,
+      instrumentName: req.investment.name,
+      instrumentSymbol: req.investment.currency,
+      amount: Number(req.amount),
+      status: req.status,
+      createdAt: req.createdAt.toISOString(),
+    }));
 
     // Calculate request status distribution
-    const withdrawalStatusCounts = allWithdrawalRequests.reduce((acc, req) => {
-      acc[req.status] = (acc[req.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
     const productStatusCounts = allProductPurchaseRequests.reduce((acc, req) => {
       acc[req.status] = (acc[req.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const requestStatusData = [
-      { name: 'Withdrawal - Pending', value: withdrawalStatusCounts['RM_REVIEW'] || 0, fill: '#f97316' },
-      {
-        name: 'Withdrawal - Approved',
-        value: (withdrawalStatusCounts['RM_APPROVED'] || 0) + (withdrawalStatusCounts['ADMIN_APPROVED'] || 0) + (withdrawalStatusCounts['COMPLETED'] || 0),
-        fill: '#22c55e',
-      },
-      {
-        name: 'Withdrawal - Rejected',
-        value: (withdrawalStatusCounts['RM_REJECTED'] || 0) + (withdrawalStatusCounts['ADMIN_REJECTED'] || 0),
-        fill: '#dc2626',
-      },
-      { name: 'Investment - Pending', value: productStatusCounts['PENDING'] || 0, fill: '#8b5cf6' },
-      { name: 'Investment - Approved', value: productStatusCounts['APPROVED'] || 0, fill: '#06b6d4' },
-      { name: 'Investment - Rejected', value: productStatusCounts['REJECTED'] || 0, fill: '#f43f5e' },
+      { name: 'Plans - Pending', value: productStatusCounts['PENDING'] || 0, fill: '#f59e0b' },
+      { name: 'Plans - Processing', value: productStatusCounts['PROCESSING'] || 0, fill: '#3b82f6' },
+      { name: 'Plans - Approved', value: productStatusCounts['APPROVED'] || 0, fill: '#10b981' },
+      { name: 'Plans - Completed', value: productStatusCounts['COMPLETED'] || 0, fill: '#06b6d4' },
+      { name: 'Plans - Rejected', value: productStatusCounts['REJECTED'] || 0, fill: '#ef4444' },
     ].filter((item) => item.value > 0);
 
     // Top clients by AUM
@@ -254,11 +186,6 @@ export async function GET() {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
 
-      const withdrawalCount = allWithdrawalRequests.filter((req) => {
-        const reqDate = new Date(req.createdAt).toISOString().split('T')[0];
-        return reqDate === dateStr;
-      }).length;
-
       const productCount = allProductPurchaseRequests.filter((req) => {
         const reqDate = new Date(req.createdAt).toISOString().split('T')[0];
         return reqDate === dateStr;
@@ -266,39 +193,112 @@ export async function GET() {
 
       activityTrend.push({
         date: dateStr,
-        withdrawals: withdrawalCount,
-        investments: productCount,
+        withdrawals: 0, // Removed withdrawal functionality
+        products: productCount,
       });
     }
 
     // Approval rates
-    const totalWithdrawalRequests = allWithdrawalRequests.length;
-    const approvedWithdrawals = allWithdrawalRequests.filter((r) =>
-      ['RM_APPROVED', 'ADMIN_APPROVED', 'COMPLETED'].includes(r.status)
-    ).length;
     const totalProductRequests = allProductPurchaseRequests.length;
-    const approvedProducts = allProductPurchaseRequests.filter((r) => r.status === 'APPROVED').length;
+    const approvedProducts = allProductPurchaseRequests.filter((r) =>
+      ['APPROVED', 'COMPLETED'].includes(r.status)
+    ).length;
 
     const approvalRates = {
-      withdrawalApprovalRate: totalWithdrawalRequests > 0 ? (approvedWithdrawals / totalWithdrawalRequests) * 100 : 0,
+      withdrawalApprovalRate: 0, // Removed withdrawal functionality
       productApprovalRate: totalProductRequests > 0 ? (approvedProducts / totalProductRequests) * 100 : 0,
     };
+
+    // Fetch payout data for clients
+    const [payoutStats, recentPayouts] = await Promise.all([
+      // Payout statistics by status
+      prisma.payout.groupBy({
+        by: ['status'],
+        where: { clientId: { in: clientIds } },
+        _count: true,
+        _sum: { amount: true },
+      }),
+
+      // Recent payouts for monitoring (last 30 days)
+      prisma.payout.findMany({
+        where: {
+          clientId: { in: clientIds },
+          scheduledDate: {
+            gte: thirtyDaysAgo,
+          },
+        },
+        include: {
+          client: {
+            include: {
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+          productPurchaseRequest: {
+            include: {
+              investment: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { scheduledDate: 'desc' },
+        take: 10,
+      }),
+    ]);
+
+    // Calculate payout metrics
+    const totalPayoutsPaid = payoutStats
+      .filter((s) => s.status === 'COMPLETED')
+      .reduce((sum, s) => sum + (s._sum.amount?.toNumber() || 0), 0);
+
+    const pendingPayoutsCount = payoutStats.find((s) => s.status === 'PENDING')?._count || 0;
+    const completedPayoutsCount = payoutStats.find((s) => s.status === 'COMPLETED')?._count || 0;
+    const pendingPayoutsAmount = payoutStats.find((s) => s.status === 'PENDING')?._sum.amount?.toNumber() || 0;
+
+    // Payout status distribution for chart
+    const payoutStatusData = [
+      { name: 'Pending', value: pendingPayoutsCount, fill: '#f59e0b' },
+      { name: 'Completed', value: completedPayoutsCount, fill: '#10b981' },
+      { name: 'Failed', value: payoutStats.find((s) => s.status === 'FAILED')?._count || 0, fill: '#ef4444' },
+    ].filter((item) => item.value > 0);
+
+    // Format recent payouts for display
+    const recentPayoutsFormatted = recentPayouts.map((p) => ({
+      id: p.id,
+      clientName: `${p.client.user.firstName} ${p.client.user.lastName}`,
+      planName: p.productPurchaseRequest.investment.name,
+      amount: p.amount.toNumber(),
+      scheduledDate: p.scheduledDate.toISOString(),
+      status: p.status,
+    }));
 
     return NextResponse.json({
       success: true,
       data: {
         stats: {
           totalClients,
-          pendingWithdrawalRequests,
+          pendingWithdrawalRequests: 0, // Removed withdrawal functionality
           pendingProductRequests,
           totalAUM: Number(totalAUM._sum.totalValue || 0),
+          pendingPayouts: pendingPayoutsCount,
+          pendingPayoutsAmount: pendingPayoutsAmount,
+          totalPayoutsPaid: totalPayoutsPaid,
         },
         recentActivities: combinedActivities,
+        recentPayouts: recentPayoutsFormatted,
         charts: {
           requestStatusData,
           topClientsByAUM,
           activityTrend,
           approvalRates,
+          payoutStatusData,
         },
       },
     });

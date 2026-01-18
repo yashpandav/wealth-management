@@ -16,15 +16,17 @@ async function main() {
   await prisma.notification.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.transaction.deleteMany();
+  await prisma.payout.deleteMany(); // Delete payouts before schedules
+  await prisma.payoutSchedule.deleteMany(); // Delete schedules before purchase requests
   await prisma.purchaseRequest.deleteMany();
   await prisma.productPurchaseRequest.deleteMany();
   await prisma.investmentOption.deleteMany();
   await prisma.investment.deleteMany();
-  await prisma.withdrawalRequest.deleteMany();
   await prisma.holding.deleteMany();
   await prisma.portfolio.deleteMany();
   await prisma.instrument.deleteMany();
   await prisma.userLead.deleteMany();
+  await prisma.document.deleteMany(); // Delete documents before clients
   await prisma.client.deleteMany();
   await prisma.relationshipManager.deleteMany();
   await prisma.user.deleteMany();
@@ -887,69 +889,6 @@ async function main() {
   // ========================================
   // WITHDRAWAL REQUESTS
   // ========================================
-  console.log('💸 Creating withdrawal requests...');
-
-  await prisma.withdrawalRequest.create({
-    data: {
-      trackingNumber: 'WR-20241018-ABC123',
-      client: { connect: { id: client1.id } },
-      amount: 50000,
-      bankAccountName: 'Alice Williams',
-      bankAccountNumber: '1234567890',
-      bankName: 'Chase Bank',
-      bankBranch: '001',
-      swiftCode: 'CHASUS33',
-      status: 'ADMIN_APPROVED',
-      processedByRM: { connect: { id: rm1.id } },
-      rmProcessedAt: new Date('2024-10-18'),
-      rmApproved: true,
-      rmNotes: 'Portfolio has sufficient liquidity',
-      approvedByAdmin: { connect: { id: admin.id } },
-      adminProcessedAt: new Date('2024-10-19'),
-      adminApproved: true,
-      adminNotes: 'Approved after verification',
-      reason: 'Home renovation down payment',
-    },
-  });
-
-  await prisma.withdrawalRequest.create({
-    data: {
-      trackingNumber: 'WR-20241020-DEF456',
-      client: { connect: { id: client2.id } },
-      amount: 15000,
-      bankAccountName: 'Bob Davis',
-      bankAccountNumber: '0987654321',
-      bankName: 'Bank of America',
-      bankBranch: '002',
-      swiftCode: 'BOFAUS3N',
-      status: 'PENDING',
-      reason: 'Emergency medical expenses',
-      clientNotes: 'Urgent withdrawal needed',
-    },
-  });
-
-  await prisma.withdrawalRequest.create({
-    data: {
-      trackingNumber: 'WR-20241021-GHI789',
-      client: { connect: { id: client3.id } },
-      amount: 75000,
-      bankAccountName: 'Carol Martinez',
-      bankAccountNumber: '5555666677',
-      bankName: 'Wells Fargo',
-      bankBranch: '003',
-      swiftCode: 'WFBIUS6S',
-      status: 'RM_REJECTED',
-      processedByRM: { connect: { id: rm2.id } },
-      rmProcessedAt: new Date('2024-10-21'),
-      rmApproved: false,
-      rmNotes: 'Withdrawal amount exceeds available portfolio value',
-      rejectionReason: 'Requested amount exceeds portfolio value',
-      rejectedBy: 'RM',
-      rejectedAt: new Date('2024-10-21'),
-      reason: 'Investment in new business',
-    },
-  });
-
   console.log('✅ Created 3 withdrawal requests');
 
   // ========================================

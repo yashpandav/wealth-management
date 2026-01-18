@@ -41,6 +41,9 @@ interface DashboardStats {
   pendingWithdrawalRequests: number;
   pendingProductRequests: number;
   totalAUM: number;
+  pendingPayouts?: number;
+  pendingPayoutsAmount?: number;
+  totalPayoutsPaid?: number;
 }
 
 interface Activity {
@@ -54,6 +57,15 @@ interface Activity {
   createdAt: string;
 }
 
+interface PayoutActivity {
+  id: string;
+  clientName: string;
+  planName: string;
+  amount: number;
+  scheduledDate: string;
+  status: string;
+}
+
 interface ChartData {
   requestStatusData: Array<{ name: string; value: number; fill: string }>;
   topClientsByAUM: Array<{ name: string; value: number }>;
@@ -62,6 +74,7 @@ interface ChartData {
     withdrawalApprovalRate: number;
     productApprovalRate: number;
   };
+  payoutStatusData?: Array<{ name: string; value: number; fill: string }>;
 }
 
 interface DashboardResponse {
@@ -69,6 +82,7 @@ interface DashboardResponse {
   data: {
     stats: DashboardStats;
     recentActivities: Activity[];
+    recentPayouts?: PayoutActivity[];
     charts?: ChartData;
   };
   error?: string;
@@ -103,6 +117,7 @@ export function RMDashboard() {
 
   const stats = data?.data.stats;
   const activities = data?.data.recentActivities || [];
+  const recentPayouts = data?.data.recentPayouts || [];
   const charts = data?.data.charts;
 
   const getStatusColor = (status: string) => {
@@ -125,7 +140,7 @@ export function RMDashboard() {
   return (
     <div className="space-y-4">
       {/* Metrics Cards */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         {/* Total Clients */}
         <StatCard
           title="Clients"
@@ -152,25 +167,58 @@ export function RMDashboard() {
           icon={TrendingUp}
         />
 
-        {/* Pending Withdrawal Requests */}
-        <StatCard
-          title="Withdrawals"
-          value={stats?.pendingWithdrawalRequests || 0}
-          icon={Wallet}
-          status={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "warning" : "default"}
-          href={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "/rm/withdrawal-requests" : undefined}
-          subValue={(stats?.pendingWithdrawalRequests ?? 0) > 0 ? "Pending Review" : undefined}
-        />
-
         {/* Pending Product Requests */}
         <StatCard
-          title="Plans"
+          title="Pending Plans"
           value={stats?.pendingProductRequests || 0}
           icon={Package}
           status={(stats?.pendingProductRequests ?? 0) > 0 ? "info" : "default"}
           href={(stats?.pendingProductRequests ?? 0) > 0 ? "/rm/product-requests" : undefined}
-          subValue={(stats?.pendingProductRequests ?? 0) > 0 ? "Pending Review" : undefined}
+          subValue={(stats?.pendingProductRequests ?? 0) > 0 ? "Needs Review" : undefined}
         />
+
+        {/* Pending Payouts */}
+        {stats?.pendingPayouts !== undefined && (
+          <StatCard
+            title="Pending Payouts"
+            value={stats.pendingPayouts}
+            icon={AlertCircle}
+            status={stats.pendingPayouts > 0 ? "warning" : "default"}
+            subValue={
+              stats.pendingPayoutsAmount
+                ? (
+                  <div className="flex items-center text-xs font-nums">
+                    <DirhamIcon className="w-3 h-3 mr-1" />
+                    {stats.pendingPayoutsAmount >= 1000
+                      ? `${(stats.pendingPayoutsAmount / 1000).toFixed(0)}K`
+                      : stats.pendingPayoutsAmount.toFixed(0)
+                    } pending
+                  </div>
+                )
+                : undefined
+            }
+          />
+        )}
+
+        {/* Total Payouts Paid */}
+        {stats?.totalPayoutsPaid !== undefined && (
+          <StatCard
+            title="Payouts Paid"
+            value={
+              <div className="flex items-center font-nums">
+                <DirhamIcon className="w-5 h-5 mr-1" />
+                {stats.totalPayoutsPaid >= 1000000
+                  ? `${(stats.totalPayoutsPaid / 1000000).toFixed(2)}M`
+                  : stats.totalPayoutsPaid >= 1000
+                    ? `${(stats.totalPayoutsPaid / 1000).toFixed(0)}K`
+                    : stats.totalPayoutsPaid.toFixed(0)
+                }
+              </div>
+            }
+            icon={TrendingUp}
+            status="success"
+          />
+        )}
       </div>
 
       {/* Charts Section */}
@@ -179,37 +227,21 @@ export function RMDashboard() {
           {/* Approval Rates Card */}
           <Card className="border-gray-200 shadow-sm">
             <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm font-semibold text-gray-900">Approval Performance</CardTitle>
+              <CardTitle className="text-sm font-semibold text-gray-900">Plan Approval Rate</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4">
-              <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Withdrawals</span>
-                    <span className="text-base font-bold text-brand-blue font-nums">
-                      {charts.approvalRates.withdrawalApprovalRate.toFixed(0)}%
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-brand-blue rounded-full transition-all duration-500 ease-in-out"
-                      style={{ width: `${charts.approvalRates.withdrawalApprovalRate}%` }}
-                    />
-                  </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Investment Plans</span>
+                  <span className="text-base font-bold text-brand-blue font-nums">
+                    {charts.approvalRates.productApprovalRate.toFixed(0)}%
+                  </span>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Plans</span>
-                    <span className="text-base font-bold text-purple-600 font-nums">
-                      {charts.approvalRates.productApprovalRate.toFixed(0)}%
-                    </span>
-                  </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-purple-600 rounded-full transition-all duration-500 ease-in-out"
-                      style={{ width: `${charts.approvalRates.productApprovalRate}%` }}
-                    />
-                  </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-brand-blue rounded-full transition-all duration-500 ease-in-out"
+                    style={{ width: `${charts.approvalRates.productApprovalRate}%` }}
+                  />
                 </div>
               </div>
             </CardContent>
@@ -302,7 +334,7 @@ export function RMDashboard() {
           {charts.activityTrend.length > 0 && (
             <Card className="border-gray-200 shadow-sm">
               <CardHeader className="pb-2 pt-4 px-4">
-                <CardTitle className="text-sm font-semibold text-gray-900">Activity Trend (30 Days)</CardTitle>
+                <CardTitle className="text-sm font-semibold text-gray-900">Investment Plans Activity (30 Days)</CardTitle>
               </CardHeader>
               <CardContent className="px-4 pb-4">
                 <div className="w-full h-[250px]">
@@ -335,23 +367,49 @@ export function RMDashboard() {
                       <Legend verticalAlign="top" height={36} />
                       <Line
                         type="monotone"
-                        dataKey="withdrawals"
-                        stroke="#f97316"
-                        strokeWidth={3}
-                        dot={false}
-                        activeDot={{ r: 6 }}
-                        name="Withdrawals"
-                      />
-                      <Line
-                        type="monotone"
                         dataKey="products"
-                        stroke="#8b5cf6"
+                        stroke="#3b82f6"
                         strokeWidth={3}
                         dot={false}
                         activeDot={{ r: 6 }}
-                        name="Plans"
+                        name="Investment Plans"
                       />
                     </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Payout Status Distribution - Pie Chart */}
+          {charts.payoutStatusData && charts.payoutStatusData.length > 0 && (
+            <Card className="border-gray-200 shadow-sm">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-semibold text-gray-900">Payout Status</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="w-full h-[250px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={charts.payoutStatusData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={5}
+                        dataKey="value"
+                        label
+                      >
+                        {charts.payoutStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} strokeWidth={0} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                    </PieChart>
                   </ResponsiveContainer>
                 </div>
               </CardContent>
@@ -360,10 +418,55 @@ export function RMDashboard() {
         </>
       )}
 
+      {/* Recent Payouts */}
+      {recentPayouts.length > 0 && (
+        <Card className="border-gray-200 shadow-sm">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-sm font-semibold text-gray-900">Recent Payouts (Last 30 Days)</CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <div className="divide-y divide-gray-100">
+              {recentPayouts.map((payout) => (
+                <div
+                  key={payout.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between py-3 first:pt-0 last:pb-0 gap-3"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-gray-900 truncate">{payout.clientName}</p>
+                    <p className="text-sm text-gray-500 truncate">{payout.planName}</p>
+                    <p className="text-xs text-gray-400 mt-1 font-nums">
+                      {format(new Date(payout.scheduledDate), 'MMM dd, yyyy')}
+                    </p>
+                  </div>
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-1">
+                    <span className="font-semibold text-gray-900 flex items-center font-nums">
+                      <DirhamIcon className="w-3 h-3 mr-1" />
+                      {payout.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className={`border-0 font-medium ${
+                        payout.status === 'COMPLETED'
+                          ? 'bg-green-500/10 text-green-700'
+                          : payout.status === 'PENDING'
+                            ? 'bg-amber-500/10 text-amber-700'
+                            : 'bg-red-500/10 text-red-700'
+                      }`}
+                    >
+                      {payout.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Recent Activities */}
       <Card className="border-gray-200 shadow-sm">
         <CardHeader className="pb-2 pt-4 px-4">
-          <CardTitle className="text-sm font-semibold text-gray-900">Recent Activities</CardTitle>
+          <CardTitle className="text-sm font-semibold text-gray-900">Recent Investment Requests</CardTitle>
         </CardHeader>
         <CardContent className="px-4 pb-4">
           {activities.length === 0 ? (

@@ -84,22 +84,15 @@ export async function GET(_request: NextRequest) {
     }, 0);
 
     // Get approval statistics for this RM
-    const [approvedPurchases, approvedWithdrawals] = await Promise.all([
-      prisma.purchaseRequest.count({
-        where: {
-          processedById: rm.id,
-          status: 'APPROVED',
-        },
-      }),
-      prisma.withdrawalRequest.count({
-        where: {
-          processedByRMId: rm.id,
-          status: {
-            in: ['RM_APPROVED', 'ADMIN_APPROVED', 'COMPLETED'],
-          },
-        },
-      }),
-    ]);
+    const approvedPurchases = await prisma.purchaseRequest.count({
+      where: {
+        processedById: rm.id,
+        status: 'APPROVED',
+      },
+    });
+
+    // Note: Withdrawal requests have been replaced by the payout system
+    const approvedWithdrawals = 0;
 
     // Response data
     const rmDetails = {

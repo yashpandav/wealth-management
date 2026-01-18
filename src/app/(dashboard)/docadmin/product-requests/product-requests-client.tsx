@@ -103,12 +103,10 @@ async function fetchProductRequests(params: {
 async function uploadContract(data: {
   requestId: string;
   file: File;
-  contractStartDate: string;
   notes: string;
 }): Promise<{ success: boolean; message?: string; error?: string }> {
   const formData = new FormData();
   formData.append('file', data.file);
-  formData.append('contractStartDate', data.contractStartDate);
   formData.append('notes', data.notes);
 
   const response = await fetch(`/api/docadmin/product-requests/${data.requestId}/upload-contract`, {
@@ -142,7 +140,6 @@ export function ProductRequestsClient({
     request: ProductRequest | null;
   }>({ open: false, request: null });
   const [contractFile, setContractFile] = useState<File | null>(null);
-  const [contractStartDate, setContractStartDate] = useState('');
   const [notes, setNotes] = useState('');
   const [detailDialog, setDetailDialog] = useState<{
     open: boolean;
@@ -161,7 +158,6 @@ export function ProductRequestsClient({
       queryClient.invalidateQueries({ queryKey: ['docadmin-product-requests'] });
       setUploadDialog({ open: false, request: null });
       setContractFile(null);
-      setContractStartDate('');
       setNotes('');
     },
     onError: (error: Error) => {
@@ -170,15 +166,14 @@ export function ProductRequestsClient({
   });
 
   const handleUploadContract = () => {
-    if (!uploadDialog.request || !contractFile || !contractStartDate) {
-      toast.error('Please select a file and contract start date');
+    if (!uploadDialog.request || !contractFile) {
+      toast.error('Please select a contract file');
       return;
     }
 
     uploadMutation.mutate({
       requestId: uploadDialog.request.id,
       file: contractFile,
-      contractStartDate,
       notes,
     });
   };
@@ -396,7 +391,6 @@ export function ProductRequestsClient({
         if (!open) {
           setUploadDialog({ open: false, request: null });
           setContractFile(null);
-          setContractStartDate('');
           setNotes('');
         }
       }}>
@@ -436,17 +430,9 @@ export function ProductRequestsClient({
                     Selected: {contractFile.name} (<span className="font-nums">{(contractFile.size / 1024).toFixed(2)}</span> KB)
                   </p>
                 )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contract-start-date">Contract Start Date *</Label>
-                <Input
-                  id="contract-start-date"
-                  type="date"
-                  value={contractStartDate}
-                  onChange={(e) => setContractStartDate(e.target.value)}
-                  disabled={uploadMutation.isPending}
-                />
+                <p className="text-sm text-muted-foreground">
+                  Contract start date will be automatically set to the approval date.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -473,7 +459,7 @@ export function ProductRequestsClient({
             </Button>
             <Button
               onClick={handleUploadContract}
-              disabled={!contractFile || !contractStartDate || uploadMutation.isPending}
+              disabled={!contractFile || uploadMutation.isPending}
             >
               {uploadMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Upload & Complete

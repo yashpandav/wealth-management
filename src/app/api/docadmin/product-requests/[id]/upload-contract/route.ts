@@ -21,6 +21,8 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { config } from '@/lib/config';
 import { sendContractUploadedEmail } from '@/lib/email';
+import { generatePayoutSchedules } from '@/lib/services/payout.service';
+import { addYears } from 'date-fns';
 
 export async function POST(
   request: NextRequest,
@@ -49,20 +51,12 @@ export async function POST(
     // Get form data
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const contractStartDate = formData.get('contractStartDate') as string;
     const notes = formData.get('notes') as string;
 
     // Validate inputs
     if (!file) {
       return NextResponse.json(
         { success: false, error: 'Contract file is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!contractStartDate) {
-      return NextResponse.json(
-        { success: false, error: 'Contract start date is required' },
         { status: 400 }
       );
     }
@@ -150,6 +144,16 @@ export async function POST(
 
     await writeFile(filePath, buffer);
 
+    // Calculate contract dates
+    // Contract start date = the date when RM approved (processedAt)
+    const contractStartDate = productRequest.processedAt || new Date();
+
+    // Calculate contract end date from duration
+    // Duration format: "X Year" or "X Years"
+    const durationMatch = productRequest.investmentOption.duration.match(/(\d+)/);
+    const durationYears = durationMatch ? parseInt(durationMatch[1]) : 1;
+    const contractEndDate = addYears(contractStartDate, durationYears);
+
     // Perform all operations in a transaction
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create contract document
@@ -189,7 +193,8 @@ export async function POST(
             roi: productRequest.investmentOption.roi,
             annualReturn: productRequest.investmentOption.annualReturn,
             contractDocumentId: contractDocument.id,
-            contractStartDate: contractStartDate,
+            contractStartDate: contractStartDate.toISOString(),
+            contractEndDate: contractEndDate.toISOString(),
             notes: notes || null,
           }),
         },
@@ -221,10 +226,14 @@ export async function POST(
         where: { id: requestId },
         data: {
           status: 'COMPLETED',
-          contractDocumentId: contractDocument.id,
-          contractStartDate: new Date(contractStartDate),
+          contractDocument: {
+            connect: { id: contractDocument.id },
+          },
+          contractStartDate: contractStartDate,
           completedAt: new Date(),
-          completedById: user.id,
+          completedBy: {
+            connect: { id: user.id },
+          },
         },
       });
 
@@ -245,7 +254,11 @@ export async function POST(
               amount: productRequest.amount.toString(),
               transactionId: transaction.id,
               contractDocumentId: contractDocument.id,
-              contractStartDate: contractStartDate,
+              contractStartDate: contractStartDate.toISOString(),
+              contractEndDate: contractEndDate.toISOString(),
+              duration: productRequest.investmentOption.duration,
+              withdrawalFrequency: productRequest.investmentOption.withdrawalFrequency,
+              payoutWindow: productRequest.payoutWindow,
             },
             ipAddress:
               request.headers.get('x-forwarded-for') ||
@@ -281,6 +294,16 @@ export async function POST(
         portfolio,
       };
     });
+
+    // Generate payout schedules for this contract
+    try {
+      await generatePayoutSchedules(requestId);
+      console.log(`[PAYOUT] Generated payout schedules for request ${productRequest.trackingNumber}`);
+    } catch (scheduleError) {
+      console.error(`[PAYOUT] Failed to generate payout schedules for request ${requestId}:`, scheduleError);
+      // Don't fail the entire request if payout schedule generation fails
+      // This can be retried later or generated manually
+    }
 
     // Send email notification to client (non-blocking)
     const contractUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/client/product-requests/${requestId}/contract`;

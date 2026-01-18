@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   ChevronLeft,
   ChevronRight,
@@ -135,6 +136,7 @@ async function fetchProductRequests(params: {
 async function updateProductRequest(params: {
   id: string;
   action: 'APPROVE' | 'REJECT';
+  payoutWindow?: '1-15' | '16-30';
   rmNotes?: string;
   rejectionReason?: string;
 }): Promise<{ success: boolean; message?: string; error?: string }> {
@@ -143,6 +145,7 @@ async function updateProductRequest(params: {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       action: params.action,
+      payoutWindow: params.payoutWindow,
       rmNotes: params.rmNotes,
       rejectionReason: params.rejectionReason,
     }),
@@ -170,6 +173,7 @@ export function ProductPurchaseRequestsTable() {
   });
   const [rmNotes, setRmNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
+  const [payoutWindow, setPayoutWindow] = useState<'1-15' | '16-30'>('1-15');
 
   // Detail view state
   const [detailDialog, setDetailDialog] = useState<{
@@ -224,6 +228,7 @@ export function ProductPurchaseRequestsTable() {
     setActionDialog({ open: true, request, action });
     setRmNotes('');
     setRejectionReason('');
+    setPayoutWindow('1-15');
   };
 
   const confirmAction = () => {
@@ -237,6 +242,7 @@ export function ProductPurchaseRequestsTable() {
     mutation.mutate({
       id: actionDialog.request.id,
       action: actionDialog.action,
+      payoutWindow: actionDialog.action === 'APPROVE' ? payoutWindow : undefined,
       rmNotes: rmNotes.trim() || undefined,
       rejectionReason: rejectionReason.trim() || undefined,
     });
@@ -522,10 +528,53 @@ export function ProductPurchaseRequestsTable() {
                   {actionDialog.request.amount.toLocaleString()}
                 </div>
                 <p><strong>Duration:</strong> {actionDialog.request.investmentOption.duration}</p>
+                <p><strong>Withdrawal Frequency:</strong> {actionDialog.request.investmentOption.withdrawalFrequency}</p>
                 <p><strong>Annual Return:</strong> {actionDialog.request.investmentOption.annualReturn}%</p>
                 {actionDialog.request.clientNotes && (
                   <p><strong>Client Notes:</strong> {actionDialog.request.clientNotes}</p>
                 )}
+              </div>
+            )}
+            {actionDialog.action === 'APPROVE' && (
+              <div className="space-y-3">
+                <Label>Payout Window (Required)</Label>
+                <p className="text-sm text-muted-foreground">
+                  Select when interest payouts will be processed each period
+                </p>
+                <RadioGroup
+                  value={payoutWindow}
+                  onValueChange={(value) => setPayoutWindow(value as '1-15' | '16-30')}
+                  className="space-y-3"
+                >
+                  <div
+                    className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setPayoutWindow('1-15')}
+                  >
+                    <RadioGroupItem value="1-15" id="window-1-15" />
+                    <div className="flex-1">
+                      <Label htmlFor="window-1-15" className="cursor-pointer font-medium">
+                        1-15 (Payout on 15th)
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Payouts will be processed on the 15th of each period
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setPayoutWindow('16-30')}
+                  >
+                    <RadioGroupItem value="16-30" id="window-16-30" />
+                    <div className="flex-1">
+                      <Label htmlFor="window-16-30" className="cursor-pointer font-medium">
+                        16-30 (Payout on last day of month)
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Payouts will be processed on the last day of each period
+                      </p>
+                    </div>
+                  </div>
+                </RadioGroup>
               </div>
             )}
             <div className="space-y-2">
@@ -662,30 +711,6 @@ export function ProductPurchaseRequestsTable() {
             <Button variant="outline" onClick={() => setDetailDialog({ open: false, request: null })}>
               Close
             </Button>
-            {detailDialog.request?.status === 'PENDING' && (
-              <>
-                <Button
-                  variant="default"
-                  onClick={() => {
-                    setDetailDialog({ open: false, request: null });
-                    handleAction(detailDialog.request!, 'APPROVE');
-                  }}
-                >
-                  <Check className="h-4 w-4 mr-2" />
-                  Approve
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    setDetailDialog({ open: false, request: null });
-                    handleAction(detailDialog.request!, 'REJECT');
-                  }}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Reject
-                </Button>
-              </>
-            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

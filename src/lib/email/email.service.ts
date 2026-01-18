@@ -2577,3 +2577,286 @@ We recommend contacting your Relationship Manager well before the expiry date to
     text,
   });
 }
+
+/**
+ * Send payout completed email to client with receipt
+ * Triggered when DocAdmin completes a payout
+ */
+export async function sendPayoutCompletedEmail(
+  email: string,
+  firstName: string,
+  amount: number,
+  currency: string,
+  periodStart: Date,
+  periodEnd: Date,
+  contractNumber: string,
+  receiptUrl?: string
+): Promise<boolean> {
+  const payoutsUrl = `${config.app.url}/client/payouts`;
+  const formattedAmount = new Intl.NumberFormat('en-AE', {
+    style: 'currency',
+    currency: currency || 'AED',
+  }).format(amount);
+
+  const periodStartFormatted = periodStart.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+  const periodEndFormatted = periodEnd.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Interest Payment Credited</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Interest Payment Credited</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Hi ${firstName},</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            Great news! Your interest payment has been successfully credited to your account.
+          </p>
+
+          <div style="background: white; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #10b981;">
+            <p style="margin: 10px 0; font-size: 20px; color: #059669; font-weight: bold;">
+              Amount: ${formattedAmount}
+            </p>
+            <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Contract:</strong> ${contractNumber}
+            </p>
+            <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Period:</strong> ${periodStartFormatted} - ${periodEndFormatted}
+            </p>
+            <p style="margin: 8px 0; font-size: 14px; color: #6b7280;">
+              <strong style="color: #1f2937;">Date:</strong> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          </div>
+
+          ${receiptUrl ? `
+          <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #065f46;">
+              📄 <strong>Payment Receipt</strong>
+            </p>
+            <p style="margin: 0; font-size: 13px; color: #047857;">
+              Your payout receipt is attached to this email. Please save it for your records.
+            </p>
+          </div>
+          ` : ''}
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${payoutsUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              View Payout History
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            Thank you for investing with us. Your next payout will be processed according to your contract schedule.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.<br>
+            <span style="color: #6b7280;">This is an automated message. Please do not reply directly to this email.</span>
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Hi ${firstName},
+
+Great news! Your interest payment has been successfully credited to your account.
+
+PAYMENT DETAILS
+===============
+Amount: ${formattedAmount}
+Contract: ${contractNumber}
+Period: ${periodStartFormatted} - ${periodEndFormatted}
+Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+
+${receiptUrl ? 'Your payout receipt is attached to this email. Please save it for your records.\n' : ''}
+View your payout history: ${payoutsUrl}
+
+Thank you for investing with us. Your next payout will be processed according to your contract schedule.
+
+---
+(c) ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+This is an automated message. Please do not reply directly to this email.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: `Interest Payment Credited - ${formattedAmount}`,
+    html,
+    text,
+  });
+}
+
+/**
+ * Send payout reminder email to DocAdmin
+ * Triggered by cron job for payouts due on 15th or month-end
+ */
+export async function sendDocAdminPayoutReminder(
+  email: string,
+  payoutDate: Date,
+  pendingPayouts: any[]
+): Promise<boolean> {
+  const dashboardUrl = `${config.app.url}/docadmin/payouts`;
+  const payoutDateFormatted = payoutDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const totalAmount = pendingPayouts.reduce((sum, payout) => sum + Number(payout.amount), 0);
+  const formattedTotalAmount = new Intl.NumberFormat('en-AE', {
+    style: 'currency',
+    currency: 'AED',
+  }).format(totalAmount);
+
+  // Build table rows
+  const tableRows = pendingPayouts.map(payout => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
+        ${payout.client.user.firstName} ${payout.client.user.lastName}
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151;">
+        ${payout.productPurchaseRequest.investment.name}
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; color: #374151; text-align: right;">
+        ${new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(Number(payout.amount))}
+      </td>
+    </tr>
+  `).join('');
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pending Payouts Due</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 700px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 28px;">⏰ Pending Payouts Due</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+          <h2 style="color: #1f2937; margin-top: 0;">Payouts Due on ${payoutDateFormatted}</h2>
+
+          <p style="font-size: 16px; color: #4b5563;">
+            You have <strong style="color: #d97706;">${pendingPayouts.length} pending payout(s)</strong> scheduled for processing on ${payoutDateFormatted}.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #f59e0b;">
+            <p style="margin: 5px 0; font-size: 18px; color: #92400e; font-weight: bold;">
+              Total Amount: ${formattedTotalAmount}
+            </p>
+            <p style="margin: 5px 0; font-size: 14px; color: #78350f;">
+              Number of Payouts: ${pendingPayouts.length}
+            </p>
+          </div>
+
+          <h3 style="color: #1f2937; margin: 25px 0 15px 0; font-size: 18px;">Payout Details:</h3>
+
+          <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+            <thead>
+              <tr style="background: #f3f4f6;">
+                <th style="padding: 12px; text-align: left; font-size: 14px; color: #6b7280; font-weight: 600;">Client</th>
+                <th style="padding: 12px; text-align: left; font-size: 14px; color: #6b7280; font-weight: 600;">Product</th>
+                <th style="padding: 12px; text-align: right; font-size: 14px; color: #6b7280; font-weight: 600;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+
+          <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin: 25px 0;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #92400e; font-weight: bold;">
+              📋 Action Required:
+            </p>
+            <ul style="margin: 10px 0; padding-left: 20px; color: #78350f; font-size: 14px;">
+              <li>Review each payout in the dashboard</li>
+              <li>Upload payment receipts</li>
+              <li>Mark payouts as completed</li>
+            </ul>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${dashboardUrl}"
+               style="background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px;">
+              Process Payouts
+            </a>
+          </div>
+
+          <p style="font-size: 14px; color: #6b7280;">
+            Please ensure all payouts are processed before the due date to maintain timely service to our clients.
+          </p>
+
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+          <p style="font-size: 12px; color: #9ca3af; text-align: center;">
+            &copy; ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.<br>
+            <span style="color: #6b7280;">This is an automated reminder.</span>
+          </p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `
+Pending Payouts Due on ${payoutDateFormatted}
+
+You have ${pendingPayouts.length} pending payout(s) scheduled for processing on ${payoutDateFormatted}.
+
+SUMMARY
+=======
+Total Amount: ${formattedTotalAmount}
+Number of Payouts: ${pendingPayouts.length}
+
+PAYOUT DETAILS
+==============
+${pendingPayouts.map(p => `
+- Client: ${p.client.user.firstName} ${p.client.user.lastName}
+  Product: ${p.productPurchaseRequest.investment.name}
+  Amount: ${new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(Number(p.amount))}
+`).join('\n')}
+
+ACTION REQUIRED:
+- Review each payout in the dashboard
+- Upload payment receipts
+- Mark payouts as completed
+
+Process payouts: ${dashboardUrl}
+
+Please ensure all payouts are processed before the due date to maintain timely service to our clients.
+
+---
+(c) ${new Date().getFullYear()} Wealth Management CRM. All rights reserved.
+This is an automated reminder.
+  `;
+
+  return await sendEmail({
+    to: email,
+    subject: `Payout Reminder: ${pendingPayouts.length} Payouts Due on ${payoutDateFormatted}`,
+    html,
+    text,
+  });
+}

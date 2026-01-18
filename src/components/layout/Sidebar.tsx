@@ -46,7 +46,8 @@ import {
   List,
   UserCheck,
   ShieldCheck,
-  Inbox
+  Inbox,
+  TrendingUp
 } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -75,17 +76,16 @@ const navItems: NavItem[] = [
     icon: <BarChart2 className="h-5 w-5" />,
     roles: ['ADMIN'],
   },
-
+  {
+    href: '/admin/investment-plans',
+    label: 'Investment Plans',
+    icon: <TrendingUp className="h-5 w-5" />,
+    roles: ['ADMIN'],
+  },
   {
     href: '/admin/purchase-requests',
     label: 'Investment Requests',
     icon: <ShoppingCart className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
-    href: '/admin/withdrawal-requests',
-    label: 'Withdrawal Requests',
-    icon: <Wallet className="h-5 w-5" />,
     roles: ['ADMIN'],
   },
   {
@@ -139,6 +139,12 @@ const navItems: NavItem[] = [
     icon: <FileCheck className="h-5 w-5" />,
     roles: ['DOCADMIN'],
   },
+  {
+    href: '/docadmin/payouts',
+    label: 'Pending Payouts',
+    icon: <Wallet className="h-5 w-5" />,
+    roles: ['DOCADMIN'],
+  },
   // RM routes
   {
     href: '/rm',
@@ -176,12 +182,6 @@ const navItems: NavItem[] = [
     icon: <ShoppingCart className="h-5 w-5" />,
     roles: ['RM'],
   },
-  {
-    href: '/rm/withdrawal-requests',
-    label: 'Withdrawal Requests',
-    icon: <Wallet className="h-5 w-5" />,
-    roles: ['RM'],
-  },
   // Client routes
   {
     href: '/client/portfolio',
@@ -208,8 +208,8 @@ const navItems: NavItem[] = [
     roles: ['CLIENT'],
   },
   {
-    href: '/client/withdrawal-requests',
-    label: 'Withdrawals',
+    href: '/client/payouts',
+    label: 'My Payouts',
     icon: <Wallet className="h-5 w-5" />,
     roles: ['CLIENT'],
   },
