@@ -15,6 +15,7 @@ import { sendEmail, sendDocAdminContractUploadRequiredEmail } from '@/lib/email'
 // Validation schema for updating a product purchase request
 const updateProductRequestSchema = z.object({
   action: z.enum(['APPROVE', 'REJECT']),
+  payoutWindow: z.enum(['1-15', '16-30']).optional(),
   rmNotes: z.string().max(2000, 'Notes must be less than 2000 characters').optional(),
   rejectionReason: z.string().max(1000, 'Rejection reason must be less than 1000 characters').optional(),
 });
@@ -250,12 +251,20 @@ export async function PATCH(
       );
     }
 
-    const { action, rmNotes, rejectionReason } = validationResult.data;
+    const { action, payoutWindow, rmNotes, rejectionReason } = validationResult.data;
 
     // Require rejection reason for rejections
     if (action === 'REJECT' && !rejectionReason) {
       return NextResponse.json(
         { success: false, error: 'Rejection reason is required' },
+        { status: 400 }
+      );
+    }
+
+    // Require payout window for approvals
+    if (action === 'APPROVE' && !payoutWindow) {
+      return NextResponse.json(
+        { success: false, error: 'Payout window is required for approval' },
         { status: 400 }
       );
     }
@@ -267,6 +276,7 @@ export async function PATCH(
       where: { id },
       data: {
         status: newStatus,
+        payoutWindow: action === 'APPROVE' ? payoutWindow : null,
         rmNotes: rmNotes || null,
         rejectionReason: action === 'REJECT' ? rejectionReason : null,
         processedAt: new Date(),
@@ -406,6 +416,8 @@ export async function PATCH(
           duration: productRequest.investmentOption.duration,
           roi: Number(productRequest.investmentOption.roi),
           annualReturn: Number(productRequest.investmentOption.annualReturn),
+          withdrawalFrequency: productRequest.investmentOption.withdrawalFrequency,
+          payoutWindow: action === 'APPROVE' ? payoutWindow : null,
           rmId: rm.id,
           rmUserId: session.user.id,
           rmName: `${session.user.firstName} ${session.user.lastName}`,

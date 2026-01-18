@@ -8,7 +8,7 @@
 // - Example: postgresql://user:pass@localhost:5432/db?connection_limit=10&pool_timeout=20
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = []
 }
 
@@ -46,23 +46,18 @@ enum RequestStatus {
   CANCELLED
 }
 
-enum WithdrawalStatus {
-  PENDING
-  RM_REVIEW
-  RM_APPROVED
-  RM_REJECTED
-  ADMIN_REVIEW
-  ADMIN_APPROVED
-  ADMIN_REJECTED
-  COMPLETED
-  CANCELLED
-}
-
 enum TransactionType {
   PURCHASE
-  WITHDRAWAL
+  WITHDRAWAL // Kept for historical data
+  INTEREST_PAYOUT // New - for automated payout transactions
   DIVIDEND
   ADJUSTMENT
+}
+
+enum PayoutStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
 
 enum TransactionStatus {
@@ -140,6 +135,13 @@ enum AuditAction {
   DOCUMENT_DELETE
   CLIENT_VERIFICATION_STATUS_UPDATE
 
+  // Payout operations
+  PAYOUT_SCHEDULE_CREATED
+  PAYOUT_CREATED
+  PAYOUT_COMPLETED
+  PAYOUT_FAILED
+  PAYOUT_RECEIPT_UPLOADED
+
   // Archival
   CLIENT_ARCHIVE
   CLIENT_RESTORE
@@ -168,9 +170,9 @@ enum NotificationCategory {
 }
 
 enum DocumentType {
-  IDENTITY_PROOF       // Government ID, Passport, Driver's License
+  IDENTITY_PROOF // Government ID, Passport, Driver's License
   INVESTMENT_AGREEMENT // Signed investment agreements
-  OTHER                // Other document types
+  OTHER // Other document types (includes payout receipts)
 }
 
 enum LeadSource {
@@ -184,21 +186,21 @@ enum LeadSource {
 }
 
 enum LeadStatus {
-  NEW              // New lead, not yet contacted
-  CONTACTED        // RM has contacted the lead
-  INTERESTED       // Lead showed interest
-  NOT_INTERESTED   // Lead is not interested
-  CONVERTED        // Lead converted to registered client
-  LOST             // Lead lost/dead
+  NEW // New lead, not yet contacted
+  CONTACTED // RM has contacted the lead
+  INTERESTED // Lead showed interest
+  NOT_INTERESTED // Lead is not interested
+  CONVERTED // Lead converted to registered client
+  LOST // Lead lost/dead
 }
 
 enum VerificationStatus {
-  NOT_SUBMITTED        // No documents submitted yet
-  PENDING              // Documents submitted, awaiting review
-  UNDER_REVIEW         // Documents are being reviewed
-  VERIFIED             // All documents verified successfully
-  REJECTED             // Documents rejected, need resubmission
-  EXPIRED              // Verification expired, need renewal
+  NOT_SUBMITTED // No documents submitted yet
+  PENDING // Documents submitted, awaiting review
+  UNDER_REVIEW // Documents are being reviewed
+  VERIFIED // All documents verified successfully
+  REJECTED // Documents rejected, need resubmission
+  EXPIRED // Verification expired, need renewal
 }
 
 // ====================================
@@ -207,10 +209,10 @@ enum VerificationStatus {
 
 /// Base User entity for all user types
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String // bcrypt hashed
-  role      UserRole
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String // bcrypt hashed
+  role     UserRole
 
   // Personal Information
   firstName String
@@ -218,13 +220,13 @@ model User {
   phone     String?
 
   // Account Status & Security
-  status               AccountStatus @default(ACTIVE)
-  isActive             Boolean       @default(true)
-  emailVerified        Boolean       @default(false)
-  failedLoginAttempts  Int           @default(0)
-  accountLockedUntil   DateTime?
-  lastLogin            DateTime?
-  lastFailedLogin      DateTime?
+  status              AccountStatus @default(ACTIVE)
+  isActive            Boolean       @default(true)
+  emailVerified       Boolean       @default(false)
+  failedLoginAttempts Int           @default(0)
+  accountLockedUntil  DateTime?
+  lastLogin           DateTime?
+  lastFailedLogin     DateTime?
 
   // Timestamps
   createdAt DateTime  @default(now())
@@ -236,25 +238,27 @@ model User {
   archivedAt DateTime?
 
   // Relationships based on role
-  client               Client?
-  relationshipManager  RelationshipManager?
+  client              Client?
+  relationshipManager RelationshipManager?
 
   // User lead (if user was converted from a lead)
-  userLead             UserLead?
+  userLead UserLead?
 
   // Activity logs
   auditLogs     AuditLog[]
   notifications Notification[]
 
-  // Admin approvals (for withdrawal requests and transactions)
-  approvedWithdrawals  WithdrawalRequest[] @relation("AdminApprover")
-  approvedTransactions Transaction[]       @relation("TransactionApprover")
+  // Admin approvals (for transactions)
+  approvedTransactions Transaction[] @relation("TransactionApprover")
 
   // Document verifications (for DOCADMIN and ADMIN roles)
   verifiedDocuments Document[] @relation("DocumentVerifier")
 
   // Product request completions (for DOCADMIN and ADMIN roles)
   completedProductRequests ProductPurchaseRequest[] @relation("ProductRequestCompleter")
+
+  // Payout processing (for DOCADMIN role)
+  processedPayouts Payout[] @relation("PayoutProcessor")
 
   @@index([email])
   @@index([role])
@@ -274,10 +278,10 @@ model Client {
   assignedRM   RelationshipManager? @relation(fields: [assignedRMId], references: [id])
 
   // Client-specific data
-  riskTolerance String? // LOW, MEDIUM, HIGH
+  riskTolerance   String? // LOW, MEDIUM, HIGH
   investmentGoals String? @db.Text
-  kycVerified   Boolean @default(false)
-  kycDocuments  String? @db.Text // JSON array of document URLs
+  kycVerified     Boolean @default(false)
+  kycDocuments    String? @db.Text // JSON array of document URLs
 
   // Document verification status
   verificationStatus VerificationStatus @default(NOT_SUBMITTED)
@@ -291,10 +295,11 @@ model Client {
   // Relationships
   portfolio               Portfolio?
   purchaseRequests        PurchaseRequest[]
-  withdrawalRequests      WithdrawalRequest[]
   transactions            Transaction[]
   documents               Document[]
   productPurchaseRequests ProductPurchaseRequest[]
+  payoutSchedules         PayoutSchedule[]
+  payouts                 Payout[]
 
   @@index([assignedRMId])
   @@index([verificationStatus])
@@ -316,12 +321,11 @@ model RelationshipManager {
   totalAUM Decimal @default(0) @db.Decimal(15, 2) // Assets Under Management
 
   // Relationships
-  assignedClients           Client[]
-  processedPurchases        PurchaseRequest[]
-  processedWithdrawals      WithdrawalRequest[] @relation("RMProcessor")
-  processedTransactions     Transaction[]       @relation("RMProcessor")
-  productPurchaseRequests   ProductPurchaseRequest[]
-  assignedLeads             UserLead[]
+  assignedClients         Client[]
+  processedPurchases      PurchaseRequest[]
+  processedTransactions   Transaction[]            @relation("RMProcessor")
+  productPurchaseRequests ProductPurchaseRequest[]
+  assignedLeads           UserLead[]
 
   @@map("relationship_managers")
 }
@@ -339,17 +343,17 @@ model Portfolio {
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   // Portfolio valuation (calculated fields - updated via application logic)
-  totalValue        Decimal @default(0) @db.Decimal(15, 2) // Current total portfolio value
-  totalInvested     Decimal @default(0) @db.Decimal(15, 2) // Total amount invested
-  totalGainLoss     Decimal @default(0) @db.Decimal(15, 2) // Unrealized gain/loss
+  totalValue           Decimal @default(0) @db.Decimal(15, 2) // Current total portfolio value
+  totalInvested        Decimal @default(0) @db.Decimal(15, 2) // Total amount invested
+  totalGainLoss        Decimal @default(0) @db.Decimal(15, 2) // Unrealized gain/loss
   totalGainLossPercent Decimal @default(0) @db.Decimal(10, 4) // Gain/loss percentage
 
   // Performance metrics
-  dayChange         Decimal @default(0) @db.Decimal(15, 2) // Change in last 24h
-  dayChangePercent  Decimal @default(0) @db.Decimal(10, 4)
-  weekChange        Decimal @default(0) @db.Decimal(15, 2)
-  monthChange       Decimal @default(0) @db.Decimal(15, 2)
-  yearChange        Decimal @default(0) @db.Decimal(15, 2)
+  dayChange        Decimal @default(0) @db.Decimal(15, 2) // Change in last 24h
+  dayChangePercent Decimal @default(0) @db.Decimal(10, 4)
+  weekChange       Decimal @default(0) @db.Decimal(15, 2)
+  monthChange      Decimal @default(0) @db.Decimal(15, 2)
+  yearChange       Decimal @default(0) @db.Decimal(15, 2)
 
   // Timestamps
   lastUpdatedAt DateTime @default(now()) // Last portfolio recalculation
@@ -378,26 +382,26 @@ model Instrument {
   description String?        @db.Text
 
   // Pricing information
-  currentPrice     Decimal  @db.Decimal(15, 4) // Current market price
-  currency         String   @default("USD") @db.VarChar(3)
-  lastPriceUpdate  DateTime @default(now())
+  currentPrice    Decimal  @db.Decimal(15, 4) // Current market price
+  currency        String   @default("USD") @db.VarChar(3)
+  lastPriceUpdate DateTime @default(now())
 
   // Market data
-  exchange        String?  @db.VarChar(50) // Stock exchange (e.g., NYSE, NASDAQ)
-  sector          String?  @db.VarChar(100)
-  marketCap       Decimal? @db.Decimal(20, 2)
-  yearlyHigh      Decimal? @db.Decimal(15, 4)
-  yearlyLow       Decimal? @db.Decimal(15, 4)
-  dividendYield   Decimal? @db.Decimal(5, 4) // As percentage
-  peRatio         Decimal? @db.Decimal(10, 2)
+  exchange      String?  @db.VarChar(50) // Stock exchange (e.g., NYSE, NASDAQ)
+  sector        String?  @db.VarChar(100)
+  marketCap     Decimal? @db.Decimal(20, 2)
+  yearlyHigh    Decimal? @db.Decimal(15, 4)
+  yearlyLow     Decimal? @db.Decimal(15, 4)
+  dividendYield Decimal? @db.Decimal(5, 4) // As percentage
+  peRatio       Decimal? @db.Decimal(10, 2)
 
   // Risk and metadata
-  riskRating      String?  @db.VarChar(20) // e.g., "Low", "Medium", "High"
+  riskRating        String?  @db.VarChar(20) // e.g., "Low", "Medium", "High"
   minimumInvestment Decimal? @db.Decimal(15, 2)
 
   // Status
-  isActive   Boolean  @default(true)
-  isPublic   Boolean  @default(true) // Visible to all clients
+  isActive   Boolean   @default(true)
+  isPublic   Boolean   @default(true) // Visible to all clients
   launchDate DateTime?
 
   // Documents
@@ -409,8 +413,8 @@ model Instrument {
   deletedAt DateTime? // Soft delete
 
   // Relations
-  transactions Transaction[]
-  holdings     Holding[]
+  transactions     Transaction[]
+  holdings         Holding[]
   purchaseRequests PurchaseRequest[]
 
   // Indexes
@@ -434,9 +438,9 @@ model Holding {
   instrument   Instrument @relation(fields: [instrumentId], references: [id])
 
   // Position details
-  quantity              Decimal @db.Decimal(15, 6) // Number of units held
-  averagePurchasePrice  Decimal @db.Decimal(15, 4) // Average cost per unit
-  totalCost             Decimal @db.Decimal(15, 2) // Total amount invested in this holding
+  quantity             Decimal @db.Decimal(15, 6) // Number of units held
+  averagePurchasePrice Decimal @db.Decimal(15, 4) // Average cost per unit
+  totalCost            Decimal @db.Decimal(15, 2) // Total amount invested in this holding
 
   // Current valuation (calculated - updated via application logic)
   currentPrice    Decimal @db.Decimal(15, 4) // Current market price per unit
@@ -452,7 +456,7 @@ model Holding {
   allocationPercent Decimal @default(0) @db.Decimal(5, 2)
 
   // Timestamps
-  firstPurchasedAt DateTime  // Date of first purchase
+  firstPurchasedAt DateTime // Date of first purchase
   lastUpdatedAt    DateTime  @default(now()) // Last recalculation
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -482,10 +486,10 @@ model PurchaseRequest {
   instrument   Instrument @relation(fields: [instrumentId], references: [id])
 
   // Request details
-  amount        Decimal       @db.Decimal(15, 2) // Investment amount
-  quantity      Decimal?      @db.Decimal(15, 4) // Calculated based on price
-  requestedPrice Decimal?     @db.Decimal(15, 4) // Price at time of request
-  status        RequestStatus @default(PENDING)
+  amount         Decimal       @db.Decimal(15, 2) // Investment amount
+  quantity       Decimal?      @db.Decimal(15, 4) // Calculated based on price
+  requestedPrice Decimal?      @db.Decimal(15, 4) // Price at time of request
+  status         RequestStatus @default(PENDING)
 
   // Processing information
   processedById String?
@@ -497,8 +501,8 @@ model PurchaseRequest {
   paymentProof     String? @db.Text // URL or reference to payment proof
 
   // Notes and comments
-  clientNotes String? @db.Text
-  rmNotes     String? @db.Text // RM notes during processing
+  clientNotes     String? @db.Text
+  rmNotes         String? @db.Text // RM notes during processing
   rejectionReason String? @db.Text
 
   // Timestamps
@@ -515,74 +519,13 @@ model PurchaseRequest {
   @@map("purchase_requests")
 }
 
-/// Withdrawal request with two-tier approval workflow
-model WithdrawalRequest {
-  id String @id @default(uuid())
-
-  // Unique tracking number for user reference
-  trackingNumber String @unique
-
-  // Client who submitted the request
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  // Withdrawal details
-  amount           Decimal          @db.Decimal(15, 2)
-  bankAccountName  String
-  bankAccountNumber String
-  bankName         String
-  bankBranch       String?
-  swiftCode        String?
-  status           WithdrawalStatus @default(PENDING)
-
-  // RM Processing (First tier)
-  processedByRMId String?
-  processedByRM   RelationshipManager? @relation("RMProcessor", fields: [processedByRMId], references: [id])
-  rmProcessedAt   DateTime?
-  rmApproved      Boolean?
-  rmNotes         String?              @db.Text
-
-  // Admin Approval (Second tier - final authority)
-  approvedByAdminId String?
-  approvedByAdmin   User?    @relation("AdminApprover", fields: [approvedByAdminId], references: [id])
-  adminProcessedAt  DateTime?
-  adminApproved     Boolean?
-  adminNotes        String?  @db.Text
-
-  // Bank statement verification
-  bankStatementRef String? // Reference to bank details verification
-
-  // Client provided information
-  reason      String? @db.Text // Reason for withdrawal
-  clientNotes String? @db.Text
-
-  // Rejection information
-  rejectionReason String? @db.Text
-  rejectedBy      String? // RM or ADMIN
-  rejectedAt      DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Reference to completed transaction
-  transaction Transaction?
-
-  @@index([clientId])
-  @@index([status])
-  @@index([createdAt])
-  @@index([processedByRMId])
-  @@index([approvedByAdminId])
-  @@map("withdrawal_requests")
-}
-
 /// Completed financial transactions
 model Transaction {
   id String @id @default(uuid())
 
   // References
-  clientId   String
-  client     Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   // Instrument reference (nullable for withdrawals/dividends)
   instrumentId String?
@@ -593,12 +536,12 @@ model Transaction {
   status TransactionStatus @default(COMPLETED)
 
   // Financial amounts (all in base currency)
-  amount   Decimal  @db.Decimal(15, 2) // Transaction amount
-  price    Decimal? @db.Decimal(15, 4) // Unit price (for purchases)
-  quantity Decimal? @db.Decimal(15, 6) // Number of units (for purchases)
-  total    Decimal  @db.Decimal(15, 2) // Total transaction value
-  fees     Decimal  @default(0) @db.Decimal(15, 2) // Transaction fees/commissions
-  netAmount Decimal @db.Decimal(15, 2) // Amount after fees
+  amount    Decimal  @db.Decimal(15, 2) // Transaction amount
+  price     Decimal? @db.Decimal(15, 4) // Unit price (for purchases)
+  quantity  Decimal? @db.Decimal(15, 6) // Number of units (for purchases)
+  total     Decimal  @db.Decimal(15, 2) // Total transaction value
+  fees      Decimal  @default(0) @db.Decimal(15, 2) // Transaction fees/commissions
+  netAmount Decimal  @db.Decimal(15, 2) // Amount after fees
 
   // Currency (default to base currency)
   currency String @default("USD") @db.VarChar(3)
@@ -613,13 +556,15 @@ model Transaction {
 
   // Admin approval (for withdrawals)
   approvedById String?
-  approvedBy   User?    @relation("TransactionApprover", fields: [approvedById], references: [id])
+  approvedBy   User?   @relation("TransactionApprover", fields: [approvedById], references: [id])
 
   // Original request references
-  purchaseRequestId  String? @unique
-  purchaseRequest    PurchaseRequest?  @relation(fields: [purchaseRequestId], references: [id])
-  withdrawalRequestId String? @unique
-  withdrawalRequest   WithdrawalRequest? @relation(fields: [withdrawalRequestId], references: [id])
+  purchaseRequestId String?          @unique
+  purchaseRequest   PurchaseRequest? @relation(fields: [purchaseRequestId], references: [id])
+
+  // Payout reference (for interest payout transactions)
+  payoutId String? @unique
+  payout   Payout?
 
   // Timestamps
   completedAt DateTime  @default(now()) // When transaction was completed
@@ -628,8 +573,8 @@ model Transaction {
   deletedAt   DateTime? // Soft delete (for reversed transactions)
 
   // Notes and metadata
-  notes        String? @db.Text
-  metadata     String? @db.Text // JSON for additional data
+  notes         String? @db.Text
+  metadata      String? @db.Text // JSON for additional data
   failureReason String? @db.Text // If status is FAILED
 
   // Indexes for performance
@@ -668,9 +613,9 @@ model AuditLog {
   userAgent String? @db.Text // Browser/client info
 
   // Additional context
-  metadata   Json?    // Extra contextual data
-  severity   String   @default("INFO") @db.VarChar(20) // INFO, WARNING, ERROR, CRITICAL
-  success    Boolean  @default(true) // Whether action succeeded
+  metadata     Json? // Extra contextual data
+  severity     String  @default("INFO") @db.VarChar(20) // INFO, WARNING, ERROR, CRITICAL
+  success      Boolean @default(true) // Whether action succeeded
   errorMessage String? @db.Text // If action failed
 
   // Session tracking
@@ -707,9 +652,9 @@ model Notification {
   message  String               @db.Text
 
   // Status
-  isRead    Boolean   @default(false)
-  readAt    DateTime?
-  isDismissed Boolean @default(false)
+  isRead      Boolean   @default(false)
+  readAt      DateTime?
+  isDismissed Boolean   @default(false)
 
   // Action link (optional)
   actionUrl  String? @db.VarChar(500) // URL to navigate when clicked
@@ -720,7 +665,7 @@ model Notification {
   entityId   String? // ID of related entity
 
   // Priority and expiration
-  priority  String   @default("NORMAL") @db.VarChar(20) // LOW, NORMAL, HIGH, URGENT
+  priority  String    @default("NORMAL") @db.VarChar(20) // LOW, NORMAL, HIGH, URGENT
   expiresAt DateTime? // When notification becomes irrelevant
 
   // Metadata
@@ -793,21 +738,22 @@ model Document {
   rejectionReason String? @db.Text
 
   // Document metadata
-  fileName    String?  @db.VarChar(255) // Original file name
-  fileSize    Int?     // File size in bytes
-  mimeType    String?  @db.VarChar(100) // MIME type of the file
-  description String?  @db.Text // Optional description by client
+  fileName    String? @db.VarChar(255) // Original file name
+  fileSize    Int? // File size in bytes
+  mimeType    String? @db.VarChar(100) // MIME type of the file
+  description String? @db.Text // Optional description by client
 
   // Expiry tracking (for documents that expire)
   expiryDate DateTime?
 
   // Reverse relations
   productContractRequests ProductPurchaseRequest[] @relation("ProductContract")
+  payoutReceipts          Payout[]                 @relation("PayoutReceipt")
 
   // Timestamps
-  uploadedAt DateTime  @default(now())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  uploadedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Indexes
   @@index([clientId])
@@ -828,9 +774,9 @@ model UserLead {
   id String @id @default(uuid())
 
   // Personal Information
-  firstName String @db.VarChar(255)
-  lastName  String @db.VarChar(255)
-  email     String @unique @db.VarChar(255)
+  firstName   String @db.VarChar(255)
+  lastName    String @db.VarChar(255)
+  email       String @unique @db.VarChar(255)
   phoneNumber String @db.VarChar(50)
 
   // Lead Source & RM Reference
@@ -870,13 +816,13 @@ model Investment {
   id String @id @default(uuid())
 
   // Investment range identification
-  name        String @db.VarChar(255) // e.g., "AED 50,000 - 99,999", "AED 500,000 and Above"
+  name        String  @db.VarChar(255) // e.g., "AED 50,000 - 99,999", "AED 500,000 and Above"
   description String? @db.Text
 
   // Amount range for the investment tier
-  minAmount Decimal @db.Decimal(15, 2) // Minimum investment amount
+  minAmount Decimal  @db.Decimal(15, 2) // Minimum investment amount
   maxAmount Decimal? @db.Decimal(15, 2) // Maximum investment amount (null for "and Above")
-  currency  String  @default("AED") @db.VarChar(3)
+  currency  String   @default("AED") @db.VarChar(3)
 
   // Display order
   displayOrder Int @default(0)
@@ -889,7 +835,7 @@ model Investment {
   updatedAt DateTime @updatedAt
 
   // Relations
-  options         InvestmentOption[]
+  options          InvestmentOption[]
   purchaseRequests ProductPurchaseRequest[]
 
   // Indexes
@@ -907,8 +853,8 @@ model InvestmentOption {
   investment   Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
 
   // Option details
-  duration            String @db.VarChar(50) // e.g., "1 Year", "2 Years"
-  withdrawalFrequency String @db.VarChar(50) // e.g., "Monthly", "Quarterly"
+  duration            String  @db.VarChar(50) // e.g., "1 Year", "2 Years"
+  withdrawalFrequency String  @db.VarChar(50) // e.g., "Monthly", "Quarterly"
   roi                 Decimal @db.Decimal(5, 2) // ROI percentage (e.g., 2.00, 3.00, 10.00, 15.00)
   annualReturn        Decimal @db.Decimal(5, 2) // Annual return percentage (e.g., 24.00, 36.00, 60.00)
 
@@ -960,10 +906,13 @@ model ProductPurchaseRequest {
   // Processing information
   processedAt DateTime?
 
+  // Payout configuration (selected by RM during approval)
+  payoutWindow String? @db.VarChar(10) // "1-15" or "16-30"
+
   // Contract information (DocAdmin)
   contractDocumentId String?
   contractDocument   Document? @relation("ProductContract", fields: [contractDocumentId], references: [id])
-  contractStartDate  DateTime?
+  contractStartDate  DateTime? // Auto-set to completion date
 
   // Completion information (DocAdmin)
   completedAt   DateTime?
@@ -974,6 +923,10 @@ model ProductPurchaseRequest {
   clientNotes     String? @db.Text
   rmNotes         String? @db.Text
   rejectionReason String? @db.Text
+
+  // Payout relations
+  payoutSchedules PayoutSchedule[]
+  payouts         Payout[]
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -988,4 +941,93 @@ model ProductPurchaseRequest {
   @@index([createdAt])
   @@index([contractDocumentId])
   @@map("investment_purchase_requests")
+}
+
+// ====================================
+// PAYOUT & INTEREST DISTRIBUTION SYSTEM
+// ====================================
+
+/// Payout Schedule - Auto-generated schedule for contract payouts
+model PayoutSchedule {
+  id String @id @default(uuid())
+
+  // References
+  productPurchaseRequestId String
+  productPurchaseRequest   ProductPurchaseRequest @relation(fields: [productPurchaseRequestId], references: [id], onDelete: Cascade)
+  clientId                 String
+  client                   Client                 @relation(fields: [clientId], references: [id])
+
+  // Schedule details
+  scheduledDate  DateTime // Date when payout should be executed
+  periodStart    DateTime // Start of the interest calculation period
+  periodEnd      DateTime // End of the interest calculation period
+  interestAmount Decimal  @db.Decimal(15, 2) // Calculated interest for this period
+
+  // Status
+  isProcessed Boolean @default(false) // True when Payout record is created
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  payout Payout? // One-to-one with Payout when processed
+
+  @@unique([productPurchaseRequestId, scheduledDate])
+  @@index([productPurchaseRequestId])
+  @@index([clientId])
+  @@index([scheduledDate])
+  @@index([isProcessed])
+  @@map("payout_schedules")
+}
+
+/// Payout - Actual payout execution record (DocAdmin processed)
+model Payout {
+  id String @id @default(uuid())
+
+  // References
+  productPurchaseRequestId String
+  productPurchaseRequest   ProductPurchaseRequest @relation(fields: [productPurchaseRequestId], references: [id])
+
+  payoutScheduleId String         @unique
+  payoutSchedule   PayoutSchedule @relation(fields: [payoutScheduleId], references: [id])
+
+  clientId String
+  client   Client @relation(fields: [clientId], references: [id])
+
+  // Payout details
+  amount        Decimal  @db.Decimal(15, 2) // Interest amount to be paid
+  periodStart   DateTime // Period start date
+  periodEnd     DateTime // Period end date
+  scheduledDate DateTime // Original scheduled date
+
+  // Status
+  status PayoutStatus @default(PENDING)
+
+  // Processing (DocAdmin only)
+  processedById String?
+  processedBy   User?     @relation("PayoutProcessor", fields: [processedById], references: [id])
+  processedAt   DateTime? // When DocAdmin marked as completed
+
+  // Receipt
+  receiptDocumentId String?   @unique
+  receiptDocument   Document? @relation("PayoutReceipt", fields: [receiptDocumentId], references: [id])
+
+  // Transaction reference (created when payout is completed)
+  transactionId String?      @unique
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+
+  // Notes
+  notes String? @db.Text
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productPurchaseRequestId])
+  @@index([clientId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([processedById])
+  @@map("payouts")
 }

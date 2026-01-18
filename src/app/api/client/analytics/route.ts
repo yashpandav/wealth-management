@@ -141,6 +141,89 @@ export async function GET() {
 
     const annualizedReturn = calculateAnnualizedReturn(totalValue, totalInvested, yearsSinceCreation);
 
+    // Fetch payout data
+    const [payoutStats, recentPayouts, investmentPlans] = await Promise.all([
+      // Payout statistics by status
+      prisma.payout.groupBy({
+        by: ['status'],
+        where: { clientId: client.id },
+        _count: true,
+        _sum: { amount: true },
+      }),
+
+      // Recent payouts for chart (last 6 months)
+      prisma.payout.findMany({
+        where: {
+          clientId: client.id,
+          scheduledDate: {
+            gte: new Date(new Date().setMonth(new Date().getMonth() - 6)),
+          },
+        },
+        orderBy: { scheduledDate: 'asc' },
+        select: {
+          amount: true,
+          scheduledDate: true,
+          status: true,
+        },
+      }),
+
+      // Investment plans
+      prisma.productPurchaseRequest.findMany({
+        where: {
+          clientId: client.id,
+          status: { in: ['APPROVED', 'COMPLETED'] },
+        },
+        include: {
+          investment: {
+            select: {
+              name: true,
+              currency: true,
+            },
+          },
+          investmentOption: {
+            select: {
+              annualReturn: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    // Calculate payout metrics
+    const totalInterestEarned = payoutStats
+      .filter((s) => s.status === 'COMPLETED')
+      .reduce((sum, s) => sum + (s._sum.amount?.toNumber() || 0), 0);
+
+    const pendingPayouts = payoutStats.find((s) => s.status === 'PENDING')?._count || 0;
+    const completedPayouts = payoutStats.find((s) => s.status === 'COMPLETED')?._count || 0;
+
+    // Format payout history for chart
+    const payoutHistory = recentPayouts.map((p) => ({
+      date: p.scheduledDate.toLocaleDateString('en-US', { month: 'short' }),
+      amount: p.amount.toNumber(),
+      status: p.status,
+    }));
+
+    // Investment plans distribution
+    const investmentDistribution = investmentPlans.reduce((acc, plan) => {
+      const planName = plan.investment.name;
+      if (!acc[planName]) {
+        acc[planName] = {
+          value: 0,
+          count: 0,
+        };
+      }
+      acc[planName].value += plan.amount.toNumber();
+      acc[planName].count += 1;
+      return acc;
+    }, {} as Record<string, { value: number; count: number }>);
+
+    const investmentDistributionData = Object.entries(investmentDistribution).map(([name, data]) => ({
+      name,
+      value: data.value,
+      count: data.count,
+    }));
+
     // Analytics response
     const analytics = {
       overview: {
@@ -167,6 +250,16 @@ export async function GET() {
         diversificationScore,
         concentrationRisk: allocationPercentages.length > 0 ? Math.max(...allocationPercentages) : 0,
         numberOfHoldings: portfolio.holdings.length,
+      },
+      payouts: {
+        totalEarned: totalInterestEarned,
+        pending: pendingPayouts,
+        completed: completedPayouts,
+        history: payoutHistory,
+      },
+      investments: {
+        totalPlans: investmentPlans.length,
+        distribution: investmentDistributionData,
       },
     };
 

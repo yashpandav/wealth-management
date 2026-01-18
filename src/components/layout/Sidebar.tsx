@@ -89,12 +89,6 @@ const navItems: NavItem[] = [
     roles: ['ADMIN'],
   },
   {
-    href: '/admin/withdrawal-requests',
-    label: 'Withdrawal Requests',
-    icon: <Wallet className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
     href: '/admin/audit-logs',
     label: 'Audit Logs',
     icon: <ClipboardList className="h-5 w-5" />,
@@ -145,6 +139,12 @@ const navItems: NavItem[] = [
     icon: <FileCheck className="h-5 w-5" />,
     roles: ['DOCADMIN'],
   },
+  {
+    href: '/docadmin/payouts',
+    label: 'Pending Payouts',
+    icon: <Wallet className="h-5 w-5" />,
+    roles: ['DOCADMIN'],
+  },
   // RM routes
   {
     href: '/rm',
@@ -182,12 +182,6 @@ const navItems: NavItem[] = [
     icon: <ShoppingCart className="h-5 w-5" />,
     roles: ['RM'],
   },
-  {
-    href: '/rm/withdrawal-requests',
-    label: 'Withdrawal Requests',
-    icon: <Wallet className="h-5 w-5" />,
-    roles: ['RM'],
-  },
   // Client routes
   {
     href: '/client/portfolio',
@@ -214,8 +208,8 @@ const navItems: NavItem[] = [
     roles: ['CLIENT'],
   },
   {
-    href: '/client/withdrawal-requests',
-    label: 'Withdrawals',
+    href: '/client/payouts',
+    label: 'My Payouts',
     icon: <Wallet className="h-5 w-5" />,
     roles: ['CLIENT'],
   },

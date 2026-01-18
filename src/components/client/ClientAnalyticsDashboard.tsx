@@ -69,6 +69,24 @@ interface AnalyticsData {
     concentrationRisk: number;
     numberOfHoldings: number;
   };
+  payouts: {
+    totalEarned: number;
+    pending: number;
+    completed: number;
+    history: Array<{
+      date: string;
+      amount: number;
+      status: string;
+    }>;
+  };
+  investments: {
+    totalPlans: number;
+    distribution: Array<{
+      name: string;
+      value: number;
+      count: number;
+    }>;
+  };
 }
 
 interface AnalyticsResponse {
@@ -272,12 +290,65 @@ export function ClientAnalyticsDashboard() {
         </Card>
       </div>
 
+      {/* Payout Overview Cards */}
+      {analytics.payouts && (
+        <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
+          <Card className="border-gray-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+              <CardTitle className="text-xs font-medium text-gray-600">Total Interest Earned</CardTitle>
+              <TrendingUp className="h-3.5 w-3.5 text-green-600" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-2xl font-bold flex items-center font-nums text-green-600">
+                <DirhamIcon className="w-5 h-5 mr-2" />
+                {analytics.payouts.totalEarned >= 1000
+                  ? `${(analytics.payouts.totalEarned / 1000).toFixed(1)}K`
+                  : analytics.payouts.totalEarned.toFixed(0)}
+              </div>
+              <p className="text-xs mt-0.5 text-gray-600">
+                From completed payouts
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+              <CardTitle className="text-xs font-medium text-gray-600">Pending Payouts</CardTitle>
+              <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-2xl font-bold font-nums text-amber-600">
+                {analytics.payouts.pending}
+              </div>
+              <p className="text-xs mt-0.5 text-gray-600">
+                Awaiting processing
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-gray-200">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-3 pt-3">
+              <CardTitle className="text-xs font-medium text-gray-600">Completed Payouts</CardTitle>
+              <TrendingUp className="h-3.5 w-3.5 text-green-600" />
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <div className="text-2xl font-bold font-nums text-green-600">
+                {analytics.payouts.completed}
+              </div>
+              <p className="text-xs mt-0.5 text-gray-600">
+                Successfully paid
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Charts Grid */}
       <div className="grid gap-3 lg:grid-cols-2">
         {/* Asset Allocation by Type - Pie Chart */}
         <Card className="border-gray-200">
           <CardHeader className="pb-2 px-3 pt-3">
-            <CardTitle className="text-sm font-medium">Asset Type</CardTitle>
+            <CardTitle className="text-sm font-medium">Holdings by Asset Type</CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3">
             <ResponsiveContainer width="100%" height={250}>
@@ -306,7 +377,7 @@ export function ClientAnalyticsDashboard() {
         {/* Sector Allocation - Pie Chart */}
         <Card className="border-gray-200">
           <CardHeader className="pb-2 px-3 pt-3">
-            <CardTitle className="text-sm font-medium">Sector Allocation</CardTitle>
+            <CardTitle className="text-sm font-medium">Holdings by Sector</CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3">
             <ResponsiveContainer width="100%" height={250}>
@@ -331,38 +402,154 @@ export function ClientAnalyticsDashboard() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+
+        {/* Payout History - Bar Chart */}
+        {analytics.payouts && analytics.payouts.history.length > 0 && (
+          <Card className="border-gray-200">
+            <CardHeader className="pb-2 px-3 pt-3">
+              <CardTitle className="text-sm font-medium">Interest Earnings (Last 6 Months)</CardTitle>
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={analytics.payouts.history}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} />
+                  <YAxis
+                    tick={{ fontSize: 11 }}
+                    tickLine={false}
+                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="rounded-lg border bg-background p-3 shadow-lg">
+                            <p className="font-medium">{data.date}</p>
+                            <p className="text-sm flex items-center">
+                              Amount: <DirhamIcon className="w-3 h-3 mx-1" />
+                              <span className="font-medium font-nums">
+                                {data.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              Status: <span className={`font-medium ${data.status === 'COMPLETED' ? 'text-green-600' : 'text-amber-600'}`}>
+                                {data.status}
+                              </span>
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="amount" fill="#10b981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Investment Plans Distribution - Pie Chart */}
+        {analytics.investments && analytics.investments.distribution.length > 0 && (
+          <Card className="border-gray-200">
+            <CardHeader className="pb-2 px-3 pt-3">
+              <CardTitle className="text-sm font-medium">Investment Plans Distribution</CardTitle>
+            </CardHeader>
+            <CardContent className="px-3 pb-3">
+              <ResponsiveContainer width="100%" height={250}>
+                <RechartsPieChart>
+                  <Pie
+                    data={analytics.investments.distribution}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name.substring(0, 15)}...: ${(value / 1000).toFixed(0)}K`}
+                    outerRadius={70}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {analytics.investments.distribution.map((_entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="rounded-lg border bg-background p-3 shadow-lg">
+                            <p className="font-medium">{data.name}</p>
+                            <p className="text-sm flex items-center">
+                              Investment: <DirhamIcon className="w-3 h-3 mx-1" />
+                              <span className="font-medium font-nums">
+                                {data.value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              </span>
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {data.count} {data.count === 1 ? 'plan' : 'plans'}
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Top Holdings - Bar Chart */}
-      <Card className="border-gray-200">
-        <CardHeader className="pb-2 px-3 pt-3">
-          <CardTitle className="text-sm font-medium">Top Holdings</CardTitle>
-        </CardHeader>
-        <CardContent className="px-3 pb-3">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topHoldingsBarData} layout="horizontal">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis
-                dataKey="name"
-                tick={{ fontSize: 11 }}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11 }}
-                tickLine={false}
-                tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-              />
-              <Tooltip content={<CustomBarTooltip />} />
-              <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      {topHoldingsBarData.length > 0 ? (
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2 px-3 pt-3">
+            <CardTitle className="text-sm font-medium">Top Holdings</CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 pb-3">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={topHoldingsBarData} layout="horizontal">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11 }}
+                  tickLine={false}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                />
+                <Tooltip content={<CustomBarTooltip />} />
+                <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-gray-200">
+          <CardHeader className="pb-2 px-3 pt-3">
+            <CardTitle className="text-sm font-medium">Top Holdings</CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 pb-3">
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <BarChart3 className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-sm font-medium text-gray-900">No Holdings Yet</p>
+              <p className="text-sm text-gray-500 mt-1">
+                Your portfolio holdings will appear here once investments are processed
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Performance Metrics Summary */}
       <Card className="border-gray-200">
         <CardHeader className="pb-2 px-3 pt-3">
-          <CardTitle className="text-sm font-medium">Performance Summary</CardTitle>
+          <CardTitle className="text-sm font-medium">Portfolio Stats</CardTitle>
         </CardHeader>
         <CardContent className="px-3 pb-3">
           <div className="space-y-3">

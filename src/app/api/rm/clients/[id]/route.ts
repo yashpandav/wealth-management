@@ -97,10 +97,6 @@ export async function GET(_request: NextRequest, context: RouteContext) {
             },
           },
         },
-        withdrawalRequests: {
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        },
       },
     });
 
@@ -146,10 +142,6 @@ export async function GET(_request: NextRequest, context: RouteContext) {
         amount: Number(pr.amount),
         quantity: pr.quantity ? Number(pr.quantity) : null,
         requestedPrice: pr.requestedPrice ? Number(pr.requestedPrice) : null,
-      })),
-      withdrawalRequests: client.withdrawalRequests.map(wr => ({
-        ...wr,
-        amount: Number(wr.amount),
       })),
     };
 

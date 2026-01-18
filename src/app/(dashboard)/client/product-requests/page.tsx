@@ -35,6 +35,13 @@ interface ProductPurchaseRequest {
   createdAt: string;
   updatedAt: string;
   processedAt: string | null;
+  contractDocumentId: string | null;
+  contractDocument: {
+    id: string;
+    fileName: string;
+    fileSize: number;
+    uploadedAt: string;
+  } | null;
   investment: {
     id: string;
     name: string;
