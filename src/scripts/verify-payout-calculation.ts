@@ -48,15 +48,15 @@ async function verifyPayoutCalculation() {
   console.log(`   Annual Return: ${annualReturn}%`);
   console.log(`   Frequency: ${frequency} (${payoutsPerYear} payouts/year)`);
 
-  // Calculate using ROI
-  const interestPerPayoutUsingROI = (principal * roi) / (100 * payoutsPerYear);
-  console.log(`\n   Using ROI (${roi}%):`);
-  console.log(`   Formula: (${principal} × ${roi}) / (100 × ${payoutsPerYear})`);
+  // Calculate using ROI per period (CORRECT formula)
+  const interestPerPayoutUsingROI = (principal * roi) / 100;
+  console.log(`\n   Using ROI per period (${roi}% ${frequency === 'Monthly' ? 'monthly' : 'quarterly'}):`);
+  console.log(`   Formula: (${principal} × ${roi}) / 100`);
   console.log(`   Result: AED ${interestPerPayoutUsingROI.toLocaleString()} per ${frequency === 'Monthly' ? 'month' : 'quarter'}`);
 
-  // Calculate using Annual Return
+  // OLD METHOD (INCORRECT): Calculate using Annual Return divided by periods
   const interestPerPayoutUsingAnnualReturn = (principal * annualReturn) / (100 * payoutsPerYear);
-  console.log(`\n   Using Annual Return (${annualReturn}%):`);
+  console.log(`\n   OLD METHOD - Using Annual Return divided by periods (${annualReturn}%):`);
   console.log(`   Formula: (${principal} × ${annualReturn}) / (100 × ${payoutsPerYear})`);
   console.log(`   Result: AED ${interestPerPayoutUsingAnnualReturn.toLocaleString()} per ${frequency === 'Monthly' ? 'month' : 'quarter'}`);
 
@@ -96,9 +96,15 @@ async function verifyPayoutCalculation() {
 
   console.log('\n' + '='.repeat(80));
   console.log('📝 EXPLANATION:');
-  console.log('ROI = Interest rate per period (used for payout calculation)');
-  console.log('Annual Return = Total return percentage shown to client');
-  console.log('The system uses ROI to calculate individual payout amounts.');
+  console.log('ROI = Interest rate per payout period (monthly ROI for monthly payouts,');
+  console.log('      quarterly ROI for quarterly payouts)');
+  console.log('Annual Return = Total annual return percentage (for display purposes)');
+  console.log('');
+  console.log('CORRECT FORMULA:');
+  console.log('  Payout Amount = Principal × (ROI per period / 100)');
+  console.log('');
+  console.log('For Monthly payouts: Use monthly ROI');
+  console.log('For Quarterly payouts: Use quarterly ROI');
   console.log('='.repeat(80));
 }
 

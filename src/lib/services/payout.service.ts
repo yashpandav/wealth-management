@@ -52,11 +52,11 @@ export async function generatePayoutSchedules(
   const payoutsPerYear = frequency === 'Monthly' ? 12 : 4; // Monthly = 12, Quarterly = 4
   const totalPayouts = durationYears * payoutsPerYear;
 
-  // Calculate interest per payout using Annual Return (not ROI)
-  // Annual Return is the advertised rate shown to clients
+  // Calculate interest per payout using ROI per period
+  // ROI field contains the per-period ROI (monthly ROI for monthly, quarterly ROI for quarterly)
   const principalAmount = contract.amount;
-  const annualReturn = contract.investmentOption.annualReturn;
-  const interestPerPayout = (principalAmount.toNumber() * annualReturn.toNumber()) / (100 * payoutsPerYear);
+  const roiPerPeriod = contract.investmentOption.roi;
+  const interestPerPayout = (principalAmount.toNumber() * roiPerPeriod.toNumber()) / 100;
 
   const schedules: Prisma.PayoutScheduleCreateManyInput[] = [];
   const startDate = new Date(contract.contractStartDate);
@@ -132,7 +132,8 @@ export async function generatePayoutSchedules(
           payoutWindow: contract.payoutWindow,
           interestPerPayout,
           principalAmount: principalAmount.toNumber(),
-          annualReturn: annualReturn.toNumber(),
+          roiPerPeriod: roiPerPeriod.toNumber(),
+          annualReturn: contract.investmentOption.annualReturn.toNumber(),
           duration: contract.investmentOption.duration,
           investmentName: contract.investment.name,
         },
@@ -171,13 +172,14 @@ export function calculatePayoutDate(
 
 /**
  * Calculate interest amount for a specific period
+ * @param principalAmount - The principal investment amount
+ * @param roiPerPeriod - The ROI per payout period (monthly ROI for monthly, quarterly ROI for quarterly)
  */
 export function calculateInterestAmount(
   principalAmount: number,
-  roiPercentage: number,
-  payoutsPerYear: number
+  roiPerPeriod: number
 ): number {
-  return (principalAmount * roiPercentage) / (100 * payoutsPerYear);
+  return (principalAmount * roiPerPeriod) / 100;
 }
 
 /**

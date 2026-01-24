@@ -40,18 +40,18 @@ async function debugROICalculation() {
   console.log(`   Payouts per year: ${payoutsPerYear}`);
   console.log(`   Total payouts: ${totalPayouts}`);
 
-  console.log('\n💡 Current Formula (used by system):');
-  console.log(`   interestPerPayout = (principal × roi) / (100 × payoutsPerYear)`);
+  console.log('\n💡 CORRECT Formula (now used by system):');
+  console.log(`   interestPerPayout = principal × (roiPerPeriod / 100)`);
 
-  const currentFormula = (principal * roi) / (100 * payoutsPerYear);
-  console.log(`   = (${principal} × ${roi}) / (100 × ${payoutsPerYear})`);
-  console.log(`   = ${(principal * roi).toLocaleString()} / ${100 * payoutsPerYear}`);
-  console.log(`   = AED ${currentFormula.toLocaleString()}`);
+  const correctFormula = (principal * roi) / 100;
+  console.log(`   = ${principal.toLocaleString()} × (${roi} / 100)`);
+  console.log(`   = ${principal.toLocaleString()} × ${(roi / 100).toFixed(4)}`);
+  console.log(`   = AED ${correctFormula.toLocaleString()}`);
 
-  const totalWithCurrent = currentFormula * totalPayouts;
-  console.log(`\n   Total over ${durationYears} years: AED ${totalWithCurrent.toLocaleString()}`);
-  console.log(`   Effective return: ${((totalWithCurrent / principal) * 100).toFixed(2)}%`);
-  console.log(`   Effective annual return: ${((totalWithCurrent / principal / durationYears) * 100).toFixed(2)}%`);
+  const totalWithCorrect = correctFormula * totalPayouts;
+  console.log(`\n   Total over ${durationYears} years: AED ${totalWithCorrect.toLocaleString()}`);
+  console.log(`   Effective return: ${((totalWithCorrect / principal) * 100).toFixed(2)}%`);
+  console.log(`   Effective annual return: ${((totalWithCorrect / principal / durationYears) * 100).toFixed(2)}%`);
 
   console.log('\n💡 Alternative: If ROI means % of principal per payout:');
   console.log(`   interestPerPayout = principal × (roi / 100)`);
@@ -79,19 +79,18 @@ async function debugROICalculation() {
   console.log('\n' + '='.repeat(80));
   console.log('📝 ANALYSIS:');
   console.log('');
-  console.log('Current calculation gives:');
-  console.log(`   ${((totalWithCurrent / principal / durationYears) * 100).toFixed(2)}% effective annual return`);
+  console.log('CORRECT APPROACH:');
+  console.log('The ROI field should contain the per-period ROI:');
+  console.log(`  - For Monthly payouts: ${roi}% monthly ROI`);
+  console.log(`  - For Quarterly payouts: ${roi}% quarterly ROI`);
   console.log('');
-  console.log('But UI shows:');
-  console.log(`   ${annualReturn}% annual return`);
+  console.log('Formula: Payout = Principal × (ROI per period / 100)');
+  console.log(`  Result: AED ${correctFormula.toLocaleString()} per ${frequency === 'Monthly' ? 'month' : 'quarter'}`);
+  console.log(`  Total over ${durationYears} years: AED ${totalWithCorrect.toLocaleString()}`);
+  console.log(`  Effective annual return: ${((totalWithCorrect / principal / durationYears) * 100).toFixed(2)}%`);
   console.log('');
-  console.log('To match the 44% Annual Return shown in UI, the formula should use:');
-  console.log(`   (principal × annualReturn) / (100 × payoutsPerYear)`);
-  console.log('');
-  console.log('Which would give:');
-  console.log(`   AED ${altFormula2.toLocaleString()} per payout`);
-  console.log(`   AED ${totalWithAlt2.toLocaleString()} total interest`);
-  console.log(`   ${annualReturn}% annual return (as advertised)`);
+  console.log('The Annual Return field is used for display/marketing purposes.');
+  console.log('It should reflect the total annual return if calculated correctly.');
   console.log('='.repeat(80));
 }
 
