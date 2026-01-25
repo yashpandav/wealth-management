@@ -305,9 +305,6 @@ export function ClientAnalyticsDashboard() {
                   ? `${(analytics.payouts.totalEarned / 1000).toFixed(1)}K`
                   : analytics.payouts.totalEarned.toFixed(0)}
               </div>
-              <p className="text-xs mt-0.5 text-gray-600">
-                From completed payouts
-              </p>
             </CardContent>
           </Card>
 

@@ -1,6 +1,7 @@
 /**
  * DocAdmin - Pending Payouts Table Component
  * Displays pending payouts with filtering and receipt upload
+ * Tabs: Upcoming (next 2 days) | Completed
  */
 
 'use client';
@@ -21,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +41,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
+  CheckCircle2,
+  Clock,
+  Download,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { toast } from 'react-hot-toast';
@@ -77,6 +82,11 @@ interface Payout {
     name: string;
   } | null;
   processedAt: string | null;
+  receiptDocument: {
+    id: string;
+    fileName: string;
+    filePath: string;
+  } | null;
   createdAt: string;
 }
 
@@ -109,11 +119,12 @@ async function fetchPayouts(params: {
   search: string;
   dateFrom: string;
   dateTo: string;
+  status: string;
 }): Promise<PayoutsResponse> {
   const queryParams = new URLSearchParams({
     page: params.page.toString(),
     limit: '20',
-    status: 'PENDING',
+    status: params.status,
   });
 
   if (params.search) queryParams.append('search', params.search);
@@ -151,10 +162,9 @@ async function completePayout(data: {
 
 export function PendingPayoutsTable() {
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<'missed' | 'pending' | 'scheduled' | 'completed'>('pending');
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
 
   const [uploadDialog, setUploadDialog] = useState<{
     open: boolean;
@@ -168,9 +178,64 @@ export function PendingPayoutsTable() {
     payout: Payout | null;
   }>({ open: false, payout: null });
 
+  // Calculate date ranges based on active tab
+  const getDateRange = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const twoDaysFromNow = new Date(today);
+    twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
+    twoDaysFromNow.setHours(23, 59, 59, 999);
+
+    switch (activeTab) {
+      case 'missed':
+        // PENDING payouts before today
+        return {
+          status: 'PENDING',
+          dateFrom: '',
+          dateTo: today.toISOString(),
+        };
+      case 'pending':
+        // PENDING payouts for today only
+        return {
+          status: 'PENDING',
+          dateFrom: today.toISOString(),
+          dateTo: tomorrow.toISOString(),
+        };
+      case 'scheduled':
+        // PENDING payouts after today (future)
+        return {
+          status: 'PENDING',
+          dateFrom: tomorrow.toISOString(),
+          dateTo: twoDaysFromNow.toISOString(),
+        };
+      case 'completed':
+        return {
+          status: 'COMPLETED',
+          dateFrom: '',
+          dateTo: '',
+        };
+      default:
+        return {
+          status: 'PENDING',
+          dateFrom: '',
+          dateTo: '',
+        };
+    }
+  };
+
+  const dateRange = getDateRange();
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['docadmin-payouts', page, search, dateFrom, dateTo],
-    queryFn: () => fetchPayouts({ page, search, dateFrom, dateTo }),
+    queryKey: ['docadmin-payouts', page, search, activeTab],
+    queryFn: () => fetchPayouts({
+      page,
+      search,
+      dateFrom: dateRange.dateFrom,
+      dateTo: dateRange.dateTo,
+      status: dateRange.status,
+    }),
   });
 
   const uploadMutation = useMutation({
@@ -200,6 +265,46 @@ export function PendingPayoutsTable() {
     });
   };
 
+  const handleDownloadReceipt = (filePath: string, fileName: string) => {
+    const link = document.createElement('a');
+    link.href = filePath;
+    link.download = fileName;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Reset page when changing tabs
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as 'missed' | 'pending' | 'scheduled' | 'completed');
+    setPage(1);
+  };
+
+  const getStatusBadge = (status: string, scheduledDate: string) => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const scheduled = new Date(scheduledDate);
+    scheduled.setHours(0, 0, 0, 0);
+
+    switch (status) {
+      case 'PENDING':
+        if (scheduled < now) {
+          return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-300">Missed</Badge>;
+        } else if (scheduled.getTime() === now.getTime()) {
+          return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 border-yellow-300">Pending</Badge>;
+        } else {
+          return <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-300">Scheduled</Badge>;
+        }
+      case 'COMPLETED':
+        return <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-300">Completed</Badge>;
+      case 'FAILED':
+        return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-300">Failed</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
   if (error) {
     return (
       <Alert variant="destructive">
@@ -214,198 +319,709 @@ export function PendingPayoutsTable() {
   const summary = data?.data.summary;
 
   return (
-    <div className="space-y-6">
-      {/* Summary Stats */}
-      {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Pending</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold font-nums">{summary.total}</div>
-            </CardContent>
-          </Card>
-          {summary.byStatus.map((s) => (
-            <Card key={s.status}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground capitalize">
-                  {s.status.toLowerCase()}
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-4">
+      <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-gray-100 h-auto">
+        <TabsTrigger value="pending" className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-brand-blue text-xs sm:text-sm py-2">
+          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+          Pending
+        </TabsTrigger>
+        <TabsTrigger value="scheduled" className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-brand-blue text-xs sm:text-sm py-2">
+          <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+          Upcoming
+        </TabsTrigger>
+        <TabsTrigger value="missed" className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-brand-blue text-xs sm:text-sm py-2">
+          <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+          Missed
+        </TabsTrigger>
+        <TabsTrigger value="completed" className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-brand-blue text-xs sm:text-sm py-2">
+          <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
+          Completed
+        </TabsTrigger>
+      </TabsList>
+
+      {/* MISSED TAB */}
+      <TabsContent value="missed" className="space-y-4">
+        {/* Summary Stats */}
+        {summary && (
+          <div className="grid grid-cols-1 gap-4 max-w-xs">
+            <Card className="border-gray-300 bg-white">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                  <AlertCircle className="h-4 w-4 text-gray-600" />
+                  Missed Payouts
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold font-nums">{s.count}</div>
-                <p className="text-xs text-muted-foreground flex items-center mt-1 font-nums">
-                  <span className="mr-1 font-sans">Total:</span>
-                  <DirhamIcon className="w-3 h-3 mx-1" />
-                  {Number(s.totalAmount).toLocaleString()}
+              <CardContent className="px-4 pb-4">
+                <div className="text-2xl font-bold font-nums text-gray-900">{summary.total}</div>
+                <p className="text-xs text-gray-600 mt-1">
+                  Overdue payouts
                 </p>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <Input
-          placeholder="Search by client name or tracking number..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="max-w-sm"
-        />
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <Input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => {
-                setDateFrom(e.target.value);
-                setPage(1);
-              }}
-              className="w-[150px]"
-            />
-            <span className="text-muted-foreground">to</span>
-            <Input
-              type="date"
-              value={dateTo}
-              onChange={(e) => {
-                setDateTo(e.target.value);
-                setPage(1);
-              }}
-              className="w-[150px]"
-            />
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Table */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Scheduled Date</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Product</TableHead>
-              <TableHead>Period</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Input
+            placeholder="Search by client name or tracking number..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="max-w-sm font-nums"
+          />
+        </div>
+
+        {/* Table */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  Loading...
-                </TableCell>
+                <TableHead>Scheduled Date</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Period</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : payouts.length > 0 ? (
-              payouts.map((payout) => (
-                <TableRow key={payout.id}>
-                  <TableCell className="font-nums">{format(new Date(payout.scheduledDate), 'MMM dd, yyyy')}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{payout.client.firstName} {payout.client.lastName}</p>
-                      <p className="text-xs text-muted-foreground">{payout.client.email}</p>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    Loading...
                   </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-medium">
-                      {payout.productPurchaseRequest.investment.name}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {payout.productPurchaseRequest.trackingNumber}
-                    </p>
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    <div className="font-nums">
-                      {format(new Date(payout.periodStart), 'MMM dd')} -{' '}
-                      {format(new Date(payout.periodEnd), 'MMM dd, yyyy')}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
-                    </p>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    <div className="flex items-center justify-end font-nums">
-                      <span className="mr-1 text-xs text-muted-foreground font-sans">
-                        {payout.productPurchaseRequest.investment.currency}
-                      </span>
-                      {payout.productPurchaseRequest.investment.currency === 'USD' ? (
-                        <DirhamIcon className="w-3 h-3 mx-1" />
-                      ) : null}
-                      {payout.amount.toLocaleString()}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDetailDialog({ open: true, payout })}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                        onClick={() => setUploadDialog({ open: true, payout })}
-                      >
-                        <Upload className="h-4 w-4" />
-                      </Button>
+                </TableRow>
+              ) : payouts.length > 0 ? (
+                payouts.map((payout) => (
+                  <TableRow key={payout.id}>
+                    <TableCell className="font-nums">{format(new Date(payout.scheduledDate), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{payout.client.firstName} {payout.client.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{payout.client.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-medium border-gray-300">
+                        {payout.productPurchaseRequest.investment.name}
+                      </Badge>
+                      <p className="text-xs text-brand-grey mt-1 font-nums">
+                        {payout.productPurchaseRequest.trackingNumber}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <div className="font-nums">
+                        {format(new Date(payout.periodStart), 'MMM dd')} -{' '}
+                        {format(new Date(payout.periodEnd), 'MMM dd, yyyy')}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      <div className="flex items-center justify-end font-nums text-gray-900">
+                        {payout.productPurchaseRequest.investment.currency === 'USD' ? (
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                        ) : (
+                          <span className="mr-1 text-xs text-brand-grey font-sans">
+                            {payout.productPurchaseRequest.investment.currency}
+                          </span>
+                        )}
+                        {payout.amount.toLocaleString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(payout.status, payout.scheduledDate)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailDialog({ open: true, payout })}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={() => setUploadDialog({ open: true, payout })}
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <CheckCircle2 className="h-8 w-8 text-green-500" />
+                      <p className="text-muted-foreground">No missed payouts</p>
+                      <p className="text-sm text-muted-foreground">
+                        All payouts are up to date
+                      </p>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  No pending payouts found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Showing <span className="font-nums">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
-            <span className="font-nums">{Math.min(pagination.page * pagination.limit, pagination.totalCount)}</span> of{' '}
-            <span className="font-nums">{pagination.totalCount}</span> payouts
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p - 1)}
-              disabled={!pagination.hasPrevPage}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-            <div className="text-sm font-nums">
-              Page {pagination.page} of {pagination.totalPages}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasNextPage}
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
+              )}
+            </TableBody>
+          </Table>
         </div>
-      )}
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing <span className="font-nums">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
+              <span className="font-nums">{Math.min(pagination.page * pagination.limit, pagination.totalCount)}</span> of{' '}
+              <span className="font-nums">{pagination.totalCount}</span> payouts
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p - 1)}
+                disabled={!pagination.hasPrevPage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="text-sm font-nums">
+                Page {pagination.page} of {pagination.totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.hasNextPage}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </TabsContent>
+
+      {/* PENDING TODAY TAB */}
+      <TabsContent value="pending" className="space-y-4">
+        {/* Summary Stats */}
+        {summary && (
+          <div className="grid grid-cols-1 gap-4 max-w-xs">
+            <Card className="border-gray-300 bg-white">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                  <Clock className="h-4 w-4 text-gray-600" />
+                  Pending Today
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="text-2xl font-bold font-nums text-gray-900">{summary.total}</div>
+                <p className="text-xs text-gray-600 mt-1">
+                  Due today
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Input
+            placeholder="Search by client name or tracking number..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="max-w-sm font-nums"
+          />
+        </div>
+
+        {/* Table */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Scheduled Date</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Period</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : payouts.length > 0 ? (
+                payouts.map((payout) => (
+                  <TableRow key={payout.id}>
+                    <TableCell className="font-nums">{format(new Date(payout.scheduledDate), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{payout.client.firstName} {payout.client.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{payout.client.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-medium border-gray-300">
+                        {payout.productPurchaseRequest.investment.name}
+                      </Badge>
+                      <p className="text-xs text-brand-grey mt-1 font-nums">
+                        {payout.productPurchaseRequest.trackingNumber}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <div className="font-nums">
+                        {format(new Date(payout.periodStart), 'MMM dd')} -{' '}
+                        {format(new Date(payout.periodEnd), 'MMM dd, yyyy')}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      <div className="flex items-center justify-end font-nums text-gray-900">
+                        {payout.productPurchaseRequest.investment.currency === 'USD' ? (
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                        ) : (
+                          <span className="mr-1 text-xs text-brand-grey font-sans">
+                            {payout.productPurchaseRequest.investment.currency}
+                          </span>
+                        )}
+                        {payout.amount.toLocaleString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(payout.status, payout.scheduledDate)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailDialog({ open: true, payout })}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={() => setUploadDialog({ open: true, payout })}
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <CheckCircle2 className="h-8 w-8 text-green-500" />
+                      <p className="text-muted-foreground">No payouts due today</p>
+                      <p className="text-sm text-muted-foreground">
+                        Today's payouts will appear here
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing <span className="font-nums">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
+              <span className="font-nums">{Math.min(pagination.page * pagination.limit, pagination.totalCount)}</span> of{' '}
+              <span className="font-nums">{pagination.totalCount}</span> payouts
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p - 1)}
+                disabled={!pagination.hasPrevPage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="text-sm font-nums">
+                Page {pagination.page} of {pagination.totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.hasNextPage}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </TabsContent>
+
+      {/* SCHEDULED TAB */}
+      <TabsContent value="scheduled" className="space-y-4">
+        {/* Summary Stats */}
+        {summary && (
+          <div className="grid grid-cols-1 gap-4 max-w-xs">
+            <Card className="border-gray-300 bg-white">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4 text-gray-600" />
+                  Upcoming Payouts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="text-2xl font-bold font-nums text-gray-900">{summary.total}</div>
+                <p className="text-xs text-gray-600 mt-1">
+                  Due in next 2 days
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Input
+            placeholder="Search by client name or tracking number..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="max-w-sm font-nums"
+          />
+        </div>
+
+        {/* Table */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Scheduled Date</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Period</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : payouts.length > 0 ? (
+                payouts.map((payout) => (
+                  <TableRow key={payout.id}>
+                    <TableCell className="font-nums">{format(new Date(payout.scheduledDate), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{payout.client.firstName} {payout.client.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{payout.client.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-medium border-gray-300">
+                        {payout.productPurchaseRequest.investment.name}
+                      </Badge>
+                      <p className="text-xs text-brand-grey mt-1 font-nums">
+                        {payout.productPurchaseRequest.trackingNumber}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <div className="font-nums">
+                        {format(new Date(payout.periodStart), 'MMM dd')} -{' '}
+                        {format(new Date(payout.periodEnd), 'MMM dd, yyyy')}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      <div className="flex items-center justify-end font-nums text-gray-900">
+                        {payout.productPurchaseRequest.investment.currency === 'USD' ? (
+                          <DirhamIcon className="w-3 h-3 mr-1" />
+                        ) : (
+                          <span className="mr-1 text-xs text-brand-grey font-sans">
+                            {payout.productPurchaseRequest.investment.currency}
+                          </span>
+                        )}
+                        {payout.amount.toLocaleString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(payout.status, payout.scheduledDate)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailDialog({ open: true, payout })}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={() => setUploadDialog({ open: true, payout })}
+                        >
+                          <Upload className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <Calendar className="h-8 w-8 text-muted-foreground" />
+                      <p className="text-muted-foreground">No scheduled payouts</p>
+                      <p className="text-sm text-muted-foreground">
+                        Upcoming payouts will appear here
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing <span className="font-nums">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
+              <span className="font-nums">{Math.min(pagination.page * pagination.limit, pagination.totalCount)}</span> of{' '}
+              <span className="font-nums">{pagination.totalCount}</span> payouts
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p - 1)}
+                disabled={!pagination.hasPrevPage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="text-sm font-nums">
+                Page {pagination.page} of {pagination.totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.hasNextPage}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </TabsContent>
+
+      {/* COMPLETED TAB */}
+      <TabsContent value="completed" className="space-y-4">
+        {/* Summary for Completed */}
+        {summary && (
+          <div className="grid grid-cols-1 gap-4 max-w-xs">
+            <Card className="border-gray-300 bg-white">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-gray-600" />
+                  Completed Payouts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <div className="text-2xl font-bold font-nums text-gray-900">{summary.total}</div>
+                <p className="text-xs text-gray-600 mt-1">
+                  Successfully processed
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <Input
+            placeholder="Search by client name or tracking number..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="max-w-sm font-nums"
+          />
+        </div>
+
+        {/* Completed Payouts Table */}
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Processed Date</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead>Product</TableHead>
+                <TableHead>Period</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : payouts.length > 0 ? (
+                payouts.map((payout) => (
+                  <TableRow key={payout.id}>
+                    <TableCell className="font-nums">
+                      {payout.processedAt ? format(new Date(payout.processedAt), 'MMM dd, yyyy') : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{payout.client.firstName} {payout.client.lastName}</p>
+                        <p className="text-xs text-muted-foreground">{payout.client.email}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-medium border-gray-300">
+                        {payout.productPurchaseRequest.investment.name}
+                      </Badge>
+                      <p className="text-xs text-brand-grey mt-1 font-nums">
+                        {payout.productPurchaseRequest.trackingNumber}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      <div className="font-nums">
+                        {format(new Date(payout.periodStart), 'MMM dd')} -{' '}
+                        {format(new Date(payout.periodEnd), 'MMM dd, yyyy')}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      <div className="flex items-center justify-end font-nums">
+                        <span className="mr-1 text-xs text-muted-foreground font-sans">
+                          {payout.productPurchaseRequest.investment.currency}
+                        </span>
+                        {payout.productPurchaseRequest.investment.currency === 'USD' ? (
+                          <DirhamIcon className="w-3 h-3 mx-1" />
+                        ) : null}
+                        {payout.amount.toLocaleString()}
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(payout.status, payout.scheduledDate)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setDetailDialog({ open: true, payout })}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {payout.receiptDocument && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-brand-blue hover:text-brand-blue/80 hover:bg-brand-blue/5"
+                            onClick={() =>
+                              handleDownloadReceipt(
+                                payout.receiptDocument!.filePath,
+                                payout.receiptDocument!.fileName
+                              )
+                            }
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-24 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <CheckCircle2 className="h-8 w-8 text-muted-foreground" />
+                      <p className="text-muted-foreground">No completed payouts found</p>
+                      <p className="text-sm text-muted-foreground">
+                        Completed payouts will appear here
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Showing <span className="font-nums">{(pagination.page - 1) * pagination.limit + 1}</span> to{' '}
+              <span className="font-nums">{Math.min(pagination.page * pagination.limit, pagination.totalCount)}</span> of{' '}
+              <span className="font-nums">{pagination.totalCount}</span> payouts
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p - 1)}
+                disabled={!pagination.hasPrevPage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <div className="text-sm font-nums">
+                Page {pagination.page} of {pagination.totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={!pagination.hasNextPage}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </TabsContent>
 
       {/* Upload Receipt Dialog */}
       <Dialog
@@ -501,7 +1117,7 @@ export function PendingPayoutsTable() {
         </DialogContent>
       </Dialog>
 
-      {/* Detail Dialog */}
+      {/* Detail Dialog - Reusable for both tabs */}
       <Dialog
         open={detailDialog.open}
         onOpenChange={(open) => {
@@ -511,6 +1127,7 @@ export function PendingPayoutsTable() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Payout Details</DialogTitle>
+            <DialogDescription>View detailed information about this payout</DialogDescription>
           </DialogHeader>
           {detailDialog.payout && (
             <div className="space-y-4">
@@ -523,24 +1140,16 @@ export function PendingPayoutsTable() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700">
-                    {detailDialog.payout.status}
-                  </Badge>
+                  {getStatusBadge(detailDialog.payout.status, detailDialog.payout.scheduledDate)}
                 </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Client</p>
-                <p className="font-medium">
-                  {detailDialog.payout.client.firstName} {detailDialog.payout.client.lastName}
-                </p>
-                <p className="text-sm text-muted-foreground">{detailDialog.payout.client.email}</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Product</p>
+                  <p className="text-sm text-muted-foreground">Client</p>
                   <p className="font-medium">
-                    {detailDialog.payout.productPurchaseRequest.investment.name}
+                    {detailDialog.payout.client.firstName} {detailDialog.payout.client.lastName}
                   </p>
+                  <p className="text-xs text-muted-foreground">{detailDialog.payout.client.email}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>
@@ -580,39 +1189,44 @@ export function PendingPayoutsTable() {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Duration</p>
-                  <p>{detailDialog.payout.productPurchaseRequest.investmentOption.duration}</p>
+              {detailDialog.payout.status === 'COMPLETED' && detailDialog.payout.processedAt && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Processed Date</p>
+                    <p className="font-nums">
+                      {format(new Date(detailDialog.payout.processedAt), 'PPP')}
+                    </p>
+                  </div>
+                  {detailDialog.payout.receiptDocument && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Receipt</p>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-auto p-0 text-brand-blue"
+                        onClick={() =>
+                          handleDownloadReceipt(
+                            detailDialog.payout!.receiptDocument!.filePath,
+                            detailDialog.payout!.receiptDocument!.fileName
+                          )
+                        }
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        Download Receipt
+                      </Button>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Annual Return</p>
-                  <p className="text-green-600 font-medium">
-                    <span className="font-nums">
-                      {detailDialog.payout.productPurchaseRequest.investmentOption.annualReturn}
-                    </span>
-                    %
-                  </p>
-                </div>
-              </div>
+              )}
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDetailDialog({ open: false, payout: null })}>
               Close
             </Button>
-            <Button
-              onClick={() => {
-                setDetailDialog({ open: false, payout: null });
-                setUploadDialog({ open: true, payout: detailDialog.payout });
-              }}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Receipt
-            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </Tabs>
   );
 }
