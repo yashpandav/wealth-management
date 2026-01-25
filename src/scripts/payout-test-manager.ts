@@ -18,7 +18,7 @@
 
 import { PrismaClient } from '@prisma/client';
 import { generatePayoutSchedules, createPendingPayouts } from '@/lib/services/payout.service';
-import { addMonths, subMonths, addDays } from 'date-fns';
+import { subMonths } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -34,12 +34,15 @@ const colors = {
 };
 
 function log(message: string, color: string = colors.reset) {
+  // eslint-disable-next-line no-console
   console.log(`${color}${message}${colors.reset}`);
 }
 
 function header(title: string) {
+  // eslint-disable-next-line no-console
   console.log('\n' + '='.repeat(80));
   log(`  ${title}`, colors.bright + colors.cyan);
+  // eslint-disable-next-line no-console
   console.log('='.repeat(80) + '\n');
 }
 
@@ -469,7 +472,7 @@ async function verifyCalculations() {
 
   for (const contract of contracts) {
     const { amount, payoutSchedules, investmentOption } = contract;
-    const expectedInterest = (Number(amount) * investmentOption.roi) / 100;
+    const expectedInterest : number = (Number(amount) * Number(investmentOption.roi)) / 100;
 
     log(`\n📄 ${contract.trackingNumber}`, colors.cyan);
     log(`   Amount: AED ${Number(amount).toLocaleString()}`, colors.cyan);
@@ -479,7 +482,7 @@ async function verifyCalculations() {
     let errors = 0;
     payoutSchedules.forEach((schedule) => {
       const actual = Number(schedule.interestAmount);
-      if (Math.abs(actual - expectedInterest) > 0.01) {
+      if (Math.abs(actual - Number(expectedInterest)) > 0.01) {
         log(
           `   ❌ Schedule ${schedule.scheduledDate.toISOString().split('T')[0]}: ` +
             `Expected AED ${expectedInterest}, Got AED ${actual}`,
@@ -589,6 +592,7 @@ async function main() {
     }
   } catch (error) {
     log('\n❌ Error:', colors.red);
+    // eslint-disable-next-line no-console
     console.error(error);
     process.exit(1);
   } finally {

@@ -74,7 +74,7 @@ async function main() {
     // Show first 5 and last 3 schedules
     const showSchedules = [
       ...schedules.slice(0, 5),
-      ...(schedules.length > 8 ? [{ scheduledDate: new Date(), interestAmount: 0, isProcessed: false } as any] : []),
+      ...(schedules.length > 8 ? [{ scheduledDate: new Date(), interestAmount: 0, isProcessed: false }] : []),
       ...schedules.slice(-3),
     ];
 

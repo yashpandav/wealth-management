@@ -5,9 +5,9 @@
  * Usage: npx tsx src/scripts/seed-payout-test-data.ts
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ProductPurchaseRequest } from '@prisma/client';
 import { generatePayoutSchedules, createPendingPayouts } from '@/lib/services/payout.service';
-import { addMonths, addDays, subMonths } from 'date-fns';
+import { subMonths } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -118,7 +118,7 @@ async function main() {
     section('📝 Creating Test Contracts');
 
     const now = new Date();
-    const contracts: any[] = [];
+    const contracts: ProductPurchaseRequest[] = [];
 
     // ========================================
     // SCENARIO 1: Monthly 1-15 (Started 3 months ago)

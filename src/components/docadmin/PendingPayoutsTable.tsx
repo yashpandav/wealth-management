@@ -632,7 +632,7 @@ export function PendingPayoutsTable() {
                       <CheckCircle2 className="h-8 w-8 text-green-500" />
                       <p className="text-muted-foreground">No payouts due today</p>
                       <p className="text-sm text-muted-foreground">
-                        Today's payouts will appear here
+                        Today&apos;s payouts will appear here
                       </p>
                     </div>
                   </TableCell>

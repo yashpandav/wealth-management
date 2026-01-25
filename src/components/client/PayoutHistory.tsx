@@ -137,7 +137,6 @@ async function fetchPayouts(params: {
 
 export function PayoutHistory() {
   const [page, setPage] = useState(1);
-  const [status, setStatus] = useState('all');
   const [visualFilter, setVisualFilter] = useState('all');
   const [detailDialog, setDetailDialog] = useState<{
     open: boolean;
@@ -145,8 +144,8 @@ export function PayoutHistory() {
   }>({ open: false, payout: null });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['client-payouts', page, status],
-    queryFn: () => fetchPayouts({ page, status }),
+    queryKey: ['client-payouts', page],
+    queryFn: () => fetchPayouts({ page, status: 'all' }),
   });
 
   const getStatusBadge = (status: string, scheduledDate: string) => {
