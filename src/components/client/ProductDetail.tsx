@@ -613,7 +613,6 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                   onClick={handleRequestPurchase}
                   disabled={
                     !selectedOption ||
-                    !validateAmount() ||
                     !clientRM?.hasRM ||
                     !kycStatus?.canSubmitRequests ||
                     rmLoading ||

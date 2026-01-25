@@ -393,7 +393,7 @@ export function DocumentUploadForm({
           <CardTitle>KYC Document Upload</CardTitle>
           <CardDescription>
             Welcome, {userName}! Please upload clear, legible copies of your documents.
-            Accepted formats: JPG, PNG, PDF (Max 5MB each)
+            Accepted formats: JPG, PNG, PDF (Max 5MB)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

@@ -21,13 +21,13 @@ export async function GET() {
       totalClients,
       totalRMs,
       totalAdmins,
-      totalAUM,
-      totalInstruments,
+      totalAUMFromTransactions,
+      totalInvestments,
       pendingPurchaseRequests,
       totalTransactions,
       completedTransactions,
       allRMs,
-      allInstruments,
+      allInvestments,
       allPurchaseRequests,
       allTransactions,
     ] = await Promise.all([
@@ -40,16 +40,20 @@ export async function GET() {
       // Total admins
       prisma.user.count({ where: { role: 'ADMIN' } }),
 
-      // Total AUM (sum of all portfolio values)
-      prisma.portfolio.aggregate({
-        _sum: { totalValue: true },
+      // Total AUM (sum of all completed purchase transactions)
+      prisma.transaction.aggregate({
+        where: {
+          type: 'PURCHASE',
+          status: 'COMPLETED',
+        },
+        _sum: { amount: true },
       }),
 
-      // Total active instruments
-      prisma.instrument.count({ where: { isActive: true } }),
+      // Total active investment plans
+      prisma.investment.count({ where: { isActive: true } }),
 
       // Pending purchase requests
-      prisma.purchaseRequest.count({ where: { status: 'PENDING' } }),
+      prisma.productPurchaseRequest.count({ where: { status: 'PENDING' } }),
 
       // Total transactions
       prisma.transaction.count(),
@@ -67,28 +71,24 @@ export async function GET() {
             },
           },
           assignedClients: {
-            include: {
-              portfolio: {
-                select: {
-                  totalValue: true,
-                },
-              },
+            select: {
+              id: true,
             },
           },
         },
       }),
 
-      // All instruments by type
-      prisma.instrument.findMany({
+      // All investments (no type field in new model)
+      prisma.investment.findMany({
         where: { isActive: true },
         select: {
           id: true,
-          type: true,
+          name: true,
         },
       }),
 
       // All purchase requests for trends
-      prisma.purchaseRequest.findMany({
+      prisma.productPurchaseRequest.findMany({
         select: {
           id: true,
           status: true,
@@ -109,25 +109,32 @@ export async function GET() {
       }),
     ]);
 
-    // Calculate RM distribution by client count
-    const rmDistribution = allRMs.map((rm) => ({
-      name: `${rm.user.firstName} ${rm.user.lastName}`,
-      clients: rm.assignedClients.length,
-      aum: rm.assignedClients.reduce(
-        (sum, client) => sum + (client.portfolio ? Number(client.portfolio.totalValue) : 0),
-        0
-      ),
-    })).sort((a, b) => b.aum - a.aum).slice(0, 10);
+    // Calculate RM distribution by client count and AUM
+    const rmDistribution = await Promise.all(
+      allRMs.map(async (rm) => {
+        // Calculate AUM for this RM's clients from transactions
+        const clientIds = rm.assignedClients.map((c) => c.id);
+        const aumAgg = await prisma.transaction.aggregate({
+          where: {
+            clientId: { in: clientIds },
+            type: 'PURCHASE',
+            status: 'COMPLETED',
+          },
+          _sum: { amount: true },
+        });
 
-    // Calculate instrument distribution by type
-    const instrumentsByType = allInstruments.reduce((acc, inst) => {
-      acc[inst.type] = (acc[inst.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+        return {
+          name: `${rm.user.firstName} ${rm.user.lastName}`,
+          clients: rm.assignedClients.length,
+          aum: Number(aumAgg._sum.amount || 0),
+        };
+      })
+    ).then((rms) => rms.sort((a, b) => b.aum - a.aum).slice(0, 10));
 
-    const instrumentDistribution = Object.entries(instrumentsByType).map(([type, count]) => ({
-      name: type.replace('_', ' '),
-      value: count,
+    // Calculate investment distribution by name
+    const investmentDistribution = allInvestments.map((inv) => ({
+      name: inv.name,
+      value: 1, // Each investment plan
     }));
 
     // Transaction volume trend (last 30 days)
@@ -190,8 +197,8 @@ export async function GET() {
           totalClients,
           totalRMs,
           totalAdmins,
-          totalAUM: totalAUM._sum.totalValue ? Number(totalAUM._sum.totalValue) : 0,
-          totalInstruments,
+          totalAUM: totalAUMFromTransactions._sum.amount ? Number(totalAUMFromTransactions._sum.amount) : 0,
+          totalInstruments: totalInvestments,
           pendingRequests: pendingPurchaseRequests,
           pendingPurchaseRequests,
           totalTransactions,
@@ -201,7 +208,7 @@ export async function GET() {
         },
         charts: {
           rmDistribution,
-          instrumentDistribution,
+          instrumentDistribution: investmentDistribution,
           transactionTrend,
           requestStatusDistribution,
           userGrowthTrend,

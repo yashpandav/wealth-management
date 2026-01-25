@@ -1,5 +1,5 @@
 /**
- * API Route: RM Dashboard Stats
+ * API Route: RM Dashboard Stats (Updated for Investment Product Model)
  * GET - Fetch dashboard statistics for the logged-in RM
  */
 
@@ -59,7 +59,7 @@ export async function GET() {
       pendingProductRequests,
       totalAUM,
       allProductPurchaseRequests,
-      clientsWithPortfolios,
+      topClientsByAUM,
     ] = await Promise.all([
       // Total assigned clients
       prisma.client.count({
@@ -74,10 +74,13 @@ export async function GET() {
         },
       }),
 
-      // Total AUM (Assets Under Management)
-      prisma.portfolio.aggregate({
-        where: { clientId: { in: clientIds } },
-        _sum: { totalValue: true },
+      // Total AUM (Assets Under Management) from completed product purchases
+      prisma.productPurchaseRequest.aggregate({
+        where: {
+          clientId: { in: clientIds },
+          status: { in: ['APPROVED', 'COMPLETED'] },
+        },
+        _sum: { amount: true },
       }),
 
       // All product purchase requests for stats
@@ -91,7 +94,7 @@ export async function GET() {
         },
       }),
 
-      // Clients with portfolios for distribution
+      // Top clients by AUM (based on their total invested amounts)
       prisma.client.findMany({
         where: { id: { in: clientIds } },
         include: {
@@ -101,15 +104,13 @@ export async function GET() {
               lastName: true,
             },
           },
-          portfolio: {
-            select: {
-              totalValue: true,
+          productPurchaseRequests: {
+            where: {
+              status: { in: ['APPROVED', 'COMPLETED'] },
             },
-          },
-        },
-        orderBy: {
-          portfolio: {
-            totalValue: 'desc',
+            select: {
+              amount: true,
+            },
           },
         },
         take: 10,
@@ -167,13 +168,21 @@ export async function GET() {
       { name: 'Plans - Rejected', value: productStatusCounts['REJECTED'] || 0, fill: '#ef4444' },
     ].filter((item) => item.value > 0);
 
-    // Top clients by AUM
-    const topClientsByAUM = clientsWithPortfolios
-      .filter((client) => client.portfolio)
-      .map((client) => ({
+    // Top clients by AUM - calculate total invested per client
+    const clientsWithAUM = topClientsByAUM.map((client) => {
+      const totalInvested = client.productPurchaseRequests.reduce(
+        (sum, req) => sum + Number(req.amount),
+        0
+      );
+      return {
         name: `${client.user.firstName} ${client.user.lastName}`,
-        value: Number(client.portfolio?.totalValue || 0),
-      }))
+        value: totalInvested,
+      };
+    });
+
+    // Sort by AUM and take top 8
+    const topClientsByAUMSorted = clientsWithAUM
+      .sort((a, b) => b.value - a.value)
       .slice(0, 8);
 
     // Activity trend (last 30 days)
@@ -286,7 +295,7 @@ export async function GET() {
           totalClients,
           pendingWithdrawalRequests: 0, // Removed withdrawal functionality
           pendingProductRequests,
-          totalAUM: Number(totalAUM._sum.totalValue || 0),
+          totalAUM: Number(totalAUM._sum.amount || 0),
           pendingPayouts: pendingPayoutsCount,
           pendingPayoutsAmount: pendingPayoutsAmount,
           totalPayoutsPaid: totalPayoutsPaid,
@@ -295,7 +304,7 @@ export async function GET() {
         recentPayouts: recentPayoutsFormatted,
         charts: {
           requestStatusData,
-          topClientsByAUM,
+          topClientsByAUM: topClientsByAUMSorted,
           activityTrend,
           approvalRates,
           payoutStatusData,
