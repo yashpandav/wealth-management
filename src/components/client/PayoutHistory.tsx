@@ -43,6 +43,8 @@ import {
   Download,
   TrendingUp,
   Calendar,
+  Clock,
+  CheckCircle2,
 } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 
@@ -136,7 +138,7 @@ async function fetchPayouts(params: {
 export function PayoutHistory() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState('all');
-
+  const [visualFilter, setVisualFilter] = useState('all');
   const [detailDialog, setDetailDialog] = useState<{
     open: boolean;
     payout: Payout | null;
@@ -147,14 +149,28 @@ export function PayoutHistory() {
     queryFn: () => fetchPayouts({ page, status }),
   });
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, scheduledDate: string) => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0); // Start of today
+    const scheduled = new Date(scheduledDate);
+    scheduled.setHours(0, 0, 0, 0); // Start of scheduled day
+
     switch (status) {
       case 'PENDING':
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700">Pending</Badge>;
+        if (scheduled < now) {
+          // Missed - scheduled date has passed
+          return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-300">Missed</Badge>;
+        } else if (scheduled.getTime() === now.getTime()) {
+          // Today's payout
+          return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 border-yellow-300">Pending</Badge>;
+        } else {
+          // Future payout
+          return <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-300">Scheduled</Badge>;
+        }
       case 'COMPLETED':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-700">Completed</Badge>;
+        return <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-300">Completed</Badge>;
       case 'FAILED':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-700">Failed</Badge>;
+        return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-300">Failed</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -184,97 +200,120 @@ export function PayoutHistory() {
   const pagination = data?.data.pagination;
   const summary = data?.data.summary;
 
+  // Filter payouts based on visual status
+  const getVisualStatus = (payout: Payout) => {
+    const now = new Date();
+    const scheduled = new Date(payout.scheduledDate);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const scheduledDate = new Date(scheduled.getFullYear(), scheduled.getMonth(), scheduled.getDate());
+
+    if (payout.status === 'COMPLETED') return 'completed';
+    if (payout.status === 'PENDING') {
+      if (scheduledDate < today) return 'missed';
+      if (scheduledDate.getTime() === today.getTime()) return 'pending';
+      return 'scheduled';
+    }
+    return 'other';
+  };
+
+  const filteredPayouts = visualFilter === 'all'
+    ? payouts
+    : payouts.filter(payout => getVisualStatus(payout) === visualFilter);
+
+  // Calculate status-based counts
+  const statusCounts = {
+    missed: payouts.filter(p => getVisualStatus(p) === 'missed').length,
+    pending: payouts.filter(p => getVisualStatus(p) === 'pending').length,
+    scheduled: payouts.filter(p => getVisualStatus(p) === 'scheduled').length,
+    completed: payouts.filter(p => getVisualStatus(p) === 'completed').length,
+  };
+
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
       {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-green-700 flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Total Earned
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Missed Card */}
+          <Card className="border-gray-300 bg-white">
+            <CardHeader className="pb-2 px-4 pt-4">
+              <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                <AlertCircle className="h-4 w-4 text-gray-600" />
+                Missed
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-1">
-                <DirhamIcon className="w-4 h-4 text-green-700 self-center" />
-                <span className="text-2xl font-bold text-green-900 font-nums">
-                  {summary.totalEarned.toLocaleString()}
-                </span>
-              </div>
-              <p className="text-xs text-green-700 mt-1">
-                From <span className="font-nums">{summary.byStatus.find(s => s.status === 'COMPLETED')?.count || 0}</span> completed payouts
-              </p>
+            <CardContent className="px-4 pb-4">
+              <div className="text-2xl font-bold font-nums text-gray-900">{statusCounts.missed}</div>
+              <p className="text-xs text-gray-600 mt-1">Overdue payouts</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-blue-700 flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Next Payout
+          {/* Pending Card */}
+          <Card className="border-gray-300 bg-white">
+            <CardHeader className="pb-2 px-4 pt-4">
+              <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-gray-600" />
+                Pending
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              {summary.nextPayout ? (
-                <>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-blue-900 font-nums">
-                      {summary.nextPayout.currency === 'USD' ? <DirhamIcon className="w-4 h-4 inline mr-1" /> : summary.nextPayout.currency + ' '}
-                      {summary.nextPayout.amount.toLocaleString()}
-                    </span>
-                  </div>
-                  <p className="text-xs text-blue-700 mt-1 font-nums">
-                    {format(new Date(summary.nextPayout.scheduledDate), 'MMM dd, yyyy')}
-                  </p>
-                  <p className="text-xs text-blue-600 mt-0.5 truncate">
-                    {summary.nextPayout.investment}
-                  </p>
-                </>
-              ) : (
-                <p className="text-sm text-blue-700">No upcoming payouts</p>
-              )}
+            <CardContent className="px-4 pb-4">
+              <div className="text-2xl font-bold font-nums text-gray-900">{statusCounts.pending}</div>
+              <p className="text-xs text-gray-600 mt-1">Due today</p>
             </CardContent>
           </Card>
 
-          {summary.byStatus.map((s) => (
-            <Card key={s.status}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground capitalize">
-                  {s.status.toLowerCase()}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold font-nums">{s.count}</div>
-                <p className="text-xs text-muted-foreground flex items-center mt-1 font-nums">
-                  <span className="mr-1 font-sans">Total:</span>
-                  <DirhamIcon className="w-3 h-3 mx-1" />
-                  {s.totalAmount.toLocaleString()}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+          {/* Scheduled Card */}
+          <Card className="border-gray-300 bg-white">
+            <CardHeader className="pb-2 px-4 pt-4">
+              <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                <Calendar className="h-4 w-4 text-gray-600" />
+                Scheduled
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-2xl font-bold font-nums text-gray-900">{statusCounts.scheduled}</div>
+              <p className="text-xs text-gray-600 mt-1">Upcoming payouts</p>
+            </CardContent>
+          </Card>
+
+          {/* Completed Card */}
+          <Card className="border-gray-300 bg-white">
+            <CardHeader className="pb-2 px-4 pt-4">
+              <CardTitle className="text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                <CheckCircle2 className="h-4 w-4 text-gray-600" />
+                Completed
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-4 pb-4">
+              <div className="text-2xl font-bold font-nums text-gray-900">{statusCounts.completed}</div>
+              <p className="text-xs text-gray-600 mt-1">Processed payouts</p>
+            </CardContent>
+          </Card>
         </div>
       )}
 
       {/* Filter */}
       <div className="flex items-center gap-4">
         <Select
-          value={status}
+          value={visualFilter}
           onValueChange={(value) => {
-            setStatus(value);
-            setPage(1);
+            setVisualFilter(value);
           }}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="All Payouts">
+              {visualFilter === 'all' && 'All Payouts'}
+              {visualFilter === 'missed' && 'Missed'}
+              {visualFilter === 'pending' && 'Pending'}
+              {visualFilter === 'scheduled' && 'Scheduled'}
+              {visualFilter === 'completed' && 'Completed'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Payouts</SelectItem>
-            <SelectItem value="PENDING">Pending</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="FAILED">Failed</SelectItem>
+            <SelectItem value="missed">Missed</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="scheduled">Scheduled</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -299,8 +338,8 @@ export function PayoutHistory() {
                   Loading...
                 </TableCell>
               </TableRow>
-            ) : payouts.length > 0 ? (
-              payouts.map((payout) => (
+            ) : filteredPayouts.length > 0 ? (
+              filteredPayouts.map((payout) => (
                 <TableRow key={payout.id}>
                   <TableCell className="font-nums">
                     {format(new Date(payout.scheduledDate), 'MMM dd, yyyy')}
@@ -309,7 +348,7 @@ export function PayoutHistory() {
                     <Badge variant="outline" className="font-medium">
                       {payout.productPurchaseRequest.investment.name}
                     </Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1 font-nums">
                       {payout.productPurchaseRequest.trackingNumber}
                     </p>
                   </TableCell>
@@ -333,7 +372,7 @@ export function PayoutHistory() {
                       {payout.amount.toLocaleString()}
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(payout.status)}</TableCell>
+                  <TableCell>{getStatusBadge(payout.status, payout.scheduledDate)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
@@ -436,7 +475,7 @@ export function PayoutHistory() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  {getStatusBadge(detailDialog.payout.status)}
+                  {getStatusBadge(detailDialog.payout.status, detailDialog.payout.scheduledDate)}
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

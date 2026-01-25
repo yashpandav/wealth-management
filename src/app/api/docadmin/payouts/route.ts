@@ -28,11 +28,24 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('dateFrom');
     const dateTo = searchParams.get('dateTo');
 
+    // Calculate date range for "upcoming" pending payouts (next 2 days)
+    const now = new Date();
+    const twoDaysFromNow = new Date(now);
+    twoDaysFromNow.setDate(now.getDate() + 2);
+    twoDaysFromNow.setHours(23, 59, 59, 999);
+
     // Build where clause
     const where: Prisma.PayoutWhereInput = {};
 
     if (status) {
       where.status = status as Prisma.EnumPayoutStatusFilter;
+
+      // For PENDING status, only show payouts due in next 2 days
+      if (status === 'PENDING' && !dateFrom && !dateTo) {
+        where.scheduledDate = {
+          lte: twoDaysFromNow,
+        };
+      }
     }
 
     // Search by client name or tracking number
@@ -75,8 +88,8 @@ export async function GET(request: NextRequest) {
         skip: (page - 1) * limit,
         take: limit,
         orderBy: [
-          { scheduledDate: 'asc' },
-          { createdAt: 'asc' },
+          { scheduledDate: 'desc' },
+          { createdAt: 'desc' },
         ],
         include: {
           client: {

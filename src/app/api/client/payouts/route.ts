@@ -34,6 +34,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status') || 'all';
 
+    // Calculate date ranges
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
     // Build where clause
     const where: Prisma.PayoutWhereInput = {
       clientId: client.id,
@@ -41,6 +46,24 @@ export async function GET(request: NextRequest) {
 
     if (status && status !== 'all') {
       where.status = status as Prisma.EnumPayoutStatusFilter;
+    } else {
+      // Default filter: Show this month's payouts + overdue pending payouts
+      where.OR = [
+        // This month's payouts (any status)
+        {
+          scheduledDate: {
+            gte: startOfMonth,
+            lte: endOfMonth,
+          },
+        },
+        // Previous months' pending payouts (overdue)
+        {
+          status: 'PENDING',
+          scheduledDate: {
+            lt: startOfMonth,
+          },
+        },
+      ];
     }
 
     // Get payouts with pagination
@@ -113,13 +136,13 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Get next scheduled payout
+    // Get next scheduled payout (from today onwards)
     const nextPayout = await prisma.payout.findFirst({
       where: {
         clientId: client.id,
         status: 'PENDING',
         scheduledDate: {
-          gte: new Date(),
+          gte: now,
         },
       },
       orderBy: {

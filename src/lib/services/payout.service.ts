@@ -6,6 +6,7 @@
 import { prisma } from '@/lib/db/prisma';
 import { Prisma } from '@prisma/client';
 import { addMonths, addDays, endOfMonth } from 'date-fns';
+import { sendPayoutCompletedEmail } from '@/lib/email/email.service';
 
 /**
  * Generate all payout schedules for a completed contract
@@ -344,6 +345,53 @@ export async function completePayout(
         notes,
       },
     });
+
+    // Create in-app notification for client
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: payout.client.userId,
+          type: 'SUCCESS',
+          category: 'TRANSACTION',
+          title: 'Interest Payment Credited',
+          message: `Your interest payment of AED ${payout.amount.toNumber().toLocaleString()} has been credited for the period ${payout.periodStart.toISOString().split('T')[0]} to ${payout.periodEnd.toISOString().split('T')[0]}.`,
+          metadata: {
+            payoutId,
+            transactionId: transaction.id,
+            amount: payout.amount.toNumber(),
+            currency: 'AED',
+            periodStart: payout.periodStart.toISOString(),
+            periodEnd: payout.periodEnd.toISOString(),
+            investmentName: payout.productPurchaseRequest.investment.name,
+            contractNumber: payout.productPurchaseRequest.trackingNumber,
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Failed to create notification for payout completion:', error);
+      // Don't fail the operation if notification creation fails
+    }
+
+    // Send email notification to client
+    try {
+      const receiptUrl = receiptDocumentId ? `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/documents/${receiptDocumentId}/download` : undefined;
+
+      await sendPayoutCompletedEmail(
+        payout.client.user.email,
+        payout.client.user.firstName,
+        payout.amount.toNumber(),
+        'AED',
+        payout.periodStart,
+        payout.periodEnd,
+        payout.productPurchaseRequest.trackingNumber,
+        receiptUrl
+      );
+
+      console.log(`Sent payout completion email to ${payout.client.user.email}`);
+    } catch (error) {
+      console.error('Failed to send payout completion email:', error);
+      // Don't fail the operation if email sending fails
+    }
 
     // Create audit log for successful payout completion
     try {
