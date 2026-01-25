@@ -184,7 +184,7 @@ export function InvestmentPlansList({ initialData }: InvestmentPlansListProps) {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Duration</TableHead>
-                        <TableHead>Withdrawal Frequency</TableHead>
+                        <TableHead>Payout Frequency</TableHead>
                         <TableHead>ROI (%)</TableHead>
                         <TableHead>Annual Return (%)</TableHead>
                         <TableHead>Status</TableHead>

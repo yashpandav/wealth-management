@@ -7,6 +7,7 @@ import { Metadata } from 'next';
 import { requireAdmin } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { InvestmentPlansList } from '@/components/admin/InvestmentPlansList';
+import { AddInvestmentOptionDialog } from '@/components/admin/AddInvestmentOptionDialog';
 
 export const metadata: Metadata = {
   title: 'Investment Plans | Admin',
@@ -61,6 +62,15 @@ export default async function InvestmentPlansPage() {
     })),
   }));
 
+  // Prepare data for dialog
+  const investmentsForDialog = serializedInvestments.map((inv) => ({
+    id: inv.id,
+    name: inv.name,
+    minAmount: inv.minAmount,
+    maxAmount: inv.maxAmount,
+    currency: inv.currency,
+  }));
+
   return (
     <div className="container px-8 py-8">
       {/* Header */}
@@ -74,6 +84,8 @@ export default async function InvestmentPlansPage() {
               Manage investment plans and their options available on the platform
             </p>
           </div>
+          {/* Add Investment Plan Button - Top Right */}
+          <AddInvestmentOptionDialog investments={investmentsForDialog} />
         </div>
       </div>
 

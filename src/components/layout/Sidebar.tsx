@@ -141,7 +141,7 @@ const navItems: NavItem[] = [
   },
   {
     href: '/docadmin/payouts',
-    label: 'Pending Payouts',
+    label: 'Payouts',
     icon: <Wallet className="h-5 w-5" />,
     roles: ['DOCADMIN'],
   },
