@@ -328,25 +328,21 @@ export default function ClientRequestsPage() {
                     </p>
                   </div>
 
-                  {request.type === 'PRODUCT' && (
-                    <>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Plan Details</p>
-                        <div className="mt-1">
-                          <Badge variant="outline" className="mr-2">{request.investmentOption.duration}</Badge>
-                          <Badge variant="outline">{request.investmentOption.withdrawalFrequency}</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Projected Return</p>
-                        <div className="flex items-center mt-1">
-                          <TrendingUp className="h-4 w-4 text-green-600 mr-2" />
-                          <span className="text-xl font-bold text-green-600 font-nums">{request.investmentOption.annualReturn}%</span>
-                          <span className="text-sm text-muted-foreground ml-1">Annual</span>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Plan Details</p>
+                    <div className="mt-1">
+                      <Badge variant="outline" className="mr-2">{request.investmentOption.duration}</Badge>
+                      <Badge variant="outline">{request.investmentOption.withdrawalFrequency}</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Projected Return</p>
+                    <div className="flex items-center mt-1">
+                      <TrendingUp className="h-4 w-4 text-green-600 mr-2" />
+                      <span className="text-xl font-bold text-green-600 font-nums">{request.investmentOption.annualReturn}%</span>
+                      <span className="text-sm text-muted-foreground ml-1">Annual</span>
+                    </div>
+                  </div>
                 </div>
 
                 <Separator className="my-6" />
