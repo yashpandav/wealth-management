@@ -20,7 +20,6 @@ import {
   Users,
   DollarSign,
   CheckCircle,
-  Award
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';

@@ -546,7 +546,7 @@ export default function AdminPurchaseRequestsPage() {
       </Card>
 
       {/* Details Modal */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <Dialog open={isModalOpen} onOpenChange={(open) => !open && closeDetailsModal()}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           {selectedRequest && (
             <>
