@@ -18,13 +18,9 @@ async function main() {
   await prisma.transaction.deleteMany();
   await prisma.payout.deleteMany(); // Delete payouts before schedules
   await prisma.payoutSchedule.deleteMany(); // Delete schedules before purchase requests
-  await prisma.purchaseRequest.deleteMany();
   await prisma.productPurchaseRequest.deleteMany();
   await prisma.investmentOption.deleteMany();
   await prisma.investment.deleteMany();
-  await prisma.holding.deleteMany();
-  await prisma.portfolio.deleteMany();
-  await prisma.instrument.deleteMany();
   await prisma.userLead.deleteMany();
   await prisma.document.deleteMany(); // Delete documents before clients
   await prisma.client.deleteMany();
@@ -179,7 +175,7 @@ async function main() {
     },
   });
 
-  const client2 = await prisma.client.create({
+  await prisma.client.create({
     data: {
       userId: client2User.id,
       assignedRMId: rm1.id,
@@ -190,7 +186,7 @@ async function main() {
     },
   });
 
-  const client3 = await prisma.client.create({
+  await prisma.client.create({
     data: {
       userId: client3User.id,
       assignedRMId: rm2.id,
@@ -355,6 +351,7 @@ async function main() {
   });
 
   // Test User 6: KYC Verified User (created 5 days ago but KYC verified - should NOT receive emails)
+  // This user is used for payout testing with completed investment contracts
   const testUser6 = await prisma.user.create({
     data: {
       email: 'test.verified@example.com',
@@ -376,6 +373,8 @@ async function main() {
       verificationStatus: 'VERIFIED',
       kycVerified: true,
       kycDocuments: JSON.stringify(['/docs/kyc-verified-1.pdf']),
+      riskTolerance: 'MEDIUM',
+      investmentGoals: 'Regular monthly income through fixed returns',
     },
   });
 
@@ -387,159 +386,6 @@ async function main() {
   console.log('  - test.active@example.com (Active, no emails yet)');
   console.log('  - test.verified@example.com (KYC verified, no emails)');
   console.log('  - All test users use password: Password123!');
-
-  // ========================================
-  // PORTFOLIOS
-  // ========================================
-  console.log('💼 Creating portfolios...');
-
-  const portfolio1 = await prisma.portfolio.create({
-    data: {
-      clientId: client1.id,
-      totalValue: 285000,
-      totalInvested: 250000,
-      totalGainLoss: 35000,
-      totalGainLossPercent: 14.0,
-      dayChange: 1250,
-      dayChangePercent: 0.44,
-    },
-  });
-
-  const portfolio2 = await prisma.portfolio.create({
-    data: {
-      clientId: client2.id,
-      totalValue: 165000,
-      totalInvested: 150000,
-      totalGainLoss: 15000,
-      totalGainLossPercent: 10.0,
-      dayChange: 825,
-      dayChangePercent: 0.50,
-    },
-  });
-
-  const portfolio3 = await prisma.portfolio.create({
-    data: {
-      clientId: client3.id,
-      totalValue: 108000,
-      totalInvested: 100000,
-      totalGainLoss: 8000,
-      totalGainLossPercent: 8.0,
-      dayChange: 540,
-      dayChangePercent: 0.50,
-    },
-  });
-
-  console.log('✅ Created 3 portfolios');
-
-  // ========================================
-  // INSTRUMENTS
-  // ========================================
-  console.log('📈 Creating instruments...');
-
-  const aapl = await prisma.instrument.create({
-    data: {
-      symbol: 'AAPL',
-      name: 'Apple Inc.',
-      type: 'STOCK',
-      isin: 'US0378331005',
-      description: 'Technology company specializing in consumer electronics',
-      currentPrice: 175.50,
-      exchange: 'NASDAQ',
-      sector: 'Technology',
-      marketCap: 2800000000000,
-      yearlyHigh: 198.23,
-      yearlyLow: 164.08,
-      dividendYield: 0.0052,
-      peRatio: 28.5,
-      riskRating: 'Medium',
-      isActive: true,
-      isPublic: true,
-    },
-  });
-
-  const googl = await prisma.instrument.create({
-    data: {
-      symbol: 'GOOGL',
-      name: 'Alphabet Inc. Class A',
-      type: 'STOCK',
-      isin: 'US02079K3059',
-      description: 'Technology company specializing in internet services',
-      currentPrice: 140.25,
-      exchange: 'NASDAQ',
-      sector: 'Technology',
-      marketCap: 1750000000000,
-      yearlyHigh: 152.10,
-      yearlyLow: 121.46,
-      dividendYield: 0.0,
-      peRatio: 25.8,
-      riskRating: 'Medium',
-      isActive: true,
-      isPublic: true,
-    },
-  });
-
-  const msft = await prisma.instrument.create({
-    data: {
-      symbol: 'MSFT',
-      name: 'Microsoft Corporation',
-      type: 'STOCK',
-      isin: 'US5949181045',
-      description: 'Technology company developing software and services',
-      currentPrice: 380.75,
-      exchange: 'NASDAQ',
-      sector: 'Technology',
-      marketCap: 2850000000000,
-      yearlyHigh: 398.52,
-      yearlyLow: 309.45,
-      dividendYield: 0.0078,
-      peRatio: 32.1,
-      riskRating: 'Low',
-      isActive: true,
-      isPublic: true,
-    },
-  });
-
-  const vti = await prisma.instrument.create({
-    data: {
-      symbol: 'VTI',
-      name: 'Vanguard Total Stock Market ETF',
-      type: 'ETF',
-      isin: 'US9229087690',
-      description: 'ETF tracking the entire US stock market',
-      currentPrice: 245.80,
-      exchange: 'NYSE',
-      sector: 'Diversified',
-      marketCap: 345000000000,
-      yearlyHigh: 258.32,
-      yearlyLow: 210.15,
-      dividendYield: 0.0135,
-      riskRating: 'Low',
-      isActive: true,
-      isPublic: true,
-    },
-  });
-
-  const bnd = await prisma.instrument.create({
-    data: {
-      symbol: 'BND',
-      name: 'Vanguard Total Bond Market ETF',
-      type: 'BOND',
-      isin: 'US9219378356',
-      description: 'Bond ETF providing broad exposure to US investment-grade bonds',
-      currentPrice: 76.40,
-      exchange: 'NASDAQ',
-      sector: 'Fixed Income',
-      marketCap: 98000000000,
-      yearlyHigh: 78.95,
-      yearlyLow: 72.20,
-      dividendYield: 0.0398,
-      riskRating: 'Low',
-      isActive: true,
-      isPublic: true,
-    },
-  });
-
-  console.log('✅ Created 5 instruments');
 
   // ========================================
   // INVESTMENTS (Investment Range Categories)
@@ -695,264 +541,9 @@ async function main() {
   });
 
   console.log('✅ Created 4 investment ranges with 9 options');
-
-  // ========================================
-  // HOLDINGS
-  // ========================================
-  console.log('💰 Creating holdings...');
-
-  // Client 1 holdings (Aggressive)
-  await prisma.holding.create({
-    data: {
-      portfolioId: portfolio1.id,
-      instrumentId: aapl.id,
-      quantity: 500,
-      averagePurchasePrice: 165.50,
-      totalCost: 82750,
-      currentPrice: 175.50,
-      currentValue: 87750,
-      gainLoss: 5000,
-      gainLossPercent: 6.04,
-      dayChange: 500,
-      dayChangePercent: 0.57,
-      allocationPercent: 30.79,
-      firstPurchasedAt: new Date('2024-01-15'),
-    },
-  });
-
-  await prisma.holding.create({
-    data: {
-      portfolioId: portfolio1.id,
-      instrumentId: googl.id,
-      quantity: 600,
-      averagePurchasePrice: 135.25,
-      totalCost: 81150,
-      currentPrice: 140.25,
-      currentValue: 84150,
-      gainLoss: 3000,
-      gainLossPercent: 3.70,
-      dayChange: 300,
-      dayChangePercent: 0.36,
-      allocationPercent: 29.53,
-      firstPurchasedAt: new Date('2024-02-10'),
-    },
-  });
-
-  await prisma.holding.create({
-    data: {
-      portfolioId: portfolio1.id,
-      instrumentId: msft.id,
-      quantity: 300,
-      averagePurchasePrice: 355.50,
-      totalCost: 106650,
-      currentPrice: 380.75,
-      currentValue: 114225,
-      gainLoss: 7575,
-      gainLossPercent: 7.10,
-      dayChange: 450,
-      dayChangePercent: 0.39,
-      allocationPercent: 40.08,
-      firstPurchasedAt: new Date('2024-03-05'),
-    },
-  });
-
-  // Client 2 holdings (Moderate)
-  await prisma.holding.create({
-    data: {
-      portfolioId: portfolio2.id,
-      instrumentId: vti.id,
-      quantity: 400,
-      averagePurchasePrice: 230.50,
-      totalCost: 92200,
-      currentPrice: 245.80,
-      currentValue: 98320,
-      gainLoss: 6120,
-      gainLossPercent: 6.64,
-      dayChange: 400,
-      dayChangePercent: 0.41,
-      allocationPercent: 59.59,
-      firstPurchasedAt: new Date('2024-01-20'),
-    },
-  });
-
-  await prisma.holding.create({
-    data: {
-      portfolioId: portfolio2.id,
-      instrumentId: bnd.id,
-      quantity: 850,
-      averagePurchasePrice: 74.90,
-      totalCost: 63665,
-      currentPrice: 76.40,
-      currentValue: 64940,
-      gainLoss: 1275,
-      gainLossPercent: 2.00,
-      dayChange: 425,
-      dayChangePercent: 0.66,
-      allocationPercent: 39.36,
-      firstPurchasedAt: new Date('2024-02-15'),
-    },
-  });
-
-  // Client 3 holdings (Conservative)
-  await prisma.holding.create({
-    data: {
-      portfolioId: portfolio3.id,
-      instrumentId: bnd.id,
-      quantity: 1200,
-      averagePurchasePrice: 74.50,
-      totalCost: 89400,
-      currentPrice: 76.40,
-      currentValue: 91680,
-      gainLoss: 2280,
-      gainLossPercent: 2.55,
-      dayChange: 360,
-      dayChangePercent: 0.39,
-      allocationPercent: 84.89,
-      firstPurchasedAt: new Date('2024-01-10'),
-    },
-  });
-
-  await prisma.holding.create({
-    data: {
-      portfolioId: portfolio3.id,
-      instrumentId: vti.id,
-      quantity: 65,
-      averagePurchasePrice: 238.50,
-      totalCost: 15502.50,
-      currentPrice: 245.80,
-      currentValue: 15977,
-      gainLoss: 474.50,
-      gainLossPercent: 3.06,
-      dayChange: 130,
-      dayChangePercent: 0.82,
-      allocationPercent: 14.79,
-      firstPurchasedAt: new Date('2024-03-01'),
-    },
-  });
-
-  console.log('✅ Created 7 holdings');
-
-  // ========================================
-  // PURCHASE REQUESTS
-  // ========================================
-  console.log('📋 Creating purchase requests...');
-
-  const purchaseReq1 = await prisma.purchaseRequest.create({
-    data: {
-      trackingNumber: 'PR-20241015-ABC123',
-      client: { connect: { id: client1.id } },
-      instrument: { connect: { id: aapl.id } },
-      amount: 87750,
-      quantity: 500,
-      requestedPrice: 175.50,
-      status: 'APPROVED',
-      processedBy: { connect: { id: rm1.id } },
-      processedAt: new Date('2024-10-15'),
-      bankStatementRef: 'BS-2024-001',
-      paymentProof: '/uploads/proof-001.pdf',
-      clientNotes: 'Investing bonus payment into tech stocks',
-      rmNotes: 'Bank statement verified. Payment confirmed.',
-    },
-  });
-
-  await prisma.purchaseRequest.create({
-    data: {
-      trackingNumber: 'PR-20241020-DEF456',
-      client: { connect: { id: client2.id } },
-      instrument: { connect: { id: msft.id } },
-      amount: 19037.50,
-      quantity: 50,
-      requestedPrice: 380.75,
-      status: 'PENDING',
-      clientNotes: 'Additional investment from savings',
-    },
-  });
-
-  await prisma.purchaseRequest.create({
-    data: {
-      trackingNumber: 'PR-20241020-GHI789',
-      client: { connect: { id: client3.id } },
-      instrument: { connect: { id: googl.id } },
-      amount: 28050,
-      quantity: 200,
-      requestedPrice: 140.25,
-      status: 'REJECTED',
-      processedBy: { connect: { id: rm2.id } },
-      processedAt: new Date('2024-10-20'),
-      rejectionReason: 'Insufficient documentation. Please provide updated bank statement.',
-      rmNotes: 'Bank statement date mismatch',
-    },
-  });
-
-  console.log('✅ Created 3 purchase requests');
-
-  // ========================================
-  // WITHDRAWAL REQUESTS
-  // ========================================
-  console.log('✅ Created 3 withdrawal requests');
-
-  // ========================================
-  // TRANSACTIONS
-  // ========================================
-  console.log('💳 Creating transactions...');
-
-  await prisma.transaction.create({
-    data: {
-      client: { connect: { id: client1.id } },
-      instrument: { connect: { id: aapl.id } },
-      type: 'PURCHASE',
-      status: 'COMPLETED',
-      amount: 87750,
-      price: 175.50,
-      quantity: 500,
-      total: 87750,
-      fees: 175.50,
-      netAmount: 87924.50,
-      bankStatementReference: 'BS-2024-001',
-      paymentProof: '/uploads/proof-001.pdf',
-      processedBy: { connect: { id: rm1.id } },
-      completedAt: new Date('2024-10-15'),
-      purchaseRequest: { connect: { id: purchaseReq1.id } },
-      notes: 'Tech stock investment',
-    },
-  });
-
-  await prisma.transaction.create({
-    data: {
-      client: { connect: { id: client2.id } },
-      instrument: { connect: { id: vti.id } },
-      type: 'DIVIDEND',
-      status: 'COMPLETED',
-      amount: 542.40,
-      total: 542.40,
-      fees: 0,
-      netAmount: 542.40,
-      processedBy: { connect: { id: rm1.id } },
-      completedAt: new Date('2024-10-01'),
-      notes: 'Quarterly dividend payment',
-    },
-  });
-
-  await prisma.transaction.create({
-    data: {
-      client: { connect: { id: client3.id } },
-      instrument: { connect: { id: bnd.id } },
-      type: 'PURCHASE',
-      status: 'FAILED',
-      amount: 7640,
-      price: 76.40,
-      quantity: 100,
-      total: 7640,
-      fees: 15.28,
-      netAmount: 7655.28,
-      processedBy: { connect: { id: rm2.id } },
-      completedAt: new Date('2024-10-22'),
-      failureReason: 'Payment verification failed',
-      notes: 'Bank statement mismatch',
-    },
-  });
-
-  console.log('✅ Created 3 transactions');
+  console.log('');
+  console.log('💡 Note: test.verified@example.com is ready for payout testing');
+  console.log('   Run: npx tsx src/scripts/payout-test-manager.ts setup');
 
   // ========================================
   // NOTIFICATIONS
@@ -964,14 +555,14 @@ async function main() {
       user: { connect: { id: client1User.id } },
       type: 'SUCCESS',
       category: 'REQUEST',
-      title: 'Purchase Request Approved',
-      message: 'Your purchase request for 500 shares of AAPL has been approved and processed.',
+      title: 'Investment Request Approved',
+      message: 'Your investment product request has been approved and is being processed.',
       isRead: true,
       readAt: new Date('2024-10-15T10:30:00'),
-      actionUrl: '/dashboard/transactions',
-      actionText: 'View Transaction',
-      entityType: 'PurchaseRequest',
-      entityId: purchaseReq1.id,
+      actionUrl: '/client/investments',
+      actionText: 'View Investment',
+      entityType: 'ProductPurchaseRequest',
+      entityId: client1.id,
       priority: 'NORMAL',
     },
   });
@@ -980,27 +571,13 @@ async function main() {
     data: {
       user: { connect: { id: client2User.id } },
       type: 'INFO',
-      category: 'REQUEST',
-      title: 'Withdrawal Request Received',
-      message: 'Your withdrawal request for $15,000 is being reviewed by your relationship manager.',
+      category: 'SYSTEM',
+      title: 'KYC Verification Reminder',
+      message: 'Please complete your KYC verification to access all investment products.',
       isRead: false,
-      actionUrl: '/dashboard/withdrawals',
-      actionText: 'View Status',
+      actionUrl: '/client/kyc',
+      actionText: 'Complete KYC',
       priority: 'HIGH',
-    },
-  });
-
-  await prisma.notification.create({
-    data: {
-      user: { connect: { id: client3User.id } },
-      type: 'WARNING',
-      category: 'REQUEST',
-      title: 'Withdrawal Request Rejected',
-      message: 'Your withdrawal request was rejected. Reason: Requested amount exceeds portfolio value.',
-      isRead: false,
-      actionUrl: '/dashboard/withdrawals',
-      actionText: 'View Details',
-      priority: 'URGENT',
     },
   });
 
@@ -1008,12 +585,12 @@ async function main() {
     data: {
       user: { connect: { id: rm1User.id } },
       type: 'ALERT',
-      category: 'SYSTEM',
-      title: 'New Purchase Request',
-      message: 'Bob Davis has submitted a new purchase request for MSFT shares.',
+      category: 'ASSIGNMENT',
+      title: 'New Client Assigned',
+      message: 'You have been assigned new clients. Please review their profiles.',
       isRead: false,
-      actionUrl: '/rm/requests',
-      actionText: 'Review Request',
+      actionUrl: '/rm/clients',
+      actionText: 'View Clients',
       priority: 'HIGH',
     },
   });
@@ -1042,12 +619,12 @@ async function main() {
   await prisma.auditLog.create({
     data: {
       user: { connect: { id: rm1User.id } },
-      action: 'PURCHASE_REQUEST_APPROVE',
-      description: 'RM approved purchase request',
-      entityType: 'PurchaseRequest',
-      entityId: purchaseReq1.id,
-      oldValues: { status: 'PENDING' },
-      newValues: { status: 'APPROVED', processedById: rm1.id },
+      action: 'CLIENT_ASSIGN',
+      description: 'RM assigned to client',
+      entityType: 'Client',
+      entityId: client1.id,
+      oldValues: {},
+      newValues: { assignedRMId: rm1.id },
       ipAddress: '192.168.1.50',
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
       severity: 'INFO',
@@ -1159,21 +736,21 @@ async function main() {
   console.log('🎉 Database seeding complete!');
   console.log('');
   console.log('📊 Summary:');
-  console.log('  - 7 users (1 admin, 1 docadmin, 2 RMs, 3 clients)');
+  console.log('  - 13 users (1 admin, 1 docadmin, 2 RMs, 9 clients including 6 test users)');
   console.log('  - 2 relationship managers');
-  console.log('  - 3 clients with portfolios');
-  console.log('  - 5 instruments (AAPL, GOOGL, MSFT, VTI, BND)');
-  console.log('  - 4 investment ranges with 9 options');
-  console.log('  - 7 holdings across portfolios');
-  console.log('  - 3 purchase requests (approved, pending, rejected)');
-  console.log('  - 3 withdrawal requests (admin approved, pending, RM rejected)');
-  console.log('  - 3 transactions (2 completed, 1 failed)');
-  console.log('  - 4 notifications');
+  console.log('  - 9 clients (3 verified + 6 test users for email crons)');
+  console.log('  - 4 investment product ranges with 9 options');
+  console.log('  - 3 notifications');
   console.log('  - 4 audit log entries');
   console.log('  - 5 user leads (with various statuses)');
   console.log('');
   console.log('🔑 Login credentials (all users):');
   console.log('  Email: [see above] | Password: Password123!');
+  console.log('');
+  console.log('🧪 Payout Testing (test.verified@example.com):');
+  console.log('  - User is KYC verified with RM assigned');
+  console.log('  - Ready for investment contract creation');
+  console.log('  - Run: npx tsx src/scripts/payout-test-manager.ts setup');
 }
 
 main()

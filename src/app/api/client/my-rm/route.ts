@@ -1,5 +1,5 @@
 /**
- * Client - My RM API
+ * Client - My RM API (Updated for Investment Product Model)
  * GET /api/client/my-rm
  * Fetch assigned Relationship Manager details with track record
  */
@@ -47,15 +47,6 @@ export async function GET(_request: NextRequest) {
                 phone: true,
               },
             },
-            assignedClients: {
-              include: {
-                portfolio: {
-                  select: {
-                    totalValue: true,
-                  },
-                },
-              },
-            },
           },
         },
       },
@@ -77,22 +68,34 @@ export async function GET(_request: NextRequest) {
 
     const rm = client.assignedRM;
 
-    // Calculate track record statistics
-    const totalClientsManaged = rm.assignedClients.length;
-    const totalAUM = rm.assignedClients.reduce((sum, c) => {
-      return sum + (c.portfolio ? Number(c.portfolio.totalValue) : 0);
-    }, 0);
+    // Calculate track record statistics using ProductPurchaseRequest
+    const [totalClientsManaged, totalAUM, approvedProductRequests] = await Promise.all([
+      // Total clients managed by this RM
+      prisma.client.count({
+        where: { assignedRMId: rm.id },
+      }),
 
-    // Get approval statistics for this RM
-    const approvedPurchases = await prisma.purchaseRequest.count({
-      where: {
-        processedById: rm.id,
-        status: 'APPROVED',
-      },
-    });
+      // Total AUM from completed product purchase requests
+      prisma.productPurchaseRequest.aggregate({
+        where: {
+          assignedRMId: rm.id,
+          status: { in: ['APPROVED', 'COMPLETED'] },
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
 
-    // Note: Withdrawal requests have been replaced by the payout system
-    const approvedWithdrawals = 0;
+      // Approved product purchases
+      prisma.productPurchaseRequest.count({
+        where: {
+          assignedRMId: rm.id,
+          status: { in: ['APPROVED', 'COMPLETED'] },
+        },
+      }),
+    ]);
+
+    const totalAUMValue = Number(totalAUM._sum.amount || 0);
 
     // Response data
     const rmDetails = {
@@ -104,9 +107,9 @@ export async function GET(_request: NextRequest) {
       specialization: rm.specialization,
       trackRecord: {
         totalClients: totalClientsManaged,
-        totalAUM: totalAUM,
-        approvedPurchases: approvedPurchases,
-        approvedWithdrawals: approvedWithdrawals,
+        totalAUM: totalAUMValue,
+        approvedPurchases: approvedProductRequests,
+        approvedWithdrawals: 0, // Removed - legacy field
       },
     };
 

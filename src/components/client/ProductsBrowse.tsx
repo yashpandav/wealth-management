@@ -62,6 +62,7 @@ async function fetchKYCStatus(): Promise<{
     canSubmitRequests: boolean;
     identityProofVerified: boolean;
     identityProofStatus?: string;
+    kycStatus?: string;
   };
 }> {
   const response = await fetch('/api/documents');
@@ -70,16 +71,20 @@ async function fetchKYCStatus(): Promise<{
   }
   const result = await response.json();
 
-
   const identityProof = result.data?.identityProof;
+  const kycStatus = result.data?.kycStatus; // Overall client verification status
   const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
+
+  // Client can submit requests if overall KYC status is VERIFIED
+  const canSubmitRequests = kycStatus === 'VERIFIED';
 
   return {
     success: true,
     data: {
       identityProofVerified,
-      canSubmitRequests: identityProofVerified,
+      canSubmitRequests,
       identityProofStatus: identityProof?.verificationStatus,
+      kycStatus,
     },
   };
 }

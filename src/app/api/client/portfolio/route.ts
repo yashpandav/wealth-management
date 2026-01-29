@@ -1,6 +1,6 @@
 /**
- * Client Portfolio API
- * GET: Fetch client's portfolio with holdings and performance data
+ * Client Portfolio API (Updated for Investment Product Model)
+ * GET: Fetch client's active investments and portfolio summary
  */
 
 import { NextResponse } from 'next/server';
@@ -10,7 +10,7 @@ import { prisma } from '@/lib/db/prisma';
 
 /**
  * GET /api/client/portfolio
- * Fetch client's portfolio with all holdings and performance metrics
+ * Fetch client's investment portfolio with all active investments and performance metrics
  */
 export async function GET() {
   try {
@@ -39,6 +39,13 @@ export async function GET() {
       },
       select: {
         id: true,
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
       },
     });
 
@@ -52,105 +59,164 @@ export async function GET() {
       });
     }
 
-    // Fetch client's portfolio with holdings using the Client ID
-    const portfolio = await prisma.portfolio.findUnique({
+    // Fetch active investment purchase requests (APPROVED or COMPLETED status)
+    const activeInvestments = await prisma.productPurchaseRequest.findMany({
       where: {
         clientId: client.id,
+        status: {
+          in: ['APPROVED', 'COMPLETED'],
+        },
       },
       include: {
-        holdings: {
-          where: {
-            deletedAt: null, // Only active holdings
-          },
-          include: {
-            instrument: {
-              select: {
-                id: true,
-                symbol: true,
-                name: true,
-                type: true,
-                sector: true,
-                currency: true,
-                currentPrice: true,
-              },
-            },
-          },
-          orderBy: {
-            currentValue: 'desc', // Largest holdings first
+        investment: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            minAmount: true,
+            maxAmount: true,
+            currency: true,
           },
         },
-        client: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
-                email: true,
-              },
-            },
+        investmentOption: {
+          select: {
+            id: true,
+            duration: true,
+            withdrawalFrequency: true,
+            roi: true,
+            annualReturn: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
-    // If no portfolio exists, return empty portfolio
-    if (!portfolio) {
+    // Fetch payout statistics
+    const [completedPayouts, totalInvestmentTransactions] = await Promise.all([
+      // Total interest earned from completed payouts
+      prisma.payout.aggregate({
+        where: {
+          clientId: client.id,
+          status: 'COMPLETED',
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+      // Total invested amount from purchase transactions
+      prisma.transaction.aggregate({
+        where: {
+          clientId: client.id,
+          type: 'PURCHASE',
+          status: 'COMPLETED',
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+    ]);
+
+    // Calculate portfolio metrics
+    const totalInvested = Number(totalInvestmentTransactions._sum.amount || 0);
+    const totalInterestEarned = Number(completedPayouts._sum.amount || 0);
+    const totalValue = totalInvested + totalInterestEarned;
+    const totalGainLoss = totalInterestEarned;
+    const totalGainLossPercent = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
+
+    // Calculate expected annual returns based on active investments
+    const expectedAnnualReturn = activeInvestments.reduce((sum, inv) => {
+      const investmentAmount = Number(inv.amount);
+      const annualReturn = Number(inv.investmentOption.annualReturn);
+      return sum + (investmentAmount * (annualReturn / 100));
+    }, 0);
+
+    // Get recent transaction for "day change" (simplified - can be enhanced)
+    const recentTransaction = await prisma.transaction.findFirst({
+      where: {
+        clientId: client.id,
+        type: 'INTEREST_PAYOUT',
+        status: 'COMPLETED',
+      },
+      orderBy: {
+        completedAt: 'desc',
+      },
+      select: {
+        amount: true,
+        completedAt: true,
+      },
+    });
+
+    const dayChange = recentTransaction ? Number(recentTransaction.amount) : 0;
+    const dayChangePercent = totalValue > 0 ? (dayChange / totalValue) * 100 : 0;
+
+    // If no investments exist
+    if (activeInvestments.length === 0) {
       return NextResponse.json({
         success: true,
         data: {
-          portfolio: null,
-          message: 'No portfolio found. Make your first investment to create a portfolio.',
+          portfolio: {
+            summary: {
+              totalValue: 0,
+              totalInvested: 0,
+              totalGainLoss: 0,
+              totalGainLossPercent: 0,
+              totalInterestEarned: 0,
+              expectedAnnualReturn: 0,
+              dayChange: 0,
+              dayChangePercent: 0,
+              activeInvestmentsCount: 0,
+            },
+            investments: [],
+            client: client.user,
+          },
+          message: 'No active investments found. Make your first investment to start building your portfolio.',
         },
       });
     }
 
-    // Serialize Decimal fields
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const typedPortfolio = portfolio as any;
+    // Serialize investment data
+    const serializedInvestments = activeInvestments.map((inv) => ({
+      id: inv.id,
+      trackingNumber: inv.trackingNumber,
+      investmentName: inv.investment.name,
+      investmentDescription: inv.investment.description,
+      amount: Number(inv.amount),
+      currency: inv.investment.currency,
+      duration: inv.investmentOption.duration,
+      withdrawalFrequency: inv.investmentOption.withdrawalFrequency,
+      roi: Number(inv.investmentOption.roi),
+      annualReturn: Number(inv.investmentOption.annualReturn),
+      status: inv.status,
+      contractStartDate: inv.contractStartDate?.toISOString(),
+      completedAt: inv.completedAt?.toISOString(),
+      createdAt: inv.createdAt.toISOString(),
+      // Calculate expected returns
+      expectedAnnualInterest: Number(inv.amount) * (Number(inv.investmentOption.annualReturn) / 100),
+      expectedMonthlyInterest: Number(inv.amount) * (Number(inv.investmentOption.roi) / 100),
+    }));
 
-    const serializedPortfolio = {
-      id: typedPortfolio.id,
-      clientId: typedPortfolio.clientId,
-      totalValue: Number(typedPortfolio.totalValue),
-      totalInvested: Number(typedPortfolio.totalInvested),
-      totalGainLoss: Number(typedPortfolio.totalGainLoss),
-      totalGainLossPercent: Number(typedPortfolio.totalGainLossPercent),
-      dayChange: Number(typedPortfolio.dayChange),
-      dayChangePercent: Number(typedPortfolio.dayChangePercent),
-      weekChange: Number(typedPortfolio.weekChange),
-      monthChange: Number(typedPortfolio.monthChange),
-      yearChange: Number(typedPortfolio.yearChange),
-      lastUpdatedAt: typedPortfolio.lastUpdatedAt.toISOString(),
-      createdAt: typedPortfolio.createdAt.toISOString(),
-      updatedAt: typedPortfolio.updatedAt.toISOString(),
-      client: {
-        user: typedPortfolio.client.user,
+    const portfolioData = {
+      summary: {
+        totalValue,
+        totalInvested,
+        totalGainLoss,
+        totalGainLossPercent,
+        totalInterestEarned,
+        expectedAnnualReturn,
+        dayChange,
+        dayChangePercent,
+        activeInvestmentsCount: activeInvestments.length,
       },
-      holdings: typedPortfolio.holdings.map((holding: { id: string; portfolioId: string; instrumentId: string; quantity: number; averagePurchasePrice: number; currentPrice: number; totalValue: number; createdAt: Date; updatedAt: Date; instrument: { id: string; symbol: string; name: string; type: string; riskLevel: string; isActive: boolean } }) => ({
-        id: holding.id,
-        portfolioId: holding.portfolioId,
-        instrumentId: holding.instrumentId,
-        quantity: Number(holding.quantity),
-        averagePurchasePrice: Number(holding.averagePurchasePrice),
-        currentPrice: Number(holding.currentPrice),
-        currentValue: Number(holding.totalValue),
-        gainLoss: 0, // Calculate if needed
-        gainLossPercent: 0, // Calculate if needed
-        dayChange: 0, // Calculate if needed
-        dayChangePercent: 0, // Calculate if needed
-        allocationPercent: 0, // Calculate if needed
-        firstPurchasedAt: holding.createdAt.toISOString(),
-        lastUpdatedAt: holding.updatedAt.toISOString(),
-        instrument: {
-          ...holding.instrument,
-        },
-      })),
+      investments: serializedInvestments,
+      client: client.user,
     };
 
     return NextResponse.json({
       success: true,
       data: {
-        portfolio: serializedPortfolio,
+        portfolio: portfolioData,
       },
     });
   } catch (error) {

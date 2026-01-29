@@ -50,14 +50,8 @@ export async function GET(_request: NextRequest) {
           },
         },
         assignedClients: {
-          include: {
-            portfolio: {
-              select: {
-                totalValue: true,
-                totalInvested: true,
-                totalGainLoss: true,
-              },
-            },
+          select: {
+            id: true,
           },
         },
       },
@@ -71,31 +65,31 @@ export async function GET(_request: NextRequest) {
     // Calculate performance metrics for each RM
     const rmPerformance = await Promise.all(
       rms.map(async (rm) => {
-        // Get purchase request statistics
+        // Get product purchase request statistics
         const [
           totalPurchaseRequests,
           approvedPurchaseRequests,
           rejectedPurchaseRequests,
           pendingPurchaseRequests,
         ] = await Promise.all([
-          prisma.purchaseRequest.count({
-            where: { processedById: rm.id },
+          prisma.productPurchaseRequest.count({
+            where: { assignedRMId: rm.id },
           }),
-          prisma.purchaseRequest.count({
+          prisma.productPurchaseRequest.count({
             where: {
-              processedById: rm.id,
+              assignedRMId: rm.id,
               status: 'APPROVED',
             },
           }),
-          prisma.purchaseRequest.count({
+          prisma.productPurchaseRequest.count({
             where: {
-              processedById: rm.id,
+              assignedRMId: rm.id,
               status: 'REJECTED',
             },
           }),
-          prisma.purchaseRequest.count({
+          prisma.productPurchaseRequest.count({
             where: {
-              client: { assignedRMId: rm.id },
+              assignedRMId: rm.id,
               status: 'PENDING',
             },
           }),
@@ -103,22 +97,34 @@ export async function GET(_request: NextRequest) {
 
         // Calculate client metrics
         const totalClients = rm.assignedClients.length;
-        const activeClients = rm.assignedClients.filter(
-          (c) => c.portfolio && Number(c.portfolio.totalValue) > 0
-        ).length;
 
-        // Calculate AUM (Assets Under Management)
-        const totalAUM = rm.assignedClients.reduce((sum, client) => {
-          return sum + (client.portfolio ? Number(client.portfolio.totalValue) : 0);
+        // Get completed product purchase requests for this RM's clients
+        const clientIds = rm.assignedClients.map((c) => c.id);
+        const completedRequests = await prisma.productPurchaseRequest.findMany({
+          where: {
+            clientId: { in: clientIds },
+            status: 'COMPLETED',
+          },
+          select: {
+            amount: true,
+            clientId: true,
+          },
+        });
+
+        // Calculate AUM (Assets Under Management) from completed requests
+        const totalAUM = completedRequests.reduce((sum, req) => {
+          return sum + Number(req.amount);
         }, 0);
 
-        const totalInvested = rm.assignedClients.reduce((sum, client) => {
-          return sum + (client.portfolio ? Number(client.portfolio.totalInvested) : 0);
-        }, 0);
+        const totalInvested = totalAUM; // For product purchases, invested = total value
 
-        const totalGainLoss = rm.assignedClients.reduce((sum, client) => {
-          return sum + (client.portfolio ? Number(client.portfolio.totalGainLoss) : 0);
-        }, 0);
+        // Count active clients (clients with at least one completed purchase)
+        const activeClientIds = new Set(completedRequests.map((req) => req.clientId));
+        const activeClients = activeClientIds.size;
+
+        // Note: totalGainLoss calculation would require payout tracking
+        // For now, set to 0 as payouts are tracked separately
+        const totalGainLoss = 0;
 
         const avgAUMPerClient = totalClients > 0 ? totalAUM / totalClients : 0;
 

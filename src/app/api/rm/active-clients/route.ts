@@ -76,8 +76,6 @@ export async function GET(request: NextRequest) {
     let orderBy: Prisma.ClientOrderByWithRelationInput;
     if (sortBy === 'name') {
       orderBy = { user: { firstName: sortOrder === 'asc' ? 'asc' : 'desc' } };
-    } else if (sortBy === 'portfolioValue') {
-      orderBy = { portfolio: { totalValue: sortOrder === 'asc' ? 'asc' : 'desc' } };
     } else {
       orderBy = { [sortBy]: sortOrder === 'asc' ? 'asc' : 'desc' };
     }
@@ -98,35 +96,58 @@ export async function GET(request: NextRequest) {
               phone: true,
             },
           },
-          portfolio: {
-            select: {
-              totalValue: true,
-              totalInvested: true,
-              totalGainLoss: true,
-              totalGainLossPercent: true,
-            },
-          },
         },
       }),
       prisma.client.count({ where }),
     ]);
 
-    // Serialize Decimal fields
-    const serializedClients = clients.map((client) => ({
-      id: client.id,
-      user: client.user,
-      kycVerified: client.kycVerified,
-      verificationStatus: client.verificationStatus,
-      assignedAt: client.assignedAt.toISOString(),
-      portfolio: client.portfolio
-        ? {
-            totalValue: Number(client.portfolio.totalValue),
-            totalInvested: Number(client.portfolio.totalInvested),
-            totalGainLoss: Number(client.portfolio.totalGainLoss),
-            totalGainLossPercent: Number(client.portfolio.totalGainLossPercent),
-          }
-        : null,
-    }));
+    // Calculate portfolio values for each client
+    const serializedClients = await Promise.all(
+      clients.map(async (client) => {
+        // Get total invested from purchase transactions
+        const investmentAgg = await prisma.transaction.aggregate({
+          where: {
+            clientId: client.id,
+            type: 'PURCHASE',
+            status: 'COMPLETED',
+          },
+          _sum: {
+            amount: true,
+          },
+        });
+
+        // Get total interest earned from completed payouts
+        const payoutAgg = await prisma.payout.aggregate({
+          where: {
+            clientId: client.id,
+            status: 'COMPLETED',
+          },
+          _sum: {
+            amount: true,
+          },
+        });
+
+        const totalInvested = Number(investmentAgg._sum.amount || 0);
+        const totalInterestEarned = Number(payoutAgg._sum.amount || 0);
+        const totalValue = totalInvested + totalInterestEarned;
+        const totalGainLoss = totalInterestEarned;
+        const totalGainLossPercent = totalInvested > 0 ? (totalGainLoss / totalInvested) * 100 : 0;
+
+        return {
+          id: client.id,
+          user: client.user,
+          kycVerified: client.kycVerified,
+          verificationStatus: client.verificationStatus,
+          assignedAt: client.assignedAt.toISOString(),
+          portfolio: {
+            totalValue,
+            totalInvested,
+            totalGainLoss,
+            totalGainLossPercent,
+          },
+        };
+      })
+    );
 
     return NextResponse.json({
       success: true,

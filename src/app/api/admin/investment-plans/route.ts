@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
     await prisma.auditLog.create({
       data: {
         userId: admin.id,
-        action: AuditAction.INSTRUMENT_CREATE, // Using INSTRUMENT_CREATE as closest action
+        action: AuditAction.INVESTMENT_OPTION_CREATE,
         entityType: 'InvestmentOption',
         entityId: investmentOption.id,
         description: `Created investment plan option: ${sanitizedDuration} - ${data.withdrawalFrequency} for ${investment.name}`,

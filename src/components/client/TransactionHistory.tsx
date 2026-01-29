@@ -46,23 +46,18 @@ import { DirhamIcon } from '@/components/ui/dirham-icon';
 
 interface Transaction {
   id: string;
-  type: 'PURCHASE' | 'WITHDRAWAL' | 'DIVIDEND' | 'ADJUSTMENT';
+  type: 'PURCHASE' | 'WITHDRAWAL' | 'INTEREST_PAYOUT' | 'DIVIDEND' | 'ADJUSTMENT';
   status: 'COMPLETED' | 'FAILED' | 'REVERSED' | 'PENDING_SETTLEMENT';
   amount: number;
-  price: number | null;
-  quantity: number | null;
   total: number;
   fees: number;
   netAmount: number;
   currency: string;
   completedAt: string;
   createdAt: string;
-  instrument: {
-    symbol: string;
-    name: string;
-    type: string;
-  } | null;
   notes: string | null;
+  metadata: string | null;
+  paymentProof: string | null;
 }
 
 interface TransactionResponse {
@@ -123,17 +118,16 @@ export function TransactionHistory() {
   const handleExportCSV = () => {
     if (!data?.data.transactions) return;
 
-    const headers = ['Date', 'Type', 'Instrument', 'Quantity', 'Price', 'Total', 'Fees', 'Net Amount', 'Status'];
+    const headers = ['Date', 'Type', 'Amount', 'Total', 'Fees', 'Net Amount', 'Status', 'Notes'];
     const rows = data.data.transactions.map((txn) => [
       format(new Date(txn.completedAt), 'yyyy-MM-dd HH:mm'),
       txn.type,
-      txn.instrument ? `${txn.instrument.symbol} - ${txn.instrument.name}` : 'N/A',
-      txn.quantity?.toString() || 'N/A',
-      txn.price ? `$${txn.price.toFixed(4)}` : 'N/A',
-      `$${txn.total.toFixed(2)}`,
-      `$${txn.fees.toFixed(2)}`,
-      `$${txn.netAmount.toFixed(2)}`,
+      `${txn.currency} ${txn.amount.toFixed(2)}`,
+      `${txn.currency} ${txn.total.toFixed(2)}`,
+      `${txn.currency} ${txn.fees.toFixed(2)}`,
+      `${txn.currency} ${txn.netAmount.toFixed(2)}`,
       txn.status,
+      txn.notes || '',
     ]);
 
     const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
@@ -165,12 +159,14 @@ export function TransactionHistory() {
     switch (type) {
       case 'PURCHASE':
         return 'bg-green-500/10 text-green-700';
+      case 'INTEREST_PAYOUT':
+        return 'bg-blue-500/10 text-blue-700';
       case 'WITHDRAWAL':
         return 'bg-red-500/10 text-red-700';
       case 'DIVIDEND':
-        return 'bg-brand-blue/10/10 text-brand-blue';
-      case 'ADJUSTMENT':
         return 'bg-purple-500/10 text-purple-700';
+      case 'ADJUSTMENT':
+        return 'bg-orange-500/10 text-orange-700';
       default:
         return 'bg-gray-500/10 text-gray-700';
     }
@@ -198,7 +194,7 @@ export function TransactionHistory() {
           <div>
             <label className="mb-2 block text-sm font-medium">Search</label>
             <Input
-              placeholder="Search by instrument or ID..."
+              placeholder="Search by ID or notes..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -220,7 +216,8 @@ export function TransactionHistory() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="PURCHASE">Investment</SelectItem>
+                <SelectItem value="PURCHASE">Purchase</SelectItem>
+                <SelectItem value="INTEREST_PAYOUT">Interest Payout</SelectItem>
                 <SelectItem value="WITHDRAWAL">Withdrawal</SelectItem>
                 <SelectItem value="DIVIDEND">Dividend</SelectItem>
                 <SelectItem value="ADJUSTMENT">Adjustment</SelectItem>
@@ -287,10 +284,9 @@ export function TransactionHistory() {
               <TableRow>
                 <TableHead>Date</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Instrument</TableHead>
-                <TableHead className="text-right">Quantity</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Fees</TableHead>
+                <TableHead className="text-right">Net Amount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -298,7 +294,7 @@ export function TransactionHistory() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     Searching...
                   </TableCell>
                 </TableRow>
@@ -313,33 +309,22 @@ export function TransactionHistory() {
                         {txn.type}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      {txn.instrument ? (
-                        <div className="flex flex-col">
-                          <span className="font-medium">{txn.instrument.symbol}</span>
-                          <span className="text-xs text-muted-foreground">{txn.instrument.name}</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">N/A</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right font-nums">
-                      {txn.quantity ? txn.quantity.toLocaleString() : '-'}
+                    <TableCell className="text-right font-medium">
+                      <div className="flex items-center justify-end font-nums">
+                        <DirhamIcon className="w-3 h-3 mr-1" />
+                        {txn.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      {txn.price ? (
-                        <div className="flex items-center justify-end font-nums">
-                          <DirhamIcon className="w-3 h-3 mr-1" />
-                          {txn.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
-                        </div>
-                      ) : (
-                        '-'
-                      )}
+                      <div className="flex items-center justify-end font-nums">
+                        <DirhamIcon className="w-3 h-3 mr-1" />
+                        {txn.fees.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       <div className="flex items-center justify-end font-nums">
                         <DirhamIcon className="w-3 h-3 mr-1" />
-                        {txn.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {txn.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -360,7 +345,7 @@ export function TransactionHistory() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-24 text-center">
+                  <TableCell colSpan={7} className="h-24 text-center">
                     No transactions found
                   </TableCell>
                 </TableRow>
@@ -437,30 +422,7 @@ export function TransactionHistory() {
                 </div>
               </div>
 
-              {selectedTransaction.instrument && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Instrument</p>
-                  <p className="font-medium">{selectedTransaction.instrument.symbol} - {selectedTransaction.instrument.name}</p>
-                  <p className="text-sm text-muted-foreground">{selectedTransaction.instrument.type}</p>
-                </div>
-              )}
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {selectedTransaction.quantity && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Quantity</p>
-                    <p className="font-medium font-nums">{selectedTransaction.quantity.toLocaleString()}</p>
-                  </div>
-                )}
-                {selectedTransaction.price && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Price per Unit</p>
-                    <p className="font-medium flex items-center font-nums">
-                      <DirhamIcon className="w-3 h-3 mr-1" />
-                      {selectedTransaction.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
-                    </p>
-                  </div>
-                )}
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Amount</p>
                   <p className="font-medium flex items-center font-nums">

@@ -106,13 +106,17 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
       }
       const result = await response.json();
 
-      // New API structure: { identityProof, kycStatus }
+      // API structure: { identityProof, kycStatus }
       const identityProof = result.data?.identityProof;
+      const kycStatus = result.data?.kycStatus; // Overall client verification status
       const identityProofVerified = identityProof?.verificationStatus === 'VERIFIED';
+
+      // Client can submit requests if overall KYC status is VERIFIED
+      const canSubmitRequests = kycStatus === 'VERIFIED';
 
       setKycStatus({
         identityProofVerified,
-        canSubmitRequests: identityProofVerified,
+        canSubmitRequests,
         identityProofStatus: identityProof?.verificationStatus,
       });
     } catch (error) {
@@ -613,7 +617,6 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                   onClick={handleRequestPurchase}
                   disabled={
                     !selectedOption ||
-                    !validateAmount() ||
                     !clientRM?.hasRM ||
                     !kycStatus?.canSubmitRequests ||
                     rmLoading ||

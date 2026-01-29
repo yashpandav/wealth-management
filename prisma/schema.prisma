@@ -67,17 +67,6 @@ enum TransactionStatus {
   PENDING_SETTLEMENT
 }
 
-enum InstrumentType {
-  STOCK
-  BOND
-  MUTUAL_FUND
-  ETF
-  COMMODITY
-  CRYPTOCURRENCY
-  REAL_ESTATE
-  OTHER
-}
-
 enum AuditAction {
   // Authentication
   LOGIN
@@ -114,20 +103,6 @@ enum AuditAction {
   TRANSACTION_REVERSE
   TRANSACTION_FAIL
 
-  // Instruments
-  INSTRUMENT_CREATE
-  INSTRUMENT_UPDATE
-  INSTRUMENT_DELETE
-  INSTRUMENT_ACTIVATE
-  INSTRUMENT_DEACTIVATE
-
-  // Portfolio
-  PORTFOLIO_CREATE
-  PORTFOLIO_UPDATE
-  HOLDING_CREATE
-  HOLDING_UPDATE
-  HOLDING_DELETE
-
   // Document verification
   DOCUMENT_UPLOAD
   DOCUMENT_VERIFY
@@ -141,6 +116,14 @@ enum AuditAction {
   PAYOUT_COMPLETED
   PAYOUT_FAILED
   PAYOUT_RECEIPT_UPLOADED
+
+  // Investment management
+  INVESTMENT_CREATE
+  INVESTMENT_UPDATE
+  INVESTMENT_DELETE
+  INVESTMENT_OPTION_CREATE
+  INVESTMENT_OPTION_UPDATE
+  INVESTMENT_OPTION_DELETE
 
   // Archival
   CLIENT_ARCHIVE
@@ -293,8 +276,6 @@ model Client {
   archivedReason String? @db.Text // Reason for archival (e.g., "KYC_EXPIRED_DAY_7")
 
   // Relationships
-  portfolio               Portfolio?
-  purchaseRequests        PurchaseRequest[]
   transactions            Transaction[]
   documents               Document[]
   productPurchaseRequests ProductPurchaseRequest[]
@@ -322,201 +303,11 @@ model RelationshipManager {
 
   // Relationships
   assignedClients         Client[]
-  processedPurchases      PurchaseRequest[]
   processedTransactions   Transaction[]            @relation("RMProcessor")
   productPurchaseRequests ProductPurchaseRequest[]
   assignedLeads           UserLead[]
 
   @@map("relationship_managers")
-}
-
-// ====================================
-// PLACEHOLDER MODELS (to be defined in next subtasks)
-// ====================================
-
-/// Client investment portfolio
-model Portfolio {
-  id String @id @default(uuid())
-
-  // One-to-one with Client
-  clientId String @unique
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  // Portfolio valuation (calculated fields - updated via application logic)
-  totalValue           Decimal @default(0) @db.Decimal(15, 2) // Current total portfolio value
-  totalInvested        Decimal @default(0) @db.Decimal(15, 2) // Total amount invested
-  totalGainLoss        Decimal @default(0) @db.Decimal(15, 2) // Unrealized gain/loss
-  totalGainLossPercent Decimal @default(0) @db.Decimal(10, 4) // Gain/loss percentage
-
-  // Performance metrics
-  dayChange        Decimal @default(0) @db.Decimal(15, 2) // Change in last 24h
-  dayChangePercent Decimal @default(0) @db.Decimal(10, 4)
-  weekChange       Decimal @default(0) @db.Decimal(15, 2)
-  monthChange      Decimal @default(0) @db.Decimal(15, 2)
-  yearChange       Decimal @default(0) @db.Decimal(15, 2)
-
-  // Timestamps
-  lastUpdatedAt DateTime @default(now()) // Last portfolio recalculation
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  holdings Holding[]
-
-  // Indexes
-  @@index([clientId])
-  @@index([totalValue])
-  @@index([lastUpdatedAt])
-  @@map("portfolios")
-}
-
-/// Investment instruments (stocks, bonds, funds, etc.)
-model Instrument {
-  id String @id @default(uuid())
-
-  // Instrument identification
-  symbol      String         @unique @db.VarChar(20) // Ticker symbol or unique identifier
-  name        String         @db.VarChar(255)
-  type        InstrumentType
-  isin        String?        @unique @db.VarChar(12) // International Securities Identification Number
-  description String?        @db.Text
-
-  // Pricing information
-  currentPrice    Decimal  @db.Decimal(15, 4) // Current market price
-  currency        String   @default("USD") @db.VarChar(3)
-  lastPriceUpdate DateTime @default(now())
-
-  // Market data
-  exchange      String?  @db.VarChar(50) // Stock exchange (e.g., NYSE, NASDAQ)
-  sector        String?  @db.VarChar(100)
-  marketCap     Decimal? @db.Decimal(20, 2)
-  yearlyHigh    Decimal? @db.Decimal(15, 4)
-  yearlyLow     Decimal? @db.Decimal(15, 4)
-  dividendYield Decimal? @db.Decimal(5, 4) // As percentage
-  peRatio       Decimal? @db.Decimal(10, 2)
-
-  // Risk and metadata
-  riskRating        String?  @db.VarChar(20) // e.g., "Low", "Medium", "High"
-  minimumInvestment Decimal? @db.Decimal(15, 2)
-
-  // Status
-  isActive   Boolean   @default(true)
-  isPublic   Boolean   @default(true) // Visible to all clients
-  launchDate DateTime?
-
-  // Documents
-  prospectusUrl String? @db.VarChar(500) // URL/path to prospectus PDF document
-
-  // Timestamps
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime? // Soft delete
-
-  // Relations
-  transactions     Transaction[]
-  holdings         Holding[]
-  purchaseRequests PurchaseRequest[]
-
-  // Indexes
-  @@index([symbol])
-  @@index([type])
-  @@index([isActive])
-  @@index([isPublic])
-  @@map("instruments")
-}
-
-/// Individual instrument holdings within a portfolio
-model Holding {
-  id String @id @default(uuid())
-
-  // Portfolio reference
-  portfolioId String
-  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-
-  // Instrument reference
-  instrumentId String
-  instrument   Instrument @relation(fields: [instrumentId], references: [id])
-
-  // Position details
-  quantity             Decimal @db.Decimal(15, 6) // Number of units held
-  averagePurchasePrice Decimal @db.Decimal(15, 4) // Average cost per unit
-  totalCost            Decimal @db.Decimal(15, 2) // Total amount invested in this holding
-
-  // Current valuation (calculated - updated via application logic)
-  currentPrice    Decimal @db.Decimal(15, 4) // Current market price per unit
-  currentValue    Decimal @db.Decimal(15, 2) // Current total value (quantity * currentPrice)
-  gainLoss        Decimal @db.Decimal(15, 2) // Unrealized gain/loss
-  gainLossPercent Decimal @db.Decimal(10, 4) // Gain/loss percentage
-
-  // Performance tracking
-  dayChange        Decimal @default(0) @db.Decimal(15, 2)
-  dayChangePercent Decimal @default(0) @db.Decimal(10, 4)
-
-  // Allocation percentage within portfolio
-  allocationPercent Decimal @default(0) @db.Decimal(5, 2)
-
-  // Timestamps
-  firstPurchasedAt DateTime // Date of first purchase
-  lastUpdatedAt    DateTime  @default(now()) // Last recalculation
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  deletedAt        DateTime? // Soft delete (when fully divested)
-
-  // Indexes
-  @@unique([portfolioId, instrumentId]) // One holding per instrument per portfolio
-  @@index([portfolioId])
-  @@index([instrumentId])
-  @@index([currentValue])
-  @@map("holdings")
-}
-
-/// Purchase request submitted by clients
-model PurchaseRequest {
-  id String @id @default(uuid())
-
-  // Tracking number for client reference
-  trackingNumber String @unique @db.VarChar(50)
-
-  // Client who submitted the request
-  clientId String
-  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  // Instrument to purchase
-  instrumentId String
-  instrument   Instrument @relation(fields: [instrumentId], references: [id])
-
-  // Request details
-  amount         Decimal       @db.Decimal(15, 2) // Investment amount
-  quantity       Decimal?      @db.Decimal(15, 4) // Calculated based on price
-  requestedPrice Decimal?      @db.Decimal(15, 4) // Price at time of request
-  status         RequestStatus @default(PENDING)
-
-  // Processing information
-  processedById String?
-  processedBy   RelationshipManager? @relation(fields: [processedById], references: [id])
-  processedAt   DateTime?
-
-  // Bank statement verification
-  bankStatementRef String? // Reference to uploaded bank statement
-  paymentProof     String? @db.Text // URL or reference to payment proof
-
-  // Notes and comments
-  clientNotes     String? @db.Text
-  rmNotes         String? @db.Text // RM notes during processing
-  rejectionReason String? @db.Text
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Reference to completed transaction
-  transaction Transaction?
-
-  @@index([clientId])
-  @@index([status])
-  @@index([createdAt])
-  @@index([processedById])
-  @@map("purchase_requests")
 }
 
 /// Completed financial transactions
@@ -527,24 +318,18 @@ model Transaction {
   clientId String
   client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  // Instrument reference (nullable for withdrawals/dividends)
-  instrumentId String?
-  instrument   Instrument? @relation(fields: [instrumentId], references: [id])
-
   // Transaction details
   type   TransactionType
   status TransactionStatus @default(COMPLETED)
 
   // Financial amounts (all in base currency)
-  amount    Decimal  @db.Decimal(15, 2) // Transaction amount
-  price     Decimal? @db.Decimal(15, 4) // Unit price (for purchases)
-  quantity  Decimal? @db.Decimal(15, 6) // Number of units (for purchases)
-  total     Decimal  @db.Decimal(15, 2) // Total transaction value
-  fees      Decimal  @default(0) @db.Decimal(15, 2) // Transaction fees/commissions
-  netAmount Decimal  @db.Decimal(15, 2) // Amount after fees
+  amount    Decimal @db.Decimal(15, 2) // Transaction amount
+  total     Decimal @db.Decimal(15, 2) // Total transaction value
+  fees      Decimal @default(0) @db.Decimal(15, 2) // Transaction fees/commissions
+  netAmount Decimal @db.Decimal(15, 2) // Amount after fees
 
   // Currency (default to base currency)
-  currency String @default("USD") @db.VarChar(3)
+  currency String @default("AED") @db.VarChar(3)
 
   // Bank verification
   bankStatementReference String? @db.Text // Reference to bank statement document
@@ -557,10 +342,6 @@ model Transaction {
   // Admin approval (for withdrawals)
   approvedById String?
   approvedBy   User?   @relation("TransactionApprover", fields: [approvedById], references: [id])
-
-  // Original request references
-  purchaseRequestId String?          @unique
-  purchaseRequest   PurchaseRequest? @relation(fields: [purchaseRequestId], references: [id])
 
   // Payout reference (for interest payout transactions)
   payoutId String? @unique
@@ -582,7 +363,6 @@ model Transaction {
   @@index([type])
   @@index([status])
   @@index([completedAt])
-  @@index([instrumentId])
   @@index([processedById])
   @@index([createdAt])
   @@map("transactions")

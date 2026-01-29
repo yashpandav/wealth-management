@@ -95,12 +95,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search filter (instrument name or transaction ID)
+    // Search filter (transaction ID only)
     if (search) {
       where.OR = [
         { id: { contains: search, mode: 'insensitive' } },
-        { instrument: { name: { contains: search, mode: 'insensitive' } } },
-        { instrument: { symbol: { contains: search, mode: 'insensitive' } } },
+        { notes: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -119,16 +118,6 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy,
-        include: {
-          instrument: {
-            select: {
-              id: true,
-              symbol: true,
-              name: true,
-              type: true,
-            },
-          },
-        },
       }),
       prisma.transaction.count({ where }),
     ]);
@@ -137,31 +126,24 @@ export async function GET(request: NextRequest) {
     const serializedTransactions = transactions.map((txn) => ({
       id: txn.id,
       clientId: txn.clientId,
-      instrumentId: txn.instrumentId,
       type: txn.type,
       status: txn.status,
       amount: Number(txn.amount),
-      price: txn.price ? Number(txn.price) : null,
-      quantity: txn.quantity ? Number(txn.quantity) : null,
       total: Number(txn.total),
       fees: Number(txn.fees),
       netAmount: Number(txn.netAmount),
       currency: txn.currency,
       bankStatementReference: txn.bankStatementReference,
+      paymentProof: txn.paymentProof,
       processedById: txn.processedById,
       approvedById: txn.approvedById,
+      payoutId: txn.payoutId,
       notes: txn.notes,
+      metadata: txn.metadata,
+      failureReason: txn.failureReason,
       completedAt: txn.completedAt.toISOString(),
       createdAt: txn.createdAt.toISOString(),
       updatedAt: txn.updatedAt.toISOString(),
-      instrument: txn.instrument
-        ? {
-            id: txn.instrument.id,
-            symbol: txn.instrument.symbol,
-            name: txn.instrument.name,
-            type: txn.instrument.type,
-          }
-        : null,
     }));
 
     return NextResponse.json({

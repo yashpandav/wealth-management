@@ -476,7 +476,7 @@ export function KYCDocumentsPanel() {
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="text-sm">
-          Accepted formats: JPG, PNG, PDF (Max 5MB each). Your document will be
+          Accepted formats: JPG, PNG, PDF (Max 5MB). Your document will be
           securely stored and used only for verification purposes.
         </AlertDescription>
       </Alert>
