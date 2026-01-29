@@ -10,7 +10,8 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, TrendingUp, CheckCircle, XCircle, Award } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, TrendingUp, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { toast } from 'react-hot-toast';
@@ -27,7 +28,6 @@ interface RMPerformance {
     createdAt: string;
   };
   specialization: string | null;
-  yearsOfExperience: number | null;
   maxClientLimit: number | null;
   clients: {
     total: number;
@@ -41,13 +41,6 @@ interface RMPerformance {
     avgPerClient: number;
   };
   purchaseRequests: {
-    total: number;
-    approved: number;
-    rejected: number;
-    pending: number;
-    approvalRate: number;
-  };
-  withdrawalRequests: {
     total: number;
     approved: number;
     rejected: number;
@@ -69,10 +62,9 @@ export default function RMPerformancePage() {
   const router = useRouter();
   const [rms, setRMs] = useState<RMPerformance[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'name' | 'clients' | 'aum' | 'approval'>('aum');
+  const [sortBy, setSortBy] = useState<'name' | 'clients' | 'investment' | 'approval'>('investment');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  // Redirect if not authenticated or not ADMIN
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
@@ -81,7 +73,6 @@ export default function RMPerformancePage() {
     }
   }, [status, session, router]);
 
-  // Fetch RM performance data
   const fetchPerformance = useCallback(async () => {
     setLoading(true);
     try {
@@ -107,7 +98,6 @@ export default function RMPerformancePage() {
     }
   }, [status, session, fetchPerformance]);
 
-  // Sort RMs
   const sortedRMs = [...rms].sort((a, b) => {
     let aValue: number;
     let bValue: number;
@@ -121,13 +111,13 @@ export default function RMPerformancePage() {
         aValue = a.clients.total;
         bValue = b.clients.total;
         break;
-      case 'aum':
+      case 'investment':
         aValue = a.aum.total;
         bValue = b.aum.total;
         break;
       case 'approval':
-        aValue = (a.purchaseRequests.approvalRate + a.withdrawalRequests.approvalRate) / 2;
-        bValue = (b.purchaseRequests.approvalRate + b.withdrawalRequests.approvalRate) / 2;
+        aValue = a.purchaseRequests.approvalRate;
+        bValue = b.purchaseRequests.approvalRate;
         break;
       default:
         aValue = 0;
@@ -141,272 +131,303 @@ export default function RMPerformancePage() {
     return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
   });
 
-  // Calculate overall statistics
   const totalRMs = rms.length;
+  const activeRMs = rms.filter((rm) => rm.user.status === 'ACTIVE').length;
   const totalClients = rms.reduce((sum, rm) => sum + rm.clients.total, 0);
-  const totalAUM = rms.reduce((sum, rm) => sum + rm.aum.total, 0);
-  const avgClientsPerRM = totalRMs > 0 ? totalClients / totalRMs : 0;
+  const totalInvestment = rms.reduce((sum, rm) => sum + rm.aum.total, 0);
+  const avgApprovalRate =
+    rms.length > 0
+      ? rms.reduce((sum, rm) => sum + rm.purchaseRequests.approvalRate, 0) / rms.length
+      : 0;
 
+  const handleSort = (field: 'name' | 'clients' | 'investment' | 'approval') => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
+  };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner text="Loading performance data..." />
+      </div>
+    );
+  }
 
   return (
     <div className="container px-8 py-8">
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">RM Performance Dashboard</h1>
-        <p className="font-georgia text-brand-grey">
-          Comprehensive performance metrics for all Relationship Managers
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">
+              RM Performance Dashboard
+            </h1>
+            <p className="font-georgia mt-2 text-brand-grey">
+              Performance metrics and statistics for all Relationship Managers
+            </p>
+          </div>
+          <Button onClick={fetchPerformance} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      {/* Summary Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Total RMs</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-brand-blue font-nums">{totalRMs}</CardTitle>
+            <CardDescription className="text-sm">Total Relationship Managers</CardDescription>
+            <CardTitle className="text-3xl text-brand-blue font-nums">{totalRMs}</CardTitle>
           </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600">
+              {activeRMs} Active • {totalRMs - activeRMs} Inactive
+            </p>
+          </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Total Clients</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-green-600 font-nums">{totalClients}</CardTitle>
+            <CardDescription className="text-sm">Total Clients Managed</CardDescription>
+            <CardTitle className="text-3xl text-brand-blue font-nums">{totalClients}</CardTitle>
           </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600">
+              Avg: {totalRMs > 0 ? (totalClients / totalRMs).toFixed(1) : 0} per RM
+            </p>
+          </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="pb-3">
-            <CardDescription>Total Investment Amount</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-purple-600 flex items-center">
-              <DirhamIcon className="h-6 w-6 mr-1" />
-              <span className="font-nums">{(totalAUM / 1000000).toFixed(1)}M</span>
+            <CardDescription className="text-sm">Total Investment Amount</CardDescription>
+            <div className="flex items-center">
+              <DirhamIcon className="h-6 w-6 mr-1 text-brand-blue" />
+              <CardTitle className="text-3xl text-brand-blue font-nums">
+                {(totalInvestment / 1000000).toFixed(1)}M
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center text-sm text-gray-600">
+              <span>Avg per RM:</span>
+              <DirhamIcon className="h-3 w-3 mx-1" />
+              <span className="font-nums">
+                {totalRMs > 0 ? ((totalInvestment / totalRMs) / 1000000).toFixed(1) : 0}M
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription className="text-sm">Average Approval Rate</CardDescription>
+            <CardTitle className="text-3xl text-brand-blue font-nums">
+              {avgApprovalRate.toFixed(1)}%
             </CardTitle>
           </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>Avg Clients/RM</CardDescription>
-            <CardTitle className="text-2xl md:text-3xl text-orange-600 font-nums">
-              {avgClientsPerRM.toFixed(1)}
-            </CardTitle>
-          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600">Across all Relationship Managers</p>
+          </CardContent>
         </Card>
       </div>
 
       {/* Sort Controls */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Sort By</CardTitle>
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4" />
+            <CardTitle className="text-base">Sort By</CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
             {[
               { key: 'name', label: 'Name' },
               { key: 'clients', label: 'Client Count' },
-              { key: 'aum', label: 'Total Investment Amount' },
+              { key: 'investment', label: 'Investment Amount' },
               { key: 'approval', label: 'Approval Rate' },
             ].map((option) => (
-              <button
+              <Button
                 key={option.key}
-                onClick={() => {
-                  if (sortBy === option.key) {
-                    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-                  } else {
-                    setSortBy(option.key as 'name' | 'clients' | 'aum' | 'approval');
-                    setSortOrder('desc');
-                  }
-                }}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${sortBy === option.key
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                  }`}
+                onClick={() => handleSort(option.key as 'name' | 'clients' | 'investment' | 'approval')}
+                variant={sortBy === option.key ? 'default' : 'outline'}
+                size="sm"
               >
                 {option.label}
-                {sortBy === option.key && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-              </button>
+                {sortBy === option.key && (
+                  <span className="ml-2">{sortOrder === 'asc' ? '↑' : '↓'}</span>
+                )}
+              </Button>
             ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Performance Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Detailed Performance Metrics</CardTitle>
-          <CardDescription>Click column headers to sort</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="py-12">
-              <LoadingSpinner text="Searching..." />
-            </div>
-          ) : rms.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+      {/* RM Performance List */}
+      {rms.length === 0 ? (
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center text-gray-500">
               <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
               <p>No Relationship Managers found</p>
             </div>
-          ) : (
-            <div className="space-y-6">
-              {sortedRMs.map((rm) => {
-                const isPositiveGain = rm.aum.gainLoss >= 0;
-                const avgApprovalRate =
-                  (rm.purchaseRequests.approvalRate + rm.withdrawalRequests.approvalRate) / 2;
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {sortedRMs.map((rm) => (
+            <Card key={rm.id} className="hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg">
+                        {rm.user.firstName} {rm.user.lastName}
+                      </CardTitle>
+                      <Badge variant={rm.user.status === 'ACTIVE' ? 'default' : 'secondary'}>
+                        {rm.user.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
+                      <span>{rm.user.email}</span>
+                      {rm.user.phone && <span>{rm.user.phone}</span>}
+                      {rm.specialization && (
+                        <span className="text-brand-blue">• {rm.specialization}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm text-gray-600 mb-1">Performance Score</div>
+                    <div className="text-2xl font-bold text-brand-blue font-nums">
+                      {rm.purchaseRequests.approvalRate.toFixed(1)}%
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Client Metrics */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Client Metrics
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Total Clients:</span>
+                        <span className="font-semibold font-nums">{rm.clients.total}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Active Clients:</span>
+                        <span className="font-semibold font-nums">{rm.clients.active}</span>
+                      </div>
+                      {rm.maxClientLimit && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Capacity:</span>
+                          <span className="font-semibold font-nums">
+                            {rm.clients.utilization.toFixed(0)}%
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-                return (
-                  <Card key={rm.id} className="border-2">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="flex items-center gap-2">
-                            {rm.user.firstName} {rm.user.lastName}
-                            {rm.yearsOfExperience && (
-                              <Badge variant="secondary" className="ml-2">
-                                <Award className="mr-1 h-3 w-3" />
-                                <span className="font-nums">{rm.yearsOfExperience}</span> years
-                              </Badge>
-                            )}
-                            <Badge
-                              variant={rm.user.status === 'ACTIVE' ? 'default' : 'secondary'}
-                            >
-                              {rm.user.status}
-                            </Badge>
-                          </CardTitle>
-                          <CardDescription className="mt-1">
-                            {rm.user.email}
-                            {rm.specialization && ` • ${rm.specialization}`}
-                          </CardDescription>
+                  {/* Investment Metrics */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <DirhamIcon className="h-4 w-4" />
+                      Investment Metrics
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Total Amount:</span>
+                        <div className="flex items-center font-semibold">
+                          <DirhamIcon className="h-3 w-3 mr-1" />
+                          <span className="font-nums">
+                            {rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                          </span>
                         </div>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                        {/* Client Metrics */}
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                            <Users className="h-4 w-4" />
-                            Client Metrics
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Total Clients:</span>
-                              <span className="font-semibold font-nums">{rm.clients.total}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Active Clients:</span>
-                              <span className="font-semibold font-nums">{rm.clients.active}</span>
-                            </div>
-                            {rm.maxClientLimit && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Capacity:</span>
-                                <span className="font-semibold">
-                                  <span className="font-nums">{rm.clients.utilization.toFixed(0)}%</span>
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* AUM Metrics */}
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                            <DirhamIcon className="h-4 w-4" />
-                            Investment Amount
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Total Investment Amount:</span>
-                              <span className="font-semibold flex items-center">
-                                <DirhamIcon className="h-3 w-3 mr-1" />
-                                <span className="font-nums">{rm.aum.total.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Avg per Client:</span>
-                              <span className="font-semibold flex items-center">
-                                <DirhamIcon className="h-3 w-3 mr-1" />
-                                <span className="font-nums">{rm.aum.avgPerClient.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Gain/Loss:</span>
-                              <span
-                                className={`font-semibold flex items-center ${isPositiveGain ? 'text-green-600' : 'text-red-600'
-                                  }`}
-                              >
-                                {isPositiveGain ? '+' : ''}
-                                <DirhamIcon className="h-3 w-3 mx-1" />
-                                <span className="font-nums">{rm.aum.gainLoss.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Request Metrics */}
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-sm text-gray-700 flex items-center gap-2">
-                            <TrendingUp className="h-4 w-4" />
-                            Request Performance
-                          </h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Investment Approved:</span>
-                              <span className="font-semibold text-green-600">
-                                <span className="font-nums">{rm.purchaseRequests.approved}/{rm.purchaseRequests.total}</span>
-                                {rm.purchaseRequests.total > 0 && (
-                                  <span className="ml-1 text-xs font-nums">
-                                    ({rm.purchaseRequests.approvalRate.toFixed(0)}%)
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Withdrawal Approved:</span>
-                              <span className="font-semibold text-green-600">
-                                <span className="font-nums">{rm.withdrawalRequests.approved}/{rm.withdrawalRequests.total}</span>
-                                {rm.withdrawalRequests.total > 0 && (
-                                  <span className="ml-1 text-xs font-nums">
-                                    ({rm.withdrawalRequests.approvalRate.toFixed(0)}%)
-                                  </span>
-                                )}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Pending Actions:</span>
-                              <span className="font-semibold text-orange-600 font-nums">
-                                {rm.purchaseRequests.pending + rm.withdrawalRequests.pending}
-                              </span>
-                            </div>
-                          </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Avg per Client:</span>
+                        <div className="flex items-center font-semibold">
+                          <DirhamIcon className="h-3 w-3 mr-1" />
+                          <span className="font-nums">
+                            {rm.aum.avgPerClient.toLocaleString(undefined, {
+                              maximumFractionDigits: 0,
+                            })}
+                          </span>
                         </div>
                       </div>
-
-                      {/* Overall Performance Badge */}
-                      <div className="mt-4 pt-4 border-t flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Overall Performance:</span>
-                        <Badge
-                          variant={
-                            avgApprovalRate >= 80
-                              ? 'default'
-                              : avgApprovalRate >= 60
-                                ? 'secondary'
-                                : 'destructive'
-                          }
-                          className="text-sm"
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Gain/Loss:</span>
+                        <div
+                          className={`flex items-center font-semibold ${
+                            rm.aum.gainLoss >= 0 ? 'text-brand-blue' : 'text-gray-600'
+                          }`}
                         >
-                          {avgApprovalRate >= 80 ? (
-                            <CheckCircle className="mr-1 h-3 w-3" />
-                          ) : (
-                            <XCircle className="mr-1 h-3 w-3" />
-                          )}
-                          <span className="font-nums">{avgApprovalRate.toFixed(1)}%</span> Approval Rate
-                        </Badge>
+                          {rm.aum.gainLoss >= 0 ? '+' : ''}
+                          <DirhamIcon className="h-3 w-3 mx-1" />
+                          <span className="font-nums">
+                            {rm.aum.gainLoss.toLocaleString(undefined, {
+                              maximumFractionDigits: 0,
+                            })}
+                          </span>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                    </div>
+                  </div>
+
+                  {/* Request Performance */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4" />
+                      Request Performance
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Total Requests:</span>
+                        <span className="font-semibold font-nums">
+                          {rm.purchaseRequests.total}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Approved:</span>
+                        <span className="font-semibold font-nums">
+                          {rm.purchaseRequests.approved}
+                          {rm.purchaseRequests.total > 0 && (
+                            <span className="text-gray-500 ml-1">
+                              ({rm.purchaseRequests.approvalRate.toFixed(0)}%)
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Pending:</span>
+                        <span className="font-semibold font-nums">
+                          {rm.purchaseRequests.pending}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Rejected:</span>
+                        <span className="font-semibold font-nums">
+                          {rm.purchaseRequests.rejected}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
