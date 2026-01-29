@@ -73,7 +73,7 @@ function SearchParamsHandler({ router }: { router: ReturnType<typeof useRouter> 
     if (tracking) {
       toast.success(`Request submitted! Tracking: ${tracking}`);
       // Remove the tracking param from URL
-      router.replace('/client/product-requests');
+      router.replace('/client/requests');
     }
   }, [searchParams, router]);
 

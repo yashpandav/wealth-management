@@ -302,7 +302,7 @@ export async function PATCH(
           ? `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been approved.`
           : `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
         isRead: false,
-        actionUrl: '/client/product-requests',
+        actionUrl: '/client/requests',
         actionText: 'View Details',
         entityType: 'ProductPurchaseRequest',
         entityId: productRequest.id,

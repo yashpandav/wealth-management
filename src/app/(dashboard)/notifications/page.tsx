@@ -64,29 +64,51 @@ export default function NotificationsPage() {
 
   const markAsRead = async (id: string) => {
     try {
-      const response = await fetch(`/api/user/notifications/${id}/read`, {
+      const response = await fetch('/api/user/notifications', {
         method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notificationIds: [id],
+        }),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         setNotifications(notifications.map(n =>
           n.id === id ? { ...n, isRead: true, readAt: new Date().toISOString() } : n
         ));
+        toast.success('Notification marked as read');
+      } else {
+        toast.error(data.error || 'Failed to mark notification as read');
       }
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      toast.error('Failed to mark notification as read');
     }
   };
 
   const deleteNotification = async (id: string) => {
     try {
-      const response = await fetch(`/api/user/notifications/${id}`, {
+      const response = await fetch('/api/user/notifications', {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notificationIds: [id],
+        }),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         setNotifications(notifications.filter(n => n.id !== id));
         toast.success('Notification deleted');
+      } else {
+        toast.error(data.error || 'Failed to delete notification');
       }
     } catch (error) {
       console.error('Error deleting notification:', error);
