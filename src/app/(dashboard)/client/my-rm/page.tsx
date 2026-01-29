@@ -37,7 +37,6 @@ interface RMDetails {
     totalAUM: number;
     approvedPurchases: number;
     approvedWithdrawals: number;
-    yearsOfExperience: number | null;
   };
 }
 
@@ -140,12 +139,6 @@ export default function MyRMPage() {
                   <Badge variant="secondary" className="mt-2">
                     {rm.specialization}
                   </Badge>
-                )}
-                {rm.trackRecord.yearsOfExperience && (
-                  <div className="flex items-center gap-1 mt-2 text-sm text-gray-600">
-                    <Award className="h-4 w-4" />
-                    <span className="font-nums">{rm.trackRecord.yearsOfExperience}</span> years of experience
-                  </div>
                 )}
               </div>
             </div>
@@ -256,13 +249,13 @@ export default function MyRMPage() {
               </div>
             </div>
 
-            {/* Approved Withdrawals */}
+            {/* Payouts Processed */}
             <div className="flex items-start gap-4 p-4 rounded-lg bg-orange-50">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100">
                 <CheckCircle className="h-6 w-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Withdrawal Requests Processed</p>
+                <p className="text-sm text-gray-600">Payouts Processed</p>
                 <p className="text-2xl font-bold text-gray-900 font-nums">{rm.trackRecord.approvedWithdrawals}</p>
               </div>
             </div>
