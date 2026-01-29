@@ -4,7 +4,7 @@
  */
 
 import { Metadata } from 'next';
-import { InstrumentsBrowse } from '@/components/public/InstrumentsBrowse';
+import { ProductsBrowse } from '@/components/client/ProductsBrowse';
 
 export const metadata: Metadata = {
   title: 'Browse Investment Plans | EMDEE VENTURES',
@@ -55,7 +55,7 @@ export default function InstrumentsPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <InstrumentsBrowse />
+        <ProductsBrowse />
       </div>
 
       {/* Call to Action */}

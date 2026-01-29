@@ -26,33 +26,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { RequestStatus } from '@prisma/client';
 import { toast } from 'react-hot-toast';
 
-interface PurchaseRequest {
-  type: 'INSTRUMENT';
-  id: string;
-  trackingNumber: string;
-  status: RequestStatus;
-  amount: number;
-  quantity: number | null;
-  requestedPrice: number | null;
-  clientNotes: string | null;
-  rmNotes: string | null;
-  bankStatementRef: string | null;
-  paymentProof: string | null;
-  createdAt: string;
-  updatedAt: string;
-  processedAt: string | null;
-  instrument: {
-    id: string;
-    symbol: string;
-    name: string;
-    type: string;
-    currency: string;
-    currentPrice: number;
-  };
-}
-
 interface ProductPurchaseRequest {
-  type: 'PRODUCT';
   id: string;
   trackingNumber: string;
   status: RequestStatus;
@@ -78,12 +52,10 @@ interface ProductPurchaseRequest {
   };
 }
 
-type AnyRequest = PurchaseRequest | ProductPurchaseRequest;
-
 export default function ClientRequestsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [requests, setRequests] = useState<AnyRequest[]>([]);
+  const [requests, setRequests] = useState<ProductPurchaseRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<RequestStatus | 'ALL'>('ALL');
 
@@ -106,26 +78,13 @@ export default function ClientRequestsPage() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const [purchaseRes, productRes] = await Promise.all([
-        fetch('/api/client/purchase-requests'),
-        fetch('/api/client/product-requests')
-      ]);
-
-      const purchaseData = await purchaseRes.json();
+      const productRes = await fetch('/api/client/product-requests');
       const productData = await productRes.json();
 
-      let allRequests: AnyRequest[] = [];
-
-      if (purchaseData.success && purchaseData.data?.requests) {
-        const instrumentRequests = purchaseData.data.requests.map((req: Omit<PurchaseRequest, 'type'>) => ({
-          ...req,
-          type: 'INSTRUMENT' as const,
-        }));
-        allRequests = [...allRequests, ...instrumentRequests];
-      }
+      let allRequests: ProductPurchaseRequest[] = [];
 
       if (productData.success && productData.data?.requests) {
-        const productRequests = productData.data.requests.map((req: Omit<ProductPurchaseRequest, 'type' | 'isWaitingForContract'>) => {
+        const productRequests = productData.data.requests.map((req: Omit<ProductPurchaseRequest, 'isWaitingForContract'>) => {
           let requestStatus = req.status;
           let isWaitingForContract = false;
 
@@ -137,12 +96,11 @@ export default function ClientRequestsPage() {
 
           return {
             ...req,
-            type: 'PRODUCT' as const,
             status: requestStatus,
             isWaitingForContract
           };
         });
-        allRequests = [...allRequests, ...productRequests];
+        allRequests = productRequests;
       }
 
       // Sort by createdAt desc
@@ -150,7 +108,7 @@ export default function ClientRequestsPage() {
 
       setRequests(allRequests);
 
-      if (!purchaseData.success && !productData.success) {
+      if (!productData.success) {
         toast.error('Failed to fetch requests');
       }
     } catch (error) {
@@ -198,12 +156,12 @@ export default function ClientRequestsPage() {
     );
   };
 
-  const getStatusMessage = (request: AnyRequest) => {
+  const getStatusMessage = (request: ProductPurchaseRequest) => {
     switch (request.status) {
       case RequestStatus.PENDING:
         return 'Your request is awaiting review by your Relationship Manager.';
       case RequestStatus.PROCESSING:
-        if (request.type === 'PRODUCT' && request.isWaitingForContract) {
+        if (request.isWaitingForContract) {
           return 'Your request has been approved by your Relationship Manager. Initial contract is being prepared.';
         }
         return 'Your request is being processed by your Relationship Manager.';
@@ -214,7 +172,7 @@ export default function ClientRequestsPage() {
           ? `Request rejected: ${request.rmNotes}`
           : 'Your request could not be approved. Please contact your Relationship Manager for details.';
       case RequestStatus.COMPLETED:
-        return 'Transaction completed successfully. Check your portfolio for updated holdings.';
+        return 'Transaction completed successfully. Check your portfolio for details.';
       case RequestStatus.CANCELLED:
         return 'This request was cancelled.';
       default:
@@ -323,10 +281,7 @@ export default function ClientRequestsPage() {
                     <div className="flex items-center gap-3">
                       {getStatusIcon(request.status)}
                       <CardTitle className="text-xl">
-                        {request.type === 'INSTRUMENT'
-                          ? `${request.instrument.symbol} - ${request.instrument.name}`
-                          : `${request.investment.name}`
-                        }
+                        {request.investment.name}
                       </CardTitle>
                     </div>
                     <CardDescription className="font-mono">
@@ -366,36 +321,12 @@ export default function ClientRequestsPage() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Investment Amount</p>
                     <p className="mt-1 text-2xl font-bold font-nums">
-                      {request.type === 'INSTRUMENT' ? request.instrument.currency : request.investment.currency} {request.amount.toLocaleString('en-US', {
+                      {request.investment.currency} {request.amount.toLocaleString('en-US', {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
                     </p>
                   </div>
-
-                  {request.type === 'INSTRUMENT' && request.quantity && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Quantity</p>
-                      <p className="mt-1 text-2xl font-bold">
-                        {request.quantity.toLocaleString('en-US', {
-                          minimumFractionDigits: 4,
-                          maximumFractionDigits: 4,
-                        })}
-                      </p>
-                    </div>
-                  )}
-
-                  {request.type === 'INSTRUMENT' && request.requestedPrice && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Requested Price</p>
-                      <p className="mt-1 text-2xl font-bold">
-                        {request.instrument.currency} {request.requestedPrice.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                  )}
 
                   {request.type === 'PRODUCT' && (
                     <>

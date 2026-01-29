@@ -8,10 +8,10 @@
  * 1. Validates product request is APPROVED
  * 2. Uploads contract document (INVESTMENT_AGREEMENT)
  * 3. Creates Transaction record
- * 4. Updates Portfolio
- * 5. Updates ProductPurchaseRequest status to COMPLETED
- * 6. Creates audit log
- * 7. Sends notification to client
+ * 4. Updates ProductPurchaseRequest status to COMPLETED
+ * 5. Creates audit log
+ * 6. Sends notification to client
+ * 7. Generates payout schedules
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -93,7 +93,6 @@ export async function POST(
                 lastName: true,
               },
             },
-            portfolio: true,
           },
         },
         investment: true,
@@ -177,7 +176,6 @@ export async function POST(
         data: {
           clientId: productRequest.clientId,
           type: 'PURCHASE',
-          instrumentId: null, // Product purchases don't use instruments
           amount: productRequest.amount,
           total: productRequest.amount,
           netAmount: productRequest.amount,
@@ -200,28 +198,7 @@ export async function POST(
         },
       });
 
-      // 3. Update or create Portfolio
-      let portfolio = productRequest.client.portfolio;
-
-      if (!portfolio) {
-        portfolio = await tx.portfolio.create({
-          data: {
-            clientId: productRequest.clientId,
-            totalValue: productRequest.amount,
-            totalInvested: productRequest.amount,
-          },
-        });
-      } else {
-        portfolio = await tx.portfolio.update({
-          where: { id: portfolio.id },
-          data: {
-            totalValue: { increment: productRequest.amount },
-            totalInvested: { increment: productRequest.amount },
-          },
-        });
-      }
-
-      // 4. Update ProductPurchaseRequest to COMPLETED
+      // 3. Update ProductPurchaseRequest to COMPLETED
       const updatedRequest = await tx.productPurchaseRequest.update({
         where: { id: requestId },
         data: {
@@ -291,7 +268,6 @@ export async function POST(
         productRequest: updatedRequest,
         transaction,
         contractDocument,
-        portfolio,
       };
     });
 

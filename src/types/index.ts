@@ -18,15 +18,6 @@ export enum TransactionStatus {
   COMPLETED = 'COMPLETED',
 }
 
-// Instrument types
-export enum InstrumentType {
-  STOCK = 'STOCK',
-  BOND = 'BOND',
-  MUTUAL_FUND = 'MUTUAL_FUND',
-  ETF = 'ETF',
-  ALTERNATIVE = 'ALTERNATIVE',
-}
-
 // Risk levels
 export enum RiskLevel {
   LOW = 'LOW',

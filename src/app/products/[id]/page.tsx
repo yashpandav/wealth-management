@@ -1,11 +1,12 @@
 /**
- * Public Plan Detail Page
- * Detailed view of a single instrument with performance charts
+ * Public Product Detail Page
+ * Detailed view of a single investment product
  */
 
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { InstrumentDetail } from '@/components/public/InstrumentDetail';
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 interface PageProps {
   params: { id: string };
@@ -14,52 +15,44 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const response = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/public/instruments/${params.id}`,
+      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/products/${params.id}`,
       { cache: 'no-store' }
     );
 
     if (!response.ok) {
       return {
-        title: 'Plan Not Found | EMDEE VENTURES',
+        title: 'Product Not Found | EMDEE VENTURES',
       };
     }
 
     const data = await response.json();
-    const instrument = data.data.instrument;
+    const product = data.data;
 
     return {
-      title: `${instrument.name} (${instrument.symbol}) | EMDEE VENTURES`,
-      description: instrument.description || `Invest in ${instrument.name} - ${instrument.type}`,
+      title: `${product.name} | EMDEE VENTURES`,
+      description: product.description || `Invest in ${product.name}`,
       keywords: [
-        instrument.name,
-        instrument.symbol,
-        instrument.type,
-        'investment',
+        product.name,
+        'investment plan',
         'wealth management',
       ],
     };
   } catch {
     return {
-      title: 'Plan Details | EMDEE VENTURES',
+      title: 'Product Details | EMDEE VENTURES',
     };
   }
 }
 
-export default async function InstrumentDetailPage({ params }: PageProps) {
-  try {
-    const response = await fetch(
-      `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/public/instruments/${params.id}`,
-      { cache: 'no-store' }
-    );
+export default async function ProductDetailPage({ params }: PageProps) {
+  // Check if user is authenticated
+  const session = await getServerSession(authOptions);
 
-    if (!response.ok) {
-      notFound();
-    }
-
-    const data = await response.json();
-
-    return <InstrumentDetail instrument={data.data.instrument} relatedInstruments={data.data.relatedInstruments} />;
-  } catch {
-    notFound();
+  // If authenticated and is a client, redirect to client product detail page
+  if (session?.user && session.user.role === 'CLIENT') {
+    redirect(`/client/products/${params.id}`);
   }
+
+  // For public/non-client users, redirect to products list with a message to sign up
+  redirect('/products?action=signup');
 }

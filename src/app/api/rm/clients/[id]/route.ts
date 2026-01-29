@@ -68,33 +68,36 @@ export async function GET(_request: NextRequest, context: RouteContext) {
             createdAt: true,
           },
         },
-        portfolio: {
+        productPurchaseRequests: {
+          orderBy: { createdAt: 'desc' },
+          take: 10,
           include: {
-            holdings: {
-              include: {
-                instrument: {
-                  select: {
-                    symbol: true,
-                    name: true,
-                    type: true,
-                    currentPrice: true,
-                    currency: true,
-                  },
-                },
+            investment: {
+              select: {
+                name: true,
+                description: true,
+              },
+            },
+            investmentOption: {
+              select: {
+                duration: true,
+                withdrawalFrequency: true,
+                roi: true,
+                annualReturn: true,
               },
             },
           },
         },
-        purchaseRequests: {
+        payouts: {
           orderBy: { createdAt: 'desc' },
           take: 10,
-          include: {
-            instrument: {
-              select: {
-                symbol: true,
-                name: true,
-              },
-            },
+          select: {
+            id: true,
+            amount: true,
+            status: true,
+            scheduledDate: true,
+            processedAt: true,
+            createdAt: true,
           },
         },
       },
@@ -115,33 +118,55 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       );
     }
 
-    // Serialize Decimal fields
+    // Calculate investment summary
+    const activeInvestments = client.productPurchaseRequests.filter(
+      (req) => req.status === 'APPROVED' || req.status === 'COMPLETED'
+    );
+
+    const totalInvested = activeInvestments.reduce(
+      (sum, req) => sum + Number(req.amount),
+      0
+    );
+
+    const completedPayouts = client.payouts.filter((p) => p.status === 'COMPLETED');
+    const totalInterestEarned = completedPayouts.reduce(
+      (sum, payout) => sum + Number(payout.amount),
+      0
+    );
+
+    // Serialize Decimal fields and build response
     const serializedClient = {
-      ...client,
-      portfolio: client.portfolio ? {
-        ...client.portfolio,
-        totalValue: Number(client.portfolio.totalValue),
-        totalInvested: Number(client.portfolio.totalInvested),
-        totalGainLoss: Number(client.portfolio.totalGainLoss),
-        totalGainLossPercent: Number(client.portfolio.totalGainLossPercent),
-        holdings: client.portfolio.holdings.map(h => ({
-          ...h,
-          quantity: Number(h.quantity),
-          averagePurchasePrice: Number(h.averagePurchasePrice),
-          currentValue: Number(h.currentValue),
-          gainLoss: Number(h.gainLoss),
-          gainLossPercent: Number(h.gainLossPercent),
-          instrument: {
-            ...h.instrument,
-            currentPrice: Number(h.instrument.currentPrice),
-          },
-        })),
-      } : null,
-      purchaseRequests: client.purchaseRequests.map(pr => ({
-        ...pr,
+      id: client.id,
+      kycVerified: client.kycVerified,
+      assignedAt: client.assignedAt.toISOString(),
+      user: client.user,
+      investmentSummary: {
+        totalInvested,
+        totalInterestEarned,
+        activeInvestmentsCount: activeInvestments.length,
+        totalValue: totalInvested + totalInterestEarned,
+      },
+      productPurchaseRequests: client.productPurchaseRequests.map((pr) => ({
+        id: pr.id,
+        trackingNumber: pr.trackingNumber,
+        status: pr.status,
         amount: Number(pr.amount),
-        quantity: pr.quantity ? Number(pr.quantity) : null,
-        requestedPrice: pr.requestedPrice ? Number(pr.requestedPrice) : null,
+        createdAt: pr.createdAt.toISOString(),
+        investment: pr.investment,
+        investmentOption: pr.investmentOption ? {
+          duration: pr.investmentOption.duration,
+          withdrawalFrequency: pr.investmentOption.withdrawalFrequency,
+          roi: Number(pr.investmentOption.roi),
+          annualReturn: Number(pr.investmentOption.annualReturn),
+        } : null,
+      })),
+      payouts: client.payouts.map((p) => ({
+        id: p.id,
+        amount: Number(p.amount),
+        status: p.status,
+        scheduledDate: p.scheduledDate.toISOString(),
+        processedAt: p.processedAt?.toISOString() || null,
+        createdAt: p.createdAt.toISOString(),
       })),
     };
 

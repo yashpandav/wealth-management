@@ -49,39 +49,36 @@ interface ClientDetail {
     phone: string | null;
     createdAt: string;
   };
-  portfolio: {
-    id: string;
+  investmentSummary: {
     totalValue: number;
     totalInvested: number;
-    totalGainLoss: number;
-    totalGainLossPercent: number;
-    holdings: Array<{
-      id: string;
-      quantity: number;
-      averageBuyPrice: number;
-      currentValue: number;
-      gainLoss: number;
-      gainLossPercent: number;
-      instrument: {
-        symbol: string;
-        name: string;
-        type: string;
-        currentPrice: number;
-        currency: string;
-      };
-    }>;
-  } | null;
-  purchaseRequests: Array<{
+    totalInterestEarned: number;
+    activeInvestmentsCount: number;
+  };
+  productPurchaseRequests: Array<{
     id: string;
     trackingNumber: string;
     status: RequestStatus;
     amount: number;
-    quantity: number | null;
     createdAt: string;
-    instrument: {
-      symbol: string;
+    investment: {
       name: string;
+      description: string | null;
     };
+    investmentOption: {
+      duration: string;
+      withdrawalFrequency: string;
+      roi: number;
+      annualReturn: number;
+    } | null;
+  }>;
+  payouts: Array<{
+    id: string;
+    amount: number;
+    status: string;
+    scheduledDate: string;
+    processedAt: string | null;
+    createdAt: string;
   }>;
 }
 
@@ -154,7 +151,7 @@ export default function RMClientDetailPage() {
     return null;
   }
 
-  const isPositiveGain = client.portfolio ? client.portfolio.totalGainLoss >= 0 : true;
+  const isPositiveGain = client.investmentSummary.totalInterestEarned >= 0;
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 max-w-7xl">
@@ -231,75 +228,72 @@ export default function RMClientDetailPage() {
         </div>
       </div>
 
-      {/* Portfolio Stats Grid */}
-      {client.portfolio ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-brand-blue to-[#003399] text-white border-none rounded-xl shadow-md">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-2 bg-white/10 rounded-lg">
-                  <Wallet className="h-6 w-6 text-white" />
-                </div>
-                <Badge variant="outline" className="text-white border-white/20 bg-white/10">
-                  Total Equity
-                </Badge>
+      {/* Investment Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-gradient-to-br from-brand-blue to-[#003399] text-white border-none rounded-xl shadow-md">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-white/10 rounded-lg">
+                <Wallet className="h-6 w-6 text-white" />
               </div>
-              <div>
-                <p className="text-white/70 text-sm font-medium mb-1">Portfolio Value</p>
-                <h3 className="text-3xl font-bold font-nums tracking-tight">
-                  ${client.portfolio.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <Badge variant="outline" className="text-white border-white/20 bg-white/10">
+                Total Value
+              </Badge>
+            </div>
+            <div>
+              <p className="text-white/70 text-sm font-medium mb-1">Investment Value</p>
+              <h3 className="text-3xl font-bold font-nums tracking-tight">
+                ${client.investmentSummary.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border rounded-xl shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <DollarSign className="h-6 w-6 text-brand-blue" />
+              </div>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-sm font-medium mb-1">Total Invested</p>
+              <h3 className="text-3xl font-bold font-nums tracking-tight text-gray-900">
+                ${client.investmentSummary.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border rounded-xl shadow-sm">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div className={`p-2 rounded-lg ${isPositiveGain ? 'bg-green-50' : 'bg-red-50'}`}>
+                {isPositiveGain
+                  ? <ArrowUpRight className="h-6 w-6 text-green-600" />
+                  : <ArrowDownRight className="h-6 w-6 text-red-600" />
+                }
+              </div>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-sm font-medium mb-1">Interest Earned</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className={`text-3xl font-bold font-nums tracking-tight ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
+                  {isPositiveGain ? '+' : ''}${client.investmentSummary.totalInterestEarned.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h3>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-          <Card className="border-border rounded-xl shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className="p-2 bg-blue-50 rounded-lg">
-                  <DollarSign className="h-6 w-6 text-brand-blue" />
-                </div>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-sm font-medium mb-1">Total Invested</p>
-                <h3 className="text-3xl font-bold font-nums tracking-tight text-gray-900">
-                  ${client.portfolio.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </h3>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border rounded-xl shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div className={`p-2 rounded-lg ${isPositiveGain ? 'bg-green-50' : 'bg-red-50'}`}>
-                  {isPositiveGain
-                    ? <ArrowUpRight className="h-6 w-6 text-green-600" />
-                    : <ArrowDownRight className="h-6 w-6 text-red-600" />
-                  }
-                </div>
-                <Badge variant={isPositiveGain ? 'default' : 'destructive'} className={isPositiveGain ? 'bg-green-600' : ''}>
-                  {isPositiveGain ? '+' : ''}{client.portfolio.totalGainLossPercent.toFixed(2)}%
-                </Badge>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-sm font-medium mb-1">Total Gain/Loss</p>
-                <div className="flex items-baseline gap-2">
-                  <h3 className={`text-3xl font-bold font-nums tracking-tight ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
-                    {isPositiveGain ? '+' : ''}${client.portfolio.totalGainLoss.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </h3>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
+      {client.investmentSummary.activeInvestmentsCount === 0 && (
         <Card className="md:col-span-3 mb-8 bg-gray-50 border-dashed">
           <CardContent className="py-8 flex flex-col items-center justify-center text-center">
             <div className="p-3 bg-gray-200 rounded-full mb-3">
               <PieChart className="h-8 w-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">No Portfolio Data</h3>
+            <h3 className="text-lg font-semibold text-gray-900">No Active Investments</h3>
             <p className="text-gray-500 max-w-sm mt-1">
               This client has not made any investments yet.
             </p>
@@ -307,96 +301,53 @@ export default function RMClientDetailPage() {
         </Card>
       )}
 
-      {/* Holdings Section */}
+      {/* Active Investments Section */}
       <div className="space-y-6 mb-8">
-        {client.portfolio && client.portfolio.holdings.length > 0 ? (
+        {client.investmentSummary.activeInvestmentsCount > 0 ? (
           <Card className="rounded-xl border-border shadow-sm overflow-hidden">
             <CardHeader className="bg-gray-50/50 border-b border-gray-100">
               <CardTitle className="font-optima text-brand-blue text-lg flex items-center gap-2">
-                <PieChart className="h-5 w-5" /> Current Holdings
+                <PieChart className="h-5 w-5" /> Active Investments ({client.investmentSummary.activeInvestmentsCount})
               </CardTitle>
             </CardHeader>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead>Instrument</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Avg Price</TableHead>
-                    <TableHead className="text-right">Current Value</TableHead>
-                    <TableHead className="text-right">Gain/Loss</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {client.portfolio.holdings.map((holding) => {
-                    const isGain = holding.gainLoss >= 0;
-                    return (
-                      <TableRow key={holding.id} className="hover:bg-gray-50/50 group">
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded bg-gray-100 flex items-center justify-center font-bold text-xs text-gray-600 group-hover:bg-brand-blue group-hover:text-white transition-colors">
-                              {holding.instrument.symbol.substring(0, 2)}
-                            </div>
-                            <div>
-                              <div className="font-bold text-gray-900">{holding.instrument.symbol}</div>
-                              <div className="text-xs text-gray-500">{holding.instrument.name}</div>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right font-nums text-gray-700">{holding.quantity}</TableCell>
-                        <TableCell className="text-right font-nums text-gray-600">
-                          {holding.instrument.currency} {holding.averageBuyPrice.toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-right font-bold font-nums text-gray-900">
-                          {holding.instrument.currency} {holding.currentValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className={`font-bold font-nums ${isGain ? 'text-green-600' : 'text-red-600'}`}>
-                            {isGain ? '+' : ''}{holding.instrument.currency} {holding.gainLoss.toFixed(2)}
-                          </div>
-                          <div className={`text-xs font-nums ${isGain ? 'text-green-600' : 'text-red-600'}`}>
-                            {isGain ? '+' : ''}{holding.gainLossPercent.toFixed(2)}%
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">
+                Client has {client.investmentSummary.activeInvestmentsCount} active investment{client.investmentSummary.activeInvestmentsCount !== 1 ? 's' : ''} with total value of ${client.investmentSummary.totalValue.toLocaleString()}.
+              </p>
+            </CardContent>
           </Card>
         ) : (
           <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed">
             <PieChart className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No active holdings available.</p>
+            <p className="text-gray-500">No active investments available.</p>
           </div>
         )}
       </div>
 
       {/* Requests Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-8">
-        {/* Purchase Requests */}
+        {/* Investment Purchase Requests */}
         <Card className="rounded-xl border-border shadow-sm">
           <CardHeader className="bg-gray-50/50 border-b border-gray-100">
             <CardTitle className="font-optima text-brand-blue text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" /> Recent Purchase Requests
+              <TrendingUp className="h-5 w-5" /> Recent Investment Requests
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            {client.purchaseRequests.length > 0 ? (
+            {client.productPurchaseRequests.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Instrument</TableHead>
+                    <TableHead>Investment Plan</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {client.purchaseRequests.slice(0, 5).map((req) => (
+                  {client.productPurchaseRequests.slice(0, 5).map((req) => (
                     <TableRow key={req.id}>
                       <TableCell>
-                        <div className="font-medium">{req.instrument.symbol}</div>
+                        <div className="font-medium">{req.investment.name}</div>
                         <div className="text-xs text-gray-500">{format(new Date(req.createdAt), 'MMM dd')}</div>
                       </TableCell>
                       <TableCell className="text-right font-nums font-medium">
