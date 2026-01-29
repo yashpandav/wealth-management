@@ -23,291 +23,291 @@
 
 ---
 
-## 📊 Entity-Relationship Diagram
+## Entity-Relationship Diagram
 
-```mermaid
-erDiagram
-    %% Core User Entities
-    User ||--o| Client : "extends (1:1)"
-    User ||--o| RelationshipManager : "extends (1:1)"
-    User ||--o| UserLead : "converts from (1:1)"
-    User ||--o{ AuditLog : "performs actions"
-    User ||--o{ Notification : "receives"
-    User ||--o{ Document : "verifies (DOCADMIN/ADMIN)"
-    User ||--o{ Transaction : "approves (ADMIN)"
-    User ||--o{ ProductPurchaseRequest : "completes (DOCADMIN)"
-    User ||--o{ Payout : "processes (DOCADMIN)"
+    ```mermaid
+    erDiagram
+        %% Core User Entities
+        User ||--o| Client : "extends (1:1)"
+        User ||--o| RelationshipManager : "extends (1:1)"
+        User ||--o| UserLead : "converts from (1:1)"
+        User ||--o{ AuditLog : "performs actions"
+        User ||--o{ Notification : "receives"
+        User ||--o{ Document : "verifies (DOCADMIN/ADMIN)"
+        User ||--o{ Transaction : "approves (ADMIN)"
+        User ||--o{ ProductPurchaseRequest : "completes (DOCADMIN)"
+        User ||--o{ Payout : "processes (DOCADMIN)"
 
-    %% Client Relationships
-    RelationshipManager ||--o{ Client : "manages"
-    Client ||--o{ Transaction : "executes"
-    Client ||--o{ Document : "uploads"
-    Client ||--o{ ProductPurchaseRequest : "requests"
-    Client ||--o{ PayoutSchedule : "scheduled for"
-    Client ||--o{ Payout : "receives"
+        %% Client Relationships
+        RelationshipManager ||--o{ Client : "manages"
+        Client ||--o{ Transaction : "executes"
+        Client ||--o{ Document : "uploads"
+        Client ||--o{ ProductPurchaseRequest : "requests"
+        Client ||--o{ PayoutSchedule : "scheduled for"
+        Client ||--o{ Payout : "receives"
 
-    %% Transaction Processing
-    Transaction }o--o| RelationshipManager : "processed by (RM)"
-    Transaction }o--o| User : "approved by (ADMIN)"
-    Transaction }o--o| Payout : "generated from"
+        %% Transaction Processing
+        Transaction }o--o| RelationshipManager : "processed by (RM)"
+        Transaction }o--o| User : "approved by (ADMIN)"
+        Transaction }o--o| Payout : "generated from"
 
-    %% Investment Products
-    Investment ||--o{ InvestmentOption : "offers"
-    Investment ||--o{ ProductPurchaseRequest : "selected in"
-    InvestmentOption ||--o{ ProductPurchaseRequest : "chosen in"
-    ProductPurchaseRequest }o--|| RelationshipManager : "assigned to"
-    ProductPurchaseRequest }o--o| Document : "has contract"
-    ProductPurchaseRequest ||--o{ PayoutSchedule : "generates"
-    ProductPurchaseRequest ||--o{ Payout : "yields"
+        %% Investment Products
+        Investment ||--o{ InvestmentOption : "offers"
+        Investment ||--o{ ProductPurchaseRequest : "selected in"
+        InvestmentOption ||--o{ ProductPurchaseRequest : "chosen in"
+        ProductPurchaseRequest }o--|| RelationshipManager : "assigned to"
+        ProductPurchaseRequest }o--o| Document : "has contract"
+        ProductPurchaseRequest ||--o{ PayoutSchedule : "generates"
+        ProductPurchaseRequest ||--o{ Payout : "yields"
 
-    %% Payout System
-    PayoutSchedule ||--|| Payout : "executes as"
-    Payout }o--o| Document : "has receipt"
-    Payout }o--o| Transaction : "creates"
+        %% Payout System
+        PayoutSchedule ||--|| Payout : "executes as"
+        Payout }o--o| Document : "has receipt"
+        Payout }o--o| Transaction : "creates"
 
-    %% Lead Management
-    RelationshipManager ||--o{ UserLead : "assigned to"
+        %% Lead Management
+        RelationshipManager ||--o{ UserLead : "assigned to"
 
-    %% User Entities
-    User {
-        UUID id PK
-        VARCHAR email UK
-        VARCHAR password
-        ENUM role
-        VARCHAR firstName
-        VARCHAR lastName
-        VARCHAR phone
-        ENUM status
-        BOOLEAN isActive
-        BOOLEAN emailVerified
-        INT failedLoginAttempts
-        TIMESTAMP accountLockedUntil
-        TIMESTAMP lastLogin
-        TIMESTAMP lastFailedLogin
-        BOOLEAN isArchived
-        TIMESTAMP archivedAt
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-        TIMESTAMP deletedAt
-    }
+        %% User Entities
+        User {
+            UUID id PK
+            VARCHAR email UK
+            VARCHAR password
+            ENUM role
+            VARCHAR firstName
+            VARCHAR lastName
+            VARCHAR phone
+            ENUM status
+            BOOLEAN isActive
+            BOOLEAN emailVerified
+            INT failedLoginAttempts
+            TIMESTAMP accountLockedUntil
+            TIMESTAMP lastLogin
+            TIMESTAMP lastFailedLogin
+            BOOLEAN isArchived
+            TIMESTAMP archivedAt
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+            TIMESTAMP deletedAt
+        }
 
-    Client {
-        UUID id PK
-        UUID userId UK
-        UUID assignedRMId FK
-        VARCHAR riskTolerance
-        TEXT investmentGoals
-        BOOLEAN kycVerified
-        TEXT kycDocuments
-        ENUM verificationStatus
-        TIMESTAMP assignedAt
-        TEXT archivedReason
-    }
+        Client {
+            UUID id PK
+            UUID userId UK
+            UUID assignedRMId FK
+            VARCHAR riskTolerance
+            TEXT investmentGoals
+            BOOLEAN kycVerified
+            TEXT kycDocuments
+            ENUM verificationStatus
+            TIMESTAMP assignedAt
+            TEXT archivedReason
+        }
 
-    RelationshipManager {
-        UUID id PK
-        UUID userId UK
-        VARCHAR specialization
-        TEXT certifications
-        INT maxClientLimit
-        DECIMAL totalAUM
-    }
+        RelationshipManager {
+            UUID id PK
+            UUID userId UK
+            VARCHAR specialization
+            TEXT certifications
+            INT maxClientLimit
+            DECIMAL totalAUM
+        }
 
-    Transaction {
-        UUID id PK
-        UUID clientId FK
-        ENUM type
-        ENUM status
-        DECIMAL amount
-        DECIMAL total
-        DECIMAL fees
-        DECIMAL netAmount
-        VARCHAR currency
-        TEXT bankStatementReference
-        TEXT paymentProof
-        UUID processedById FK
-        UUID approvedById FK
-        UUID payoutId UK
-        TIMESTAMP completedAt
-        TEXT notes
-        TEXT metadata
-        TEXT failureReason
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-        TIMESTAMP deletedAt
-    }
+        Transaction {
+            UUID id PK
+            UUID clientId FK
+            ENUM type
+            ENUM status
+            DECIMAL amount
+            DECIMAL total
+            DECIMAL fees
+            DECIMAL netAmount
+            VARCHAR currency
+            TEXT bankStatementReference
+            TEXT paymentProof
+            UUID processedById FK
+            UUID approvedById FK
+            UUID payoutId UK
+            TIMESTAMP completedAt
+            TEXT notes
+            TEXT metadata
+            TEXT failureReason
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+            TIMESTAMP deletedAt
+        }
 
-    Document {
-        UUID id PK
-        UUID clientId FK
-        ENUM documentType
-        VARCHAR filePath
-        ENUM verificationStatus
-        UUID verifiedById FK
-        TIMESTAMP verifiedAt
-        TEXT rejectionReason
-        VARCHAR fileName
-        INT fileSize
-        VARCHAR mimeType
-        TEXT description
-        TIMESTAMP expiryDate
-        TIMESTAMP uploadedAt
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        Document {
+            UUID id PK
+            UUID clientId FK
+            ENUM documentType
+            VARCHAR filePath
+            ENUM verificationStatus
+            UUID verifiedById FK
+            TIMESTAMP verifiedAt
+            TEXT rejectionReason
+            VARCHAR fileName
+            INT fileSize
+            VARCHAR mimeType
+            TEXT description
+            TIMESTAMP expiryDate
+            TIMESTAMP uploadedAt
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    Investment {
-        UUID id PK
-        VARCHAR name
-        TEXT description
-        DECIMAL minAmount
-        DECIMAL maxAmount
-        VARCHAR currency
-        INT displayOrder
-        BOOLEAN isActive
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        Investment {
+            UUID id PK
+            VARCHAR name
+            TEXT description
+            DECIMAL minAmount
+            DECIMAL maxAmount
+            VARCHAR currency
+            INT displayOrder
+            BOOLEAN isActive
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    InvestmentOption {
-        UUID id PK
-        UUID investmentId FK
-        VARCHAR duration
-        VARCHAR withdrawalFrequency
-        DECIMAL roi
-        DECIMAL annualReturn
-        INT displayOrder
-        BOOLEAN isActive
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        InvestmentOption {
+            UUID id PK
+            UUID investmentId FK
+            VARCHAR duration
+            VARCHAR withdrawalFrequency
+            DECIMAL roi
+            DECIMAL annualReturn
+            INT displayOrder
+            BOOLEAN isActive
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    ProductPurchaseRequest {
-        UUID id PK
-        VARCHAR trackingNumber UK
-        UUID clientId FK
-        UUID investmentId FK
-        UUID investmentOptionId FK
-        DECIMAL amount
-        ENUM status
-        UUID assignedRMId FK
-        TIMESTAMP processedAt
-        VARCHAR payoutWindow
-        UUID contractDocumentId FK
-        TIMESTAMP contractStartDate
-        TIMESTAMP completedAt
-        UUID completedById FK
-        TEXT clientNotes
-        TEXT rmNotes
-        TEXT rejectionReason
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        ProductPurchaseRequest {
+            UUID id PK
+            VARCHAR trackingNumber UK
+            UUID clientId FK
+            UUID investmentId FK
+            UUID investmentOptionId FK
+            DECIMAL amount
+            ENUM status
+            UUID assignedRMId FK
+            TIMESTAMP processedAt
+            VARCHAR payoutWindow
+            UUID contractDocumentId FK
+            TIMESTAMP contractStartDate
+            TIMESTAMP completedAt
+            UUID completedById FK
+            TEXT clientNotes
+            TEXT rmNotes
+            TEXT rejectionReason
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    PayoutSchedule {
-        UUID id PK
-        UUID productPurchaseRequestId FK
-        UUID clientId FK
-        TIMESTAMP scheduledDate
-        TIMESTAMP periodStart
-        TIMESTAMP periodEnd
-        DECIMAL interestAmount
-        BOOLEAN isProcessed
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        PayoutSchedule {
+            UUID id PK
+            UUID productPurchaseRequestId FK
+            UUID clientId FK
+            TIMESTAMP scheduledDate
+            TIMESTAMP periodStart
+            TIMESTAMP periodEnd
+            DECIMAL interestAmount
+            BOOLEAN isProcessed
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    Payout {
-        UUID id PK
-        UUID productPurchaseRequestId FK
-        UUID payoutScheduleId UK
-        UUID clientId FK
-        DECIMAL amount
-        TIMESTAMP periodStart
-        TIMESTAMP periodEnd
-        TIMESTAMP scheduledDate
-        ENUM status
-        UUID processedById FK
-        TIMESTAMP processedAt
-        UUID receiptDocumentId UK
-        UUID transactionId UK
-        TEXT notes
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        Payout {
+            UUID id PK
+            UUID productPurchaseRequestId FK
+            UUID payoutScheduleId UK
+            UUID clientId FK
+            DECIMAL amount
+            TIMESTAMP periodStart
+            TIMESTAMP periodEnd
+            TIMESTAMP scheduledDate
+            ENUM status
+            UUID processedById FK
+            TIMESTAMP processedAt
+            UUID receiptDocumentId UK
+            UUID transactionId UK
+            TEXT notes
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    UserLead {
-        UUID id PK
-        VARCHAR firstName
-        VARCHAR lastName
-        VARCHAR email UK
-        VARCHAR phoneNumber
-        ENUM leadSource
-        VARCHAR rmReference
-        ENUM status
-        UUID assignedRMId FK
-        UUID userId UK
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        UserLead {
+            UUID id PK
+            VARCHAR firstName
+            VARCHAR lastName
+            VARCHAR email UK
+            VARCHAR phoneNumber
+            ENUM leadSource
+            VARCHAR rmReference
+            ENUM status
+            UUID assignedRMId FK
+            UUID userId UK
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    AuditLog {
-        UUID id PK
-        UUID userId FK
-        ENUM action
-        TEXT description
-        VARCHAR entityType
-        VARCHAR entityId
-        JSON oldValues
-        JSON newValues
-        VARCHAR ipAddress
-        TEXT userAgent
-        JSON metadata
-        VARCHAR severity
-        BOOLEAN success
-        TEXT errorMessage
-        VARCHAR sessionId
-        TIMESTAMP retentionDate
-        TIMESTAMP createdAt
-    }
+        AuditLog {
+            UUID id PK
+            UUID userId FK
+            ENUM action
+            TEXT description
+            VARCHAR entityType
+            VARCHAR entityId
+            JSON oldValues
+            JSON newValues
+            VARCHAR ipAddress
+            TEXT userAgent
+            JSON metadata
+            VARCHAR severity
+            BOOLEAN success
+            TEXT errorMessage
+            VARCHAR sessionId
+            TIMESTAMP retentionDate
+            TIMESTAMP createdAt
+        }
 
-    Notification {
-        UUID id PK
-        UUID userId FK
-        ENUM type
-        ENUM category
-        VARCHAR title
-        TEXT message
-        BOOLEAN isRead
-        TIMESTAMP readAt
-        BOOLEAN isDismissed
-        VARCHAR actionUrl
-        VARCHAR actionText
-        VARCHAR entityType
-        VARCHAR entityId
-        VARCHAR priority
-        TIMESTAMP expiresAt
-        JSON metadata
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
+        Notification {
+            UUID id PK
+            UUID userId FK
+            ENUM type
+            ENUM category
+            VARCHAR title
+            TEXT message
+            BOOLEAN isRead
+            TIMESTAMP readAt
+            BOOLEAN isDismissed
+            VARCHAR actionUrl
+            VARCHAR actionText
+            VARCHAR entityType
+            VARCHAR entityId
+            VARCHAR priority
+            TIMESTAMP expiresAt
+            JSON metadata
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
 
-    VerificationToken {
-        UUID id PK
-        VARCHAR email
-        VARCHAR token UK
-        TIMESTAMP expiresAt
-        VARCHAR type
-        BOOLEAN used
-        TIMESTAMP usedAt
-        TIMESTAMP createdAt
-        TIMESTAMP updatedAt
-    }
-```
+        VerificationToken {
+            UUID id PK
+            VARCHAR email
+            VARCHAR token UK
+            TIMESTAMP expiresAt
+            VARCHAR type
+            BOOLEAN used
+            TIMESTAMP usedAt
+            TIMESTAMP createdAt
+            TIMESTAMP updatedAt
+        }
+    ```
 
 ---
 
-## 🏗️ Database Architecture Overview
+## Database Architecture Overview
 
 ```mermaid
 graph TB
@@ -384,7 +384,7 @@ graph TB
 
 ---
 
-## 👥 User Role Hierarchy
+## User Role Hierarchy
 
 ```mermaid
 graph TD
@@ -426,7 +426,7 @@ graph TD
 
 ---
 
-## 🔄 Transaction Flow Diagram
+## Transaction Flow Diagram
 
 ```mermaid
 sequenceDiagram
@@ -471,7 +471,7 @@ sequenceDiagram
 
 ---
 
-## 📄 Document Verification Flow
+## Document Verification Flow
 
 ```mermaid
 stateDiagram-v2
@@ -520,7 +520,7 @@ stateDiagram-v2
 
 ---
 
-## 💰 Payout System Architecture
+## Payout System Architecture
 
 ```mermaid
 flowchart TD
@@ -565,7 +565,7 @@ flowchart TD
 
 ---
 
-## 📋 Complete Table Schemas
+## Complete Table Schemas
 
 ### 1. **users** (`User`)
 
@@ -1039,7 +1039,7 @@ flowchart TD
 
 ---
 
-## 📊 Enum Definitions
+## Enum Definitions
 
 ### UserRole
 ```typescript
@@ -1298,7 +1298,7 @@ enum AuditAction {
 
 ---
 
-## 🔍 Key Design Patterns
+## Key Design Patterns
 
 ### 1. **User Polymorphism via Role Extensions**
 
@@ -1558,7 +1558,7 @@ function generateTrackingNumber(): string {
 
 ---
 
-## 📈 Database Statistics
+## Database Statistics
 
 - **Total Tables**: 14
 - **Total Enums**: 13
@@ -1569,80 +1569,351 @@ function generateTrackingNumber(): string {
 - **JSON Fields**: 4 (AuditLog.oldValues, .newValues, .metadata; Notification.metadata)
 - **Soft Delete Tables**: 2 (User, Transaction)
 
----
 
-## 🔐 Security & Performance Considerations
 
-### Indexes for Performance
+### ER DIAGRAM SHORT
 
-**Critical Indexes**:
-- `users(email)` - Login queries (UNIQUE)
-- `users(role, status)` - Role-based access control
-- `clients(assignedRMId)` - RM client lookup
-- `clients(verificationStatus)` - KYC workflow queries
-- `transactions(clientId, completedAt)` - Client transaction history
-- `documents(clientId, documentType)` - Document retrieval
-- `notifications(userId, isRead)` - Unread notification count
-- `audit_logs(userId, createdAt)` - Audit trail queries
-- `payout_schedules(scheduledDate, isProcessed)` - Scheduled payout processing
+erDiagram
 
-### Data Retention
+User ||--o| Client : extends
+User ||--o| RelationshipManager : extends
+User ||--o| UserLead : converts_from
+User ||--o{ AuditLog : performs
+User ||--o{ Notification : receives
 
-- **Audit Logs**: 7 years (compliance requirement)
-- **Transactions**: Indefinite (financial record)
-- **Documents**: Until client deletion + 7 years
-- **Notifications**: 90 days (auto-cleanup recommended)
-- **Verification Tokens**: 24 hours expiry
+RelationshipManager ||--o{ Client : manages
+RelationshipManager ||--o{ UserLead : assigned
+Client ||--o{ Document : uploads
+Client ||--o{ Transaction : executes
 
-### Security Features
+Investment ||--o{ InvestmentOption : offers
 
-- **Password Hashing**: bcrypt with 12 rounds
-- **Account Lockout**: 5 failed attempts → 30-minute lock
-- **Session Tracking**: `AuditLog.sessionId`
-- **IP Logging**: `AuditLog.ipAddress` for security investigations
-- **Soft Deletes**: Prevent data loss, maintain audit trail
-- **Cascade Deletes**: Controlled (only on User→Client/RM extensions)
+Client ||--o{ ProductPurchaseRequest : requests
+Investment ||--o{ ProductPurchaseRequest : selected
+InvestmentOption ||--o{ ProductPurchaseRequest : chosen
+RelationshipManager }o--|| ProductPurchaseRequest : assigned_to
+ProductPurchaseRequest }o--o| Document : contract
+ProductPurchaseRequest ||--o{ PayoutSchedule : generates
+ProductPurchaseRequest ||--o{ Payout : yields
 
----
+Transaction }o--o| RelationshipManager : processed_by
+Transaction }o--o| User : approved_by
+Transaction }o--o| Payout : generated_from
 
-## 🚀 Migration & Deployment Notes
+PayoutSchedule ||--|| Payout : executes_as
+Payout }o--o| Transaction : creates
+Payout }o--o| Document : receipt
 
-### Connection Pooling
+VerificationToken }o--|| User : verifies
 
-**Recommended Settings** (add to `DATABASE_URL`):
-```bash
-DATABASE_URL="postgresql://user:pass@localhost:5432/db?connection_limit=10&pool_timeout=20"
-```
-
-- **connection_limit**: 10-20 for production
-- **pool_timeout**: 10-20 seconds
-
-### Shadow Database
-
-For development migrations (optional):
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+User {
+    UUID id PK
+    VARCHAR email UK
+    ENUM role
+    ENUM status
+    BOOLEAN isActive
+    TIMESTAMP createdAt
 }
-```
 
-### Prisma Commands
+Client {
+    UUID id PK
+    UUID userId UK
+    UUID assignedRMId FK
+    BOOLEAN kycVerified
+    ENUM verificationStatus
+}
 
-```bash
-# Generate Prisma Client
-pnpm prisma generate
+RelationshipManager {
+    UUID id PK
+    UUID userId UK
+    VARCHAR specialization
+    DECIMAL totalAUM
+}
 
-# Create migration
-pnpm prisma migrate dev --name migration_name
+Investment {
+    UUID id PK
+    VARCHAR name
+    DECIMAL minAmount
+    DECIMAL maxAmount
+    BOOLEAN isActive
+}
 
-# Apply migrations (production)
-pnpm prisma migrate deploy
+InvestmentOption {
+    UUID id PK
+    UUID investmentId FK
+    DECIMAL roi
+    DECIMAL annualReturn
+    BOOLEAN isActive
+}
 
-# Database GUI
-pnpm prisma studio
+ProductPurchaseRequest {
+    UUID id PK
+    UUID clientId FK
+    UUID investmentId FK
+    UUID investmentOptionId FK
+    DECIMAL amount
+    ENUM status
+}
 
-# Seed database
-pnpm prisma db seed
-```
+PayoutSchedule {
+    UUID id PK
+    UUID productPurchaseRequestId FK
+    TIMESTAMP scheduledDate
+    DECIMAL interestAmount
+}
+
+Payout {
+    UUID id PK
+    UUID payoutScheduleId UK
+    UUID transactionId UK
+    DECIMAL amount
+    ENUM status
+}
+
+Transaction {
+    UUID id PK
+    UUID clientId FK
+    ENUM type
+    ENUM status
+    DECIMAL amount
+}
+
+Document {
+    UUID id PK
+    UUID clientId FK
+    ENUM documentType
+    ENUM verificationStatus
+}
+
+UserLead {
+    UUID id PK
+    VARCHAR email UK
+    ENUM status
+}
+
+AuditLog {
+    UUID id PK
+    UUID userId FK
+    ENUM action
+    TIMESTAMP createdAt
+}
+
+Notification {
+    UUID id PK
+    UUID userId FK
+    ENUM type
+    BOOLEAN isRead
+}
+
+VerificationToken {
+    UUID id PK
+    VARCHAR token UK
+    TIMESTAMP expiresAt
+}
+
+
+### User flow
+flowchart TD
+    A[Client Registers] --> B[Email Verification]
+
+    B --> C{KYC Status}
+    C -->|NOT_SUBMITTED| D[Upload KYC Documents]
+    D --> E[KYC Pending Review]
+
+    E -->|Rejected| F[View Rejection Reason]
+    F --> D
+
+    E -->|Approved| G[Client VERIFIED]
+    G --> H[Login Enabled]
+
+    H --> I[View Investment Plans]
+    I --> J[Select Investment + Option]
+    J --> K[Submit Product Purchase Request]
+
+    K --> L[Request Status = PENDING]
+    L --> M[RM Review]
+
+    M -->|Rejected| N[View Rejection Reason]
+    M -->|Approved| O[Await DocAdmin Completion]
+
+    O --> P[Contract Uploaded]
+    P --> Q[Request COMPLETED]
+
+    Q --> R[Payout Schedule Generated]
+    R --> S[View Upcoming Payouts]
+
+    S --> T[Payout Processed]
+    T --> U[Transaction Created]
+    U --> V[View Transaction History]
+
+    H --> W[Upload Documents Anytime]
+    H --> X[View Notifications]
+    H --> Y[View Contracts & Receipts]
+
+
+### LEAD USER FLOW
+flowchart TD
+    A[Public User Visits Website] --> B[user-form Submission]
+    B --> C[Create UserLead Record]
+    C --> D[Lead Status = NEW]
+    D --> E[Lead Stored]
+
+    E --> F[Await RM Assignment]
+    F --> G[No Login / No Dashboard Access]
+
+
+
+### RM FLOW
+flowchart TD
+    A[RM Login] --> B[RM Dashboard]
+
+    B --> C[Leads]
+    B --> D[Registered Clients<br/>No KYC]
+    B --> E[KYC Pending Clients]
+    B --> F[Active Clients]
+    B --> G[Plan Requests]
+    B --> H[Transactions & Payouts]
+
+    C --> C1[View Assigned Leads]
+    C1 --> C2[Contact Lead]
+    C2 --> C3[Update Lead Status]
+
+    D --> D1[View Clients Without KYC]
+    D1 --> D2[Follow Up]
+    D2 --> D3[Send KYC Reminder]
+
+    E --> E1[View Submitted Documents Status]
+    E1 --> E2[Track Verification Progress]
+    E2 --> E3[Coordinate with Client / DocAdmin]
+
+    F --> F1[View Active Client List]
+    F1 --> F2[Open Client Profile]
+    F2 --> F3[View Contracts]
+    F2 --> F4[View Payout Schedules]
+    F2 --> F5[View Transactions]
+
+    G --> G1[View Investment Plan Requests]
+    G1 --> G2{Approve Request?}
+
+    G2 -->|Reject| G3[Add Rejection Reason]
+    G2 -->|Approve| G4[Approve Request]
+
+    G4 --> G5[Status → APPROVED]
+    G5 --> G6[Set Payout Date <br/> 15 or 30]
+    G6 --> G7[Send to DocAdmin]
+    G7 --> G8[Await Contract & Payout Setup]
+
+    H --> H1[View Transactions]
+    H --> H2[View Payout Schedules]
+
+
+### DOCADMIN FLOW
+flowchart TD
+    A[DocAdmin Login] --> B[DocAdmin Dashboard]
+
+    B --> B1[Overview Metrics<br/>Leads, KYC, Requests, Payouts]
+
+    B --> C[Document Verification]
+    C --> C1[Review client KYC documents]
+    C1 --> C2[Approve / Reject documents]
+    C2 --> C3[Update client verification status]
+
+    B --> D[RM Assignment Pending]
+    D --> D1[View unassigned leads / clients]
+    D1 --> D2[Assign RM]
+    D2 --> D3[Notify RM]
+
+    B --> E[New Enquiries]
+    E --> E1[View leads from /user-form]
+    E1 --> E2[Validate lead details]
+    E2 --> E3[Assign RM to the lead]
+
+    B --> F[Plan Requests]
+    F --> F1[View RM-approved investment requests]
+    F1 --> F2[Prepare for contract creation]
+
+    B --> G[Contract Pending]
+    G --> G1[Upload signed investment contract]
+    G1 --> G2[Finalize request]
+    G2 --> G3[Trigger payout schedule generation]
+
+    B --> H[Contract Created]
+    H --> H1[View active & completed contracts]
+
+    B --> I[Payouts]
+    I --> I1[View payouts due <br/>15th / 30th]
+    I1 --> I2[Upload payout receipt]
+    I2 --> I3[Mark payout as completed]
+    I3 --> I4[Transaction auto-created & client notified]
+
+
+### ADMIN FLOW
+flowchart TD
+    A[Admin Login] --> B[Admin Dashboard]
+
+    B --> B1[System Overview Metrics<br/>Users, Investments, Requests]
+
+    B --> C[User Management]
+    C --> C1[View all users <br/>Client, RM, DocAdmin]
+
+    B --> D[Client Assignments]
+    D --> D1[View RM–Client mappings]
+
+    B --> E[RM Performance]
+    E --> E1[View RM metrics <br/> clients, Total Investment, plan requests]
+    E1 --> E2[Performance comparison & monitoring]
+
+    B --> F[Investment Plans]
+    F --> F1[Create new investment plans]
+    F1 --> F2[Add / manage investment options]
+    F2 --> F3[Activate / deactivate plans & options]
+    F3 --> F4[Safeguard: existing client investments unaffected]
+
+    B --> G[Investment Requests]
+    G --> G1[View all purchase requests]
+    G1 --> G2[System-wide visibility & monitoring]
+
+    B --> H[Audit Logs]
+    H --> H1[View system audit trail]
+    H1 --> H2[Export logs for compliance & reporting]
+
+
+
+### PAYOUT FLOW
+
+flowchart TD
+    A[ProductPurchaseRequest COMPLETED] --> B[PayoutSchedule Records Exist]
+
+    B --> C[Daily Cron Job Runs]
+
+    C --> D{Is Today 15th or 30th?}
+
+    D -->|No| E[Skip Payout Processing]
+    E --> C
+
+    D -->|Yes| F[Fetch Due PayoutSchedules]
+
+    F --> G{Payout Frequency?}
+
+    G -->|Monthly| H[Check Monthly Schedule]
+    G -->|Quarterly| I[Check Quarterly Schedule]
+
+    H --> J{scheduledDate = Today?}
+    I --> J
+
+    J -->|No| K[Ignore Record]
+    J -->|Yes| L[Create Payout Record]
+
+    L --> M[Payout Status = PENDING]
+    M --> N[Show in DocAdmin → Pending Receipts Tab]
+
+    N --> O[DocAdmin Reviews Payout]
+    O --> P[Upload Receipt PDF/Image]
+
+    P --> Q[Mark Payout COMPLETED]
+    Q --> R[Create Transaction]
+
+    R --> S[Link Receipt + Transaction]
+    S --> T[Mark PayoutSchedule isProcessed = true]
+
+    T --> U[Notify Client]
