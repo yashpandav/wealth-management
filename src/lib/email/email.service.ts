@@ -1394,7 +1394,7 @@ export async function sendProductRequestSubmittedEmail(
   duration: string,
   roi: number
 ): Promise<boolean> {
-  const dashboardUrl = `${config.app.url}/client/product-requests`;
+  const dashboardUrl = `${config.app.url}/client/requests`;
 
   const html = `
     <!DOCTYPE html>
@@ -2279,7 +2279,7 @@ export async function sendContractUploadedEmail(
   trackingNumber: string,
   contractUrl: string
 ): Promise<boolean> {
-  const dashboardUrl = `${config.app.url}/client/product-requests`;
+  const dashboardUrl = `${config.app.url}/client/requests`;
 
   const html = `
     <!DOCTYPE html>

@@ -2,6 +2,7 @@
  * API Route: User Notifications
  * GET - Fetch notifications for the authenticated user
  * PATCH - Mark notifications as read
+ * DELETE - Delete notifications
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -141,6 +142,59 @@ export async function PATCH(request: NextRequest) {
     console.error('Error updating notifications:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to update notifications' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { notificationIds, deleteAll } = body;
+
+    if (deleteAll) {
+      // Delete all user notifications
+      await prisma.notification.deleteMany({
+        where: {
+          userId: session.user.id,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'All notifications deleted',
+      });
+    }
+
+    if (!notificationIds || !Array.isArray(notificationIds)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid notification IDs' },
+        { status: 400 }
+      );
+    }
+
+    // Delete specific notifications
+    await prisma.notification.deleteMany({
+      where: {
+        id: { in: notificationIds },
+        userId: session.user.id,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Notifications deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting notifications:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete notifications' },
       { status: 500 }
     );
   }
