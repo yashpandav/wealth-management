@@ -25,285 +25,285 @@
 
 ## Entity-Relationship Diagram
 
-    ```mermaid
-    erDiagram
-        %% Core User Entities
-        User ||--o| Client : "extends (1:1)"
-        User ||--o| RelationshipManager : "extends (1:1)"
-        User ||--o| UserLead : "converts from (1:1)"
-        User ||--o{ AuditLog : "performs actions"
-        User ||--o{ Notification : "receives"
-        User ||--o{ Document : "verifies (DOCADMIN/ADMIN)"
-        User ||--o{ Transaction : "approves (ADMIN)"
-        User ||--o{ ProductPurchaseRequest : "completes (DOCADMIN)"
-        User ||--o{ Payout : "processes (DOCADMIN)"
+```mermaid
+erDiagram
+    %% Core User Entities
+    User ||--o| Client : "extends (1:1)"
+    User ||--o| RelationshipManager : "extends (1:1)"
+    User ||--o| UserLead : "converts from (1:1)"
+    User ||--o{ AuditLog : "performs actions"
+    User ||--o{ Notification : "receives"
+    User ||--o{ Document : "verifies (DOCADMIN/ADMIN)"
+    User ||--o{ Transaction : "approves (ADMIN)"
+    User ||--o{ ProductPurchaseRequest : "completes (DOCADMIN)"
+    User ||--o{ Payout : "processes (DOCADMIN)"
 
-        %% Client Relationships
-        RelationshipManager ||--o{ Client : "manages"
-        Client ||--o{ Transaction : "executes"
-        Client ||--o{ Document : "uploads"
-        Client ||--o{ ProductPurchaseRequest : "requests"
-        Client ||--o{ PayoutSchedule : "scheduled for"
-        Client ||--o{ Payout : "receives"
+    %% Client Relationships
+    RelationshipManager ||--o{ Client : "manages"
+    Client ||--o{ Transaction : "executes"
+    Client ||--o{ Document : "uploads"
+    Client ||--o{ ProductPurchaseRequest : "requests"
+    Client ||--o{ PayoutSchedule : "scheduled for"
+    Client ||--o{ Payout : "receives"
 
-        %% Transaction Processing
-        Transaction }o--o| RelationshipManager : "processed by (RM)"
-        Transaction }o--o| User : "approved by (ADMIN)"
-        Transaction }o--o| Payout : "generated from"
+    %% Transaction Processing
+    Transaction }o--o| RelationshipManager : "processed by (RM)"
+    Transaction }o--o| User : "approved by (ADMIN)"
+    Transaction }o--o| Payout : "generated from"
 
-        %% Investment Products
-        Investment ||--o{ InvestmentOption : "offers"
-        Investment ||--o{ ProductPurchaseRequest : "selected in"
-        InvestmentOption ||--o{ ProductPurchaseRequest : "chosen in"
-        ProductPurchaseRequest }o--|| RelationshipManager : "assigned to"
-        ProductPurchaseRequest }o--o| Document : "has contract"
-        ProductPurchaseRequest ||--o{ PayoutSchedule : "generates"
-        ProductPurchaseRequest ||--o{ Payout : "yields"
+    %% Investment Products
+    Investment ||--o{ InvestmentOption : "offers"
+    Investment ||--o{ ProductPurchaseRequest : "selected in"
+    InvestmentOption ||--o{ ProductPurchaseRequest : "chosen in"
+    ProductPurchaseRequest }o--|| RelationshipManager : "assigned to"
+    ProductPurchaseRequest }o--o| Document : "has contract"
+    ProductPurchaseRequest ||--o{ PayoutSchedule : "generates"
+    ProductPurchaseRequest ||--o{ Payout : "yields"
 
-        %% Payout System
-        PayoutSchedule ||--|| Payout : "executes as"
-        Payout }o--o| Document : "has receipt"
-        Payout }o--o| Transaction : "creates"
+    %% Payout System
+    PayoutSchedule ||--|| Payout : "executes as"
+    Payout }o--o| Document : "has receipt"
+    Payout }o--o| Transaction : "creates"
 
-        %% Lead Management
-        RelationshipManager ||--o{ UserLead : "assigned to"
+    %% Lead Management
+    RelationshipManager ||--o{ UserLead : "assigned to"
 
-        %% User Entities
-        User {
-            UUID id PK
-            VARCHAR email UK
-            VARCHAR password
-            ENUM role
-            VARCHAR firstName
-            VARCHAR lastName
-            VARCHAR phone
-            ENUM status
-            BOOLEAN isActive
-            BOOLEAN emailVerified
-            INT failedLoginAttempts
-            TIMESTAMP accountLockedUntil
-            TIMESTAMP lastLogin
-            TIMESTAMP lastFailedLogin
-            BOOLEAN isArchived
-            TIMESTAMP archivedAt
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-            TIMESTAMP deletedAt
-        }
+    %% User Entities
+    User {
+        UUID id PK
+        VARCHAR email UK
+        VARCHAR password
+        ENUM role
+        VARCHAR firstName
+        VARCHAR lastName
+        VARCHAR phone
+        ENUM status
+        BOOLEAN isActive
+        BOOLEAN emailVerified
+        INT failedLoginAttempts
+        TIMESTAMP accountLockedUntil
+        TIMESTAMP lastLogin
+        TIMESTAMP lastFailedLogin
+        BOOLEAN isArchived
+        TIMESTAMP archivedAt
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+        TIMESTAMP deletedAt
+    }
 
-        Client {
-            UUID id PK
-            UUID userId UK
-            UUID assignedRMId FK
-            VARCHAR riskTolerance
-            TEXT investmentGoals
-            BOOLEAN kycVerified
-            TEXT kycDocuments
-            ENUM verificationStatus
-            TIMESTAMP assignedAt
-            TEXT archivedReason
-        }
+    Client {
+        UUID id PK
+        UUID userId UK
+        UUID assignedRMId FK
+        VARCHAR riskTolerance
+        TEXT investmentGoals
+        BOOLEAN kycVerified
+        TEXT kycDocuments
+        ENUM verificationStatus
+        TIMESTAMP assignedAt
+        TEXT archivedReason
+    }
 
-        RelationshipManager {
-            UUID id PK
-            UUID userId UK
-            VARCHAR specialization
-            TEXT certifications
-            INT maxClientLimit
-            DECIMAL totalAUM
-        }
+    RelationshipManager {
+        UUID id PK
+        UUID userId UK
+        VARCHAR specialization
+        TEXT certifications
+        INT maxClientLimit
+        DECIMAL totalAUM
+    }
 
-        Transaction {
-            UUID id PK
-            UUID clientId FK
-            ENUM type
-            ENUM status
-            DECIMAL amount
-            DECIMAL total
-            DECIMAL fees
-            DECIMAL netAmount
-            VARCHAR currency
-            TEXT bankStatementReference
-            TEXT paymentProof
-            UUID processedById FK
-            UUID approvedById FK
-            UUID payoutId UK
-            TIMESTAMP completedAt
-            TEXT notes
-            TEXT metadata
-            TEXT failureReason
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-            TIMESTAMP deletedAt
-        }
+    Transaction {
+        UUID id PK
+        UUID clientId FK
+        ENUM type
+        ENUM status
+        DECIMAL amount
+        DECIMAL total
+        DECIMAL fees
+        DECIMAL netAmount
+        VARCHAR currency
+        TEXT bankStatementReference
+        TEXT paymentProof
+        UUID processedById FK
+        UUID approvedById FK
+        UUID payoutId UK
+        TIMESTAMP completedAt
+        TEXT notes
+        TEXT metadata
+        TEXT failureReason
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+        TIMESTAMP deletedAt
+    }
 
-        Document {
-            UUID id PK
-            UUID clientId FK
-            ENUM documentType
-            VARCHAR filePath
-            ENUM verificationStatus
-            UUID verifiedById FK
-            TIMESTAMP verifiedAt
-            TEXT rejectionReason
-            VARCHAR fileName
-            INT fileSize
-            VARCHAR mimeType
-            TEXT description
-            TIMESTAMP expiryDate
-            TIMESTAMP uploadedAt
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    Document {
+        UUID id PK
+        UUID clientId FK
+        ENUM documentType
+        VARCHAR filePath
+        ENUM verificationStatus
+        UUID verifiedById FK
+        TIMESTAMP verifiedAt
+        TEXT rejectionReason
+        VARCHAR fileName
+        INT fileSize
+        VARCHAR mimeType
+        TEXT description
+        TIMESTAMP expiryDate
+        TIMESTAMP uploadedAt
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        Investment {
-            UUID id PK
-            VARCHAR name
-            TEXT description
-            DECIMAL minAmount
-            DECIMAL maxAmount
-            VARCHAR currency
-            INT displayOrder
-            BOOLEAN isActive
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    Investment {
+        UUID id PK
+        VARCHAR name
+        TEXT description
+        DECIMAL minAmount
+        DECIMAL maxAmount
+        VARCHAR currency
+        INT displayOrder
+        BOOLEAN isActive
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        InvestmentOption {
-            UUID id PK
-            UUID investmentId FK
-            VARCHAR duration
-            VARCHAR withdrawalFrequency
-            DECIMAL roi
-            DECIMAL annualReturn
-            INT displayOrder
-            BOOLEAN isActive
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    InvestmentOption {
+        UUID id PK
+        UUID investmentId FK
+        VARCHAR duration
+        VARCHAR withdrawalFrequency
+        DECIMAL roi
+        DECIMAL annualReturn
+        INT displayOrder
+        BOOLEAN isActive
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        ProductPurchaseRequest {
-            UUID id PK
-            VARCHAR trackingNumber UK
-            UUID clientId FK
-            UUID investmentId FK
-            UUID investmentOptionId FK
-            DECIMAL amount
-            ENUM status
-            UUID assignedRMId FK
-            TIMESTAMP processedAt
-            VARCHAR payoutWindow
-            UUID contractDocumentId FK
-            TIMESTAMP contractStartDate
-            TIMESTAMP completedAt
-            UUID completedById FK
-            TEXT clientNotes
-            TEXT rmNotes
-            TEXT rejectionReason
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    ProductPurchaseRequest {
+        UUID id PK
+        VARCHAR trackingNumber UK
+        UUID clientId FK
+        UUID investmentId FK
+        UUID investmentOptionId FK
+        DECIMAL amount
+        ENUM status
+        UUID assignedRMId FK
+        TIMESTAMP processedAt
+        VARCHAR payoutWindow
+        UUID contractDocumentId FK
+        TIMESTAMP contractStartDate
+        TIMESTAMP completedAt
+        UUID completedById FK
+        TEXT clientNotes
+        TEXT rmNotes
+        TEXT rejectionReason
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        PayoutSchedule {
-            UUID id PK
-            UUID productPurchaseRequestId FK
-            UUID clientId FK
-            TIMESTAMP scheduledDate
-            TIMESTAMP periodStart
-            TIMESTAMP periodEnd
-            DECIMAL interestAmount
-            BOOLEAN isProcessed
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    PayoutSchedule {
+        UUID id PK
+        UUID productPurchaseRequestId FK
+        UUID clientId FK
+        TIMESTAMP scheduledDate
+        TIMESTAMP periodStart
+        TIMESTAMP periodEnd
+        DECIMAL interestAmount
+        BOOLEAN isProcessed
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        Payout {
-            UUID id PK
-            UUID productPurchaseRequestId FK
-            UUID payoutScheduleId UK
-            UUID clientId FK
-            DECIMAL amount
-            TIMESTAMP periodStart
-            TIMESTAMP periodEnd
-            TIMESTAMP scheduledDate
-            ENUM status
-            UUID processedById FK
-            TIMESTAMP processedAt
-            UUID receiptDocumentId UK
-            UUID transactionId UK
-            TEXT notes
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    Payout {
+        UUID id PK
+        UUID productPurchaseRequestId FK
+        UUID payoutScheduleId UK
+        UUID clientId FK
+        DECIMAL amount
+        TIMESTAMP periodStart
+        TIMESTAMP periodEnd
+        TIMESTAMP scheduledDate
+        ENUM status
+        UUID processedById FK
+        TIMESTAMP processedAt
+        UUID receiptDocumentId UK
+        UUID transactionId UK
+        TEXT notes
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        UserLead {
-            UUID id PK
-            VARCHAR firstName
-            VARCHAR lastName
-            VARCHAR email UK
-            VARCHAR phoneNumber
-            ENUM leadSource
-            VARCHAR rmReference
-            ENUM status
-            UUID assignedRMId FK
-            UUID userId UK
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    UserLead {
+        UUID id PK
+        VARCHAR firstName
+        VARCHAR lastName
+        VARCHAR email UK
+        VARCHAR phoneNumber
+        ENUM leadSource
+        VARCHAR rmReference
+        ENUM status
+        UUID assignedRMId FK
+        UUID userId UK
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        AuditLog {
-            UUID id PK
-            UUID userId FK
-            ENUM action
-            TEXT description
-            VARCHAR entityType
-            VARCHAR entityId
-            JSON oldValues
-            JSON newValues
-            VARCHAR ipAddress
-            TEXT userAgent
-            JSON metadata
-            VARCHAR severity
-            BOOLEAN success
-            TEXT errorMessage
-            VARCHAR sessionId
-            TIMESTAMP retentionDate
-            TIMESTAMP createdAt
-        }
+    AuditLog {
+        UUID id PK
+        UUID userId FK
+        ENUM action
+        TEXT description
+        VARCHAR entityType
+        VARCHAR entityId
+        JSON oldValues
+        JSON newValues
+        VARCHAR ipAddress
+        TEXT userAgent
+        JSON metadata
+        VARCHAR severity
+        BOOLEAN success
+        TEXT errorMessage
+        VARCHAR sessionId
+        TIMESTAMP retentionDate
+        TIMESTAMP createdAt
+    }
 
-        Notification {
-            UUID id PK
-            UUID userId FK
-            ENUM type
-            ENUM category
-            VARCHAR title
-            TEXT message
-            BOOLEAN isRead
-            TIMESTAMP readAt
-            BOOLEAN isDismissed
-            VARCHAR actionUrl
-            VARCHAR actionText
-            VARCHAR entityType
-            VARCHAR entityId
-            VARCHAR priority
-            TIMESTAMP expiresAt
-            JSON metadata
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
+    Notification {
+        UUID id PK
+        UUID userId FK
+        ENUM type
+        ENUM category
+        VARCHAR title
+        TEXT message
+        BOOLEAN isRead
+        TIMESTAMP readAt
+        BOOLEAN isDismissed
+        VARCHAR actionUrl
+        VARCHAR actionText
+        VARCHAR entityType
+        VARCHAR entityId
+        VARCHAR priority
+        TIMESTAMP expiresAt
+        JSON metadata
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
 
-        VerificationToken {
-            UUID id PK
-            VARCHAR email
-            VARCHAR token UK
-            TIMESTAMP expiresAt
-            VARCHAR type
-            BOOLEAN used
-            TIMESTAMP usedAt
-            TIMESTAMP createdAt
-            TIMESTAMP updatedAt
-        }
-    ```
+    VerificationToken {
+        UUID id PK
+        VARCHAR email
+        VARCHAR token UK
+        TIMESTAMP expiresAt
+        VARCHAR type
+        BOOLEAN used
+        TIMESTAMP usedAt
+        TIMESTAMP createdAt
+        TIMESTAMP updatedAt
+    }
+```
 
 ---
 
@@ -429,13 +429,33 @@ graph TD
 ## Transaction Flow Diagram
 
 ```mermaid
+%%{init: {
+  "theme": "dark",
+  "themeVariables": {
+    "background": "#0f172a",
+    "primaryColor": "#1e293b",
+    "secondaryColor": "#020617",
+    "tertiaryColor": "#020617",
+
+    "primaryTextColor": "#e5e7eb",
+    "secondaryTextColor": "#cbd5f5",
+
+    "lineColor": "#94a3b8",
+    "noteBkgColor": "#1e293b",
+    "noteTextColor": "#e5e7eb",
+
+    "activationBkgColor": "#334155",
+    "activationTextColor": "#e5e7eb"
+  }
+}}%%
+
 sequenceDiagram
     participant Client
     participant RM as Relationship Manager
     participant DocAdmin as Document Administrator
     participant System
 
-    rect rgb(200, 220, 255)
+    rect rgb(30, 58, 138)
         Note over Client,System: Purchase Request Flow
         Client->>System: Submit ProductPurchaseRequest
         System->>System: Create request (status: PENDING)
@@ -444,10 +464,10 @@ sequenceDiagram
         RM->>System: Review request + bank statement
         alt Approved
             RM->>System: Approve request (status: APPROVED)
+            RM->>System: Set payout Date (15 or 30)
             System->>DocAdmin: Send to DocAdmin for completion
             DocAdmin->>System: Upload contract document
             DocAdmin->>System: Complete request (status: COMPLETED)
-            System->>System: Set contractStartDate
             System->>System: Generate PayoutSchedule records
             System->>Client: Notify completion
         else Rejected
@@ -456,7 +476,7 @@ sequenceDiagram
         end
     end
 
-    rect rgb(255, 230, 200)
+    rect rgb(124, 45, 18)
         Note over Client,System: Payout Processing Flow
         System->>System: Scheduled date reached
         System->>System: Create Payout from PayoutSchedule
@@ -486,34 +506,30 @@ stateDiagram-v2
 
     REJECTED --> PENDING: Client re-uploads
 
-    VERIFIED --> EXPIRED: Document expires
-
-    EXPIRED --> PENDING: Client uploads new document
-
     VERIFIED --> [*]: KYC Complete
 
     note right of NOT_SUBMITTED
-        Login allowed
+        Login allowed but not Able to request plan
         No documents submitted
     end note
 
     note right of PENDING
-        Login BLOCKED
+        Login allowed but not Able to request plan
         Documents awaiting review
     end note
 
     note right of UNDER_REVIEW
-        Login BLOCKED
+        Login allowed but not Able to request plan
         Documents being reviewed
     end note
 
     note right of VERIFIED
-        Login allowed
+        Login allowed but not Able to request plan
         Can make investments
     end note
 
     note right of REJECTED
-        Login allowed
+        Login allowed but not Able to request plan
         Must resubmit documents
     end note
 ```
@@ -524,7 +540,7 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TD
-    A[ProductPurchaseRequest COMPLETED] -->|DocAdmin completes| B[Set contractStartDate]
+    A[ProductPurchaseRequest COMPLETED] -->|DocAdmin completes| B[Contract Starts]
 
     B --> C{Calculate Payout Schedule}
 
@@ -556,11 +572,6 @@ flowchart TD
     R --> S[Update PayoutSchedule isProcessed: true]
 
     S --> T[Notify Client]
-
-    style A fill:#99ccff
-    style G fill:#99ff99
-    style O fill:#ffcc99
-    style T fill:#ff99ff
 ```
 
 ---
