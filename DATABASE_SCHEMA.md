@@ -373,13 +373,6 @@ graph TB
     K -->|1:1 executes| L
     L -->|1:1 creates| J
     L -->|1:1 references| M
-
-    style A fill:#ff9999
-    style D fill:#99ccff
-    style E fill:#99ccff
-    style G fill:#99ff99
-    style J fill:#ffcc99
-    style M fill:#ff99ff
 ```
 
 ---
@@ -416,12 +409,6 @@ graph TD
     E -->|can| E3[Complete Purchase Requests]
     E -->|can| E4[Process Payouts]
     E -->|can| E5[Upload Receipts]
-
-    style A fill:#ff9999
-    style B fill:#99ccff
-    style C fill:#99ff99
-    style D fill:#ffcc99
-    style E fill:#ff99ff
 ```
 
 ---
@@ -1345,10 +1332,6 @@ graph TD
         E1 -->|scheduled date| F1[Payout created]
         F1 -->|DocAdmin processes| G1[Transaction: INTEREST_PAYOUT]
     end
-
-    style A1 fill:#99ccff
-    style D1 fill:#99ff99
-    style G1 fill:#ffcc99
 ```
 
 **Key Points**:
@@ -1584,6 +1567,7 @@ function generateTrackingNumber(): string {
 
 ### ER DIAGRAM SHORT
 
+```mermaid
 erDiagram
 
 User ||--o| Client : extends
@@ -1721,9 +1705,11 @@ VerificationToken {
     VARCHAR token UK
     TIMESTAMP expiresAt
 }
-
+```
 
 ### User flow
+
+```mermaid
 flowchart TD
     A[Client Registers] --> B[Email Verification]
 
@@ -1760,9 +1746,11 @@ flowchart TD
     H --> W[Upload Documents Anytime]
     H --> X[View Notifications]
     H --> Y[View Contracts & Receipts]
-
+```
 
 ### LEAD USER FLOW
+
+```mermaid
 flowchart TD
     A[Public User Visits Website] --> B[user-form Submission]
     B --> C[Create UserLead Record]
@@ -1771,10 +1759,12 @@ flowchart TD
 
     E --> F[Await RM Assignment]
     F --> G[No Login / No Dashboard Access]
-
+```
 
 
 ### RM FLOW
+
+```mermaid
 flowchart TD
     A[RM Login] --> B[RM Dashboard]
 
@@ -1816,9 +1806,11 @@ flowchart TD
 
     H --> H1[View Transactions]
     H --> H2[View Payout Schedules]
-
+```
 
 ### DOCADMIN FLOW
+
+```mermaid
 flowchart TD
     A[DocAdmin Login] --> B[DocAdmin Dashboard]
 
@@ -1856,9 +1848,11 @@ flowchart TD
     I1 --> I2[Upload payout receipt]
     I2 --> I3[Mark payout as completed]
     I3 --> I4[Transaction auto-created & client notified]
-
+```
 
 ### ADMIN FLOW
+
+```mermaid
 flowchart TD
     A[Admin Login] --> B[Admin Dashboard]
 
@@ -1887,11 +1881,12 @@ flowchart TD
     B --> H[Audit Logs]
     H --> H1[View system audit trail]
     H1 --> H2[Export logs for compliance & reporting]
-
+```
 
 
 ### PAYOUT FLOW
 
+```mermaid
 flowchart TD
     A[ProductPurchaseRequest COMPLETED] --> B[PayoutSchedule Records Exist]
 
@@ -1928,3 +1923,4 @@ flowchart TD
     S --> T[Mark PayoutSchedule isProcessed = true]
 
     T --> U[Notify Client]
+```
