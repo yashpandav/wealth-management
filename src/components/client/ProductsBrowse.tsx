@@ -176,12 +176,12 @@ export function ProductsBrowse() {
   const products = data?.data.products || [];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-brand-grey/20">
         <div>
           <h1 className="font-optima text-2xl font-bold text-brand-blue">Available Plans</h1>
-          <p className="font-georgia text-comments text-brand-grey mt-1">
+          <p className="font-georgia text-comments text-brand-grey mt-1 font-nums">
             {products.length} {products.length === 1 ? 'plan' : 'plans'} available
           </p>
         </div>
@@ -258,14 +258,14 @@ export function ProductsBrowse() {
                     {/* Product Header */}
                     <div className={`${colors.gradient} px-6 py-6 text-white`}>
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-optima text-xl font-bold">{product.name}</h3>
+                        <h3 className="text-xl font-bold font-nums">{product.name}</h3>
                         {highestReturn && (
                           <div className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
-                            <p className="font-georgia text-xs font-semibold text-brand-blue">Up to {highestReturn}%</p>
+                            <p className="font-nums text-xs font-semibold text-brand-blue font-nums">Up to {highestReturn}%</p>
                           </div>
                         )}
                       </div>
-                      <p className="text-white/95 font-georgia text-comments font-medium">
+                      <p className="text-white/95 font-nums text-comments font-medium font-nums">
                         <span className="flex items-center gap-1">
                           <DirhamIcon className="h-4 w-4 text-white" />
                           {formatAmountRange(product)}
@@ -275,7 +275,7 @@ export function ProductsBrowse() {
 
                     {/* Product Body */}
                     <div className="px-6 py-5">
-                      <p className="font-georgia text-brand-grey text-comments mb-5 min-h-[50px] leading-relaxed">
+                      <p className="font-nums text-brand-grey text-comments mb-5 min-h-[50px] leading-relaxed">
                         {product.description ||
                           'Secure investment opportunity with competitive returns and flexible terms'}
                       </p>
@@ -292,18 +292,18 @@ export function ProductsBrowse() {
                           >
                             <div className="flex items-center gap-2">
                               <TrendingUp className="h-3.5 w-3.5 text-brand-blue" />
-                              <span className="font-georgia text-comments text-brand-blue font-medium">{option.duration}</span>
-                              <span className="font-georgia text-xs text-brand-grey">
+                              <span className="text-comments text-brand-blue font-medium font-nums">{option.duration}</span>
+                              <span className="text-xs text-brand-grey font-nums">
                                 {option.withdrawalFrequency}
                               </span>
                             </div>
-                            <span className="font-optima text-comments font-bold text-brand-blue">
+                            <span className="text-comments font-bold text-brand-blue font-nums">
                               {option.annualReturn}%
                             </span>
                           </div>
                         ))}
                         {product.options.length > 3 && (
-                          <p className="font-georgia text-xs text-brand-grey text-center pt-1">
+                          <p className="font-georgia text-xs text-brand-grey text-center pt-1 font-nums">
                             +{product.options.length - 3} more plan
                             {product.options.length - 3 > 1 ? 's' : ''}
                           </p>
@@ -338,18 +338,18 @@ export function ProductsBrowse() {
                   >
                     <div className="flex flex-col md:flex-row">
                       {/* Left Section - Product Info */}
-                      <div className={`${colors.gradient} text-white p-4 md:p-6 md:w-72 flex-shrink-0`}>
-                        <h3 className="font-optima text-2xl font-bold mb-2">{product.name}</h3>
-                        <p className="text-white/95 font-georgia text-comments font-medium mb-4">
+                      <div className={`${colors.gradient} text-white p-4 w-full md:w-60 flex-shrink-0 flex flex-col justify-center`}>
+                        <h3 className="text-xl font-bold mb-1 font-nums">{product.name}</h3>
+                        <p className="text-white/90 font-georgia text-sm font-medium mb-3 font-nums">
                           <span className="flex items-center gap-1">
-                            <DirhamIcon className="h-4 w-4 text-white" />
+                            <DirhamIcon className="h-3.5 w-3.5 text-white" />
                             {formatAmountRange(product)}
                           </span>
                         </p>
                         {highestReturn && (
-                          <div className="inline-flex items-center gap-2 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
-                            <TrendingUp className="h-3.5 w-3.5 text-brand-blue" />
-                            <span className="font-georgia text-xs font-semibold text-brand-blue">
+                          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+                            <TrendingUp className="h-3 w-3 text-white" />
+                            <span className="font-georgia text-xs font-semibold text-white font-nums">
                               Up to {highestReturn}% Annual
                             </span>
                           </div>
@@ -357,45 +357,49 @@ export function ProductsBrowse() {
                       </div>
 
                       {/* Right Section - Details & Options */}
-                      <div className="flex-1 p-4 md:p-6">
-                        <p className="font-georgia text-brand-grey text-comments mb-5 leading-relaxed">
-                          {product.description ||
-                            'Secure investment opportunity with competitive returns and flexible terms'}
-                        </p>
-
-                        <div className="mb-5">
-                          <p className="font-optima text-xs font-semibold text-brand-blue uppercase tracking-wider mb-3">
-                            Available Investment Plans ({product.options.length})
+                      <div className="flex-1 p-4 flex flex-col justify-between">
+                        <div>
+                          <p className="font-nums text-brand-grey text-sm mb-3 leading-relaxed line-clamp-2">
+                            {product.description ||
+                              'Secure investment opportunity with competitive returns and flexible terms'}
                           </p>
-                          <div className="flex flex-wrap gap-2">
-                            {product.options.map((option) => (
-                              <div
-                                key={option.id}
-                                className="inline-flex items-center gap-2 px-3 py-2 bg-brand-blue/5 border border-brand-blue/20 rounded-lg font-georgia text-comments"
-                              >
-                                <span className="text-brand-blue font-medium">{option.duration}</span>
-                                <span className="text-brand-grey">•</span>
-                                <span className="text-brand-grey text-xs">
-                                  {option.withdrawalFrequency}
-                                </span>
-                                <span className="text-brand-grey">•</span>
-                                <span className="font-optima font-bold text-brand-blue">
-                                  {option.annualReturn}%
-                                </span>
-                              </div>
-                            ))}
+
+                          <div className="mb-3">
+                            <p className="font-optima text-[10px] font-bold text-brand-grey/70 uppercase tracking-widest mb-2">
+                              {product.options.length} Available Plans
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {product.options.map((option) => (
+                                <div
+                                  key={option.id}
+                                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-blue/5 border border-brand-blue/10 rounded-md font-georgia text-sm hover:bg-brand-blue/10 transition-colors"
+                                >
+                                  <span className="text-brand-blue font-semibold font-nums">{option.duration}</span>
+                                  <span className="text-brand-grey/40 text-[10px]">•</span>
+                                  <span className="text-brand-grey text-xs font-nums">
+                                    {option.withdrawalFrequency}
+                                  </span>
+                                  <span className="text-brand-grey/40 text-[10px]">•</span>
+                                  <span className="font-nums font-bold text-brand-blue text-sm">
+                                    {option.annualReturn}%
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
-                        <Link href={`/client/products/${product.id}`}>
-                          <Button
-                            className="bg-brand-blue hover:bg-brand-blue/90 text-white group font-optima shadow-lg hover:shadow-xl transition-all"
-                            size="default"
-                          >
-                            <span>View Full Details & Apply</span>
-                            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                          </Button>
-                        </Link>
+                        <div className="flex justify-end pt-2">
+                          <Link href={`/client/products/${product.id}`}>
+                            <Button
+                              className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima shadow-md hover:shadow-lg transition-all h-9 text-sm"
+                              size="sm"
+                            >
+                              <span>View Details</span>
+                              <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                            </Button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>

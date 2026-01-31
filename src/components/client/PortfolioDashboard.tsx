@@ -224,7 +224,7 @@ export function PortfolioDashboard() {
             </span>
             <span className="text-sm text-muted-foreground">per year</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
+          <p className="text-xs text-muted-foreground mt-2 font-nums">
             Based on {summary.activeInvestmentsCount} active investment{summary.activeInvestmentsCount !== 1 ? 's' : ''}
           </p>
         </CardContent>
@@ -232,7 +232,7 @@ export function PortfolioDashboard() {
 
       {/* Active Investments Table */}
       <div className="mt-8">
-        <h3 className="mb-4 text-lg font-semibold font-optima text-gray-900">
+        <h3 className="mb-4 text-lg font-semibold font-optima text-gray-900 font-nums">
           Active Investments ({portfolio.investments.length})
         </h3>
         <Card className="border-gray-200">
@@ -271,7 +271,7 @@ export function PortfolioDashboard() {
                         <div className="font-medium text-sm text-gray-900">
                           {investment.investmentName}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 font-nums">
                           {investment.trackingNumber}
                         </div>
                       </td>
@@ -285,8 +285,8 @@ export function PortfolioDashboard() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm text-gray-900">{investment.duration}</div>
-                        <div className="text-xs text-gray-500">{investment.withdrawalFrequency}</div>
+                        <div className="text-sm text-gray-900 font-nums">{investment.duration}</div>
+                        <div className="text-xs text-gray-500 font-nums">{investment.withdrawalFrequency}</div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm font-medium text-blue-600 font-nums">
@@ -310,11 +310,10 @@ export function PortfolioDashboard() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                            investment.status === 'COMPLETED'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-blue-100 text-blue-800'
-                          }`}
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${investment.status === 'COMPLETED'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-blue-100 text-blue-800'
+                            }`}
                         >
                           {investment.status}
                         </span>

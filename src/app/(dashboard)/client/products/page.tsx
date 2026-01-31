@@ -66,7 +66,7 @@ export default function ClientProductsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-full sm:max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+      <div className="max-w-full sm:max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4">
         <ProductsBrowse />
       </div>
 
@@ -77,7 +77,7 @@ export default function ClientProductsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4 sm:gap-6 lg:gap-8">
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
-                <span className="font-optima text-2xl font-bold">1</span>
+                <span className="font-optima text-2xl font-bold font-nums">1</span>
               </div>
               <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Choose a Plan</h3>
               <p className="font-georgia text-brand-grey leading-relaxed text-sm">
@@ -86,7 +86,7 @@ export default function ClientProductsPage() {
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
-                <span className="font-optima text-2xl font-bold">2</span>
+                <span className="font-optima text-2xl font-bold font-nums">2</span>
               </div>
               <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Select Your Plan</h3>
               <p className="font-georgia text-brand-grey leading-relaxed text-sm">
@@ -95,7 +95,7 @@ export default function ClientProductsPage() {
             </div>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
-                <span className="font-optima text-2xl font-bold">3</span>
+                <span className="font-optima text-2xl font-bold font-nums">3</span>
               </div>
               <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Submit Request</h3>
               <p className="font-georgia text-brand-grey leading-relaxed text-sm">
