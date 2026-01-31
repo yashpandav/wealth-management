@@ -152,6 +152,32 @@ export async function PATCH(
       },
     });
 
+    // Create in-app notification for RM
+    await prisma.notification.create({
+      data: {
+        userId: rm.userId,
+        type: 'INFO',
+        category: 'ASSIGNMENT',
+        title: 'New Lead Assigned',
+        message: `New lead ${lead.firstName} ${lead.lastName} has been assigned to you. Please review and follow up.`,
+        isRead: false,
+        actionUrl: '/rm/leads',
+        actionText: 'View Leads',
+        entityType: 'UserLead',
+        entityId: leadId,
+        priority: 'HIGH',
+        metadata: {
+          leadId: lead.id,
+          leadName: `${lead.firstName} ${lead.lastName}`,
+          leadEmail: lead.email,
+          leadPhone: lead.phoneNumber || 'N/A',
+          leadStatus: updatedLead.status,
+          assignedBy: docAdmin.email,
+          notes: notes || null,
+        },
+      },
+    }).catch(err => console.error('Failed to create RM notification:', err));
+
     // Send notification email to RM about new lead assignment
     const rmName = `${rm.user.firstName} ${rm.user.lastName}`;
     const leadName = `${lead.firstName} ${lead.lastName}`;
