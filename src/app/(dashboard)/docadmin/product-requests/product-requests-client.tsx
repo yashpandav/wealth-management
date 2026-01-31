@@ -277,7 +277,7 @@ export function ProductRequestsClient({
             <TableRow>
               <TableHead>Tracking #</TableHead>
               <TableHead>Client</TableHead>
-              <TableHead>Product</TableHead>
+              <TableHead>Plan</TableHead>
               <TableHead>Plan Details</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>

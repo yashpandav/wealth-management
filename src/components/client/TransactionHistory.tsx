@@ -398,67 +398,72 @@ export function TransactionHistory() {
             <DialogTitle>Transaction Details</DialogTitle>
           </DialogHeader>
           {selectedTransaction && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Transaction ID</p>
-                  <p className="font-mono text-sm font-nums">{selectedTransaction.id}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Date</p>
-                  <p className="font-nums">{format(new Date(selectedTransaction.completedAt), 'PPpp')}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Type</p>
-                  <Badge variant="outline" className={getTypeColor(selectedTransaction.type)}>
-                    {selectedTransaction.type}
-                  </Badge>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Status</p>
-                  <Badge variant="outline" className={getStatusColor(selectedTransaction.status)}>
-                    {selectedTransaction.status.replace('_', ' ')}
-                  </Badge>
+            <div className="space-y-6">
+              {/* Transaction Information */}
+              <div className="bg-gray-50 p-5 rounded-lg space-y-3.5">
+                <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-3">
+                  <div className="text-sm font-medium text-gray-700">Transaction ID:</div>
+                  <div className="text-sm text-gray-900 font-mono font-nums">{selectedTransaction.id}</div>
+
+                  <div className="text-sm font-medium text-gray-700">Date:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(selectedTransaction.completedAt), 'MMM dd, yyyy - h:mm a')}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Type:</div>
+                  <div className="text-sm text-gray-900">
+                    <Badge variant="outline" className={getTypeColor(selectedTransaction.type)}>
+                      {selectedTransaction.type}
+                    </Badge>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Status:</div>
+                  <div className="text-sm text-gray-900">
+                    <Badge variant="outline" className={getStatusColor(selectedTransaction.status)}>
+                      {selectedTransaction.status.replace('_', ' ')}
+                    </Badge>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Amount:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    <DirhamIcon className="w-3 h-3" />
+                    <span className="font-nums font-medium">
+                      {selectedTransaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Fees:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    <DirhamIcon className="w-3 h-3" />
+                    <span className="font-nums font-medium">
+                      {selectedTransaction.fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Total:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    <DirhamIcon className="w-3 h-3" />
+                    <span className="font-nums font-medium">
+                      {selectedTransaction.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Net Amount:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    <DirhamIcon className="w-3 h-3" />
+                    <span className="font-nums font-medium">
+                      {selectedTransaction.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+
+                  {selectedTransaction.notes && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Notes:</div>
+                      <div className="text-sm text-gray-900">{selectedTransaction.notes}</div>
+                    </>
+                  )}
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Amount</p>
-                  <p className="font-medium flex items-center font-nums">
-                    <DirhamIcon className="w-3 h-3 mr-1" />
-                    {selectedTransaction.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Fees</p>
-                  <p className="font-medium flex items-center font-nums">
-                    <DirhamIcon className="w-3 h-3 mr-1" />
-                    {selectedTransaction.fees.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Total</p>
-                  <p className="font-medium flex items-center font-nums">
-                    <DirhamIcon className="w-3 h-3 mr-1" />
-                    {selectedTransaction.total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Net Amount</p>
-                  <p className="font-medium flex items-center font-nums">
-                    <DirhamIcon className="w-3 h-3 mr-1" />
-                    {selectedTransaction.netAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-
-              {selectedTransaction.notes && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Notes</p>
-                  <p className="text-sm">{selectedTransaction.notes}</p>
-                </div>
-              )}
             </div>
           )}
         </DialogContent>

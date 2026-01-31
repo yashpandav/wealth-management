@@ -626,85 +626,79 @@ export function ProductPurchaseRequestsTable() {
             <DialogTitle>Product Request Details</DialogTitle>
           </DialogHeader>
           {detailDialog.request && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Tracking Number</p>
-                  <p className="font-mono font-nums">{detailDialog.request.trackingNumber}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  {getStatusBadge(detailDialog.request.status)}
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Client</p>
-                <p className="font-medium">{detailDialog.request.client.firstName} {detailDialog.request.client.lastName}</p>
-                <p className="text-sm text-muted-foreground">{detailDialog.request.client.email}</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Product</p>
-                  <p className="font-medium">{detailDialog.request.investment.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium flex items-center font-nums">
-                    {detailDialog.request.investment.currency !== 'USD' ? detailDialog.request.investment.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
-                    {detailDialog.request.amount.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Duration</p>
-                  <p>{detailDialog.request.investmentOption.duration}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Withdrawal Frequency</p>
-                  <p>{detailDialog.request.investmentOption.withdrawalFrequency}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">ROI</p>
-                  <p>{detailDialog.request.investmentOption.roi}%</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Annual Return</p>
-                  <p className="text-green-600 font-medium">{detailDialog.request.investmentOption.annualReturn}%</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Submitted</p>
-                  <p>{format(new Date(detailDialog.request.createdAt), 'PPp')}</p>
-                </div>
-                {detailDialog.request.processedAt && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Processed</p>
-                    <p>{format(new Date(detailDialog.request.processedAt), 'PPp')}</p>
+            <div className="space-y-6">
+              {/* Request Information */}
+              <div className="bg-gray-50 p-5 rounded-lg space-y-3.5">
+                <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-3">
+                  <div className="text-sm font-medium text-gray-700">Tracking Number:</div>
+                  <div className="text-sm text-gray-900 font-mono font-nums">{detailDialog.request.trackingNumber}</div>
+
+                  <div className="text-sm font-medium text-gray-700">Status:</div>
+                  <div className="text-sm text-gray-900">{getStatusBadge(detailDialog.request.status)}</div>
+
+                  <div className="text-sm font-medium text-gray-700">Client:</div>
+                  <div className="text-sm text-gray-900">
+                    <div className="font-medium">{detailDialog.request.client.firstName} {detailDialog.request.client.lastName}</div>
+                    <div className="text-xs text-gray-600 mt-0.5">{detailDialog.request.client.email}</div>
                   </div>
-                )}
+
+                  <div className="text-sm font-medium text-gray-700">Product:</div>
+                  <div className="text-sm text-gray-900 font-nums">{detailDialog.request.investment.name}</div>
+
+                  <div className="text-sm font-medium text-gray-700">Amount:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    {detailDialog.request.investment.currency === 'USD' ? (
+                      <DirhamIcon className="w-3 h-3" />
+                    ) : (
+                      <span className="font-nums">{detailDialog.request.investment.currency}</span>
+                    )}
+                    <span className="font-nums font-medium">{detailDialog.request.amount.toLocaleString()}</span>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Duration:</div>
+                  <div className="text-sm text-gray-900">{detailDialog.request.investmentOption.duration}</div>
+
+                  <div className="text-sm font-medium text-gray-700">Frequency:</div>
+                  <div className="text-sm text-gray-900">{detailDialog.request.investmentOption.withdrawalFrequency}</div>
+
+                  <div className="text-sm font-medium text-gray-700">ROI:</div>
+                  <div className="text-sm text-gray-900 font-nums">{detailDialog.request.investmentOption.roi}%</div>
+
+                  <div className="text-sm font-medium text-gray-700">Annual Return:</div>
+                  <div className="text-sm text-green-600 font-medium font-nums">{detailDialog.request.investmentOption.annualReturn}%</div>
+
+                  <div className="text-sm font-medium text-gray-700">Submitted:</div>
+                  <div className="text-sm text-gray-900 font-nums">{format(new Date(detailDialog.request.createdAt), 'MMM dd, yyyy - h:mm a')}</div>
+
+                  {detailDialog.request.processedAt && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Processed:</div>
+                      <div className="text-sm text-gray-900 font-nums">{format(new Date(detailDialog.request.processedAt), 'MMM dd, yyyy - h:mm a')}</div>
+                    </>
+                  )}
+
+                  {detailDialog.request.clientNotes && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Client Notes:</div>
+                      <div className="text-sm text-gray-900 bg-white p-2 rounded border border-gray-200">{detailDialog.request.clientNotes}</div>
+                    </>
+                  )}
+
+                  {detailDialog.request.rmNotes && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">RM Notes:</div>
+                      <div className="text-sm text-gray-900 bg-white p-2 rounded border border-gray-200">{detailDialog.request.rmNotes}</div>
+                    </>
+                  )}
+
+                  {detailDialog.request.rejectionReason && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Rejection Reason:</div>
+                      <div className="text-sm text-red-700 bg-red-50 p-2 rounded border border-red-200">{detailDialog.request.rejectionReason}</div>
+                    </>
+                  )}
+                </div>
               </div>
-              {detailDialog.request.clientNotes && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Client Notes</p>
-                  <p className="text-sm bg-gray-50 p-2 rounded">{detailDialog.request.clientNotes}</p>
-                </div>
-              )}
-              {detailDialog.request.rmNotes && (
-                <div>
-                  <p className="text-sm text-muted-foreground">RM Notes</p>
-                  <p className="text-sm bg-gray-50 p-2 rounded">{detailDialog.request.rmNotes}</p>
-                </div>
-              )}
-              {detailDialog.request.rejectionReason && (
-                <div>
-                  <p className="text-sm text-muted-foreground">Rejection Reason</p>
-                  <p className="text-sm bg-red-50 text-red-700 p-2 rounded">{detailDialog.request.rejectionReason}</p>
-                </div>
-              )}
             </div>
           )}
           <DialogFooter>

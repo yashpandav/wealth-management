@@ -323,7 +323,7 @@ export function PayoutHistory() {
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
-              <TableHead>Product</TableHead>
+              <TableHead>Plans</TableHead>
               <TableHead>Period</TableHead>
               <TableHead className="text-right">Amount</TableHead>
               <TableHead>Status</TableHead>
@@ -344,7 +344,7 @@ export function PayoutHistory() {
                     {format(new Date(payout.scheduledDate), 'MMM dd, yyyy')}
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="font-medium">
+                    <Badge variant="outline" className="font-medium font-nums">
                       {payout.productPurchaseRequest.investment.name}
                     </Badge>
                     <p className="text-xs text-muted-foreground mt-1 font-nums">
@@ -464,108 +464,97 @@ export function PayoutHistory() {
             <DialogDescription>View detailed information about this payout</DialogDescription>
           </DialogHeader>
           {detailDialog.payout && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Tracking Number</p>
-                  <p className="font-mono">
+            <div className="space-y-6">
+              {/* Payout Information */}
+              <div className="bg-gray-50 p-5 rounded-lg space-y-3.5">
+                <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-3">
+                  <div className="text-sm font-medium text-gray-700">Tracking Number:</div>
+                  <div className="text-sm text-gray-900 font-mono font-nums">
                     {detailDialog.payout.productPurchaseRequest.trackingNumber}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  {getStatusBadge(detailDialog.payout.status, detailDialog.payout.scheduledDate)}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Product</p>
-                  <p className="font-medium">
-                    {detailDialog.payout.productPurchaseRequest.investment.name}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium flex items-center font-nums">
-                    {detailDialog.payout.productPurchaseRequest.investment.currency !== 'USD'
-                      ? detailDialog.payout.productPurchaseRequest.investment.currency
-                      : <DirhamIcon className="w-3 h-3 mr-1" />}
-                    {detailDialog.payout.amount.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Period Start</p>
-                  <p className="font-nums">
-                    {format(new Date(detailDialog.payout.periodStart), 'PPP')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Period End</p>
-                  <p className="font-nums">
-                    {format(new Date(detailDialog.payout.periodEnd), 'PPP')}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Scheduled Date</p>
-                  <p className="font-nums">
-                    {format(new Date(detailDialog.payout.scheduledDate), 'PPP')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Frequency</p>
-                  <p>
-                    {detailDialog.payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Duration</p>
-                  <p>{detailDialog.payout.productPurchaseRequest.investmentOption.duration}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Annual Return</p>
-                  <p className="text-green-600 font-medium">
-                    <span className="font-nums">
-                      {detailDialog.payout.productPurchaseRequest.investmentOption.annualReturn}
-                    </span>
-                    %
-                  </p>
-                </div>
-              </div>
-              {detailDialog.payout.status === 'COMPLETED' && detailDialog.payout.processedAt && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Processed Date</p>
-                    <p className="font-nums">
-                      {format(new Date(detailDialog.payout.processedAt), 'PPP')}
-                    </p>
                   </div>
+
+                  <div className="text-sm font-medium text-gray-700">Status:</div>
+                  <div className="text-sm text-gray-900">
+                    {getStatusBadge(detailDialog.payout.status, detailDialog.payout.scheduledDate)}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Plan:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {detailDialog.payout.productPurchaseRequest.investment.name}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Amount:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    {detailDialog.payout.productPurchaseRequest.investment.currency === 'USD' ? (
+                      <DirhamIcon className="w-3 h-3" />
+                    ) : (
+                      <span className="font-nums">{detailDialog.payout.productPurchaseRequest.investment.currency}</span>
+                    )}
+                    <span className="font-nums">{detailDialog.payout.amount.toLocaleString()}</span>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Period Start:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(detailDialog.payout.periodStart), 'MMM dd, yyyy')}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Period End:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(detailDialog.payout.periodEnd), 'MMM dd, yyyy')}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Scheduled Date:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(detailDialog.payout.scheduledDate), 'MMM dd, yyyy')}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Frequency:</div>
+                  <div className="text-sm text-gray-900">
+                    {detailDialog.payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Duration:</div>
+                  <div className="text-sm text-gray-900">
+                    {detailDialog.payout.productPurchaseRequest.investmentOption.duration}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Annual Return:</div>
+                  <div className="text-sm text-green-600 font-medium">
+                    <span className="font-nums">{detailDialog.payout.productPurchaseRequest.investmentOption.annualReturn}</span>%
+                  </div>
+
+                  {detailDialog.payout.status === 'COMPLETED' && detailDialog.payout.processedAt && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Processed Date:</div>
+                      <div className="text-sm text-gray-900 font-nums">
+                        {format(new Date(detailDialog.payout.processedAt), 'MMM dd, yyyy')}
+                      </div>
+                    </>
+                  )}
+
                   {detailDialog.payout.receiptDocument && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Receipt</p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="h-auto p-0 text-brand-blue"
-                        onClick={() =>
-                          handleDownloadReceipt(
-                            detailDialog.payout!.receiptDocument!.filePath,
-                            detailDialog.payout!.receiptDocument!.fileName
-                          )
-                        }
-                      >
-                        <Download className="h-3 w-3 mr-1" />
-                        Download Receipt
-                      </Button>
-                    </div>
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Receipt:</div>
+                      <div className="text-sm">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-auto p-0 text-brand-blue hover:text-brand-blue/80"
+                          onClick={() =>
+                            handleDownloadReceipt(
+                              detailDialog.payout!.receiptDocument!.filePath,
+                              detailDialog.payout!.receiptDocument!.fileName
+                            )
+                          }
+                        >
+                          <Download className="h-3 w-3 mr-1" />
+                          Download Receipt
+                        </Button>
+                      </div>
+                    </>
                   )}
                 </div>
-              )}
+              </div>
             </div>
           )}
           <DialogFooter>

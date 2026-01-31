@@ -51,18 +51,17 @@ async function setupTestContracts() {
   header('📝 SETUP: Creating Test Contracts');
 
   const testVerifiedUser = await prisma.client.findFirst({
-    where: { user: { email: 'test.verified@example.com' } },
+    where: { user: { email: 'leaduser@easd.com' } },
     include: { user: true },
   });
 
   if (!testVerifiedUser) {
-    log('❌ test.verified@example.com not found. Run: pnpm prisma db seed', colors.red);
+    log('❌ leaduser@easd.com not found. Run: pnpm prisma db seed', colors.red);
     return;
   }
 
   log(`✅ Found user: ${testVerifiedUser.user.email}`, colors.green);
 
-  // Get investment options
   const monthlyOption = await prisma.investmentOption.findFirst({
     where: { withdrawalFrequency: 'Monthly', duration: '1 Year' },
     include: { investment: true },
@@ -108,7 +107,7 @@ async function setupTestContracts() {
       clientId: testVerifiedUser.id,
       investmentId: monthlyOption.investmentId,
       investmentOptionId: monthlyOption.id,
-      amount: 100000,
+      amount: 100050,
       status: 'COMPLETED',
       payoutWindow: '1-15',
       contractStartDate: start1,
@@ -135,7 +134,7 @@ async function setupTestContracts() {
       clientId: testVerifiedUser.id,
       investmentId: monthlyOption.investmentId,
       investmentOptionId: monthlyOption.id,
-      amount: 150000,
+      amount: 150025,
       status: 'COMPLETED',
       payoutWindow: '16-30',
       contractStartDate: start2,
@@ -364,8 +363,8 @@ async function showUpcoming() {
 
     log(
       `${i + 1}. ${label} (${new Date(payout.scheduledDate).toLocaleDateString()}) - ` +
-        `${payout.client.user.firstName} ${payout.client.user.lastName} - ` +
-        `AED ${payout.amount.toString()} - ${payout.productPurchaseRequest.investment.name}`,
+      `${payout.client.user.firstName} ${payout.client.user.lastName} - ` +
+      `AED ${payout.amount.toString()} - ${payout.productPurchaseRequest.investment.name}`,
       colors.cyan
     );
   });
@@ -407,8 +406,8 @@ async function showMissed() {
 
     log(
       `${i + 1}. ${daysAgo} days ago (${new Date(payout.scheduledDate).toLocaleDateString()}) - ` +
-        `${payout.client.user.firstName} ${payout.client.user.lastName} - ` +
-        `AED ${payout.amount.toString()} - ${payout.productPurchaseRequest.investment.name}`,
+      `${payout.client.user.firstName} ${payout.client.user.lastName} - ` +
+      `AED ${payout.amount.toString()} - ${payout.productPurchaseRequest.investment.name}`,
       colors.red
     );
   });
@@ -445,7 +444,7 @@ async function completePayouts() {
 
     log(
       `✅ Completed: ${new Date(payout.scheduledDate).toLocaleDateString()} - ` +
-        `${payout.client.user.firstName} ${payout.client.user.lastName} - AED ${payout.amount.toString()}`,
+      `${payout.client.user.firstName} ${payout.client.user.lastName} - AED ${payout.amount.toString()}`,
       colors.green
     );
   }
@@ -472,7 +471,7 @@ async function verifyCalculations() {
 
   for (const contract of contracts) {
     const { amount, payoutSchedules, investmentOption } = contract;
-    const expectedInterest : number = (Number(amount) * Number(investmentOption.roi)) / 100;
+    const expectedInterest: number = (Number(amount) * Number(investmentOption.roi)) / 100;
 
     log(`\n📄 ${contract.trackingNumber}`, colors.cyan);
     log(`   Amount: AED ${Number(amount).toLocaleString()}`, colors.cyan);
@@ -485,7 +484,7 @@ async function verifyCalculations() {
       if (Math.abs(actual - Number(expectedInterest)) > 0.01) {
         log(
           `   ❌ Schedule ${schedule.scheduledDate.toISOString().split('T')[0]}: ` +
-            `Expected AED ${expectedInterest}, Got AED ${actual}`,
+          `Expected AED ${expectedInterest}, Got AED ${actual}`,
           colors.red
         );
         errors++;

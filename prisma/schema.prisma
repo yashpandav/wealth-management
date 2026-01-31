@@ -372,9 +372,9 @@ model Transaction {
 model AuditLog {
   id String @id @default(uuid())
 
-  // User who performed the action
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  // User who performed the action (nullable for system-generated actions)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
 
   // Action details
   action      AuditAction

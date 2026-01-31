@@ -120,7 +120,7 @@ export async function generatePayoutSchedules(
   try {
     await prisma.auditLog.create({
       data: {
-        userId: 'SYSTEM', // System-generated action
+        userId: null, // System-generated action
         action: 'PAYOUT_SCHEDULE_CREATED',
         entityType: 'PayoutSchedule',
         entityId: productPurchaseRequestId,
@@ -247,7 +247,7 @@ export async function createPendingPayouts(lookAheadDays: number = 3): Promise<n
       try {
         await prisma.auditLog.create({
           data: {
-            userId: 'SYSTEM', // System-generated action (cron job)
+            userId: null, // System-generated action (cron job)
             action: 'PAYOUT_CREATED',
             entityType: 'Payout',
             entityId: newPayout.id,
