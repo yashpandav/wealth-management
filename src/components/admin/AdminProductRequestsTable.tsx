@@ -279,7 +279,7 @@ export function AdminProductRequestsTable() {
                                     </Button>
                                 </TableHead>
                                 <TableHead>Client</TableHead>
-                                <TableHead>Product</TableHead>
+                                <TableHead>Plan</TableHead>
                                 <TableHead>Assigned RM</TableHead>
                                 <TableHead className="text-right">
                                     <Button variant="ghost" onClick={() => handleSort('amount')} className="h-8 px-2 font-bold">

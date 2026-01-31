@@ -198,10 +198,12 @@ export function PendingPayoutsTable() {
         };
       case 'pending':
         // PENDING payouts for today only
+        const endOfToday = new Date(today);
+        endOfToday.setHours(23, 59, 59, 999);
         return {
           status: 'PENDING',
           dateFrom: today.toISOString(),
-          dateTo: tomorrow.toISOString(),
+          dateTo: endOfToday.toISOString(),
         };
       case 'scheduled':
         // PENDING payouts after today (future)
@@ -381,7 +383,7 @@ export function PendingPayoutsTable() {
               <TableRow>
                 <TableHead>Scheduled Date</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Product</TableHead>
+                <TableHead>Plan</TableHead>
                 <TableHead>Period</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Status</TableHead>
@@ -406,7 +408,7 @@ export function PendingPayoutsTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="font-medium border-gray-300">
+                      <Badge variant="outline" className="font-medium border-gray-300 font-nums">
                         {payout.productPurchaseRequest.investment.name}
                       </Badge>
                       <p className="text-xs text-brand-grey mt-1 font-nums">
@@ -423,11 +425,11 @@ export function PendingPayoutsTable() {
                       </p>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      <div className="flex items-center justify-end font-nums text-gray-900">
+                      <div className="flex items-center justify-end font-nums">
                         {payout.productPurchaseRequest.investment.currency === 'USD' ? (
                           <DirhamIcon className="w-3 h-3 mr-1" />
                         ) : (
-                          <span className="mr-1 text-xs text-brand-grey font-sans">
+                          <span className="mr-1 text-xs text-grey font-nums">
                             {payout.productPurchaseRequest.investment.currency}
                           </span>
                         )}
@@ -550,7 +552,7 @@ export function PendingPayoutsTable() {
               <TableRow>
                 <TableHead>Scheduled Date</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Product</TableHead>
+                <TableHead>Plan</TableHead>
                 <TableHead>Period</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Status</TableHead>
@@ -575,7 +577,7 @@ export function PendingPayoutsTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="font-medium border-gray-300">
+                      <Badge variant="outline" className="font-medium border-gray-300 font-nums">
                         {payout.productPurchaseRequest.investment.name}
                       </Badge>
                       <p className="text-xs text-brand-grey mt-1 font-nums">
@@ -592,11 +594,11 @@ export function PendingPayoutsTable() {
                       </p>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      <div className="flex items-center justify-end font-nums text-gray-900">
+                      <div className="flex items-center justify-end font-nums">
                         {payout.productPurchaseRequest.investment.currency === 'USD' ? (
                           <DirhamIcon className="w-3 h-3 mr-1" />
                         ) : (
-                          <span className="mr-1 text-xs text-brand-grey font-sans">
+                          <span className="mr-1 text-xs font-sans">
                             {payout.productPurchaseRequest.investment.currency}
                           </span>
                         )}
@@ -719,7 +721,7 @@ export function PendingPayoutsTable() {
               <TableRow>
                 <TableHead>Scheduled Date</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Product</TableHead>
+                <TableHead>Plan</TableHead>
                 <TableHead>Period</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Status</TableHead>
@@ -744,7 +746,7 @@ export function PendingPayoutsTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="font-medium border-gray-300">
+                      <Badge variant="outline" className="font-medium border-gray-300 font-nums">
                         {payout.productPurchaseRequest.investment.name}
                       </Badge>
                       <p className="text-xs text-brand-grey mt-1 font-nums">
@@ -761,11 +763,11 @@ export function PendingPayoutsTable() {
                       </p>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      <div className="flex items-center justify-end font-nums text-gray-900">
+                      <div className="flex items-center justify-end font-nums">
                         {payout.productPurchaseRequest.investment.currency === 'USD' ? (
                           <DirhamIcon className="w-3 h-3 mr-1" />
                         ) : (
-                          <span className="mr-1 text-xs text-brand-grey font-sans">
+                          <span className="mr-1 text-xs font-nums">
                             {payout.productPurchaseRequest.investment.currency}
                           </span>
                         )}
@@ -888,7 +890,7 @@ export function PendingPayoutsTable() {
               <TableRow>
                 <TableHead>Processed Date</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Product</TableHead>
+                <TableHead>Plan</TableHead>
                 <TableHead>Period</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Status</TableHead>
@@ -915,7 +917,7 @@ export function PendingPayoutsTable() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="font-medium border-gray-300">
+                      <Badge variant="outline" className="font-medium border-gray-300 font-nums">
                         {payout.productPurchaseRequest.investment.name}
                       </Badge>
                       <p className="text-xs text-brand-grey mt-1 font-nums">
@@ -933,7 +935,7 @@ export function PendingPayoutsTable() {
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       <div className="flex items-center justify-end font-nums">
-                        <span className="mr-1 text-xs text-muted-foreground font-sans">
+                        <span className="mr-1 text-xs font-nums">
                           {payout.productPurchaseRequest.investment.currency}
                         </span>
                         {payout.productPurchaseRequest.investment.currency === 'USD' ? (
@@ -1043,49 +1045,63 @@ export function PendingPayoutsTable() {
           </DialogHeader>
 
           {uploadDialog.payout && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                <p className="text-sm">
-                  <strong>Client:</strong> {uploadDialog.payout.client.firstName}{' '}
-                  {uploadDialog.payout.client.lastName}
-                </p>
-                <p className="text-sm">
-                  <strong>Product:</strong> {uploadDialog.payout.productPurchaseRequest.investment.name}
-                </p>
-                <p className="text-sm flex items-center">
-                  <strong className="mr-1">Amount:</strong>
-                  {uploadDialog.payout.productPurchaseRequest.investment.currency !== 'USD'
-                    ? uploadDialog.payout.productPurchaseRequest.investment.currency
-                    : <DirhamIcon className="w-3 h-3 mx-1" />}
-                  <span className="font-nums">{uploadDialog.payout.amount.toLocaleString()}</span>
-                </p>
-                <p className="text-sm">
-                  <strong>Period:</strong>{' '}
-                  <span className="font-nums">
-                    {format(new Date(uploadDialog.payout.periodStart), 'MMM dd, yyyy')} -{' '}
-                    {format(new Date(uploadDialog.payout.periodEnd), 'MMM dd, yyyy')}
-                  </span>
-                </p>
+            <div className="space-y-6">
+              {/* Payout Summary */}
+              <div className="bg-gray-50 p-5 rounded-lg space-y-3.5">
+                <div className="grid grid-cols-[100px_1fr] gap-x-4 gap-y-3">
+                  <div className="text-sm font-medium text-gray-700">Client:</div>
+                  <div className="text-sm text-gray-900">
+                    {uploadDialog.payout.client.firstName} {uploadDialog.payout.client.lastName}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Plan:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {uploadDialog.payout.productPurchaseRequest.investment.name}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Amount:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    {uploadDialog.payout.productPurchaseRequest.investment.currency === 'USD' ? (
+                      <DirhamIcon className="w-3 h-3" />
+                    ) : (
+                      <span className="font-nums">{uploadDialog.payout.productPurchaseRequest.investment.currency}</span>
+                    )}
+                    <span className="font-nums">{uploadDialog.payout.amount.toLocaleString()}</span>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Period:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(uploadDialog.payout.periodStart), 'MMM dd, yyyy')} - {format(new Date(uploadDialog.payout.periodEnd), 'MMM dd, yyyy')}
+                  </div>
+                </div>
               </div>
 
+              {/* File Upload */}
               <div className="space-y-2">
-                <Label htmlFor="receipt-file">Payment Receipt (PDF/Image) *</Label>
+                <Label htmlFor="receipt-file" className="text-sm font-medium text-gray-900">
+                  Payment Receipt (PDF/Image) <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="receipt-file"
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
                   disabled={uploadMutation.isPending}
+                  className="cursor-pointer"
                 />
                 {receiptFile && (
-                  <p className="text-sm text-muted-foreground">
-                    Selected: {receiptFile.name} (<span className="font-nums">{(receiptFile.size / 1024).toFixed(2)}</span> KB)
+                  <p className="text-sm text-muted-foreground mt-2">
+                    <span className="font-medium">Selected:</span> {receiptFile.name}
+                    <span className="font-nums"> ({(receiptFile.size / 1024).toFixed(2)} KB)</span>
                   </p>
                 )}
               </div>
 
+              {/* Notes */}
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Label htmlFor="notes" className="text-sm font-medium text-gray-900">
+                  Notes (Optional)
+                </Label>
                 <Textarea
                   id="notes"
                   placeholder="Add any notes about this payout..."
@@ -1093,12 +1109,13 @@ export function PendingPayoutsTable() {
                   onChange={(e) => setNotes(e.target.value)}
                   disabled={uploadMutation.isPending}
                   rows={3}
+                  className="resize-none"
                 />
               </div>
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => setUploadDialog({ open: false, payout: null })}
@@ -1109,6 +1126,7 @@ export function PendingPayoutsTable() {
             <Button
               onClick={handleUploadReceipt}
               disabled={!receiptFile || uploadMutation.isPending}
+              className="bg-brand-blue hover:bg-brand-blue/90"
             >
               {uploadMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Complete Payout
@@ -1130,94 +1148,90 @@ export function PendingPayoutsTable() {
             <DialogDescription>View detailed information about this payout</DialogDescription>
           </DialogHeader>
           {detailDialog.payout && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Tracking Number</p>
-                  <p className="font-mono">
+            <div className="space-y-6">
+              {/* Main Information */}
+              <div className="bg-gray-50 p-5 rounded-lg space-y-3.5">
+                <div className="grid grid-cols-[140px_1fr] gap-x-4 gap-y-3">
+                  <div className="text-sm font-medium text-gray-700">Tracking Number:</div>
+                  <div className="text-sm text-gray-900 font-mono font-nums">
                     {detailDialog.payout.productPurchaseRequest.trackingNumber}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  {getStatusBadge(detailDialog.payout.status, detailDialog.payout.scheduledDate)}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Client</p>
-                  <p className="font-medium">
-                    {detailDialog.payout.client.firstName} {detailDialog.payout.client.lastName}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{detailDialog.payout.client.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Amount</p>
-                  <p className="font-medium flex items-center font-nums">
-                    {detailDialog.payout.productPurchaseRequest.investment.currency !== 'USD'
-                      ? detailDialog.payout.productPurchaseRequest.investment.currency
-                      : <DirhamIcon className="w-3 h-3 mr-1" />}
-                    {detailDialog.payout.amount.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Period Start</p>
-                  <p className="font-nums">
-                    {format(new Date(detailDialog.payout.periodStart), 'PPP')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Period End</p>
-                  <p className="font-nums">
-                    {format(new Date(detailDialog.payout.periodEnd), 'PPP')}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Scheduled Date</p>
-                  <p className="font-nums">
-                    {format(new Date(detailDialog.payout.scheduledDate), 'PPP')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Frequency</p>
-                  <p>
-                    {detailDialog.payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
-                  </p>
-                </div>
-              </div>
-              {detailDialog.payout.status === 'COMPLETED' && detailDialog.payout.processedAt && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Processed Date</p>
-                    <p className="font-nums">
-                      {format(new Date(detailDialog.payout.processedAt), 'PPP')}
-                    </p>
                   </div>
-                  {detailDialog.payout.receiptDocument && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Receipt</p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="h-auto p-0 text-brand-blue"
-                        onClick={() =>
-                          handleDownloadReceipt(
-                            detailDialog.payout!.receiptDocument!.filePath,
-                            detailDialog.payout!.receiptDocument!.fileName
-                          )
-                        }
-                      >
-                        <Download className="h-3 w-3 mr-1" />
-                        Download Receipt
-                      </Button>
+
+                  <div className="text-sm font-medium text-gray-700">Status:</div>
+                  <div className="text-sm text-gray-900">
+                    {getStatusBadge(detailDialog.payout.status, detailDialog.payout.scheduledDate)}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Client:</div>
+                  <div className="text-sm text-gray-900">
+                    <div className="font-medium">
+                      {detailDialog.payout.client.firstName} {detailDialog.payout.client.lastName}
                     </div>
+                    <div className="text-xs text-gray-600 mt-0.5">{detailDialog.payout.client.email}</div>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Amount:</div>
+                  <div className="text-sm text-gray-900 flex items-center gap-1">
+                    {detailDialog.payout.productPurchaseRequest.investment.currency === 'USD' ? (
+                      <DirhamIcon className="w-3 h-3" />
+                    ) : (
+                      <span className="font-nums">{detailDialog.payout.productPurchaseRequest.investment.currency}</span>
+                    )}
+                    <span className="font-nums">{detailDialog.payout.amount.toLocaleString()}</span>
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Period Start:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(detailDialog.payout.periodStart), 'MMM dd, yyyy')}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Period End:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(detailDialog.payout.periodEnd), 'MMM dd, yyyy')}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Scheduled Date:</div>
+                  <div className="text-sm text-gray-900 font-nums">
+                    {format(new Date(detailDialog.payout.scheduledDate), 'MMM dd, yyyy')}
+                  </div>
+
+                  <div className="text-sm font-medium text-gray-700">Frequency:</div>
+                  <div className="text-sm text-gray-900">
+                    {detailDialog.payout.productPurchaseRequest.investmentOption.withdrawalFrequency}
+                  </div>
+
+                  {detailDialog.payout.status === 'COMPLETED' && detailDialog.payout.processedAt && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Processed Date:</div>
+                      <div className="text-sm text-gray-900 font-nums">
+                        {format(new Date(detailDialog.payout.processedAt), 'MMM dd, yyyy')}
+                      </div>
+                    </>
+                  )}
+
+                  {detailDialog.payout.receiptDocument && (
+                    <>
+                      <div className="text-sm font-medium text-gray-700">Receipt:</div>
+                      <div className="text-sm">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-auto p-0 text-brand-blue hover:text-brand-blue/80"
+                          onClick={() =>
+                            handleDownloadReceipt(
+                              detailDialog.payout!.receiptDocument!.filePath,
+                              detailDialog.payout!.receiptDocument!.fileName
+                            )
+                          }
+                        >
+                          <Download className="h-3 w-3 mr-1" />
+                          Download Receipt
+                        </Button>
+                      </div>
+                    </>
                   )}
                 </div>
-              )}
+              </div>
             </div>
           )}
           <DialogFooter>
