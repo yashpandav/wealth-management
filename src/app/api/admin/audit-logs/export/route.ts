@@ -114,9 +114,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ...logs.map((log) => {
         const row = [
           new Date(log.createdAt).toISOString(),
-          log.user.email,
-          `${log.user.firstName} ${log.user.lastName}`,
-          log.user.role,
+          log.user?.email || 'System',
+          log.user ? `${log.user.firstName} ${log.user.lastName}` : 'System',
+          log.user?.role || 'SYSTEM',
           log.action,
           log.entityType,
           log.entityId,

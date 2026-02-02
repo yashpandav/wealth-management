@@ -196,8 +196,7 @@ export function PendingPayoutsTable() {
           dateFrom: '',
           dateTo: today.toISOString(),
         };
-      case 'pending':
-        // PENDING payouts for today only
+      case 'pending': {
         const endOfToday = new Date(today);
         endOfToday.setHours(23, 59, 59, 999);
         return {
@@ -205,8 +204,8 @@ export function PendingPayoutsTable() {
           dateFrom: today.toISOString(),
           dateTo: endOfToday.toISOString(),
         };
+      }
       case 'scheduled':
-        // PENDING payouts after today (future)
         return {
           status: 'PENDING',
           dateFrom: tomorrow.toISOString(),
