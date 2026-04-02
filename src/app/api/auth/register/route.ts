@@ -11,6 +11,7 @@ import { sendVerificationEmail } from '@/lib/email';
 import { config } from '@/lib/config';
 import { randomBytes } from 'crypto';
 import { restoreArchivedUser } from '@/lib/services/archival.service';
+import { runInBackground } from '@/lib/background';
 
 export async function POST(request: NextRequest) {
   try {

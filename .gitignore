@@ -1,7 +1,7 @@
 # ===================================
 # Wealth Management CRM - .gitignore
 # ===================================
-
+.agents
 # Environment Variables (NEVER COMMIT)
 .env
 .env.local
@@ -256,3 +256,4 @@ node_modules/
 
 # OS specific
 .DS_Store
+skills-lock.json

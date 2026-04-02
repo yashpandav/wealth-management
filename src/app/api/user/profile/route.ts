@@ -9,6 +9,7 @@ import { requireAuth } from '@/lib/auth/session';
 import { profileUpdateSchema } from '@/lib/validation/user.validation';
 import { prisma } from '@/lib/db/prisma';
 import { sanitizeObject } from '@/lib/security';
+import { runInBackground } from '@/lib/background';
 
 /**
  * GET /api/user/profile
@@ -107,23 +108,25 @@ export async function PUT(request: NextRequest) {
       },
     });
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        action: 'USER_UPDATE',
-        entityType: 'User',
-        entityId: user.id,
-        description: 'User updated their profile',
-        metadata: {
-          changes: {
-            firstName,
-            lastName,
-            phone,
+    // Create audit log (non-critical side-effect)
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'USER_UPDATE',
+          entityType: 'User',
+          entityId: user.id,
+          description: 'User updated their profile',
+          metadata: {
+            changes: {
+              firstName,
+              lastName,
+              phone,
+            },
           },
         },
-      },
-    });
+      })
+    );
 
     return NextResponse.json({
       success: true,

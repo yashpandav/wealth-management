@@ -59,42 +59,41 @@ export async function GET() {
       });
     }
 
-    // Fetch active investment purchase requests (APPROVED or COMPLETED status)
-    const activeInvestments = await prisma.productPurchaseRequest.findMany({
-      where: {
-        clientId: client.id,
-        status: {
-          in: ['APPROVED', 'COMPLETED'],
-        },
-      },
-      include: {
-        investment: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            minAmount: true,
-            maxAmount: true,
-            currency: true,
+    // Fetch all portfolio data in parallel
+    const [activeInvestments, completedPayouts, totalInvestmentTransactions, recentTransaction] = await Promise.all([
+      // Fetch active investment purchase requests (APPROVED or COMPLETED status)
+      prisma.productPurchaseRequest.findMany({
+        where: {
+          clientId: client.id,
+          status: {
+            in: ['APPROVED', 'COMPLETED'],
           },
         },
-        investmentOption: {
-          select: {
-            id: true,
-            duration: true,
-            withdrawalFrequency: true,
-            roi: true,
-            annualReturn: true,
+        include: {
+          investment: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              minAmount: true,
+              maxAmount: true,
+              currency: true,
+            },
+          },
+          investmentOption: {
+            select: {
+              id: true,
+              duration: true,
+              withdrawalFrequency: true,
+              roi: true,
+              annualReturn: true,
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    // Fetch payout statistics
-    const [completedPayouts, totalInvestmentTransactions] = await Promise.all([
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
       // Total interest earned from completed payouts
       prisma.payout.aggregate({
         where: {
@@ -116,6 +115,21 @@ export async function GET() {
           amount: true,
         },
       }),
+      // Get recent transaction for "day change" (simplified - can be enhanced)
+      prisma.transaction.findFirst({
+        where: {
+          clientId: client.id,
+          type: 'INTEREST_PAYOUT',
+          status: 'COMPLETED',
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        select: {
+          amount: true,
+          completedAt: true,
+        },
+      }),
     ]);
 
     // Calculate portfolio metrics
@@ -132,23 +146,8 @@ export async function GET() {
       return sum + (investmentAmount * (annualReturn / 100));
     }, 0);
 
-    // Get recent transaction for "day change" (simplified - can be enhanced)
-    const recentTransaction = await prisma.transaction.findFirst({
-      where: {
-        clientId: client.id,
-        type: 'INTEREST_PAYOUT',
-        status: 'COMPLETED',
-      },
-      orderBy: {
-        completedAt: 'desc',
-      },
-      select: {
-        amount: true,
-        completedAt: true,
-      },
-    });
-
     const dayChange = recentTransaction ? Number(recentTransaction.amount) : 0;
+
     const dayChangePercent = totalValue > 0 ? (dayChange / totalValue) * 100 : 0;
 
     // If no investments exist
