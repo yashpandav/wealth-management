@@ -210,36 +210,65 @@ export function ProductsBrowse() {
       </div>
 
       {/* KYC Status Alert */}
-      {kycStatus && !kycStatus.data.canSubmitRequests && (
-        <Alert className="border-l-4 border-l-brand-blue bg-brand-blue/5 border-brand-blue/30">
-          <AlertCircle className="h-5 w-5 text-brand-blue" />
-          <AlertDescription className="text-brand-blue">
-            <div className="font-optima font-semibold mb-3 text-lg">KYC Verification Required</div>
-            <p className="font-georgia text-comments mb-4 text-brand-grey">
-              Complete your KYC verification to submit plan requests and begin investing.
-            </p>
-            <div className="space-y-2 text-comments mb-5">
-              {!kycStatus.data.identityProofVerified && (
-                <div className="flex items-center gap-2 font-georgia text-brand-grey">
-                  <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
-                  <span>
-                    Identity Proof{' '}
-                    {kycStatus.data.identityProofStatus === 'REJECTED'
-                      ? '(rejected - please re-upload)'
-                      : '(not verified)'}
-                  </span>
-                </div>
-              )}
+      {kycStatus && !kycStatus.data.canSubmitRequests && (() => {
+        const isPending =
+          kycStatus.data.kycStatus === 'PENDING' ||
+          kycStatus.data.kycStatus === 'UNDER_REVIEW' ||
+          kycStatus.data.identityProofStatus === 'PENDING' ||
+          kycStatus.data.identityProofStatus === 'UNDER_REVIEW';
 
-            </div>
-            <Link href="/client/documents">
-              <Button className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima shadow-lg">
-                Upload Documents
-              </Button>
-            </Link>
-          </AlertDescription>
-        </Alert>
-      )}
+        if (isPending) {
+          return (
+            <Alert className="border-l-4 border-l-blue-500 bg-blue-50 border-blue-200">
+              <AlertCircle className="h-5 w-5 text-blue-700" />
+              <AlertDescription className="text-blue-700">
+                <div className="font-optima font-semibold mb-3 text-lg">Verification In Progress</div>
+                <p className="font-georgia text-comments mb-4 text-blue-600">
+                  Your documents are under review. You will be notified once verification is complete.
+                </p>
+                <div className="space-y-2 text-comments">
+                  {!kycStatus.data.identityProofVerified && (
+                    <div className="flex items-center gap-2 font-georgia text-blue-600">
+                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                      <span>Identity Proof (under review)</span>
+                    </div>
+                  )}
+                </div>
+              </AlertDescription>
+            </Alert>
+          );
+        }
+
+        return (
+          <Alert className="border-l-4 border-l-brand-blue bg-brand-blue/5 border-brand-blue/30">
+            <AlertCircle className="h-5 w-5 text-brand-blue" />
+            <AlertDescription className="text-brand-blue">
+              <div className="font-optima font-semibold mb-3 text-lg">KYC Verification Required</div>
+              <p className="font-georgia text-comments mb-4 text-brand-grey">
+                Complete your KYC verification to submit plan requests and begin investing.
+              </p>
+              <div className="space-y-2 text-comments mb-5">
+                {!kycStatus.data.identityProofVerified && (
+                  <div className="flex items-center gap-2 font-georgia text-brand-grey">
+                    <span className="w-2 h-2 rounded-full bg-brand-blue"></span>
+                    <span>
+                      Identity Proof{' '}
+                      {kycStatus.data.identityProofStatus === 'REJECTED'
+                        ? '(rejected - please re-upload)'
+                        : '(not verified)'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <Link href="/client/documents">
+                <Button className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima shadow-lg">
+                  Upload Documents
+                </Button>
+              </Link>
+            </AlertDescription>
+          </Alert>
+        );
+      })()}
 
       {/* Products Display */}
       {products.length > 0 ? (
