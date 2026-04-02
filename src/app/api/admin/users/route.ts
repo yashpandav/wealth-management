@@ -11,6 +11,7 @@ import { prisma } from '@/lib/db/prisma';
 import { sanitizeObject } from '@/lib/security';
 import { hash } from 'bcryptjs';
 import { config } from '@/lib/config';
+import { runInBackground } from '@/lib/background';
 
 /**
  * GET /api/admin/users
@@ -199,22 +200,24 @@ export async function POST(request: NextRequest) {
     });
 
     // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: admin.id,
-        action: 'USER_CREATE',
-        entityType: 'User',
-        entityId: newUser.id,
-        description: `Admin created new user: ${email} with role ${role}`,
-        metadata: {
-          createdUser: {
-            id: newUser.id,
-            email: newUser.email,
-            role: newUser.role,
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: admin.id,
+          action: 'USER_CREATE',
+          entityType: 'User',
+          entityId: newUser.id,
+          description: `Admin created new user: ${email} with role ${role}`,
+          metadata: {
+            createdUser: {
+              id: newUser.id,
+              email: newUser.email,
+              role: newUser.role,
+            },
           },
         },
-      },
-    });
+      })
+    );
 
     // TODO: Send welcome email with temporary password
     // For now, return the temp password in response (remove in production)

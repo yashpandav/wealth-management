@@ -9,6 +9,7 @@ import { requireAdmin } from '@/lib/auth/session';
 import { sanitizeObject } from '@/lib/security';
 import { z } from 'zod';
 import { UserRole } from '@prisma/client';
+import { runInBackground } from '@/lib/background';
 
 const bulkAssignmentSchema = z.object({
   clientUserIds: z.array(z.string().uuid()).min(1, 'At least one client required'),
@@ -42,26 +43,41 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { clientUserIds, rmId, reason } = validationResult.data;
 
-    // Verify RM exists and is active
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { id: rmId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            status: true,
-            isActive: true,
+    // Fetch RM and users in parallel
+    const [rm, users] = await Promise.all([
+      prisma.relationshipManager.findUnique({
+        where: { id: rmId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              status: true,
+              isActive: true,
+            },
+          },
+          _count: {
+            select: {
+              assignedClients: true,
+            },
           },
         },
-        _count: {
-          select: {
-            assignedClients: true,
+      }),
+      prisma.user.findMany({
+        where: {
+          id: { in: clientUserIds },
+        },
+        include: {
+          client: {
+            select: {
+              id: true,
+              assignedRMId: true,
+            },
           },
         },
-      },
-    });
+      }),
+    ]);
 
     if (!rm) {
       return NextResponse.json(
@@ -90,21 +106,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-
-    // Verify all users exist and are clients
-    const users = await prisma.user.findMany({
-      where: {
-        id: { in: clientUserIds },
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            assignedRMId: true,
-          },
-        },
-      },
-    });
 
     if (users.length !== clientUserIds.length) {
       return NextResponse.json(
@@ -150,10 +151,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         });
         results.newAssignments = createResult.count;
 
-        // Create audit logs and notifications for new assignments
-        for (const user of usersNeedingClient) {
-          // Audit log
-          await prisma.auditLog.create({
+        // Fire-and-forget audit logs and notifications for new assignments
+        const newAssignmentSideEffects = usersNeedingClient.flatMap((user) => [
+          prisma.auditLog.create({
             data: {
               userId: admin.id,
               action: 'CLIENT_ASSIGN',
@@ -167,10 +167,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 reason: reason || undefined,
               },
             },
-          });
-
-          // Notification to client
-          await prisma.notification.create({
+          }),
+          prisma.notification.create({
             data: {
               userId: user.id,
               type: 'INFO',
@@ -184,12 +182,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 reason: reason || undefined,
               },
             },
-          });
-        }
+          }),
+        ]);
 
-        // Single notification to RM about bulk assignment
-        if (usersNeedingClient.length > 0) {
-          await prisma.notification.create({
+        newAssignmentSideEffects.push(
+          prisma.notification.create({
             data: {
               userId: rm.userId,
               type: 'INFO',
@@ -202,8 +199,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 clientNames: usersNeedingClient.map((u) => `${u.firstName} ${u.lastName}`),
               },
             },
-          });
-        }
+          })
+        );
+
+        runInBackground(...newAssignmentSideEffects);
       } catch (err) {
         console.error('Error creating new assignments:', err);
         usersNeedingClient.forEach((u) => {
@@ -228,40 +227,39 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         results.reassignments++;
 
-        // Audit log
-        await prisma.auditLog.create({
-          data: {
-            userId: admin.id,
-            action: 'CLIENT_REASSIGN',
-            entityType: 'Client',
-            entityId: user.client!.id,
-            description: `Admin bulk reassigned client ${user.firstName} ${user.lastName} to RM ${rm.user.firstName} ${rm.user.lastName}${reason ? `: ${reason}` : ''}`,
-            metadata: {
-              bulkOperation: true,
-              clientUserId: user.id,
-              previousRMId: user.client!.assignedRMId,
-              newRMId: rmId,
-              reason: reason || undefined,
+        runInBackground(
+          prisma.auditLog.create({
+            data: {
+              userId: admin.id,
+              action: 'CLIENT_REASSIGN',
+              entityType: 'Client',
+              entityId: user.client!.id,
+              description: `Admin bulk reassigned client ${user.firstName} ${user.lastName} to RM ${rm.user.firstName} ${rm.user.lastName}${reason ? `: ${reason}` : ''}`,
+              metadata: {
+                bulkOperation: true,
+                clientUserId: user.id,
+                previousRMId: user.client!.assignedRMId,
+                newRMId: rmId,
+                reason: reason || undefined,
+              },
             },
-          },
-        });
-
-        // Notification to client
-        await prisma.notification.create({
-          data: {
-            userId: user.id,
-            type: 'INFO',
-            category: 'ASSIGNMENT',
-            title: 'Relationship Manager Changed',
-            message: `Your relationship manager has been changed to ${rm.user.firstName} ${rm.user.lastName}.`,
-            metadata: {
-              bulkOperation: true,
-              rmId: rmId,
-              rmName: `${rm.user.firstName} ${rm.user.lastName}`,
-              reason: reason || undefined,
+          }),
+          prisma.notification.create({
+            data: {
+              userId: user.id,
+              type: 'INFO',
+              category: 'ASSIGNMENT',
+              title: 'Relationship Manager Changed',
+              message: `Your relationship manager has been changed to ${rm.user.firstName} ${rm.user.lastName}.`,
+              metadata: {
+                bulkOperation: true,
+                rmId: rmId,
+                rmName: `${rm.user.firstName} ${rm.user.lastName}`,
+                reason: reason || undefined,
+              },
             },
-          },
-        });
+          })
+        );
       } catch (err) {
         console.error(`Error reassigning user ${user.id}:`, err);
         results.errors.push({
@@ -273,20 +271,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     // Single notification to RM about bulk reassignment
     if (usersNeedingReassignment.length > 0) {
-      await prisma.notification.create({
-        data: {
-          userId: rm.userId,
-          type: 'INFO',
-          category: 'ASSIGNMENT',
-          title: 'Bulk Client Reassignment',
-          message: `${usersNeedingReassignment.length} client(s) have been reassigned to you.`,
-          metadata: {
-            bulkOperation: true,
-            clientCount: usersNeedingReassignment.length,
-            clientNames: usersNeedingReassignment.map((u) => `${u.firstName} ${u.lastName}`),
+      runInBackground(
+        prisma.notification.create({
+          data: {
+            userId: rm.userId,
+            type: 'INFO',
+            category: 'ASSIGNMENT',
+            title: 'Bulk Client Reassignment',
+            message: `${usersNeedingReassignment.length} client(s) have been reassigned to you.`,
+            metadata: {
+              bulkOperation: true,
+              clientCount: usersNeedingReassignment.length,
+              clientNames: usersNeedingReassignment.map((u) => `${u.firstName} ${u.lastName}`),
+            },
           },
-        },
-      });
+        })
+      );
     }
 
     const totalProcessed = results.newAssignments + results.reassignments;

@@ -10,6 +10,7 @@ import { requireAdmin } from '@/lib/auth/session';
 import { adminUpdateUserSchema } from '@/lib/validation/user.validation';
 import { prisma } from '@/lib/db/prisma';
 import { sanitizeObject } from '@/lib/security';
+import { runInBackground } from '@/lib/background';
 
 /**
  * GET /api/admin/users/[id]
@@ -120,18 +121,20 @@ export async function PUT(
     });
 
     // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: admin.id,
-        action: 'USER_UPDATE',
-        entityType: 'User',
-        entityId: params.id,
-        description: `Admin updated user: ${updatedUser.email}`,
-        metadata: {
-          changes: updateData,
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: admin.id,
+          action: 'USER_UPDATE',
+          entityType: 'User',
+          entityId: params.id,
+          description: `Admin updated user: ${updatedUser.email}`,
+          metadata: {
+            changes: updateData,
+          },
         },
-      },
-    });
+      })
+    );
 
     return NextResponse.json({
       success: true,
@@ -180,15 +183,17 @@ export async function DELETE(
     });
 
     // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: admin.id,
-        action: 'USER_DELETE',
-        entityType: 'User',
-        entityId: params.id,
-        description: `Admin deleted user: ${deletedUser.email}`,
-      },
-    });
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: admin.id,
+          action: 'USER_DELETE',
+          entityType: 'User',
+          entityId: params.id,
+          description: `Admin deleted user: ${deletedUser.email}`,
+        },
+      })
+    );
 
     return NextResponse.json({
       success: true,

@@ -9,6 +9,7 @@ import { requireAdmin } from '@/lib/auth/session';
 import { sanitizeObject } from '@/lib/security';
 import { userStatusUpdateSchema } from '@/lib/validation/user.validation';
 import { AccountStatus } from '@prisma/client';
+import { runInBackground } from '@/lib/background';
 
 /**
  * PUT /api/admin/users/[id]/status
@@ -93,41 +94,40 @@ export async function PUT(
       },
     });
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: admin.id,
-        action: status === AccountStatus.ACTIVE ? 'USER_ACTIVATE' : 'USER_DEACTIVATE',
-        entityType: 'User',
-        entityId: user.id,
-        description: `Admin changed user status from ${user.status} to ${status}${reason ? `: ${reason}` : ''}`,
-        metadata: {
-          previousStatus: user.status,
-          newStatus: status,
-          reason: reason || undefined,
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: admin.id,
+          action: status === AccountStatus.ACTIVE ? 'USER_ACTIVATE' : 'USER_DEACTIVATE',
+          entityType: 'User',
+          entityId: user.id,
+          description: `Admin changed user status from ${user.status} to ${status}${reason ? `: ${reason}` : ''}`,
+          metadata: {
+            previousStatus: user.status,
+            newStatus: status,
+            reason: reason || undefined,
+          },
         },
-      },
-    });
-
-    // Create notification for user
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        type: status === AccountStatus.ACTIVE ? 'SUCCESS' : 'WARNING',
-        category: 'SYSTEM',
-        title: 'Account Status Changed',
-        message:
-          status === AccountStatus.ACTIVE
-            ? 'Your account has been activated.'
-            : status === AccountStatus.INACTIVE
-              ? 'Your account has been deactivated. Please contact support for more information.'
-              : 'Your account has been locked. Please contact support.',
-        metadata: {
-          changedBy: `${admin.firstName} ${admin.lastName}`,
-          reason: reason || undefined,
+      }),
+      prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: status === AccountStatus.ACTIVE ? 'SUCCESS' : 'WARNING',
+          category: 'SYSTEM',
+          title: 'Account Status Changed',
+          message:
+            status === AccountStatus.ACTIVE
+              ? 'Your account has been activated.'
+              : status === AccountStatus.INACTIVE
+                ? 'Your account has been deactivated. Please contact support for more information.'
+                : 'Your account has been locked. Please contact support.',
+          metadata: {
+            changedBy: `${admin.firstName} ${admin.lastName}`,
+            reason: reason || undefined,
+          },
         },
-      },
-    });
+      })
+    );
 
     return NextResponse.json({
       success: true,

@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { requireAdmin } from '@/lib/auth/session';
 import { AccountStatus } from '@prisma/client';
+import { runInBackground } from '@/lib/background';
 
 /**
  * POST /api/admin/users/[id]/unlock
@@ -76,35 +77,34 @@ export async function POST(
       },
     });
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: admin.id,
-        action: 'USER_ACTIVATE',
-        entityType: 'User',
-        entityId: user.id,
-        description: `Admin unlocked user account (${user.email})`,
-        metadata: {
-          previousFailedAttempts: user.failedLoginAttempts,
-          previousLockoutTime: user.accountLockedUntil?.toISOString(),
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: admin.id,
+          action: 'USER_ACTIVATE',
+          entityType: 'User',
+          entityId: user.id,
+          description: `Admin unlocked user account (${user.email})`,
+          metadata: {
+            previousFailedAttempts: user.failedLoginAttempts,
+            previousLockoutTime: user.accountLockedUntil?.toISOString(),
+          },
         },
-      },
-    });
-
-    // Create notification for user
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        type: 'SUCCESS',
-        category: 'SECURITY',
-        title: 'Account Unlocked',
-        message:
-          'Your account has been unlocked by an administrator. You can now log in.',
-        metadata: {
-          unlockedBy: `${admin.firstName} ${admin.lastName}`,
+      }),
+      prisma.notification.create({
+        data: {
+          userId: user.id,
+          type: 'SUCCESS',
+          category: 'SECURITY',
+          title: 'Account Unlocked',
+          message:
+            'Your account has been unlocked by an administrator. You can now log in.',
+          metadata: {
+            unlockedBy: `${admin.firstName} ${admin.lastName}`,
+          },
         },
-      },
-    });
+      })
+    );
 
     return NextResponse.json({
       success: true,

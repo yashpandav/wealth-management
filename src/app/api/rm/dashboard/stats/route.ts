@@ -60,6 +60,7 @@ export async function GET() {
       totalAUM,
       allProductPurchaseRequests,
       topClientsByAUM,
+      recentProductRequests,
     ] = await Promise.all([
       // Total assigned clients
       prisma.client.count({
@@ -115,32 +116,32 @@ export async function GET() {
         },
         take: 10,
       }),
-    ]);
 
-    // Recent product purchase requests
-    const recentProductRequests = await prisma.productPurchaseRequest.findMany({
-      where: { clientId: { in: clientIds } },
-      take: 10,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        client: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
+      // Recent product purchase requests
+      prisma.productPurchaseRequest.findMany({
+        where: { clientId: { in: clientIds } },
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          client: {
+            include: {
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                },
               },
             },
           },
-        },
-        investment: {
-          select: {
-            name: true,
-            currency: true,
+          investment: {
+            select: {
+              name: true,
+              currency: true,
+            },
           },
         },
-      },
-    });
+      }),
+    ]);
 
     // Map activities
     const combinedActivities = recentProductRequests.map((req) => ({

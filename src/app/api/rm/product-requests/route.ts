@@ -81,9 +81,6 @@ export async function GET(request: NextRequest) {
       }),
     };
 
-    // Get total count
-    const totalCount = await prisma.productPurchaseRequest.count({ where });
-
     // Build order by clause
     let orderBy: Prisma.ProductPurchaseRequestOrderByWithRelationInput;
     if (sortBy === 'client') {
@@ -94,44 +91,56 @@ export async function GET(request: NextRequest) {
       orderBy = { [sortBy]: sortOrder };
     }
 
-    // Get requests with related data
-    const requests = await prisma.productPurchaseRequest.findMany({
-      where,
-      orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
-      include: {
-        client: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
-                email: true,
+    // Fetch count, requests, and summary stats in parallel
+    const [totalCount, requests, stats] = await Promise.all([
+      prisma.productPurchaseRequest.count({ where }),
+      prisma.productPurchaseRequest.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          client: {
+            include: {
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
               },
             },
           },
-        },
-        investment: {
-          select: {
-            id: true,
-            name: true,
-            currency: true,
-            minAmount: true,
-            maxAmount: true,
+          investment: {
+            select: {
+              id: true,
+              name: true,
+              currency: true,
+              minAmount: true,
+              maxAmount: true,
+            },
+          },
+          investmentOption: {
+            select: {
+              id: true,
+              duration: true,
+              withdrawalFrequency: true,
+              roi: true,
+              annualReturn: true,
+            },
           },
         },
-        investmentOption: {
-          select: {
-            id: true,
-            duration: true,
-            withdrawalFrequency: true,
-            roi: true,
-            annualReturn: true,
-          },
+      }),
+      // Get summary statistics
+      prisma.productPurchaseRequest.groupBy({
+        by: ['status'],
+        where: { clientId: { in: clientIds } },
+        _count: true,
+        _sum: {
+          amount: true,
         },
-      },
-    });
+      }),
+    ]);
 
     // Serialize Decimal fields
     const serializedRequests = requests.map((req) => ({
@@ -168,16 +177,6 @@ export async function GET(request: NextRequest) {
       updatedAt: req.updatedAt.toISOString(),
       processedAt: req.processedAt?.toISOString() || null,
     }));
-
-    // Get summary statistics
-    const stats = await prisma.productPurchaseRequest.groupBy({
-      by: ['status'],
-      where: { clientId: { in: clientIds } },
-      _count: true,
-      _sum: {
-        amount: true,
-      },
-    });
 
     const summary = {
       total: stats.reduce((acc, s) => acc + s._count, 0),

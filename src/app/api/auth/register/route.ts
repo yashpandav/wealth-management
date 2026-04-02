@@ -118,18 +118,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await hash(password, config.security.bcryptRounds);
-
-    // Check if a matching lead exists for this email
-    const existingLead = await prisma.userLead.findUnique({
-      where: { email },
-      select: {
-        id: true,
-        assignedRMId: true,
-        status: true,
-      },
-    });
+    // Hash password and check for matching lead in parallel
+    const [hashedPassword, existingLead] = await Promise.all([
+      hash(password, config.security.bcryptRounds),
+      prisma.userLead.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          assignedRMId: true,
+          status: true,
+        },
+      }),
+    ]);
 
     // Create user with client record if role is CLIENT
     const userRole = role || 'CLIENT';
@@ -177,19 +177,21 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create audit log
+    // Create audit log (non-critical side-effect)
     if (config.features.auditLog) {
-      await prisma.auditLog.create({
-        data: {
-          userId: user.id,
-          action: 'USER_CREATE',
-          entityType: 'User',
-          entityId: user.id,
-          description: `User registered: ${email}`,
-          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
-          userAgent: request.headers.get('user-agent') || '',
-        },
-      });
+      runInBackground(
+        prisma.auditLog.create({
+          data: {
+            userId: user.id,
+            action: 'USER_CREATE',
+            entityType: 'User',
+            entityId: user.id,
+            description: `User registered: ${email}`,
+            ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
+            userAgent: request.headers.get('user-agent') || '',
+          },
+        })
+      );
     }
 
     // Send verification email if enabled

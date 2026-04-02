@@ -9,6 +9,7 @@ import { requireAdmin } from '@/lib/auth/session';
 import { sanitizeObject } from '@/lib/security';
 import { z } from 'zod';
 import { UserRole } from '@prisma/client';
+import { runInBackground } from '@/lib/background';
 
 const clientAssignmentSchema = z.object({
   userId: z.string().uuid(),
@@ -43,35 +44,55 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const { userId, rmId, reason } = validationResult.data;
 
-    // Verify user exists and has CLIENT role
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: true,
-        client: {
-          select: {
-            id: true,
-            assignedRMId: true,
-            assignedRM: {
-              select: {
-                id: true,
-                userId: true,
-                user: {
-                  select: {
-                    firstName: true,
-                    lastName: true,
+    // Fetch user and RM in parallel
+    const [user, rm] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          client: {
+            select: {
+              id: true,
+              assignedRMId: true,
+              assignedRM: {
+                select: {
+                  id: true,
+                  userId: true,
+                  user: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
+      }),
+      prisma.relationshipManager.findUnique({
+        where: { id: rmId },
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              status: true,
+              isActive: true,
+            },
+          },
+          _count: {
+            select: {
+              assignedClients: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     if (!user) {
       return NextResponse.json(
@@ -86,26 +107,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         { status: 400 }
       );
     }
-
-    // Verify RM exists
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { id: rmId },
-      include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            status: true,
-            isActive: true,
-          },
-        },
-        _count: {
-          select: {
-            assignedClients: true,
-          },
-        },
-      },
-    });
 
     if (!rm) {
       return NextResponse.json(
@@ -213,80 +214,83 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: admin.id,
-        action: isReassignment ? 'CLIENT_REASSIGN' : 'CLIENT_ASSIGN',
-        entityType: 'Client',
-        entityId: client.id,
-        description: isReassignment
-          ? `Admin reassigned client ${user.firstName} ${user.lastName} from RM ${previousRM?.user.firstName} ${previousRM?.user.lastName} to RM ${rm.user.firstName} ${rm.user.lastName}${reason ? `: ${reason}` : ''}`
-          : `Admin assigned client ${user.firstName} ${user.lastName} to RM ${rm.user.firstName} ${rm.user.lastName}${reason ? `: ${reason}` : ''}`,
-        metadata: {
-          clientId: client.id,
-          clientUserId: userId,
-          newRMId: rmId,
-          previousRMId: isReassignment ? previousRM?.id : null,
-          reason: reason || undefined,
-        },
-      },
-    });
-
-    // Create notifications
-    // Notify client
-    await prisma.notification.create({
-      data: {
-        userId: userId,
-        type: 'INFO',
-        category: 'ASSIGNMENT',
-        title: isReassignment ? 'Relationship Manager Changed' : 'Relationship Manager Assigned',
-        message: isReassignment
-          ? `Your relationship manager has been changed to ${rm.user.firstName} ${rm.user.lastName}.`
-          : `You have been assigned to relationship manager ${rm.user.firstName} ${rm.user.lastName}.`,
-        metadata: {
-          rmId: rmId,
-          rmName: `${rm.user.firstName} ${rm.user.lastName}`,
-          reason: reason || undefined,
-        },
-      },
-    });
-
-    // Notify new RM
-    await prisma.notification.create({
-      data: {
-        userId: rm.userId,
-        type: 'INFO',
-        category: 'ASSIGNMENT',
-        title: 'New Client Assigned',
-        message: `Client ${user.firstName} ${user.lastName} has been assigned to you.`,
-        metadata: {
-          clientId: client.id,
-          clientUserId: userId,
-          clientName: `${user.firstName} ${user.lastName}`,
-        },
-      },
-    });
-
-    // If reassignment, notify previous RM
-    if (isReassignment && previousRM) {
-      await prisma.notification.create({
+    // Audit log + notifications are non-critical side-effects
+    const sideEffects: Promise<unknown>[] = [
+      prisma.auditLog.create({
         data: {
-          userId: previousRM.userId,
+          userId: admin.id,
+          action: isReassignment ? 'CLIENT_REASSIGN' : 'CLIENT_ASSIGN',
+          entityType: 'Client',
+          entityId: client.id,
+          description: isReassignment
+            ? `Admin reassigned client ${user.firstName} ${user.lastName} from RM ${previousRM?.user.firstName} ${previousRM?.user.lastName} to RM ${rm.user.firstName} ${rm.user.lastName}${reason ? `: ${reason}` : ''}`
+            : `Admin assigned client ${user.firstName} ${user.lastName} to RM ${rm.user.firstName} ${rm.user.lastName}${reason ? `: ${reason}` : ''}`,
+          metadata: {
+            clientId: client.id,
+            clientUserId: userId,
+            newRMId: rmId,
+            previousRMId: isReassignment ? previousRM?.id : null,
+            reason: reason || undefined,
+          },
+        },
+      }),
+      // Notify client
+      prisma.notification.create({
+        data: {
+          userId: userId,
           type: 'INFO',
           category: 'ASSIGNMENT',
-          title: 'Client Reassigned',
-          message: `Client ${user.firstName} ${user.lastName} has been reassigned to another relationship manager.`,
+          title: isReassignment ? 'Relationship Manager Changed' : 'Relationship Manager Assigned',
+          message: isReassignment
+            ? `Your relationship manager has been changed to ${rm.user.firstName} ${rm.user.lastName}.`
+            : `You have been assigned to relationship manager ${rm.user.firstName} ${rm.user.lastName}.`,
+          metadata: {
+            rmId: rmId,
+            rmName: `${rm.user.firstName} ${rm.user.lastName}`,
+            reason: reason || undefined,
+          },
+        },
+      }),
+      // Notify new RM
+      prisma.notification.create({
+        data: {
+          userId: rm.userId,
+          type: 'INFO',
+          category: 'ASSIGNMENT',
+          title: 'New Client Assigned',
+          message: `Client ${user.firstName} ${user.lastName} has been assigned to you.`,
           metadata: {
             clientId: client.id,
             clientUserId: userId,
             clientName: `${user.firstName} ${user.lastName}`,
-            newRMId: rmId,
-            reason: reason || undefined,
           },
         },
-      });
+      }),
+    ];
+
+    // Notify previous RM if reassignment
+    if (isReassignment && previousRM) {
+      sideEffects.push(
+        prisma.notification.create({
+          data: {
+            userId: previousRM.userId,
+            type: 'INFO',
+            category: 'ASSIGNMENT',
+            title: 'Client Reassigned',
+            message: `Client ${user.firstName} ${user.lastName} has been reassigned to another relationship manager.`,
+            metadata: {
+              clientId: client.id,
+              clientUserId: userId,
+              clientName: `${user.firstName} ${user.lastName}`,
+              newRMId: rmId,
+              reason: reason || undefined,
+            },
+          },
+        })
+      );
     }
+
+    runInBackground(...sideEffects);
 
     return NextResponse.json({
       success: true,

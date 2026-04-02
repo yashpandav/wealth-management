@@ -8,6 +8,7 @@ import { prisma } from '@/lib/db/prisma';
 import { resetPasswordRequestSchema } from '@/lib/validation/auth.validation';
 import { sendPasswordResetEmail } from '@/lib/email';
 import { randomBytes } from 'crypto';
+import { runInBackground } from '@/lib/background';
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,18 +82,20 @@ export async function POST(request: NextRequest) {
       // Don't fail the request if email fails - security measure
     }
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: user.id,
-        action: 'PASSWORD_CHANGE',
-        entityType: 'User',
-        entityId: user.id,
-        description: 'Password reset requested',
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
-        userAgent: request.headers.get('user-agent') || '',
-      },
-    });
+    // Create audit log (non-critical side-effect)
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'PASSWORD_CHANGE',
+          entityType: 'User',
+          entityId: user.id,
+          description: 'Password reset requested',
+          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '',
+          userAgent: request.headers.get('user-agent') || '',
+        },
+      })
+    );
 
     return NextResponse.json(
       {
