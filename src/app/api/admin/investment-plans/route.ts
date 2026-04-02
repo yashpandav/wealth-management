@@ -8,6 +8,7 @@ import { requireAdmin } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { AuditAction } from '@prisma/client';
+import { runInBackground } from '@/lib/background';
 
 // Allowed values for payout frequency
 const ALLOWED_PAYOUT_FREQUENCIES = [
@@ -181,23 +182,25 @@ export async function POST(request: NextRequest) {
     });
 
     // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: admin.id,
-        action: AuditAction.INVESTMENT_OPTION_CREATE,
-        entityType: 'InvestmentOption',
-        entityId: investmentOption.id,
-        description: `Created investment plan option: ${sanitizedDuration} - ${data.withdrawalFrequency} for ${investment.name}`,
-        metadata: {
-          investmentId: investment.id,
-          investmentName: investment.name,
-          duration: sanitizedDuration,
-          payoutFrequency: data.withdrawalFrequency,
-          roi: data.roi.toString(),
-          annualReturn: data.annualReturn.toString(),
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: admin.id,
+          action: AuditAction.INVESTMENT_OPTION_CREATE,
+          entityType: 'InvestmentOption',
+          entityId: investmentOption.id,
+          description: `Created investment plan option: ${sanitizedDuration} - ${data.withdrawalFrequency} for ${investment.name}`,
+          metadata: {
+            investmentId: investment.id,
+            investmentName: investment.name,
+            duration: sanitizedDuration,
+            payoutFrequency: data.withdrawalFrequency,
+            roi: data.roi.toString(),
+            annualReturn: data.annualReturn.toString(),
+          },
         },
-      },
-    });
+      })
+    );
 
     return NextResponse.json(
       {

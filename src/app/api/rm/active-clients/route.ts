@@ -104,28 +104,28 @@ export async function GET(request: NextRequest) {
     // Calculate portfolio values for each client
     const serializedClients = await Promise.all(
       clients.map(async (client) => {
-        // Get total invested from purchase transactions
-        const investmentAgg = await prisma.transaction.aggregate({
-          where: {
-            clientId: client.id,
-            type: 'PURCHASE',
-            status: 'COMPLETED',
-          },
-          _sum: {
-            amount: true,
-          },
-        });
-
-        // Get total interest earned from completed payouts
-        const payoutAgg = await prisma.payout.aggregate({
-          where: {
-            clientId: client.id,
-            status: 'COMPLETED',
-          },
-          _sum: {
-            amount: true,
-          },
-        });
+        // Fetch investment and payout aggregates in parallel
+        const [investmentAgg, payoutAgg] = await Promise.all([
+          prisma.transaction.aggregate({
+            where: {
+              clientId: client.id,
+              type: 'PURCHASE',
+              status: 'COMPLETED',
+            },
+            _sum: {
+              amount: true,
+            },
+          }),
+          prisma.payout.aggregate({
+            where: {
+              clientId: client.id,
+              status: 'COMPLETED',
+            },
+            _sum: {
+              amount: true,
+            },
+          }),
+        ]);
 
         const totalInvested = Number(investmentAgg._sum.amount || 0);
         const totalInterestEarned = Number(payoutAgg._sum.amount || 0);

@@ -11,6 +11,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getCurrentUser } from '@/lib/auth/session';
 import { config } from '@/lib/config';
 import { z } from 'zod';
+import { runInBackground } from '@/lib/background';
 
 const assignRMSchema = z.object({
   clientId: z.string().uuid('Invalid client ID'),
@@ -53,24 +54,40 @@ export async function POST(request: NextRequest) {
 
     const { clientId, rmId } = validationResult.data;
 
-    // Find the client with their documents
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-      include: {
-        user: {
-          select: {
-            email: true,
-            firstName: true,
-            lastName: true,
+    // Fetch client and RM in parallel
+    const [client, rm] = await Promise.all([
+      prisma.client.findUnique({
+        where: { id: clientId },
+        include: {
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+          documents: {
+            select: {
+              verificationStatus: true,
+            },
           },
         },
-        documents: {
-          select: {
-            verificationStatus: true,
+      }),
+      prisma.relationshipManager.findUnique({
+        where: { id: rmId },
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              status: true,
+              isActive: true,
+            },
           },
         },
-      },
-    });
+      }),
+    ]);
 
     if (!client) {
       return NextResponse.json(
@@ -107,22 +124,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate the RM exists and is active
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { id: rmId },
-      include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
-            status: true,
-            isActive: true,
-          },
-        },
-      },
-    });
-
     if (!rm) {
       return NextResponse.json(
         { success: false, error: 'Relationship Manager not found' },
@@ -147,30 +148,32 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create audit log
+    // Create audit log (non-critical side-effect)
     if (config.features.auditLog) {
-      await prisma.auditLog.create({
-        data: {
-          userId: user.id,
-          action: 'CLIENT_ASSIGN',
-          entityType: 'Client',
-          entityId: clientId,
-          description: `Client assigned to RM: ${rm.user.firstName} ${rm.user.lastName}`,
-          metadata: {
-            clientId,
-            clientEmail: client.user.email,
-            clientName: `${client.user.firstName} ${client.user.lastName}`,
-            rmId,
-            rmEmail: rm.user.email,
-            rmName: `${rm.user.firstName} ${rm.user.lastName}`,
+      runInBackground(
+        prisma.auditLog.create({
+          data: {
+            userId: user.id,
+            action: 'CLIENT_ASSIGN',
+            entityType: 'Client',
+            entityId: clientId,
+            description: `Client assigned to RM: ${rm.user.firstName} ${rm.user.lastName}`,
+            metadata: {
+              clientId,
+              clientEmail: client.user.email,
+              clientName: `${client.user.firstName} ${client.user.lastName}`,
+              rmId,
+              rmEmail: rm.user.email,
+              rmName: `${rm.user.firstName} ${rm.user.lastName}`,
+            },
+            ipAddress:
+              request.headers.get('x-forwarded-for') ||
+              request.headers.get('x-real-ip') ||
+              '',
+            userAgent: request.headers.get('user-agent') || '',
           },
-          ipAddress:
-            request.headers.get('x-forwarded-for') ||
-            request.headers.get('x-real-ip') ||
-            '',
-          userAgent: request.headers.get('user-agent') || '',
-        },
-      });
+        })
+      );
     }
 
     return NextResponse.json(

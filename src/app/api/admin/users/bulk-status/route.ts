@@ -9,6 +9,7 @@ import { requireAdmin } from '@/lib/auth/session';
 import { sanitizeObject } from '@/lib/security';
 import { bulkUserOperationSchema } from '@/lib/validation/user.validation';
 import { AccountStatus } from '@prisma/client';
+import { runInBackground } from '@/lib/background';
 
 /**
  * Helper function to handle bulk delete operation
@@ -68,7 +69,7 @@ async function handleBulkDelete(
     })
   );
 
-  await Promise.all(auditLogPromises);
+  runInBackground(...auditLogPromises);
 
   return NextResponse.json({
     success: true,
@@ -231,8 +232,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       })
     );
 
-    // Execute all operations
-    await Promise.all([...auditLogPromises, ...notificationPromises]);
+    // Fire-and-forget all side effects
+    runInBackground(...auditLogPromises, ...notificationPromises);
 
     return NextResponse.json({
       success: true,

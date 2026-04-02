@@ -11,6 +11,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { RequestStatus } from '@prisma/client';
 import { sendEmail, sendDocAdminContractUploadRequiredEmail } from '@/lib/email';
+import { runInBackground } from '@/lib/background';
 
 // Validation schema for updating a product purchase request
 const updateProductRequestSchema = z.object({
@@ -37,59 +38,59 @@ export async function GET(
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get RM record
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        assignedClients: {
-          select: { id: true },
+    // Fetch RM record and product request in parallel
+    const [rm, productRequest] = await Promise.all([
+      prisma.relationshipManager.findUnique({
+        where: { userId: session.user.id },
+        include: {
+          assignedClients: {
+            select: { id: true },
+          },
         },
-      },
-    });
+      }),
+      prisma.productPurchaseRequest.findUnique({
+        where: { id },
+        include: {
+          client: {
+            include: {
+              user: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                  phone: true,
+                },
+              },
+            },
+          },
+          investment: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              currency: true,
+              minAmount: true,
+              maxAmount: true,
+            },
+          },
+          investmentOption: {
+            select: {
+              id: true,
+              duration: true,
+              withdrawalFrequency: true,
+              roi: true,
+              annualReturn: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     if (!rm) {
       return NextResponse.json({ success: false, error: 'RM record not found' }, { status: 404 });
     }
 
     const clientIds = rm.assignedClients.map((c) => c.id);
-
-    // Get the product purchase request
-    const productRequest = await prisma.productPurchaseRequest.findUnique({
-      where: { id },
-      include: {
-        client: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
-                email: true,
-                phone: true,
-              },
-            },
-          },
-        },
-        investment: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            currency: true,
-            minAmount: true,
-            maxAmount: true,
-          },
-        },
-        investmentOption: {
-          select: {
-            id: true,
-            duration: true,
-            withdrawalFrequency: true,
-            roi: true,
-            annualReturn: true,
-          },
-        },
-      },
-    });
 
     if (!productRequest) {
       return NextResponse.json({ success: false, error: 'Investment request not found' }, { status: 404 });
@@ -169,55 +170,55 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get RM record
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        assignedClients: {
-          select: { id: true },
+    // Fetch RM record and product request in parallel
+    const [rm, productRequest] = await Promise.all([
+      prisma.relationshipManager.findUnique({
+        where: { userId: session.user.id },
+        include: {
+          assignedClients: {
+            select: { id: true },
+          },
         },
-      },
-    });
+      }),
+      prisma.productPurchaseRequest.findUnique({
+        where: { id },
+        include: {
+          client: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+          investment: {
+            select: {
+              id: true,
+              name: true,
+              currency: true,
+            },
+          },
+          investmentOption: {
+            select: {
+              duration: true,
+              withdrawalFrequency: true,
+              roi: true,
+              annualReturn: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     if (!rm) {
       return NextResponse.json({ success: false, error: 'RM record not found' }, { status: 404 });
     }
 
     const clientIds = rm.assignedClients.map((c) => c.id);
-
-    // Get the product purchase request
-    const productRequest = await prisma.productPurchaseRequest.findUnique({
-      where: { id },
-      include: {
-        client: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-              },
-            },
-          },
-        },
-        investment: {
-          select: {
-            id: true,
-            name: true,
-            currency: true,
-          },
-        },
-        investmentOption: {
-          select: {
-            duration: true,
-            withdrawalFrequency: true,
-            roi: true,
-            annualReturn: true,
-          },
-        },
-      },
-    });
 
     if (!productRequest) {
       return NextResponse.json({ success: false, error: 'Investment request not found' }, { status: 404 });
@@ -291,32 +292,34 @@ export async function PATCH(
     const currency = productRequest.investment.currency;
     const amount = Number(productRequest.amount);
 
-    // Create in-app notification for client
-    await prisma.notification.create({
-      data: {
-        userId: clientUserId,
-        type: action === 'APPROVE' ? 'SUCCESS' : 'WARNING',
-        category: 'REQUEST',
-        title: action === 'APPROVE' ? 'Investment Request Approved' : 'Investment Request Rejected',
-        message: action === 'APPROVE'
-          ? `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been approved.`
-          : `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
-        isRead: false,
-        actionUrl: '/client/requests',
-        actionText: 'View Details',
-        entityType: 'ProductPurchaseRequest',
-        entityId: productRequest.id,
-        priority: 'HIGH',
-        metadata: {
-          trackingNumber: productRequest.trackingNumber,
-          investmentName,
-          amount,
-          currency,
-          status: newStatus,
-          rejectionReason: action === 'REJECT' ? rejectionReason : null,
+    // Create in-app notification for client (non-critical side-effect)
+    runInBackground(
+      prisma.notification.create({
+        data: {
+          userId: clientUserId,
+          type: action === 'APPROVE' ? 'SUCCESS' : 'WARNING',
+          category: 'REQUEST',
+          title: action === 'APPROVE' ? 'Investment Request Approved' : 'Investment Request Rejected',
+          message: action === 'APPROVE'
+            ? `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been approved.`
+            : `Your investment request for ${investmentName} - ${currency} ${amount.toLocaleString()} has been rejected.`,
+          isRead: false,
+          actionUrl: '/client/requests',
+          actionText: 'View Details',
+          entityType: 'ProductPurchaseRequest',
+          entityId: productRequest.id,
+          priority: 'HIGH',
+          metadata: {
+            trackingNumber: productRequest.trackingNumber,
+            investmentName,
+            amount,
+            currency,
+            status: newStatus,
+            rejectionReason: action === 'REJECT' ? rejectionReason : null,
+          },
         },
-      },
-    });
+      })
+    );
 
     // Send email notification to client
     const statusText = action === 'APPROVE' ? 'Approved' : 'Rejected';
@@ -394,99 +397,95 @@ export async function PATCH(
       console.error('Failed to send client notification email:', err);
     });
 
-    // Create audit log for approval/rejection
+    // Create audit log for approval/rejection (non-critical side-effect)
     const auditAction = action === 'APPROVE' ? 'PURCHASE_REQUEST_APPROVE' : 'PURCHASE_REQUEST_REJECT';
-    await prisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: auditAction,
-        entityType: 'ProductPurchaseRequest',
-        entityId: productRequest.id,
-        description: `RM ${action === 'APPROVE' ? 'approved' : 'rejected'} investment request ${productRequest.trackingNumber} for client ${clientName}`,
-        metadata: {
-          trackingNumber: productRequest.trackingNumber,
-          clientId: productRequest.clientId,
-          clientName,
-          clientEmail,
-          investmentId: productRequest.investmentId,
-          investmentName,
-          investmentOptionId: productRequest.investmentOptionId,
-          amount,
-          currency,
-          duration: productRequest.investmentOption.duration,
-          roi: Number(productRequest.investmentOption.roi),
-          annualReturn: Number(productRequest.investmentOption.annualReturn),
-          withdrawalFrequency: productRequest.investmentOption.withdrawalFrequency,
-          payoutWindow: action === 'APPROVE' ? payoutWindow : null,
-          rmId: rm.id,
-          rmUserId: session.user.id,
-          rmName: `${session.user.firstName} ${session.user.lastName}`,
-          rmEmail: session.user.email,
-          previousStatus: 'PENDING',
-          newStatus: newStatus,
-          rmNotes: rmNotes || null,
-          rejectionReason: action === 'REJECT' ? rejectionReason : null,
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: session.user.id,
+          action: auditAction,
+          entityType: 'ProductPurchaseRequest',
+          entityId: productRequest.id,
+          description: `RM ${action === 'APPROVE' ? 'approved' : 'rejected'} investment request ${productRequest.trackingNumber} for client ${clientName}`,
+          metadata: {
+            trackingNumber: productRequest.trackingNumber,
+            clientId: productRequest.clientId,
+            clientName,
+            clientEmail,
+            investmentId: productRequest.investmentId,
+            investmentName,
+            investmentOptionId: productRequest.investmentOptionId,
+            amount,
+            currency,
+            duration: productRequest.investmentOption.duration,
+            roi: Number(productRequest.investmentOption.roi),
+            annualReturn: Number(productRequest.investmentOption.annualReturn),
+            withdrawalFrequency: productRequest.investmentOption.withdrawalFrequency,
+            payoutWindow: action === 'APPROVE' ? payoutWindow : null,
+            rmId: rm.id,
+            rmUserId: session.user.id,
+            rmName: `${session.user.firstName} ${session.user.lastName}`,
+            rmEmail: session.user.email,
+            previousStatus: 'PENDING',
+            newStatus: newStatus,
+            rmNotes: rmNotes || null,
+            rejectionReason: action === 'REJECT' ? rejectionReason : null,
+          },
+          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+          severity: action === 'APPROVE' ? 'INFO' : 'WARNING',
+          success: true,
         },
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-        severity: action === 'APPROVE' ? 'INFO' : 'WARNING',
-        success: true,
-      },
-    }).catch((err) => {
-      console.error('Failed to create audit log:', err);
-      // Don't fail the request if audit log creation fails
-    });
+      })
+    );
 
-    // If approved, notify all DocAdmins for contract upload
+    // If approved, notify all DocAdmins for contract upload (non-critical fan-out)
     if (action === 'APPROVE') {
-      const docAdmins = await prisma.user.findMany({
+      prisma.user.findMany({
         where: {
           role: { in: ['DOCADMIN', 'ADMIN'] },
           status: 'ACTIVE',
           isActive: true
         },
         select: { id: true, email: true, firstName: true, lastName: true },
-      });
-
-      // Create in-app notifications and send emails
-      const promises = docAdmins.map(async (admin) => {
-        // 1. Send Email
-        await sendDocAdminContractUploadRequiredEmail(
-          admin.email,
-          `${admin.firstName} ${admin.lastName}`,
-          clientName,
-          investmentName,
-          productRequest.trackingNumber,
-          amount,
-          currency
-        ).catch(err => console.error('Failed to send DocAdmin notification email:', err));
-
-        // 2. Create In-App Notification
-        await prisma.notification.create({
-          data: {
-            userId: admin.id,
-            type: 'INFO',
-            category: 'REQUEST',
-            title: 'Contract Upload Required',
-            message: `Investment request for ${clientName} (${investmentName}) has been approved and requires contract upload.`,
-            isRead: false,
-            actionUrl: '/docadmin/contract-requests',
-            actionText: 'Upload Contract',
-            entityType: 'ProductPurchaseRequest',
-            entityId: productRequest.id,
-            priority: 'HIGH',
-            metadata: {
-              trackingNumber: productRequest.trackingNumber,
+      }).then((docAdmins) => {
+        const promises = docAdmins.map((admin) =>
+          Promise.all([
+            sendDocAdminContractUploadRequiredEmail(
+              admin.email,
+              `${admin.firstName} ${admin.lastName}`,
               clientName,
               investmentName,
+              productRequest.trackingNumber,
               amount,
               currency
-            }
-          }
-        }).catch(err => console.error(`Failed to create notification for admin ${admin.id}:`, err));
-      });
-
-      await Promise.allSettled(promises);
+            ).catch(err => console.error('Failed to send DocAdmin notification email:', err)),
+            prisma.notification.create({
+              data: {
+                userId: admin.id,
+                type: 'INFO',
+                category: 'REQUEST',
+                title: 'Contract Upload Required',
+                message: `Investment request for ${clientName} (${investmentName}) has been approved and requires contract upload.`,
+                isRead: false,
+                actionUrl: '/docadmin/contract-requests',
+                actionText: 'Upload Contract',
+                entityType: 'ProductPurchaseRequest',
+                entityId: productRequest.id,
+                priority: 'HIGH',
+                metadata: {
+                  trackingNumber: productRequest.trackingNumber,
+                  clientName,
+                  investmentName,
+                  amount,
+                  currency
+                }
+              }
+            }).catch(err => console.error(`Failed to create notification for admin ${admin.id}:`, err)),
+          ])
+        );
+        Promise.allSettled(promises).catch(() => {});
+      }).catch(err => console.error('Failed to fetch DocAdmins:', err));
     }
 
     return NextResponse.json({

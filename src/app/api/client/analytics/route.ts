@@ -41,58 +41,44 @@ export async function GET() {
       });
     }
 
-    // Fetch active investment purchase requests
-    const activeInvestments = await prisma.productPurchaseRequest.findMany({
-      where: {
-        clientId: client.id,
-        status: { in: ['APPROVED', 'COMPLETED'] },
-      },
-      include: {
-        investment: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            currency: true,
+    // Fetch all analytics data in parallel
+    const [activeInvestments, totalInvestmentAgg, payoutStats, recentPayouts, recentTransaction] = await Promise.all([
+      // Fetch active investment purchase requests
+      prisma.productPurchaseRequest.findMany({
+        where: {
+          clientId: client.id,
+          status: { in: ['APPROVED', 'COMPLETED'] },
+        },
+        include: {
+          investment: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              currency: true,
+            },
+          },
+          investmentOption: {
+            select: {
+              duration: true,
+              roi: true,
+              annualReturn: true,
+              withdrawalFrequency: true,
+            },
           },
         },
-        investmentOption: {
-          select: {
-            duration: true,
-            roi: true,
-            annualReturn: true,
-            withdrawalFrequency: true,
-          },
+      }),
+      // Calculate total invested from purchase transactions
+      prisma.transaction.aggregate({
+        where: {
+          clientId: client.id,
+          type: 'PURCHASE',
+          status: 'COMPLETED',
         },
-      },
-    });
-
-    if (activeInvestments.length === 0) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          analytics: null,
-          message: 'No active investments found',
+        _sum: {
+          amount: true,
         },
-      });
-    }
-
-    // Calculate total invested from purchase transactions
-    const totalInvestmentAgg = await prisma.transaction.aggregate({
-      where: {
-        clientId: client.id,
-        type: 'PURCHASE',
-        status: 'COMPLETED',
-      },
-      _sum: {
-        amount: true,
-      },
-    });
-
-    const totalInvested = Number(totalInvestmentAgg._sum.amount || 0);
-
-    // Fetch payout data
-    const [payoutStats, recentPayouts] = await Promise.all([
+      }),
       // Payout statistics by status
       prisma.payout.groupBy({
         by: ['status'],
@@ -100,7 +86,6 @@ export async function GET() {
         _count: true,
         _sum: { amount: true },
       }),
-
       // Recent payouts for chart (last 6 months)
       prisma.payout.findMany({
         where: {
@@ -116,7 +101,33 @@ export async function GET() {
           status: true,
         },
       }),
+      // Recent transaction for day change (simplified)
+      prisma.transaction.findFirst({
+        where: {
+          clientId: client.id,
+          type: 'INTEREST_PAYOUT',
+          status: 'COMPLETED',
+        },
+        orderBy: {
+          completedAt: 'desc',
+        },
+        select: {
+          amount: true,
+        },
+      }),
     ]);
+
+    if (activeInvestments.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          analytics: null,
+          message: 'No active investments found',
+        },
+      });
+    }
+
+    const totalInvested = Number(totalInvestmentAgg._sum.amount || 0);
 
     // Calculate payout metrics
     const totalInterestEarned = payoutStats
@@ -214,21 +225,6 @@ export async function GET() {
       amount: p.amount.toNumber(),
       status: p.status,
     }));
-
-    // Recent transaction for day change (simplified)
-    const recentTransaction = await prisma.transaction.findFirst({
-      where: {
-        clientId: client.id,
-        type: 'INTEREST_PAYOUT',
-        status: 'COMPLETED',
-      },
-      orderBy: {
-        completedAt: 'desc',
-      },
-      select: {
-        amount: true,
-      },
-    });
 
     const dayChange = recentTransaction ? Number(recentTransaction.amount) : 0;
     const dayChangePercent = totalValue > 0 ? (dayChange / totalValue) * 100 : 0;

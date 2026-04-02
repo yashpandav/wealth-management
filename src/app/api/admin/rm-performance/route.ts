@@ -65,12 +65,14 @@ export async function GET(_request: NextRequest) {
     // Calculate performance metrics for each RM
     const rmPerformance = await Promise.all(
       rms.map(async (rm) => {
-        // Get product purchase request statistics
+        // Get product purchase request statistics and completed requests in parallel
+        const clientIds = rm.assignedClients.map((c) => c.id);
         const [
           totalPurchaseRequests,
           approvedPurchaseRequests,
           rejectedPurchaseRequests,
           pendingPurchaseRequests,
+          completedRequests,
         ] = await Promise.all([
           prisma.productPurchaseRequest.count({
             where: { assignedRMId: rm.id },
@@ -93,23 +95,20 @@ export async function GET(_request: NextRequest) {
               status: 'PENDING',
             },
           }),
+          prisma.productPurchaseRequest.findMany({
+            where: {
+              clientId: { in: clientIds },
+              status: 'COMPLETED',
+            },
+            select: {
+              amount: true,
+              clientId: true,
+            },
+          }),
         ]);
 
         // Calculate client metrics
         const totalClients = rm.assignedClients.length;
-
-        // Get completed product purchase requests for this RM's clients
-        const clientIds = rm.assignedClients.map((c) => c.id);
-        const completedRequests = await prisma.productPurchaseRequest.findMany({
-          where: {
-            clientId: { in: clientIds },
-            status: 'COMPLETED',
-          },
-          select: {
-            amount: true,
-            clientId: true,
-          },
-        });
 
         // Calculate AUM (Assets Under Management) from completed requests
         const totalAUM = completedRequests.reduce((sum, req) => {

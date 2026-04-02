@@ -11,6 +11,7 @@ import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { RequestStatus } from '@prisma/client';
 import { sendEmail, sendProductRequestSubmittedEmail } from '@/lib/email';
+import { runInBackground } from '@/lib/background';
 
 // Validation schema for creating an investment purchase request
 const createProductPurchaseRequestSchema = z.object({
@@ -140,17 +141,33 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data;
 
-    // Verify investment exists and is active
-    const product = await prisma.investment.findUnique({
-      where: { id: data.investmentId, isActive: true },
-      select: {
-        id: true,
-        name: true,
-        minAmount: true,
-        maxAmount: true,
-        currency: true,
-      },
-    });
+    // Verify investment and option in parallel
+    const [product, productOption] = await Promise.all([
+      prisma.investment.findUnique({
+        where: { id: data.investmentId, isActive: true },
+        select: {
+          id: true,
+          name: true,
+          minAmount: true,
+          maxAmount: true,
+          currency: true,
+        },
+      }),
+      prisma.investmentOption.findUnique({
+        where: {
+          id: data.investmentOptionId,
+          investmentId: data.investmentId,
+          isActive: true,
+        },
+        select: {
+          id: true,
+          duration: true,
+          withdrawalFrequency: true,
+          roi: true,
+          annualReturn: true,
+        },
+      }),
+    ]);
 
     if (!product) {
       return NextResponse.json(
@@ -158,22 +175,6 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    // Verify investment option exists and belongs to the investment
-    const productOption = await prisma.investmentOption.findUnique({
-      where: {
-        id: data.investmentOptionId,
-        investmentId: data.investmentId,
-        isActive: true,
-      },
-      select: {
-        id: true,
-        duration: true,
-        withdrawalFrequency: true,
-        roi: true,
-        annualReturn: true,
-      },
-    });
 
     if (!productOption) {
       return NextResponse.json(
@@ -280,33 +281,35 @@ export async function POST(request: NextRequest) {
     const rmName = `${client.assignedRM.user.firstName} ${client.assignedRM.user.lastName}`;
     const clientName = `${client.user.firstName} ${client.user.lastName}`;
 
-    // Create in-app notification for RM
-    await prisma.notification.create({
-      data: {
-        userId: rmUserId,
-        type: 'ALERT',
-        category: 'REQUEST',
-        title: 'New Plan Investment Request',
-        message: `${clientName} has submitted a new plan investment request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
-        isRead: false,
-        actionUrl: '/rm/product-requests',
-        actionText: 'Review Request',
-        entityType: 'ProductPurchaseRequest',
-        entityId: purchaseRequest.id,
-        priority: 'HIGH',
-        metadata: {
-          trackingNumber: purchaseRequest.trackingNumber,
-          clientName,
-          productName: product.name,
-          amount: data.amount,
-          currency: product.currency,
-          duration: productOption.duration,
-          withdrawalFrequency: productOption.withdrawalFrequency,
-          roi: Number(productOption.roi),
-          annualReturn: Number(productOption.annualReturn),
+    // Create in-app notification for RM (non-critical side-effect)
+    runInBackground(
+      prisma.notification.create({
+        data: {
+          userId: rmUserId,
+          type: 'ALERT',
+          category: 'REQUEST',
+          title: 'New Plan Investment Request',
+          message: `${clientName} has submitted a new plan investment request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
+          isRead: false,
+          actionUrl: '/rm/product-requests',
+          actionText: 'Review Request',
+          entityType: 'ProductPurchaseRequest',
+          entityId: purchaseRequest.id,
+          priority: 'HIGH',
+          metadata: {
+            trackingNumber: purchaseRequest.trackingNumber,
+            clientName,
+            productName: product.name,
+            amount: data.amount,
+            currency: product.currency,
+            duration: productOption.duration,
+            withdrawalFrequency: productOption.withdrawalFrequency,
+            roi: Number(productOption.roi),
+            annualReturn: Number(productOption.annualReturn),
+          },
         },
-      },
-    });
+      })
+    );
 
     // Send email notification to RM
 
@@ -402,41 +405,40 @@ Please log in to your dashboard to review and process this request.
       console.error('Failed to send RM notification email:', err);
     });
 
-    // Create audit log for product request creation
-    await prisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'PURCHASE_REQUEST_CREATE',
-        entityType: 'ProductPurchaseRequest',
-        entityId: purchaseRequest.id,
-        description: `Client ${clientName} submitted plan investment request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
-        metadata: {
-          trackingNumber: purchaseRequest.trackingNumber,
-          clientId: client.id,
-          clientName,
-          clientEmail: client.user.email,
-          investmentId: data.investmentId,
-          productName: product.name,
-          investmentOptionId: data.investmentOptionId,
-          amount: data.amount,
-          currency: product.currency,
-          duration: productOption.duration,
-          roi: Number(productOption.roi),
-          annualReturn: Number(productOption.annualReturn),
-          assignedRMId: client.assignedRM.id,
-          rmName,
-          rmEmail,
-          clientNotes: data.clientNotes || null,
+    // Create audit log for product request creation (non-critical side-effect)
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: session.user.id,
+          action: 'PURCHASE_REQUEST_CREATE',
+          entityType: 'ProductPurchaseRequest',
+          entityId: purchaseRequest.id,
+          description: `Client ${clientName} submitted plan investment request for ${product.name} - ${product.currency} ${data.amount.toLocaleString()}`,
+          metadata: {
+            trackingNumber: purchaseRequest.trackingNumber,
+            clientId: client.id,
+            clientName,
+            clientEmail: client.user.email,
+            investmentId: data.investmentId,
+            productName: product.name,
+            investmentOptionId: data.investmentOptionId,
+            amount: data.amount,
+            currency: product.currency,
+            duration: productOption.duration,
+            roi: Number(productOption.roi),
+            annualReturn: Number(productOption.annualReturn),
+            assignedRMId: client.assignedRM.id,
+            rmName,
+            rmEmail,
+            clientNotes: data.clientNotes || null,
+          },
+          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+          severity: 'INFO',
+          success: true,
         },
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-        severity: 'INFO',
-        success: true,
-      },
-    }).catch((err) => {
-      console.error('Failed to create audit log:', err);
-      // Don't fail the request if audit log creation fails
-    });
+      })
+    );
 
     return NextResponse.json({
       success: true,

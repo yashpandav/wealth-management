@@ -59,11 +59,10 @@ export async function GET(request: NextRequest) {
         // Calculate pagination
         const skip = (page - 1) * limit;
 
-        // Fetch total count for pagination
-        const totalCount = await prisma.productPurchaseRequest.count({ where });
-
-        // Fetch requests
-        const requests = await prisma.productPurchaseRequest.findMany({
+        // Fetch total count and requests in parallel
+        const [totalCount, requests] = await Promise.all([
+          prisma.productPurchaseRequest.count({ where }),
+          prisma.productPurchaseRequest.findMany({
             where,
             skip,
             take: limit,
@@ -93,7 +92,8 @@ export async function GET(request: NextRequest) {
                     },
                 },
             },
-        });
+          }),
+        ]);
 
         // Serialize Decimal fields - Keep field names consistent with schema
         const serializedRequests = requests.map((req) => ({
@@ -115,20 +115,17 @@ export async function GET(request: NextRequest) {
         // Only fetching status counts if standard "all" request from page 1 to allow simple summary
         let summary = null;
         if (page === 1 && !search && !status) {
-            const stats = await prisma.productPurchaseRequest.groupBy({
+            const [stats, totalAmount] = await Promise.all([
+              prisma.productPurchaseRequest.groupBy({
                 by: ['status'],
-                _count: {
-                    _all: true
-                },
-                _sum: {
-                    amount: true
-                }
-            });
-
-            const totalAmount = await prisma.productPurchaseRequest.aggregate({
+                _count: { _all: true },
                 _sum: { amount: true },
-                _count: { _all: true }
-            });
+              }),
+              prisma.productPurchaseRequest.aggregate({
+                _sum: { amount: true },
+                _count: { _all: true },
+              }),
+            ]);
 
             summary = {
                 total: totalAmount._count._all,

@@ -42,10 +42,59 @@ export async function GET(_request: NextRequest, context: RouteContext) {
     const params = await context.params;
     const { id } = params;
 
-    // Get RM record
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { userId: session.user.id },
-    });
+    // Fetch RM record and client details in parallel
+    const [rm, client] = await Promise.all([
+      prisma.relationshipManager.findUnique({
+        where: { userId: session.user.id },
+      }),
+      prisma.client.findUnique({
+        where: { id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+              createdAt: true,
+            },
+          },
+          productPurchaseRequests: {
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+            include: {
+              investment: {
+                select: {
+                  name: true,
+                  description: true,
+                },
+              },
+              investmentOption: {
+                select: {
+                  duration: true,
+                  withdrawalFrequency: true,
+                  roi: true,
+                  annualReturn: true,
+                },
+              },
+            },
+          },
+          payouts: {
+            orderBy: { createdAt: 'desc' },
+            take: 10,
+            select: {
+              id: true,
+              amount: true,
+              status: true,
+              scheduledDate: true,
+              processedAt: true,
+              createdAt: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     if (!rm) {
       return NextResponse.json(
@@ -53,55 +102,6 @@ export async function GET(_request: NextRequest, context: RouteContext) {
         { status: 404 }
       );
     }
-
-    // Fetch client with full details
-    const client = await prisma.client.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            createdAt: true,
-          },
-        },
-        productPurchaseRequests: {
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-          include: {
-            investment: {
-              select: {
-                name: true,
-                description: true,
-              },
-            },
-            investmentOption: {
-              select: {
-                duration: true,
-                withdrawalFrequency: true,
-                roi: true,
-                annualReturn: true,
-              },
-            },
-          },
-        },
-        payouts: {
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-          select: {
-            id: true,
-            amount: true,
-            status: true,
-            scheduledDate: true,
-            processedAt: true,
-            createdAt: true,
-          },
-        },
-      },
-    });
 
     if (!client) {
       return NextResponse.json(

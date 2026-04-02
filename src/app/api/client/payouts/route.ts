@@ -66,8 +66,8 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Get payouts with pagination
-    const [payouts, totalCount] = await Promise.all([
+    // Fetch paginated payouts, count, summary, next payout, and total earned in parallel
+    const [payouts, totalCount, summary, nextPayout, totalEarned] = await Promise.all([
       prisma.payout.findMany({
         where,
         skip: (page - 1) * limit,
@@ -120,58 +120,55 @@ export async function GET(request: NextRequest) {
         },
       }),
       prisma.payout.count({ where }),
-    ]);
-
-    // Get summary statistics for the client
-    const summary = await prisma.payout.groupBy({
-      by: ['status'],
-      where: {
-        clientId: client.id,
-      },
-      _sum: {
-        amount: true,
-      },
-      _count: {
-        id: true,
-      },
-    });
-
-    // Get next scheduled payout (from today onwards)
-    const nextPayout = await prisma.payout.findFirst({
-      where: {
-        clientId: client.id,
-        status: 'PENDING',
-        scheduledDate: {
-          gte: now,
+      // Get summary statistics for the client
+      prisma.payout.groupBy({
+        by: ['status'],
+        where: {
+          clientId: client.id,
         },
-      },
-      orderBy: {
-        scheduledDate: 'asc',
-      },
-      include: {
-        productPurchaseRequest: {
-          include: {
-            investment: {
-              select: {
-                name: true,
-                currency: true,
+        _sum: {
+          amount: true,
+        },
+        _count: {
+          id: true,
+        },
+      }),
+      // Get next scheduled payout (from today onwards)
+      prisma.payout.findFirst({
+        where: {
+          clientId: client.id,
+          status: 'PENDING',
+          scheduledDate: {
+            gte: now,
+          },
+        },
+        orderBy: {
+          scheduledDate: 'asc',
+        },
+        include: {
+          productPurchaseRequest: {
+            include: {
+              investment: {
+                select: {
+                  name: true,
+                  currency: true,
+                },
               },
             },
           },
         },
-      },
-    });
-
-    // Calculate total interest earned (all completed payouts)
-    const totalEarned = await prisma.payout.aggregate({
-      where: {
-        clientId: client.id,
-        status: 'COMPLETED',
-      },
-      _sum: {
-        amount: true,
-      },
-    });
+      }),
+      // Calculate total interest earned (all completed payouts)
+      prisma.payout.aggregate({
+        where: {
+          clientId: client.id,
+          status: 'COMPLETED',
+        },
+        _sum: {
+          amount: true,
+        },
+      }),
+    ]);
 
     // Serialize Decimal fields
     const serializedPayouts = payouts.map((payout) => ({

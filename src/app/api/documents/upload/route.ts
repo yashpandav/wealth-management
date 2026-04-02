@@ -20,6 +20,7 @@ import { prisma } from '@/lib/db/prisma';
 import { getCurrentUser } from '@/lib/auth/session';
 import { sendDocumentUploadNotification } from '@/lib/email';
 import { config } from '@/lib/config';
+import { runInBackground } from '@/lib/background';
 import {
   documentUploadSchema,
   isValidMimeType,
@@ -213,31 +214,33 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Create audit log
+    // Create audit log (non-critical side-effect)
     if (config.features.auditLog) {
-      await prisma.auditLog.create({
-        data: {
-          userId: user.id,
-          action: 'DOCUMENT_UPLOAD',
-          entityType: 'Document',
-          entityId: document.id,
-          description: existingDocument
-            ? `Document re-uploaded: ${validationResult.data.documentType}`
-            : `Document uploaded: ${validationResult.data.documentType}`,
-          metadata: {
-            documentType: validationResult.data.documentType,
-            fileName: sanitizedOriginalName,
-            fileSize: file.size,
-            mimeType: file.type,
-            isReupload: !!existingDocument,
+      runInBackground(
+        prisma.auditLog.create({
+          data: {
+            userId: user.id,
+            action: 'DOCUMENT_UPLOAD',
+            entityType: 'Document',
+            entityId: document.id,
+            description: existingDocument
+              ? `Document re-uploaded: ${validationResult.data.documentType}`
+              : `Document uploaded: ${validationResult.data.documentType}`,
+            metadata: {
+              documentType: validationResult.data.documentType,
+              fileName: sanitizedOriginalName,
+              fileSize: file.size,
+              mimeType: file.type,
+              isReupload: !!existingDocument,
+            },
+            ipAddress:
+              request.headers.get('x-forwarded-for') ||
+              request.headers.get('x-real-ip') ||
+              '',
+            userAgent: request.headers.get('user-agent') || '',
           },
-          ipAddress:
-            request.headers.get('x-forwarded-for') ||
-            request.headers.get('x-real-ip') ||
-            '',
-          userAgent: request.headers.get('user-agent') || '',
-        },
-      });
+        })
+      );
     }
 
     // Send notification to DocAdmin(s) asynchronously

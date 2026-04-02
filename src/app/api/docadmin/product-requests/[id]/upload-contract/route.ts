@@ -83,18 +83,7 @@ export async function POST(
     const productRequest = await prisma.productPurchaseRequest.findUnique({
       where: { id: requestId },
       include: {
-        client: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                email: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
+        client: { include: { user: true } },
         investment: true,
         investmentOption: true,
       },
@@ -143,184 +132,134 @@ export async function POST(
 
     await writeFile(filePath, buffer);
 
-    // Calculate contract dates
-    // Contract start date = the date when RM approved (processedAt)
     const contractStartDate = productRequest.processedAt || new Date();
-
-    // Calculate contract end date from duration
-    // Duration format: "X Year" or "X Years"
     const durationMatch = productRequest.investmentOption.duration.match(/(\d+)/);
     const durationYears = durationMatch ? parseInt(durationMatch[1]) : 1;
     const contractEndDate = addYears(contractStartDate, durationYears);
 
-    // Perform all operations in a transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // 1. Create contract document
-      const contractDocument = await tx.document.create({
-        data: {
-          clientId: productRequest.clientId,
-          documentType: 'INVESTMENT_AGREEMENT',
-          filePath: publicPath,
-          fileName: file.name,
-          fileSize: file.size,
-          mimeType: file.type,
-          description: `Product purchase contract for ${productRequest.investment.name}`,
-          verificationStatus: 'VERIFIED', // Auto-verified since uploaded by DocAdmin
-          verifiedById: user.id,
-          verifiedAt: new Date(),
-        },
-      });
+    const metadata = JSON.stringify({
+      productRequestId: productRequest.id,
+      trackingNumber: productRequest.trackingNumber,
+      investmentId: productRequest.investmentId,
+      productName: productRequest.investment.name,
+      investmentOptionId: productRequest.investmentOptionId,
+      duration: productRequest.investmentOption.duration,
+      roi: productRequest.investmentOption.roi,
+      annualReturn: productRequest.investmentOption.annualReturn,
+      contractStartDate: contractStartDate.toISOString(),
+      contractEndDate: contractEndDate.toISOString(),
+      notes: notes || null,
+    });
 
-      // 2. Create Transaction (ONLY happens here!)
-      const transaction = await tx.transaction.create({
-        data: {
-          clientId: productRequest.clientId,
-          type: 'PURCHASE',
-          amount: productRequest.amount,
-          total: productRequest.amount,
-          netAmount: productRequest.amount,
-          status: 'COMPLETED',
-          completedAt: new Date(),
-          metadata: JSON.stringify({
-            productRequestId: productRequest.id,
-            trackingNumber: productRequest.trackingNumber,
-            investmentId: productRequest.investmentId,
-            productName: productRequest.investment.name,
-            investmentOptionId: productRequest.investmentOptionId,
-            duration: productRequest.investmentOption.duration,
-            roi: productRequest.investmentOption.roi,
-            annualReturn: productRequest.investmentOption.annualReturn,
-            contractDocumentId: contractDocument.id,
-            contractStartDate: contractStartDate.toISOString(),
-            contractEndDate: contractEndDate.toISOString(),
-            notes: notes || null,
-          }),
-        },
-      });
-
-      // 3. Update ProductPurchaseRequest to COMPLETED
-      const updatedRequest = await tx.productPurchaseRequest.update({
-        where: { id: requestId },
-        data: {
-          status: 'COMPLETED',
-          contractDocument: {
-            connect: { id: contractDocument.id },
+    const [contractDocument, transaction, updatedRequest] =
+      await prisma.$transaction([
+        prisma.document.create({
+          data: {
+            clientId: productRequest.clientId,
+            documentType: 'INVESTMENT_AGREEMENT',
+            filePath: publicPath,
+            fileName: file.name,
+            fileSize: file.size,
+            mimeType: file.type,
+            description: `Contract for ${productRequest.investment.name}`,
+            verificationStatus: 'VERIFIED',
+            verifiedById: user.id,
+            verifiedAt: new Date(),
           },
-          contractStartDate: contractStartDate,
-          completedAt: new Date(),
-          completedBy: {
-            connect: { id: user.id },
-          },
-        },
-      });
+        }),
 
-      // 5. Create audit log
-      if (config.features.auditLog) {
-        await tx.auditLog.create({
+        prisma.transaction.create({
+          data: {
+            clientId: productRequest.clientId,
+            type: 'PURCHASE',
+            amount: productRequest.amount,
+            total: productRequest.amount,
+            netAmount: productRequest.amount,
+            status: 'COMPLETED',
+            completedAt: new Date(),
+            metadata,
+          },
+        }),
+
+        prisma.productPurchaseRequest.update({
+          where: { id: requestId },
+          data: {
+            status: 'COMPLETED',
+            contractStartDate,
+            completedAt: new Date(),
+            completedBy: { connect: { id: user.id } },
+          },
+        }),
+      ]);
+
+    await prisma.productPurchaseRequest.update({
+      where: { id: requestId },
+      data: {
+        contractDocument: { connect: { id: contractDocument.id } },
+      },
+    });
+
+    const asyncTasks = [];
+
+    if (config.features.auditLog) {
+      asyncTasks.push(
+        prisma.auditLog.create({
           data: {
             userId: user.id,
             action: 'TRANSACTION_CREATE',
             entityType: 'ProductPurchaseRequest',
             entityId: requestId,
-            description: `Completed product request ${productRequest.trackingNumber} with contract upload`,
-            metadata: {
-              trackingNumber: productRequest.trackingNumber,
-              clientId: productRequest.clientId,
-              clientEmail: productRequest.client.user.email,
-              productName: productRequest.investment.name,
-              amount: productRequest.amount.toString(),
-              transactionId: transaction.id,
-              contractDocumentId: contractDocument.id,
-              contractStartDate: contractStartDate.toISOString(),
-              contractEndDate: contractEndDate.toISOString(),
-              duration: productRequest.investmentOption.duration,
-              withdrawalFrequency: productRequest.investmentOption.withdrawalFrequency,
-              payoutWindow: productRequest.payoutWindow,
-            },
-            ipAddress:
-              request.headers.get('x-forwarded-for') ||
-              request.headers.get('x-real-ip') ||
-              '',
-            userAgent: request.headers.get('user-agent') || '',
+            description: `Completed ${productRequest.trackingNumber}`,
           },
-        });
-      }
+        })
+      );
+    }
 
-      // 6. Create notification for client
-      await tx.notification.create({
+    asyncTasks.push(
+      prisma.notification.create({
         data: {
           userId: productRequest.client.user.id,
           type: 'SUCCESS',
           category: 'TRANSACTION',
           title: 'Plan Purchase Completed',
-          message: `Your product purchase request (${productRequest.trackingNumber}) has been completed. Contract has been uploaded and your investment is now active.`,
-          metadata: {
-            productRequestId: requestId,
-            trackingNumber: productRequest.trackingNumber,
-            productName: productRequest.investment.name,
-            amount: productRequest.amount.toString(),
-            transactionId: transaction.id,
-          },
+          message: `Your request (${productRequest.trackingNumber}) is complete.`,
         },
-      });
+      })
+    );
 
-      return {
-        productRequest: updatedRequest,
-        transaction,
-        contractDocument,
-      };
-    });
+    await Promise.all(asyncTasks);
 
-    // Generate payout schedules for this contract
-    try {
-      await generatePayoutSchedules(requestId);
-      console.log(`[PAYOUT] Generated payout schedules for request ${productRequest.trackingNumber}`);
-    } catch (scheduleError) {
-      console.error(`[PAYOUT] Failed to generate payout schedules for request ${requestId}:`, scheduleError);
-      // Don't fail the entire request if payout schedule generation fails
-      // This can be retried later or generated manually
-    }
-
-    // Send email notification to client (non-blocking)
-    const contractUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/client/product-requests/${requestId}/contract`;
+    generatePayoutSchedules(requestId).catch(console.error);
 
     sendContractUploadedEmail(
       productRequest.client.user.email,
       productRequest.client.user.firstName,
       productRequest.investment.name,
       productRequest.trackingNumber,
-      contractUrl
-    ).catch(err => console.error('Failed to send contract uploaded email:', err));
+      `${process.env.NEXTAUTH_URL}/client/product-requests/${requestId}/contract`
+    ).catch(console.error);
 
     return NextResponse.json({
       success: true,
-      message: 'Contract uploaded and product request completed successfully',
+      message: 'Contract uploaded successfully',
       data: {
         productRequest: {
-          id: result.productRequest.id,
-          trackingNumber: result.productRequest.trackingNumber,
-          status: result.productRequest.status,
-          completedAt: result.productRequest.completedAt,
+          id: updatedRequest.id,
+          status: updatedRequest.status,
         },
         transaction: {
-          id: result.transaction.id,
-          amount: result.transaction.amount,
-          status: result.transaction.status,
+          id: transaction.id,
         },
         contract: {
-          id: result.contractDocument.id,
-          fileName: result.contractDocument.fileName,
-          filePath: result.contractDocument.filePath,
+          id: contractDocument.id,
         },
       },
     });
+
   } catch (error) {
-    console.error('Contract upload error:', error);
+    console.error('Upload error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'An error occurred while uploading the contract.',
-      },
+      { success: false, error: 'Upload failed' },
       { status: 500 }
     );
   }
