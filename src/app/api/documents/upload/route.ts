@@ -207,7 +207,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Update client verification status to PENDING if not already verified
-    if (client.verificationStatus === 'NOT_SUBMITTED') {
+    if (
+      client.verificationStatus === 'NOT_SUBMITTED' ||
+      client.verificationStatus === 'REJECTED' ||
+      client.verificationStatus === 'EXPIRED'
+    ) {
       await prisma.client.update({
         where: { id: client.id },
         data: { verificationStatus: 'PENDING' },
