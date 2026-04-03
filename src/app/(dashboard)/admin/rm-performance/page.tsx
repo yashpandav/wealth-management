@@ -158,7 +158,7 @@ export default function RMPerformancePage() {
   }
 
   return (
-    <div className="container px-8 py-8">
+    <div className="container px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">

@@ -21,7 +21,7 @@ export default async function AdminDashboardPage() {
   }
 
   return (
-    <div className="container px-8 py-8 space-y-6">
+    <div className="container px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
       <div>
         <h1 className="font-optima text-2xl font-bold text-brand-blue">Admin Dashboard</h1>
         <p className="font-georgia text-brand-grey mt-1 text-sm">System-wide analytics and insights</p>

@@ -103,12 +103,18 @@ export function Header({ onMenuClick }: HeaderProps) {
           )}
           {session?.user?.role === 'RM' && (
             <>
-              <span className="text-brand-grey transition-colors duration-200 hover:text-brand-blue cursor-pointer">
+              <Link
+                href="/rm/active-clients"
+                className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue"
+              >
                 My Clients
-              </span>
-              <span className="text-brand-grey transition-colors duration-200 hover:text-brand-blue cursor-pointer">
+              </Link>
+              <Link
+                href="/rm/product-requests"
+                className="text-brand-grey transition-colors duration-200 hover:text-brand-blue focus:outline-none focus:text-brand-blue"
+              >
                 Requests
-              </span>
+              </Link>
             </>
           )}
           {session?.user?.role === 'CLIENT' && (

@@ -284,7 +284,7 @@ function AssignmentsContent() {
   };
 
   return (
-    <div className="container px-8 py-8">
+    <div className="container px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="font-optima text-2xl font-bold text-brand-blue">Client-RM Assignments</h1>

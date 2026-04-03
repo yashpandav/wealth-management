@@ -26,13 +26,13 @@ import {
   MessageCircle,
   TrendingUp,
   Calendar,
-  DollarSign,
   ArrowLeft,
   Wallet,
   PieChart,
-  ArrowUpRight,
-  ArrowDownRight,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
+import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { toast } from 'react-hot-toast';
 import { RequestStatus } from '@prisma/client';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -90,6 +90,15 @@ interface ApiResponse {
   error?: string;
 }
 
+const statusBadgeClass = (status: RequestStatus) => {
+  switch (status) {
+    case 'APPROVED': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'REJECTED': return 'bg-red-50 text-red-700 border-red-200';
+    case 'PROCESSING': return 'bg-brand-blue/10 text-brand-blue border-brand-blue/20';
+    default: return 'bg-amber-50 text-amber-700 border-amber-200';
+  }
+};
+
 export default function RMClientDetailPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -99,7 +108,6 @@ export default function RMClientDetailPage() {
   const [client, setClient] = useState<ClientDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Redirect if not authenticated or not RM
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
@@ -108,13 +116,11 @@ export default function RMClientDetailPage() {
     }
   }, [status, session, router]);
 
-  // Fetch client details
   const fetchClientDetails = async () => {
     setLoading(true);
     try {
       const response = await fetch(`/api/rm/clients/${clientId}`);
       const data: ApiResponse = await response.json();
-
       if (data.success && data.data) {
         setClient(data.data.client);
       } else {
@@ -137,7 +143,6 @@ export default function RMClientDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, clientId]);
 
-  // Format phone number for WhatsApp (remove non-digits)
   const formatPhoneForWhatsApp = (phone: string | null): string => {
     if (!phone) return '';
     return phone.replace(/\D/g, '');
@@ -147,228 +152,230 @@ export default function RMClientDetailPage() {
     return <LoadingSpinner className="min-h-[60vh]" />;
   }
 
-  if (!client) {
-    return null;
-  }
+  if (!client) return null;
 
-  const isPositiveGain = client.investmentSummary.totalInterestEarned >= 0;
+  const { investmentSummary: summary } = client;
+  const initials = `${client.user.firstName[0]}${client.user.lastName[0]}`.toUpperCase();
+
+  const statCards = [
+    {
+      icon: Wallet,
+      label: 'Portfolio Value',
+      value: `AED ${summary.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      highlight: true,
+    },
+    {
+      icon: DirhamIcon,
+      label: 'Total Invested',
+      value: `AED ${summary.totalInvested.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+    },
+    {
+      icon: TrendingUp,
+      label: 'Interest Earned',
+      value: `AED ${summary.totalInterestEarned.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      positive: summary.totalInterestEarned >= 0,
+    },
+  ];
 
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 max-w-7xl">
-      {/* Back Button */}
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="text-muted-foreground hover:bg-transparent hover:text-brand-blue pl-0"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Clients
-        </Button>
-      </div>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-6xl">
+      {/* Back */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-1.5 font-georgia text-sm text-brand-grey hover:text-brand-blue transition-colors mb-6"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Clients
+      </button>
 
-      {/* Main Header Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-border p-6 mb-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/5 rounded-full -mr-16 -mt-16 pointer-events-none" />
-
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 relative z-10">
-          <div className="flex items-center gap-5">
-            <div className="h-20 w-20 rounded-full bg-brand-blue text-white flex items-center justify-center text-2xl font-optima shadow-lg">
-              {client.user.firstName[0]}{client.user.lastName[0]}
-            </div>
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-3xl font-bold font-optima text-brand-blue">
+      {/* Profile Header */}
+      <Card className="border-gray-200 mb-6 overflow-hidden">
+        <div className="bg-brand-blue px-6 py-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            {/* Identity */}
+            <div className="flex items-center gap-5">
+              <div className="h-16 w-16 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center shrink-0">
+                <span className="font-optima text-2xl font-bold text-white">{initials}</span>
+              </div>
+              <div>
+                <h1 className="font-optima text-2xl font-bold text-white leading-tight">
                   {client.user.firstName} {client.user.lastName}
                 </h1>
-              </div>
-              <p className="text-gray-500 flex items-center gap-4 text-sm">
-                <span className="flex items-center gap-1.5">
-                  <Mail className="h-3.5 w-3.5" /> {client.user.email}
-                </span>
-                {client.user.phone && (
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5" /> <span className="font-nums">{client.user.phone}</span>
+                <div className="flex flex-wrap items-center gap-3 mt-1.5 text-white/70">
+                  <span className="font-georgia text-sm flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5" />
+                    {client.user.email}
                   </span>
-                )}
-              </p>
-              <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" /> Joined: <span className="font-nums">{format(new Date(client.user.createdAt), 'MMM dd, yyyy')}</span>
-                </span>
+                  {client.user.phone && (
+                    <span className="font-nums text-sm flex items-center gap-1.5">
+                      <Phone className="h-3.5 w-3.5" />
+                      {client.user.phone}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-3 mt-2">
+                  <span className="font-georgia text-xs text-white/50 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    Joined {format(new Date(client.user.createdAt), 'MMM d, yyyy')}
+                  </span>
+                  <Badge
+                    className={`text-[10px] font-optima border ${client.kycVerified
+                        ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/30'
+                        : 'bg-amber-500/20 text-amber-200 border-amber-400/30'
+                      }`}
+                  >
+                    {client.kycVerified ? (
+                      <><CheckCircle className="h-2.5 w-2.5 mr-1" />KYC Verified</>
+                    ) : (
+                      <><XCircle className="h-2.5 w-2.5 mr-1" />KYC Pending</>
+                    )}
+                  </Badge>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3">
+            {/* Actions */}
             {client.user.phone && (
-              <>
-                <Button
-                  variant="outline"
-                  className="gap-2 border-brand-blue text-brand-blue hover:text-brand-blue hover:bg-brand-blue/10 bg-white"
-                  onClick={() => window.location.href = `tel:${client.user.phone}`}
+              <div className="flex gap-2 shrink-0">
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-md bg-white/15 hover:bg-white/25 text-white border border-white/25 font-optima text-sm font-semibold transition-colors"
+                  onClick={() => { window.location.href = `tel:${client.user.phone}`; }}
                 >
                   <Phone className="h-4 w-4" />
                   Call
-                </Button>
-                <Button
-                  className="gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white border-none"
+                </button>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-md bg-[#25D366] hover:bg-[#1DAA55] text-white font-optima text-sm font-semibold transition-colors"
                   onClick={() => window.open(`https://wa.me/${formatPhoneForWhatsApp(client.user.phone)}`, '_blank')}
                 >
                   <MessageCircle className="h-4 w-4" />
                   WhatsApp
-                </Button>
-              </>
+                </button>
+                <button
+                  className="flex items-center gap-2 px-4 py-2 rounded-md bg-white/15 hover:bg-white/25 text-white border border-white/25 font-optima text-sm font-semibold transition-colors"
+                  onClick={() => { window.location.href = `mailto:${client.user.email}`; }}
+                >
+                  <Mail className="h-4 w-4" />
+                  Email
+                </button>
+              </div>
             )}
-            <Button className="gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white">
-              <Mail className="h-4 w-4" />
-              Email
-            </Button>
           </div>
         </div>
+      </Card>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {statCards.map(({ icon: Icon, label, value, highlight, positive }) => (
+          <Card
+            key={label}
+            className={`border-gray-200 ${highlight ? 'bg-brand-blue text-white' : 'bg-white'}`}
+          >
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Icon className={`h-4 w-4 ${highlight ? 'text-white/60' : 'text-brand-grey'}`} />
+                <span className={`font-optima text-xs uppercase tracking-wide ${highlight ? 'text-white/60' : 'text-brand-grey'}`}>
+                  {label}
+                </span>
+              </div>
+              <p className={`font-optima text-2xl font-bold font-nums ${highlight
+                  ? 'text-white'
+                  : positive === false
+                    ? 'text-red-600'
+                    : 'text-brand-blue'
+                }`}>
+                {positive === false ? '−' : ''}{value}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Investment Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-brand-blue to-[#003399] text-white border-none rounded-xl shadow-md">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-white/10 rounded-lg">
-                <Wallet className="h-6 w-6 text-white" />
-              </div>
-              <Badge variant="outline" className="text-white border-white/20 bg-white/10">
-                Total Value
-              </Badge>
-            </div>
-            <div>
-              <p className="text-white/70 text-sm font-medium mb-1">Investment Value</p>
-              <h3 className="text-3xl font-bold font-nums tracking-tight">
-                ${client.investmentSummary.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
-            </div>
+      {/* Active investments note */}
+      {summary.activeInvestmentsCount === 0 ? (
+        <Card className="border-gray-200 mb-6">
+          <CardContent className="py-10 text-center">
+            <PieChart className="h-10 w-10 text-brand-grey/30 mx-auto mb-3" />
+            <p className="font-optima text-base font-semibold text-brand-blue">No Active Investments</p>
+            <p className="font-georgia text-sm text-brand-grey mt-1">This client has not made any investments yet.</p>
           </CardContent>
         </Card>
-
-        <Card className="border-border rounded-xl shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div className="p-2 bg-blue-50 rounded-lg">
-                <DollarSign className="h-6 w-6 text-brand-blue" />
-              </div>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-sm font-medium mb-1">Total Invested</p>
-              <h3 className="text-3xl font-bold font-nums tracking-tight text-gray-900">
-                ${client.investmentSummary.totalInvested.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </h3>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border rounded-xl shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div className={`p-2 rounded-lg ${isPositiveGain ? 'bg-green-50' : 'bg-red-50'}`}>
-                {isPositiveGain
-                  ? <ArrowUpRight className="h-6 w-6 text-green-600" />
-                  : <ArrowDownRight className="h-6 w-6 text-red-600" />
-                }
-              </div>
-            </div>
-            <div>
-              <p className="text-muted-foreground text-sm font-medium mb-1">Interest Earned</p>
-              <div className="flex items-baseline gap-2">
-                <h3 className={`text-3xl font-bold font-nums tracking-tight ${isPositiveGain ? 'text-green-600' : 'text-red-600'}`}>
-                  {isPositiveGain ? '+' : ''}${client.investmentSummary.totalInterestEarned.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </h3>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {client.investmentSummary.activeInvestmentsCount === 0 && (
-        <Card className="md:col-span-3 mb-8 bg-gray-50 border-dashed">
-          <CardContent className="py-8 flex flex-col items-center justify-center text-center">
-            <div className="p-3 bg-gray-200 rounded-full mb-3">
-              <PieChart className="h-8 w-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900">No Active Investments</h3>
-            <p className="text-gray-500 max-w-sm mt-1">
-              This client has not made any investments yet.
+      ) : (
+        <Card className="border-gray-200 mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="font-optima text-brand-blue flex items-center gap-2">
+              <PieChart className="h-4 w-4 text-brand-grey" />
+              Active Investments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="font-georgia text-sm text-brand-grey">
+              {client.user.firstName} has{' '}
+              <span className="font-optima font-semibold text-brand-blue">
+                {summary.activeInvestmentsCount} active investment{summary.activeInvestmentsCount !== 1 ? 's' : ''}
+              </span>{' '}
+              with a total portfolio value of{' '}
+              <span className="font-optima font-semibold text-brand-blue">
+                AED {summary.totalValue.toLocaleString()}.
+              </span>
             </p>
           </CardContent>
         </Card>
       )}
 
-      {/* Active Investments Section */}
-      <div className="space-y-6 mb-8">
-        {client.investmentSummary.activeInvestmentsCount > 0 ? (
-          <Card className="rounded-xl border-border shadow-sm overflow-hidden">
-            <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-              <CardTitle className="font-optima text-brand-blue text-lg flex items-center gap-2">
-                <PieChart className="h-5 w-5" /> Active Investments ({client.investmentSummary.activeInvestmentsCount})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <p className="text-muted-foreground">
-                Client has {client.investmentSummary.activeInvestmentsCount} active investment{client.investmentSummary.activeInvestmentsCount !== 1 ? 's' : ''} with total value of ${client.investmentSummary.totalValue.toLocaleString()}.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed">
-            <PieChart className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">No active investments available.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Requests Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-8">
-        {/* Investment Purchase Requests */}
-        <Card className="rounded-xl border-border shadow-sm">
-          <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-            <CardTitle className="font-optima text-brand-blue text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" /> Recent Investment Requests
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            {client.productPurchaseRequests.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Investment Plan</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
-                    <TableHead>Status</TableHead>
+      {/* Investment Requests */}
+      <Card className="border-gray-200">
+        <CardHeader className="pb-3 border-b border-gray-100">
+          <CardTitle className="font-optima text-brand-blue flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-brand-grey" />
+            Recent Investment Requests
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {client.productPurchaseRequests.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-brand-blue/5 hover:bg-brand-blue/5">
+                  <TableHead className="font-optima text-[0.65rem] uppercase tracking-wider text-brand-grey">Plan</TableHead>
+                  <TableHead className="font-optima text-[0.65rem] uppercase tracking-wider text-brand-grey text-right">Amount</TableHead>
+                  <TableHead className="font-optima text-[0.65rem] uppercase tracking-wider text-brand-grey">Date</TableHead>
+                  <TableHead className="font-optima text-[0.65rem] uppercase tracking-wider text-brand-grey">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {client.productPurchaseRequests.slice(0, 6).map((req) => (
+                  <TableRow key={req.id} className="hover:bg-brand-blue/5">
+                    <TableCell>
+                      <p className="font-optima font-medium text-brand-blue">{req.investment.name}</p>
+                      {req.investmentOption && (
+                        <p className="font-georgia text-xs text-brand-grey mt-0.5">
+                          {req.investmentOption.duration} · {req.investmentOption.withdrawalFrequency}
+                        </p>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-optima font-semibold text-brand-blue text-right font-nums">
+                      AED {req.amount.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="font-georgia text-sm text-brand-grey font-nums">
+                      {format(new Date(req.createdAt), 'MMM d, yyyy')}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`font-optima text-[10px] ${statusBadgeClass(req.status)}`}>
+                        {req.status}
+                      </Badge>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {client.productPurchaseRequests.slice(0, 5).map((req) => (
-                    <TableRow key={req.id}>
-                      <TableCell>
-                        <div className="font-medium">{req.investment.name}</div>
-                        <div className="text-xs text-gray-500">{format(new Date(req.createdAt), 'MMM dd')}</div>
-                      </TableCell>
-                      <TableCell className="text-right font-nums font-medium">
-                        ${req.amount.toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={req.status === 'COMPLETED' ? 'default' : 'outline'} className="text-[10px]">
-                          {req.status}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="p-6 text-center text-sm text-gray-500">No purchase history</div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="py-10 text-center">
+              <p className="font-optima text-base font-semibold text-brand-blue">No Requests Yet</p>
+              <p className="font-georgia text-sm text-brand-grey mt-1">This client has not submitted any investment requests.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

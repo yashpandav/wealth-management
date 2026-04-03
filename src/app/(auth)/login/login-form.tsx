@@ -40,11 +40,9 @@ export function LoginForm() {
       }
 
       if (result?.ok) {
-        // Fetch session to get user role
         const response = await fetch('/api/auth/session');
         const session = await response.json();
 
-        // Determine redirect URL based on role
         let redirectUrl = '/dashboard';
 
         if (callbackUrl) {
@@ -66,51 +64,61 @@ export function LoginForm() {
           }
         }
 
-        // Type assertion needed due to Next.js router type limitations
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         router.push(redirectUrl as any);
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
     }
   };
 
+  const inputClass =
+    'block w-full rounded-md border border-gray-300 px-3 py-2.5 text-comments text-brand-blue placeholder-gray-400 transition-all duration-200 focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue hover:border-brand-grey font-nums';
+
   return (
-    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-5" onSubmit={handleSubmit}>
+
       {error && (
-        <div className="rounded-md bg-red-50 p-4">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-comments font-optima font-medium text-red-800">{error}</h3>
-            </div>
-          </div>
+        <div className="rounded-md bg-red-50 px-4 py-3 border border-red-100">
+          <p className="text-sm font-optima font-medium text-red-800">{error}</p>
         </div>
       )}
 
-      <div className="-space-y-px rounded-md shadow-sm">
-        <div>
-          <label htmlFor="email" className="sr-only">
-            Email address
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="relative block w-full rounded-t-md border-0 px-3 py-2 text-comments text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey font-nums"
-            placeholder="Email address"
-            disabled={isLoading}
-          />
-        </div>
-        <div className="relative">
-          <label htmlFor="password" className="sr-only">
+      {/* Email */}
+      <div>
+        <label htmlFor="email" className="block text-comments font-optima font-medium text-brand-blue mb-1">
+          Email address
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={inputClass}
+          placeholder="john@example.com"
+          disabled={isLoading}
+        />
+      </div>
+
+      {/* Password */}
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label htmlFor="password" className="block text-comments font-optima font-medium text-brand-blue">
             Password
           </label>
+          <a
+            href="/forgot-password"
+            className="text-xs font-optima text-brand-grey hover:text-brand-blue transition-colors duration-200 underline-offset-2 hover:underline"
+          >
+            Forgot password?
+          </a>
+        </div>
+        <div className="relative">
           <input
             id="password"
             name="password"
@@ -119,8 +127,8 @@ export function LoginForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="relative block w-full rounded-b-md border-0 px-3 py-2 text-comments text-brand-blue ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 transition-all duration-200 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-brand-blue hover:ring-brand-grey pr-10 font-nums"
-            placeholder="Password"
+            className={`${inputClass} pr-10`}
+            placeholder="••••••••"
             disabled={isLoading}
           />
           <button
@@ -129,6 +137,7 @@ export function LoginForm() {
             onClick={() => setShowPassword(!showPassword)}
             tabIndex={-1}
             onMouseDown={(e) => e.preventDefault()}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
               <EyeOff className="h-5 w-5" aria-hidden="true" />
@@ -139,33 +148,25 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="flex items-center justify-start">
-        <div className="text-comments font-optima">
-          <a
-            href="/forgot-password"
-            className="font-medium text-brand-blue hover:text-brand-grey transition-colors duration-200 ease-in-out underline-offset-2 hover:underline"
-          >
-            Forgot your password?
-          </a>
-        </div>
-      </div>
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="mt-2 group relative flex w-full justify-center rounded-md bg-brand-blue px-4 py-2.5 text-comments font-optima font-semibold text-brand-white transition-all duration-200 ease-in-out hover:bg-opacity-90 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {isLoading ? 'Signing in…' : 'Sign in'}
+      </button>
 
-      <div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="group relative flex w-full justify-center rounded-md bg-brand-blue px-4 py-2.5 text-comments font-optima font-semibold text-brand-white transition-all duration-200 ease-in-out hover:bg-opacity-90 hover:shadow-lg hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+      <p className="text-center text-comments font-optima text-brand-grey">
+        Don&apos;t have an account?{' '}
+        <a
+          href="/register"
+          className="font-medium text-brand-blue hover:text-brand-grey transition-colors duration-200 underline-offset-2 hover:underline"
         >
-          {isLoading ? 'Signing in...' : 'Sign in'}
-        </button>
-      </div>
-
-      <div className="text-center text-comments font-optima">
-        <span className="text-brand-grey">New login? </span>
-        <a href="/register" className="font-medium text-brand-blue hover:text-brand-grey transition-colors duration-200 ease-in-out underline-offset-2 hover:underline">
           Register
         </a>
-      </div>
+      </p>
+
     </form>
   );
 }

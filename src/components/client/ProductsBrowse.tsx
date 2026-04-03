@@ -104,46 +104,6 @@ export function ProductsBrowse() {
     queryFn: fetchKYCStatus,
   });
 
-  const getProductAccentColor = (name: string) => {
-    // Use brand colors consistently - subtle variations for each venture
-    if (name.includes('A')) {
-      return {
-        gradient: 'bg-brand-blue',
-        text: 'text-brand-blue',
-        bg: 'bg-brand-blue/5',
-        border: 'border-brand-blue/20',
-        hover: 'hover:border-brand-blue/40 hover:shadow-lg',
-        badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
-      };
-    } else if (name.includes('B')) {
-      return {
-        gradient: 'bg-brand-blue',
-        text: 'text-brand-blue',
-        bg: 'bg-brand-blue/5',
-        border: 'border-brand-blue/20',
-        hover: 'hover:border-brand-blue/40 hover:shadow-lg',
-        badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
-      };
-    } else if (name.includes('C')) {
-      return {
-        gradient: 'bg-brand-blue',
-        text: 'text-brand-blue',
-        bg: 'bg-brand-blue/5',
-        border: 'border-brand-blue/20',
-        hover: 'hover:border-brand-blue/40 hover:shadow-lg',
-        badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
-      };
-    }
-    return {
-      gradient: 'bg-brand-blue',
-      text: 'text-brand-blue',
-      bg: 'bg-brand-blue/5',
-      border: 'border-brand-blue/20',
-      hover: 'hover:border-brand-blue/40 hover:shadow-lg',
-      badge: 'bg-brand-blue/10 text-brand-blue border-brand-blue/30',
-    };
-  };
-
   const formatAmountRange = (product: Product) => {
     const min = product.minAmount.toLocaleString();
     if (product.maxAmount) {
@@ -277,34 +237,31 @@ export function ProductsBrowse() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => {
                 const highestReturn = getHighestReturn(product.options);
-                const colors = getProductAccentColor(product.name);
 
                 return (
                   <div
                     key={product.id}
-                    className={`bg-white border-2 ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-300`}
+                    className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-brand-blue/30 hover:shadow-lg transition-all duration-300"
                   >
                     {/* Product Header */}
-                    <div className={`${colors.gradient} px-6 py-6 text-white`}>
+                    <div className="bg-brand-blue px-6 py-6 text-white">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-bold font-nums">{product.name}</h3>
+                        <h3 className="font-optima text-xl font-bold">{product.name}</h3>
                         {highestReturn && (
-                          <div className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
-                            <p className="font-nums text-xs font-semibold text-brand-blue font-nums">Up to {highestReturn}%</p>
+                          <div className="bg-white/15 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+                            <p className="font-optima text-xs font-semibold text-white">Up to {highestReturn}%</p>
                           </div>
                         )}
                       </div>
-                      <p className="text-white/95 font-nums text-comments font-medium font-nums">
-                        <span className="flex items-center gap-1">
-                          <DirhamIcon className="h-4 w-4 text-white" />
-                          {formatAmountRange(product)}
-                        </span>
+                      <p className="font-georgia text-white/80 text-sm flex items-center gap-1">
+                        <DirhamIcon className="h-3.5 w-3.5 text-white/80" />
+                        {formatAmountRange(product)}
                       </p>
                     </div>
 
                     {/* Product Body */}
                     <div className="px-6 py-5">
-                      <p className="font-nums text-brand-grey text-comments mb-5 min-h-[50px] leading-relaxed">
+                      <p className="font-georgia text-brand-grey text-sm mb-5 min-h-[44px] leading-relaxed">
                         {product.description ||
                           'Secure investment opportunity with competitive returns and flexible terms'}
                       </p>
@@ -312,7 +269,7 @@ export function ProductsBrowse() {
                       {/* Investment Options */}
                       <div className="space-y-2 mb-5">
                         <p className="font-optima text-xs font-semibold text-brand-blue uppercase tracking-wider mb-3">
-                          Investment Plans
+                          Available Plans
                         </p>
                         {product.options.slice(0, 3).map((option) => (
                           <div
@@ -320,19 +277,19 @@ export function ProductsBrowse() {
                             className="flex items-center justify-between py-2.5 px-3 bg-brand-blue/5 rounded-lg border border-brand-blue/10"
                           >
                             <div className="flex items-center gap-2">
-                              <TrendingUp className="h-3.5 w-3.5 text-brand-blue" />
-                              <span className="text-comments text-brand-blue font-medium font-nums">{option.duration}</span>
-                              <span className="text-xs text-brand-grey font-nums">
-                                {option.withdrawalFrequency}
+                              <TrendingUp className="h-3.5 w-3.5 text-brand-blue/60" />
+                              <span className="font-optima text-sm text-brand-blue font-medium font-nums">{option.duration}</span>
+                              <span className="font-georgia text-xs text-brand-grey font-nums">
+                                · {option.withdrawalFrequency}
                               </span>
                             </div>
-                            <span className="text-comments font-bold text-brand-blue font-nums">
+                            <span className="font-optima text-sm font-bold text-brand-blue font-nums">
                               {option.annualReturn}%
                             </span>
                           </div>
                         ))}
                         {product.options.length > 3 && (
-                          <p className="font-georgia text-xs text-brand-grey text-center pt-1 font-nums">
+                          <p className="font-georgia text-xs text-brand-grey text-center pt-1">
                             +{product.options.length - 3} more plan
                             {product.options.length - 3 > 1 ? 's' : ''}
                           </p>
@@ -342,7 +299,7 @@ export function ProductsBrowse() {
                       {/* Action Button */}
                       <Link href={`/client/products/${product.id}`}>
                         <Button
-                          className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white group font-optima shadow-lg hover:shadow-xl transition-all"
+                          className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white group font-optima font-semibold hover:shadow-md transition-all"
                           size="default"
                         >
                           <span>View Details</span>
@@ -358,58 +315,55 @@ export function ProductsBrowse() {
             <div className="space-y-5">
               {products.map((product) => {
                 const highestReturn = getHighestReturn(product.options);
-                const colors = getProductAccentColor(product.name);
 
                 return (
                   <div
                     key={product.id}
-                    className={`bg-white border-2 ${colors.border} rounded-xl overflow-hidden ${colors.hover} transition-all duration-300`}
+                    className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-brand-blue/30 hover:shadow-lg transition-all duration-300"
                   >
                     <div className="flex flex-col md:flex-row">
                       {/* Left Section - Product Info */}
-                      <div className={`${colors.gradient} text-white p-4 w-full md:w-60 flex-shrink-0 flex flex-col justify-center`}>
-                        <h3 className="text-xl font-bold mb-1 font-nums">{product.name}</h3>
-                        <p className="text-white/90 font-georgia text-sm font-medium mb-3 font-nums">
-                          <span className="flex items-center gap-1">
-                            <DirhamIcon className="h-3.5 w-3.5 text-white" />
-                            {formatAmountRange(product)}
-                          </span>
+                      <div className="bg-brand-blue text-white p-5 w-full md:w-56 flex-shrink-0 flex flex-col justify-center">
+                        <h3 className="font-optima text-xl font-bold mb-1">{product.name}</h3>
+                        <p className="font-georgia text-white/75 text-sm mb-3 flex items-center gap-1">
+                          <DirhamIcon className="h-3.5 w-3.5" />
+                          {formatAmountRange(product)}
                         </p>
                         {highestReturn && (
-                          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+                          <div className="inline-flex items-center gap-1.5 bg-white/15 px-3 py-1 rounded-full border border-white/20">
                             <TrendingUp className="h-3 w-3 text-white" />
-                            <span className="font-georgia text-xs font-semibold text-white font-nums">
-                              Up to {highestReturn}% Annual
+                            <span className="font-optima text-xs font-semibold text-white">
+                              Up to {highestReturn}%
                             </span>
                           </div>
                         )}
                       </div>
 
                       {/* Right Section - Details & Options */}
-                      <div className="flex-1 p-4 flex flex-col justify-between">
+                      <div className="flex-1 p-5 flex flex-col justify-between">
                         <div>
-                          <p className="font-nums text-brand-grey text-sm mb-3 leading-relaxed line-clamp-2">
+                          <p className="font-georgia text-brand-grey text-sm mb-4 leading-relaxed line-clamp-2">
                             {product.description ||
                               'Secure investment opportunity with competitive returns and flexible terms'}
                           </p>
 
-                          <div className="mb-3">
-                            <p className="font-optima text-[10px] font-bold text-brand-grey/70 uppercase tracking-widest mb-2">
+                          <div className="mb-4">
+                            <p className="font-optima text-[10px] font-semibold text-brand-grey uppercase tracking-widest mb-2">
                               {product.options.length} Available Plans
                             </p>
                             <div className="flex flex-wrap gap-2">
                               {product.options.map((option) => (
                                 <div
                                   key={option.id}
-                                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-blue/5 border border-brand-blue/10 rounded-md font-georgia text-sm hover:bg-brand-blue/10 transition-colors"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-blue/5 border border-brand-blue/10 rounded-md hover:bg-brand-blue/10 transition-colors"
                                 >
-                                  <span className="text-brand-blue font-semibold font-nums">{option.duration}</span>
-                                  <span className="text-brand-grey/40 text-[10px]">•</span>
-                                  <span className="text-brand-grey text-xs font-nums">
+                                  <span className="font-optima text-brand-blue font-semibold text-sm font-nums">{option.duration}</span>
+                                  <span className="text-brand-grey/30 text-[10px]">·</span>
+                                  <span className="font-georgia text-brand-grey text-xs font-nums">
                                     {option.withdrawalFrequency}
                                   </span>
-                                  <span className="text-brand-grey/40 text-[10px]">•</span>
-                                  <span className="font-nums font-bold text-brand-blue text-sm">
+                                  <span className="text-brand-grey/30 text-[10px]">·</span>
+                                  <span className="font-optima font-bold text-brand-blue text-sm font-nums">
                                     {option.annualReturn}%
                                   </span>
                                 </div>
@@ -418,10 +372,10 @@ export function ProductsBrowse() {
                           </div>
                         </div>
 
-                        <div className="flex justify-end pt-2">
+                        <div className="flex justify-end pt-1">
                           <Link href={`/client/products/${product.id}`}>
                             <Button
-                              className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima shadow-md hover:shadow-lg transition-all h-9 text-sm"
+                              className="bg-brand-blue hover:bg-brand-blue/90 text-white font-optima font-semibold hover:shadow-md transition-all h-9 text-sm"
                               size="sm"
                             >
                               <span>View Details</span>
