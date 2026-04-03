@@ -233,3 +233,146 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
   }
 }
+
+html { scroll-behavior: smooth; }
+
+/* ─── Homepage Animations & Interactions ────────────────────────────── */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes drawLine {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Hero stagger */
+.hero-rule { animation: drawLine 1s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 0ms; transform-origin: left center; }
+.hero-tag  { animation: fadeIn  0.5s ease both; animation-delay: 60ms; }
+.hero-l1   { animation: fadeUp  0.75s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 120ms; }
+.hero-l2   { animation: fadeUp  0.75s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 220ms; }
+.hero-l3   { animation: fadeUp  0.75s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 320ms; }
+.hero-sub  { animation: fadeUp  0.7s  cubic-bezier(0.16,1,0.3,1) both; animation-delay: 460ms; }
+.hero-cta  { animation: fadeUp  0.6s  cubic-bezier(0.16,1,0.3,1) both; animation-delay: 600ms; }
+
+.stat-item:nth-child(1) { animation: slideRight 0.65s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 380ms; }
+.stat-item:nth-child(2) { animation: slideRight 0.65s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 500ms; }
+.stat-item:nth-child(3) { animation: slideRight 0.65s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 620ms; }
+.stat-item:nth-child(4) { animation: slideRight 0.65s cubic-bezier(0.16,1,0.3,1) both; animation-delay: 740ms; }
+
+/* Marquee */
+.marquee-track { animation: marquee 34s linear infinite; display: flex; }
+.marquee-track:hover { animation-play-state: paused; }
+
+/* Nav underline links */
+.nav-link { position: relative; }
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  height: 1px;
+  width: 0;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after { width: 100%; }
+
+/* Process step */
+.process-step .ghost-num {
+  position: absolute;
+  bottom: -8px;
+  right: 0;
+  font-family: Optima, Georgia, serif;
+  font-size: 8rem;
+  font-weight: 600;
+  color: #F6F6F6;
+  line-height: 1;
+  opacity: 0.04;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.35s ease;
+}
+.process-step:hover .ghost-num { opacity: 0.1; }
+.process-step .step-title { transition: color 0.25s ease; color: rgba(246,246,246,0.88); }
+.process-step:hover .step-title { color: #ffffff; }
+.process-step .step-num-label { transition: color 0.25s ease; }
+.process-step:hover .step-num-label { color: #a0b4c8; }
+
+/* Tier row */
+.tier-row { transition: background 0.2s ease, padding-left 0.25s ease; }
+.tier-row:hover { background: rgba(246,246,246,0.05); padding-left: 14px; }
+.tier-row .tier-label { transition: color 0.2s ease; }
+.tier-row:hover .tier-label { color: #F6F6F6; }
+
+/* Trust card */
+.trust-card { transition: transform 0.25s ease; }
+.trust-card:hover { transform: translateY(-4px); }
+.trust-card h4 { transition: color 0.2s ease; }
+
+/* Diff point */
+.diff-point { transition: color 0.2s ease, padding-left 0.22s ease; }
+.diff-point:hover { color: #002369; padding-left: 10px; }
+
+/* Roles list items */
+.role-item { position: relative; padding-left: 0; transition: padding-left 0.2s ease; }
+.role-item::before { content: '\2014'; margin-right: 8px; color: #657997; font-size: 0.7rem; }
+.role-item:hover { padding-left: 6px; }
+
+/* ─── Liquid Fill Buttons ────────────────────────────────────────────── */
+
+/* Dark background → light fill on hover (foreground: light → dark) */
+.btn-primary {
+  background: linear-gradient(to top, #F6F6F6 50%, #002369 50%);
+  background-size: 100% 200%;
+  background-position: 0% 0%;
+  color: #F6F6F6;
+  transition: background-position 0.45s cubic-bezier(0.16,1,0.3,1), color 0.3s ease;
+}
+.btn-primary:hover {
+  background-position: 0% 100%;
+  color: #002369;
+}
+
+/* Light/outline on light bg → dark fill on hover (foreground: muted dark → light) */
+.btn-outline-light {
+  background: linear-gradient(to top, #002369 50%, transparent 50%);
+  background-size: 100% 200%;
+  background-position: 0% 0%;
+  color: rgba(0, 35, 105, 0.6);
+  border: 1px solid rgba(0, 35, 105, 0.25);
+  transition: background-position 0.45s cubic-bezier(0.16,1,0.3,1), color 0.3s ease, border-color 0.3s ease;
+}
+.btn-outline-light:hover {
+  background-position: 0% 100%;
+  color: #F6F6F6;
+  border-color: #002369;
+}
+
+/* Outline on dark bg → light fill on hover (foreground: muted light → full light) */
+.btn-outline-dark {
+  background: linear-gradient(to top, rgba(246, 246, 246, 0.15) 50%, transparent 50%);
+  background-size: 100% 200%;
+  background-position: 0% 0%;
+  color: rgba(246, 246, 246, 0.55);
+  border: 1px solid rgba(246, 246, 246, 0.2);
+  transition: background-position 0.45s cubic-bezier(0.16,1,0.3,1), color 0.3s ease, border-color 0.3s ease;
+}
+.btn-outline-dark:hover {
+  background-position: 0% 100%;
+  color: #F6F6F6;
+  border-color: rgba(246, 246, 246, 0.55);
+}
