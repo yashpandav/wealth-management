@@ -21,7 +21,7 @@ export default async function DocAdminLeadsPage() {
   }
 
   return (
-    <div className="container px-8 py-8">
+    <div className="container px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <div>
         <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">New Enquiries</h1>
         <p className="font-georgia text-brand-grey mt-2">

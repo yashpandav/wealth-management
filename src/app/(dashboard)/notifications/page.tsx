@@ -118,7 +118,7 @@ export default function NotificationsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <LoadingSpinner />
       </div>
     );
@@ -129,11 +129,11 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Notifications</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue">Notifications</h1>
+          <p className="font-georgia mt-1 text-sm text-brand-grey">
             Stay updated with your latest activities and updates
           </p>
         </div>
@@ -148,8 +148,8 @@ export default function NotificationsPage() {
           <Card>
             <CardContent className="py-12 text-center">
               <Bell className="mx-auto h-12 w-12 text-muted-foreground" />
-              <p className="mt-4 text-lg font-medium">No notifications</p>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-4 font-optima text-lg font-semibold text-brand-blue">No notifications</p>
+              <p className="mt-1 font-georgia text-sm text-brand-grey">
                 You&apos;re all caught up! Check back later for new updates.
               </p>
             </CardContent>
@@ -161,7 +161,7 @@ export default function NotificationsPage() {
                 <div className="flex items-start justify-between gap-3 sm:gap-4">
                   <div className="space-y-1.5 flex-1 min-w-0 mr-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <CardTitle className="text-base sm:text-lg leading-tight">{notification.title}</CardTitle>
+                      <CardTitle className="font-optima text-base sm:text-lg leading-tight text-brand-blue">{notification.title}</CardTitle>
                       {!notification.isRead && (
                         <Badge variant="default" className="text-[10px] sm:text-xs h-5">New</Badge>
                       )}
@@ -199,7 +199,7 @@ export default function NotificationsPage() {
                 </div>
               </CardHeader>
               <CardContent className="md:px-5 md:pt-0 md:pb-5 sm:px-5 sm:pt-0 sm:pb-5">
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{notification.message}</p>
+                <p className="font-georgia text-sm text-brand-grey mb-4 leading-relaxed">{notification.message}</p>
                 {notification.actionUrl && notification.actionText && (
                   <Button
                     onClick={() => {

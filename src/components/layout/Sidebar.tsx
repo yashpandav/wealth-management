@@ -1,7 +1,6 @@
 /**
  * Sidebar Component
- * Side navigation with role-based menu items and responsive behavior
- * Dynamically shows/hides KYC Documents based on verification status
+ * Side navigation with role-based menu items, section groups, and responsive behavior
  */
 
 'use client';
@@ -12,23 +11,6 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { shouldShowKycUpload } from '@/lib/utils/client-utils';
-
-interface SidebarProps {
-  isOpen?: boolean;
-  onClose?: () => void;
-}
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-  roles: string[];
-  disabled?: boolean;
-  /** If true, this item is only shown when KYC upload is needed */
-  kycUploadOnly?: boolean;
-  /** Badge key to identify items that need count badges */
-  badgeKey?: 'documentVerification' | 'rmAssignment';
-}
 
 import {
   LayoutDashboard,
@@ -47,184 +29,61 @@ import {
   UserCheck,
   ShieldCheck,
   Inbox,
-  TrendingUp
+  TrendingUp,
 } from 'lucide-react';
 
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  roles: string[];
+  group?: string;
+  disabled?: boolean;
+  kycUploadOnly?: boolean;
+  badgeKey?: 'documentVerification' | 'rmAssignment';
+}
+
 const navItems: NavItem[] = [
-  // Admin routes
-  {
-    href: '/admin',
-    label: 'Dashboard',
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
-    href: '/admin/users',
-    label: 'User Management',
-    icon: <Users className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
-    href: '/admin/assignments',
-    label: 'Client Assignments',
-    icon: <UserPlus className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
-    href: '/admin/rm-performance',
-    label: 'RM Performance',
-    icon: <BarChart2 className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
-    href: '/admin/investment-plans',
-    label: 'Investment Plans',
-    icon: <TrendingUp className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
-    href: '/admin/purchase-requests',
-    label: 'Investment Requests',
-    icon: <ShoppingCart className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  {
-    href: '/admin/audit-logs',
-    label: 'Audit Logs',
-    icon: <ClipboardList className="h-5 w-5" />,
-    roles: ['ADMIN'],
-  },
-  // DocAdmin routes
-  {
-    href: '/docadmin',
-    label: 'Dashboard',
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-  },
-  {
-    href: '/docadmin/documents',
-    label: 'Document Verification',
-    icon: <FileCheck className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-    badgeKey: 'documentVerification',
-  },
-  {
-    href: '/docadmin/assign-rm',
-    label: 'RM Assignment Pending',
-    icon: <UserPlus className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-    badgeKey: 'rmAssignment',
-  },
-  {
-    href: '/docadmin/leads',
-    label: 'New Enquiries',
-    icon: <Inbox className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-  },
-  {
-    href: '/docadmin/product-requests',
-    label: 'Plan Requests',
-    icon: <ShoppingCart className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-  },
-  {
-    href: '/docadmin/contract-pending',
-    label: 'Contract Pending',
-    icon: <FileSignature className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-  },
-  {
-    href: '/docadmin/contract-created',
-    label: 'Contract Created',
-    icon: <FileCheck className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-  },
-  {
-    href: '/docadmin/payouts',
-    label: 'Payouts',
-    icon: <Wallet className="h-5 w-5" />,
-    roles: ['DOCADMIN'],
-  },
-  // RM routes
-  {
-    href: '/rm',
-    label: 'Dashboard',
-    icon: <LayoutDashboard className="h-5 w-5" />,
-    roles: ['RM'],
-  },
-  {
-    href: '/rm/leads',
-    label: 'Leads',
-    icon: <Inbox className="h-5 w-5" />,
-    roles: ['RM'],
-  },
-  {
-    href: '/rm/registered-clients',
-    label: 'Registered (No KYC)',
-    icon: <Users className="h-5 w-5" />,
-    roles: ['RM'],
-  },
-  {
-    href: '/rm/kyc-pending',
-    label: 'KYC Pending',
-    icon: <FileCheck className="h-5 w-5" />,
-    roles: ['RM'],
-  },
-  {
-    href: '/rm/active-clients',
-    label: 'Active Clients',
-    icon: <UserCheck className="h-5 w-5" />,
-    roles: ['RM'],
-  },
-  {
-    href: '/rm/product-requests',
-    label: 'Plan Requests',
-    icon: <ShoppingCart className="h-5 w-5" />,
-    roles: ['RM'],
-  },
-  // Client routes
-  {
-    href: '/client/portfolio',
-    label: 'My Portfolio',
-    icon: <PieChart className="h-5 w-5" />,
-    roles: ['CLIENT'],
-  },
-  {
-    href: '/client/analytics',
-    label: 'Analytics',
-    icon: <BarChart className="h-5 w-5" />,
-    roles: ['CLIENT'],
-  },
-  {
-    href: '/client/products',
-    label: 'Investment Plans',
-    icon: <ShoppingBag className="h-5 w-5" />,
-    roles: ['CLIENT'],
-  },
-  {
-    href: '/client/requests',
-    label: 'My Requests',
-    icon: <List className="h-5 w-5" />,
-    roles: ['CLIENT'],
-  },
-  {
-    href: '/client/payouts',
-    label: 'My Payouts',
-    icon: <Wallet className="h-5 w-5" />,
-    roles: ['CLIENT'],
-  },
-  {
-    href: '/client/my-rm',
-    label: 'My Advisor',
-    icon: <UserCheck className="h-5 w-5" />,
-    roles: ['CLIENT'],
-  },
-  {
-    href: '/client/documents',
-    label: 'KYC Documents',
-    icon: <ShieldCheck className="h-5 w-5" />,
-    roles: ['CLIENT'],
-  },
+  // ── Admin ──────────────────────────────────────────────
+  { href: '/admin',                    label: 'Dashboard',          icon: <LayoutDashboard className="h-4 w-4 shrink-0" />, roles: ['ADMIN'], group: '' },
+  { href: '/admin/users',              label: 'User Management',    icon: <Users className="h-4 w-4 shrink-0" />,          roles: ['ADMIN'], group: 'Management' },
+  { href: '/admin/assignments',        label: 'Client Assignments', icon: <UserPlus className="h-4 w-4 shrink-0" />,       roles: ['ADMIN'], group: 'Management' },
+  { href: '/admin/rm-performance',     label: 'RM Performance',     icon: <BarChart2 className="h-4 w-4 shrink-0" />,      roles: ['ADMIN'], group: 'Management' },
+  { href: '/admin/investment-plans',   label: 'Investment Plans',   icon: <TrendingUp className="h-4 w-4 shrink-0" />,     roles: ['ADMIN'], group: 'Finance' },
+  { href: '/admin/purchase-requests',  label: 'Investment Requests',icon: <ShoppingCart className="h-4 w-4 shrink-0" />,   roles: ['ADMIN'], group: 'Finance' },
+  { href: '/admin/audit-logs',         label: 'Audit Logs',         icon: <ClipboardList className="h-4 w-4 shrink-0" />,  roles: ['ADMIN'], group: 'System' },
+
+  // ── DocAdmin ────────────────────────────────────────────
+  { href: '/docadmin',                   label: 'Dashboard',              icon: <LayoutDashboard className="h-4 w-4 shrink-0" />, roles: ['DOCADMIN'], group: '' },
+  { href: '/docadmin/documents',         label: 'Document Verification',  icon: <FileCheck className="h-4 w-4 shrink-0" />,      roles: ['DOCADMIN'], group: 'Documents', badgeKey: 'documentVerification' },
+  { href: '/docadmin/assign-rm',         label: 'RM Assignment Pending',  icon: <UserPlus className="h-4 w-4 shrink-0" />,       roles: ['DOCADMIN'], group: 'Documents', badgeKey: 'rmAssignment' },
+  { href: '/docadmin/leads',             label: 'New Enquiries',          icon: <Inbox className="h-4 w-4 shrink-0" />,          roles: ['DOCADMIN'], group: 'Documents' },
+  { href: '/docadmin/product-requests',  label: 'Plan Requests',          icon: <ShoppingCart className="h-4 w-4 shrink-0" />,   roles: ['DOCADMIN'], group: 'Contracts' },
+  { href: '/docadmin/contract-pending',  label: 'Contract Pending',       icon: <FileSignature className="h-4 w-4 shrink-0" />,  roles: ['DOCADMIN'], group: 'Contracts' },
+  { href: '/docadmin/contract-created',  label: 'Contract Created',       icon: <FileCheck className="h-4 w-4 shrink-0" />,      roles: ['DOCADMIN'], group: 'Contracts' },
+  { href: '/docadmin/payouts',           label: 'Payouts',                icon: <Wallet className="h-4 w-4 shrink-0" />,         roles: ['DOCADMIN'], group: 'Finance' },
+
+  // ── RM ──────────────────────────────────────────────────
+  { href: '/rm',                      label: 'Dashboard',           icon: <LayoutDashboard className="h-4 w-4 shrink-0" />, roles: ['RM'], group: '' },
+  { href: '/rm/leads',                label: 'Leads',               icon: <Inbox className="h-4 w-4 shrink-0" />,          roles: ['RM'], group: 'Pipeline' },
+  { href: '/rm/registered-clients',   label: 'Registered (No KYC)',icon: <Users className="h-4 w-4 shrink-0" />,           roles: ['RM'], group: 'Pipeline' },
+  { href: '/rm/kyc-pending',          label: 'KYC Pending',         icon: <FileCheck className="h-4 w-4 shrink-0" />,      roles: ['RM'], group: 'Pipeline' },
+  { href: '/rm/active-clients',       label: 'Active Clients',      icon: <UserCheck className="h-4 w-4 shrink-0" />,      roles: ['RM'], group: 'Clients' },
+  { href: '/rm/product-requests',     label: 'Plan Requests',       icon: <ShoppingCart className="h-4 w-4 shrink-0" />,   roles: ['RM'], group: 'Clients' },
+
+  // ── Client ──────────────────────────────────────────────
+  { href: '/client/portfolio',  label: 'My Portfolio',     icon: <PieChart className="h-4 w-4 shrink-0" />,    roles: ['CLIENT'], group: 'Portfolio' },
+  { href: '/client/analytics',  label: 'Analytics',        icon: <BarChart className="h-4 w-4 shrink-0" />,    roles: ['CLIENT'], group: 'Portfolio' },
+  { href: '/client/products',   label: 'Investment Plans', icon: <ShoppingBag className="h-4 w-4 shrink-0" />, roles: ['CLIENT'], group: 'Investments' },
+  { href: '/client/requests',   label: 'My Requests',      icon: <List className="h-4 w-4 shrink-0" />,        roles: ['CLIENT'], group: 'Investments' },
+  { href: '/client/payouts',    label: 'My Payouts',       icon: <Wallet className="h-4 w-4 shrink-0" />,      roles: ['CLIENT'], group: 'Investments' },
+  { href: '/client/my-rm',      label: 'My Advisor',       icon: <UserCheck className="h-4 w-4 shrink-0" />,   roles: ['CLIENT'], group: 'Account' },
+  { href: '/client/documents',  label: 'KYC Documents',    icon: <ShieldCheck className="h-4 w-4 shrink-0" />, roles: ['CLIENT'], group: 'Account' },
 ];
 
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
@@ -234,57 +93,68 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const userRole = session?.user?.role || '';
   const verificationStatus = session?.user?.verificationStatus || null;
 
-  // State for pending counts (for DOCADMIN badges)
-  const [pendingCounts, setPendingCounts] = useState<{
-    documentVerification: number;
-    rmAssignment: number;
-  }>({
+  const userInitials =
+    session?.user?.firstName && session?.user?.lastName
+      ? `${session.user.firstName[0]}${session.user.lastName[0]}`.toUpperCase()
+      : session?.user?.email
+        ? session.user.email.substring(0, 2).toUpperCase()
+        : 'U';
+
+  const fullName =
+    session?.user?.firstName && session?.user?.lastName
+      ? `${session.user.firstName} ${session.user.lastName}`
+      : session?.user?.email || 'User';
+
+  const [pendingCounts, setPendingCounts] = useState({
     documentVerification: 0,
     rmAssignment: 0,
   });
 
-  // Fetch pending counts for DOCADMIN
   useEffect(() => {
     if (userRole === 'DOCADMIN') {
       fetch('/api/docadmin/pending-counts')
         .then((res) => res.json())
         .then((data) => {
-          if (data.success) {
-            setPendingCounts(data.data);
-          }
+          if (data.success) setPendingCounts(data.data);
         })
-        .catch((error) => {
-          console.error('Error fetching pending counts:', error);
-        });
+        .catch((err) => console.error('Error fetching pending counts:', err));
     }
   }, [userRole]);
 
-  // Filter nav items based on role and KYC status
+  // Filter by role and KYC conditions
   const filteredNavItems = navItems.filter((item) => {
-    // First check role
-    if (!item.roles.includes(userRole)) {
-      return false;
-    }
-
-    // For KYC-only items, hide if KYC is already verified
-    if (item.kycUploadOnly && !shouldShowKycUpload(verificationStatus)) {
-      return false;
-    }
-
+    if (!item.roles.includes(userRole)) return false;
+    if (item.kycUploadOnly && !shouldShowKycUpload(verificationStatus)) return false;
     return true;
   });
 
-  // Helper function to get badge count for an item
+  // Pre-compute best active match (most specific path)
+  const bestMatch = filteredNavItems.reduce<NavItem | null>((best, item) => {
+    const matches = pathname === item.href || pathname.startsWith(item.href + '/');
+    if (!matches) return best;
+    if (!best || item.href.length > best.href.length) return item;
+    return best;
+  }, null);
+
+  // Group items preserving order
+  const grouped = filteredNavItems.reduce<{ group: string; items: NavItem[] }[]>((acc, item) => {
+    const g = item.group ?? '';
+    const existing = acc.find((x) => x.group === g);
+    if (existing) {
+      existing.items.push(item);
+    } else {
+      acc.push({ group: g, items: [item] });
+    }
+    return acc;
+  }, []);
+
   const getBadgeCount = (badgeKey?: 'documentVerification' | 'rmAssignment'): number | null => {
     if (!badgeKey || userRole !== 'DOCADMIN') return null;
     const count = pendingCounts[badgeKey];
     return count > 0 ? count : null;
   };
 
-  // Helper function to format badge display (show 99+ if count > 99)
-  const formatBadgeCount = (count: number): string => {
-    return count > 99 ? '99+' : count.toString();
-  };
+  const formatBadgeCount = (count: number) => (count > 99 ? '99+' : count.toString());
 
   return (
     <>
@@ -304,58 +174,73 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         )}
       >
         <nav className="flex h-full flex-col overflow-y-auto px-3 py-4">
-          <div className="space-y-1">
-            {filteredNavItems.map((item) => {
-              // Find all matching items (exact or prefix match)
-              const matchingItems = filteredNavItems.filter(
-                (navItem) =>
-                  pathname === navItem.href || pathname.startsWith(navItem.href + '/')
-              );
 
-              // Find the most specific match (longest href)
-              const bestMatch = matchingItems.reduce(
-                (best, current) =>
-                  !best || current.href.length > best.href.length ? current : best,
-                null as NavItem | null
-              );
+          {/* Nav groups */}
+          <div className="flex-1">
+            {grouped.map(({ group, items }) => (
+              <div key={group || '_root'} className="mb-1">
 
-              // Only highlight if this item is the most specific match
-              const isActive = bestMatch?.href === item.href;
+                {/* Group label */}
+                {group && (
+                  <p className="px-3 pt-4 pb-1.5 text-[0.6rem] tracking-[0.22em] uppercase font-optima text-brand-grey/50 select-none">
+                    {group}
+                  </p>
+                )}
 
-              const badgeCount = getBadgeCount(item.badgeKey);
+                <div className="space-y-0.5">
+                  {items.map((item) => {
+                    const isActive = bestMatch?.href === item.href;
+                    const badgeCount = getBadgeCount(item.badgeKey);
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href as any} // eslint-disable-line @typescript-eslint/no-explicit-any
-                  onClick={onClose}
-                  className={cn(
-                    'relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium font-optima transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-1',
-                    isActive
-                      ? 'bg-brand-blue text-white'
-                      : 'text-brand-grey hover:bg-brand-blue/10 hover:text-brand-blue active:bg-brand-blue/20'
-                  )}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  {item.icon}
-                  {item.label}
-                  {badgeCount !== null && (
-                    <span
-                      className={cn(
-                        'absolute right-2 top-2 flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold font-nums',
-                        isActive
-                          ? 'bg-white text-brand-blue'
-                          : 'bg-red-500 text-white'
-                      )}
-                      aria-label={`${badgeCount} pending items`}
-                    >
-                      {formatBadgeCount(badgeCount)}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href as any} // eslint-disable-line @typescript-eslint/no-explicit-any
+                        onClick={onClose}
+                        className={cn(
+                          'relative flex items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium font-optima transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-1',
+                          isActive
+                            ? 'bg-brand-blue text-white'
+                            : 'text-brand-grey hover:bg-brand-blue/10 hover:text-brand-blue active:bg-brand-blue/20'
+                        )}
+                        aria-current={isActive ? 'page' : undefined}
+                      >
+                        {item.icon}
+                        <span className="truncate">{item.label}</span>
+                        {badgeCount !== null && (
+                          <span
+                            className={cn(
+                              'ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-bold font-nums shrink-0',
+                              isActive ? 'bg-white text-brand-blue' : 'bg-red-500 text-white'
+                            )}
+                            aria-label={`${badgeCount} pending items`}
+                          >
+                            {formatBadgeCount(badgeCount)}
+                          </span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* User card */}
+          {session && (
+            <div className="shrink-0 mt-4 pt-3 border-t border-border">
+              <div className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-brand-blue/5 transition-colors cursor-default">
+                <div className="h-8 w-8 rounded-full bg-brand-blue flex items-center justify-center shrink-0">
+                  <span className="text-[0.6rem] font-bold text-white font-nums">{userInitials}</span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold font-optima text-brand-blue truncate">{fullName}</p>
+                  <p className="text-[0.65rem] font-optima text-brand-grey capitalize">{userRole.toLowerCase()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
         </nav>
       </aside>
     </>

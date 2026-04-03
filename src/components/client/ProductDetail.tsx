@@ -14,7 +14,6 @@ import {
   Shield,
   Calendar,
   Clock,
-  CheckCircle,
   AlertCircle,
   Loader2,
   ArrowRight,
@@ -130,17 +129,6 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
     } finally {
       setKycLoading(false);
     }
-  };
-
-  const getProductBadgeColor = (name: string) => {
-    if (name.includes('A')) {
-      return 'bg-brand-blue/10/10 text-brand-blue border-blue-200';
-    } else if (name.includes('B')) {
-      return 'bg-purple-500/10 text-purple-700 border-purple-200';
-    } else if (name.includes('C')) {
-      return 'bg-emerald-500/10 text-emerald-700 border-emerald-200';
-    }
-    return 'bg-gray-500/10 text-gray-700 border-gray-200';
   };
 
   const formatAmountRange = (prod: Product) => {
@@ -276,20 +264,20 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
   const highestReturn = getHighestReturn(product.options);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Breadcrumb Navigation */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <nav className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+          <nav className="flex flex-wrap items-center gap-2 text-sm text-brand-grey">
             <Link href="/client/portfolio" className="hover:text-brand-blue transition-colors duration-200">
               Dashboard
             </Link>
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 text-brand-grey/40" />
             <Link href="/client/products" className="hover:text-brand-blue transition-colors duration-200">
               Plans
             </Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-gray-900 font-medium font-nums">{product.name}</span>
+            <ChevronRight className="h-4 w-4 text-brand-grey/40" />
+            <span className="text-brand-blue font-medium font-optima">{product.name}</span>
           </nav>
         </div>
       </div>
@@ -383,23 +371,20 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
         })()}
 
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+        <div className="mb-8 pb-6 border-b border-gray-100">
+          <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
             <div>
-              <h1 className="text-2xl md:text-3xl md:text-3xl md:text-4xl font-bold text-gray-900 mb-2 font-nums">{product.name}</h1>
-              <div className="flex items-center gap-3">
-                <p className="text-xl text-gray-600 font-nums flex items-center gap-2">
-                  <DirhamIcon className="h-5 w-5" />
+              <h1 className="font-optima text-2xl md:text-3xl font-bold text-brand-blue mb-2">{product.name}</h1>
+              <div className="flex items-center gap-2">
+                <p className="font-georgia text-brand-grey flex items-center gap-1.5">
+                  <DirhamIcon className="h-4 w-4 text-brand-grey" />
                   {formatAmountRange(product)}
                 </p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className={`${getProductBadgeColor(product.name)} font-nums`}>
-                {product.name}
-              </Badge>
               {highestReturn && (
-                <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-200 font-nums">
+                <Badge variant="outline" className="bg-brand-blue/5 text-brand-blue border-brand-blue/20 font-optima">
                   Up to {highestReturn}% Annual Return
                 </Badge>
               )}
@@ -407,63 +392,65 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           </div>
 
           {/* Description */}
-          {product.description && <p className="text-gray-700 text-lg">{product.description}</p>}
+          {product.description && (
+            <p className="font-georgia text-brand-grey leading-relaxed">{product.description}</p>
+          )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Column - Product Options & FAQ */}
           <div className="lg:col-span-2 space-y-6 sm:space-y-8">
             {/* Product Options */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Select Investment Option</CardTitle>
-                <p className="text-sm text-gray-600">
+            <Card className="border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-optima text-brand-blue">Select Investment Option</CardTitle>
+                <p className="font-georgia text-sm text-brand-grey">
                   Choose your preferred duration and withdrawal frequency
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {product.options.map((option) => (
                   <div
                     key={option.id}
                     className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${selectedOption?.id === option.id
-                      ? 'border-brand-blue bg-brand-blue/10 ring-2 ring-brand-blue/30'
-                      : 'border-gray-200 hover:border-brand-blue hover:bg-brand-blue/5'
+                      ? 'border-brand-blue bg-brand-blue/5 ring-1 ring-brand-blue/30'
+                      : 'border-gray-200 hover:border-brand-blue/40 hover:bg-brand-blue/5'
                       }`}
                     onClick={() => setSelectedOption(option)}
                   >
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 sm:gap-4">
                       <div className="flex items-start sm:items-center gap-3 sm:gap-4">
                         <div
-                          className={`mt-1 sm:mt-0 w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selectedOption?.id === option.id
-                            ? 'border-brand-blue bg-brand-blue/10'
-                            : 'border-gray-400'
+                          className={`mt-1 sm:mt-0 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selectedOption?.id === option.id
+                            ? 'border-brand-blue bg-brand-blue'
+                            : 'border-gray-300'
                             }`}
                         >
                           {selectedOption?.id === option.id && (
-                            <CheckCircle className="h-3 w-3 text-brand-blue" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
                           )}
                         </div>
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-                          <span className="font-semibold flex items-center gap-2 text-gray-900 font-nums">
-                            <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                          <span className="font-optima font-semibold flex items-center gap-2 text-brand-blue">
+                            <Calendar className="h-4 w-4 text-brand-grey flex-shrink-0" />
                             {option.duration}
                           </span>
-                          <span className="hidden sm:block text-gray-300">|</span>
-                          <span className="flex items-center gap-2 text-gray-600 text-sm sm:text-base font-nums">
+                          <span className="hidden sm:block text-gray-200">|</span>
+                          <span className="font-georgia flex items-center gap-2 text-brand-grey text-sm sm:text-base">
                             <Clock className="h-4 w-4 flex-shrink-0" />
                             {option.withdrawalFrequency} Withdrawal
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2 pl-8 sm:pl-0">
-                        <Badge variant="secondary" className="font-semibold whitespace-nowrap font-nums">
-                          ROI: {option.roi}%
-                        </Badge>
-                        <Badge className="bg-green-600 font-semibold whitespace-nowrap font-nums">
-                          <TrendingUp className="h-3 w-3 mr-1" />
+                      <div className="flex flex-wrap items-center gap-2 pl-7 sm:pl-0">
+                        <span className="font-optima text-xs font-semibold text-brand-grey border border-gray-200 rounded-full px-2.5 py-0.5 whitespace-nowrap">
+                          ROI {option.roi}%
+                        </span>
+                        <span className="font-optima text-xs font-semibold bg-brand-blue text-white rounded-full px-2.5 py-0.5 whitespace-nowrap flex items-center gap-1">
+                          <TrendingUp className="h-3 w-3" />
                           {option.annualReturn}% Annual
-                        </Badge>
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -472,54 +459,50 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
             </Card>
 
             {/* Key Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Key Information</CardTitle>
+            <Card className="border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-optima text-brand-blue">Key Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg bg-brand-blue/5 border border-brand-blue/10">
+                    <div className="flex items-center gap-2 text-brand-grey mb-1.5">
                       <DirhamIcon className="h-4 w-4" />
-                      <span className="text-sm">Minimum Investment</span>
+                      <span className="font-optima text-xs uppercase tracking-wide">Minimum Investment</span>
                     </div>
-                    <div className="font-semibold text-lg flex items-center font-nums">
-                      {product.currency !== 'USD' && <span className="mr-1">{product.currency}</span>}
-                      {product.currency === 'USD' && <DirhamIcon className="w-4 h-4 mr-1" />}
+                    <div className="font-optima font-bold text-lg text-brand-blue flex items-center gap-1 font-nums">
                       {product.currency} {product.minAmount.toLocaleString()}
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                  <div className="p-4 rounded-lg bg-brand-blue/5 border border-brand-blue/10">
+                    <div className="flex items-center gap-2 text-brand-grey mb-1.5">
                       <DirhamIcon className="h-4 w-4" />
-                      <span className="text-sm">Maximum Investment</span>
+                      <span className="font-optima text-xs uppercase tracking-wide">Maximum Investment</span>
                     </div>
-                    <div className="font-semibold text-lg flex items-center font-nums">
-                      {product.currency !== 'USD' && <span className="mr-1">{product.currency}</span>}
-                      {product.currency === 'USD' && <DirhamIcon className="w-4 h-4 mr-1" />}
-                      {product.maxAmount ? product.maxAmount.toLocaleString() : 'No Limit'}
+                    <div className="font-optima font-bold text-lg text-brand-blue font-nums">
+                      {product.maxAmount ? `${product.currency} ${product.maxAmount.toLocaleString()}` : 'No Limit'}
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                  <div className="p-4 rounded-lg bg-brand-blue/5 border border-brand-blue/10">
+                    <div className="flex items-center gap-2 text-brand-grey mb-1.5">
                       <Calendar className="h-4 w-4" />
-                      <span className="text-sm">Available Durations</span>
+                      <span className="font-optima text-xs uppercase tracking-wide">Available Durations</span>
                     </div>
-                    <p className="font-semibold text-lg font-nums">
+                    <p className="font-optima font-bold text-lg text-brand-blue font-nums">
                       {[...new Set(product.options.map((o) => o.duration))].join(', ')}
                     </p>
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                  <div className="p-4 rounded-lg bg-brand-blue/5 border border-brand-blue/10">
+                    <div className="flex items-center gap-2 text-brand-grey mb-1.5">
                       <TrendingUp className="h-4 w-4" />
-                      <span className="text-sm">Return Range</span>
+                      <span className="font-optima text-xs uppercase tracking-wide">Return Range</span>
                     </div>
-                    <p className="font-semibold text-lg text-green-600 font-nums">
-                      {Math.min(...product.options.map((o) => o.annualReturn))}% -{' '}
-                      {Math.max(...product.options.map((o) => o.annualReturn))}% Annual
+                    <p className="font-optima font-bold text-lg text-brand-blue font-nums">
+                      {Math.min(...product.options.map((o) => o.annualReturn))}%{' – '}
+                      {Math.max(...product.options.map((o) => o.annualReturn))}% p.a.
                     </p>
                   </div>
                 </div>
@@ -530,27 +513,31 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
           </div>
 
           {/* Sidebar - Investment Form */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Investment Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
+          <div className="space-y-4 sm:space-y-5">
+            {/* Investment Form Card */}
+            <Card className="border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="font-optima text-brand-blue flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-brand-grey" />
                   Request Investment
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="amount">Investment Amount ({product.currency})</Label>
+                  <Label htmlFor="amount" className="font-optima text-sm text-brand-blue font-medium">
+                    Investment Amount ({product.currency})
+                  </Label>
                   <Input
                     id="amount"
                     type="text"
                     value={amount}
                     onChange={handleAmountChange}
                     placeholder={`Min: ${product.minAmount.toLocaleString()}`}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 focus:border-brand-blue font-nums"
                   />
-                  <div className="text-xs text-gray-500 mt-1 flex items-center font-nums">Range: {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mx-1" />} {formatAmountRange(product)}</div>
+                  <div className="font-georgia text-xs text-brand-grey mt-1.5 flex items-center gap-1 font-nums">
+                    Range: {product.currency} {formatAmountRange(product)}
+                  </div>
 
                   {/* Slider */}
                   <div className="mt-4">
@@ -562,15 +549,17 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                       step={1000}
                       className="mb-2"
                     />
-                    <div className="flex justify-between text-xs text-gray-500 items-center font-nums">
-                      <span className="flex items-center">{product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}{product.minAmount.toLocaleString()}</span>
-                      <span className="flex items-center">{product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}{(product.maxAmount || product.minAmount * 10).toLocaleString()}</span>
+                    <div className="flex justify-between text-xs text-brand-grey items-center font-nums">
+                      <span>{product.currency} {product.minAmount.toLocaleString()}</span>
+                      <span>{product.currency} {(product.maxAmount || product.minAmount * 10).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="notes">Notes (Optional)</Label>
+                  <Label htmlFor="notes" className="font-optima text-sm text-brand-blue font-medium">
+                    Notes <span className="font-georgia text-brand-grey font-normal">(Optional)</span>
+                  </Label>
                   <Textarea
                     id="notes"
                     value={notes}
@@ -578,32 +567,32 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                     placeholder="Any additional notes for your RM..."
                     rows={3}
                     maxLength={1000}
-                    className="mt-1"
+                    className="mt-1 border-gray-300 focus:border-brand-blue font-georgia text-sm"
                   />
                 </div>
 
-                <Separator />
+                <Separator className="bg-gray-100" />
 
                 {/* Selected Option Summary */}
                 {selectedOption && (
-                  <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <p className="font-semibold text-sm">Selected Plan</p>
-                    <div className="text-sm space-y-1">
+                  <div className="bg-brand-blue/5 border border-brand-blue/10 p-4 rounded-lg space-y-2">
+                    <p className="font-optima text-xs font-semibold text-brand-blue uppercase tracking-wider">Selected Plan</p>
+                    <div className="text-sm space-y-1.5">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Duration:</span>
-                        <span className="font-medium font-nums">{selectedOption.duration}</span>
+                        <span className="font-georgia text-brand-grey">Duration</span>
+                        <span className="font-optima font-medium text-brand-blue font-nums">{selectedOption.duration}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Withdrawal:</span>
-                        <span className="font-medium font-nums">{selectedOption.withdrawalFrequency}</span>
+                        <span className="font-georgia text-brand-grey">Withdrawal</span>
+                        <span className="font-optima font-medium text-brand-blue font-nums">{selectedOption.withdrawalFrequency}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">ROI:</span>
-                        <span className="font-medium text-brand-blue font-nums">{selectedOption.roi}%</span>
+                        <span className="font-georgia text-brand-grey">ROI</span>
+                        <span className="font-optima font-semibold text-brand-blue font-nums">{selectedOption.roi}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Annual Return:</span>
-                        <span className="font-medium text-green-600 font-nums">
+                        <span className="font-georgia text-brand-grey">Annual Return</span>
+                        <span className="font-optima font-semibold text-brand-blue font-nums">
                           {selectedOption.annualReturn}%
                         </span>
                       </div>
@@ -613,34 +602,30 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
 
                 {/* Projected Returns */}
                 {selectedOption && projectedReturns && parseFloat(amount) > 0 && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">
+                  <div className="bg-[#002369] rounded-lg p-4">
+                    <p className="font-optima text-[0.6rem] tracking-[0.2em] text-white/50 uppercase mb-3">
                       Projected Returns
                     </p>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-700">Annual Return:</span>
-                        <span className="font-semibold text-green-600 font-nums">
-                          {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
-                          {Math.round(projectedReturns.annualReturn).toLocaleString()}
+                        <span className="font-georgia text-white/70">Annual Return</span>
+                        <span className="font-optima font-semibold text-white font-nums">
+                          {product.currency} {Math.round(projectedReturns.annualReturn).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-700 font-nums">
-                          Total Return ({projectedReturns.years}{' '}
-                          {projectedReturns.years > 1 ? 'years' : 'year'}):
+                        <span className="font-georgia text-white/70">
+                          Total ({projectedReturns.years}{' '}
+                          {projectedReturns.years > 1 ? 'yrs' : 'yr'})
                         </span>
-                        <span className="font-semibold text-green-600 font-nums">
-                          {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
-                          {Math.round(projectedReturns.totalReturn).toLocaleString()}
+                        <span className="font-optima font-semibold text-white font-nums">
+                          {product.currency} {Math.round(projectedReturns.totalReturn).toLocaleString()}
                         </span>
                       </div>
-                      <Separator />
-                      <div className="flex justify-between">
-                        <span className="font-semibold text-gray-900">Total at Maturity:</span>
-                        <span className="font-bold text-green-600 text-base font-nums">
-                          {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-4 h-4 mr-1" />}
-                          {Math.round(projectedReturns.totalAmount).toLocaleString()}
+                      <div className="border-t border-white/10 pt-2 flex justify-between">
+                        <span className="font-optima font-semibold text-white/80">At Maturity</span>
+                        <span className="font-optima font-bold text-white text-base font-nums">
+                          {product.currency} {Math.round(projectedReturns.totalAmount).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -648,7 +633,7 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                 )}
 
                 <Button
-                  className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white group transition-colors duration-200"
+                  className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white group transition-colors duration-200 font-optima font-semibold"
                   size="lg"
                   onClick={handleRequestPurchase}
                   disabled={
@@ -664,46 +649,51 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
                 </Button>
 
                 {!clientRM?.hasRM && !rmLoading && (
-                  <p className="text-xs text-center text-red-600">RM assignment required to proceed</p>
+                  <p className="font-georgia text-xs text-center text-red-500">RM assignment required to proceed</p>
                 )}
 
                 {!kycStatus?.canSubmitRequests && !kycLoading && (
-                  <p className="text-xs text-center text-red-600">
+                  <p className="font-georgia text-xs text-center text-red-500">
                     KYC verification required to proceed
                   </p>
                 )}
 
-                <p className="text-xs text-gray-500 text-center">
+                <p className="font-georgia text-xs text-brand-grey text-center">
                   Your request will be reviewed by your Relationship Manager
                 </p>
               </CardContent>
             </Card>
 
             {/* Important Info */}
-            <Card>
+            <Card className="border-gray-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Important Information</CardTitle>
+                <CardTitle className="font-optima text-brand-blue text-base">Important Information</CardTitle>
               </CardHeader>
-              <CardContent className="text-sm text-gray-600 space-y-2">
-                <p>Your request will be reviewed by your assigned Relationship Manager.</p>
-                <p>You will receive email notifications about the status of your request.</p>
-                <p>
-                  Investment returns are subject to market conditions and company performance.
-                </p>
+              <CardContent className="space-y-2">
+                {[
+                  'Your request will be reviewed by your assigned Relationship Manager.',
+                  'You will receive email notifications about the status of your request.',
+                  'Investment returns are subject to market conditions and company performance.',
+                ].map((text) => (
+                  <div key={text} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-grey/40 shrink-0" />
+                    <p className="font-georgia text-sm text-brand-grey">{text}</p>
+                  </div>
+                ))}
               </CardContent>
             </Card>
 
             {/* RM Info */}
             {clientRM?.hasRM && clientRM.rm && (
-              <Card>
+              <Card className="border-gray-200 bg-brand-blue/5">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Your Relationship Manager</CardTitle>
+                  <CardTitle className="font-optima text-brand-blue text-base">Your Relationship Manager</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-optima font-semibold text-brand-blue">
                     {clientRM.rm.firstName} {clientRM.rm.lastName}
                   </p>
-                  <p className="text-sm text-gray-600">{clientRM.rm.email}</p>
+                  <p className="font-georgia text-sm text-brand-grey mt-0.5">{clientRM.rm.email}</p>
                 </CardContent>
               </Card>
             )}
@@ -713,66 +703,48 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirm Investment Request</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="font-optima text-brand-blue text-xl">Confirm Investment Request</DialogTitle>
+            <DialogDescription className="font-georgia text-brand-grey">
               Please review your investment details before submitting.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-gray-600">Plan</p>
-                <p className="font-semibold font-nums">{product.name}</p>
-              </div>
-              <div>
-                <p className="text-gray-600">Amount</p>
-                <p className="font-semibold font-nums">
-                  <span className="flex items-center">
-                    {product.currency !== 'USD' ? product.currency : <DirhamIcon className="w-3 h-3 mr-1" />}
-                    {parseFloat(amount).toLocaleString()}
-                  </span>
-                </p>
-              </div>
-              {selectedOption && (
-                <>
-                  <div>
-                    <p className="text-gray-600">Duration</p>
-                    <p className="font-semibold font-nums">{selectedOption.duration}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Withdrawal</p>
-                    <p className="font-semibold font-nums">{selectedOption.withdrawalFrequency}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">ROI</p>
-                    <p className="font-semibold text-brand-blue font-nums">{selectedOption.roi}%</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Annual Return</p>
-                    <p className="font-semibold text-green-600 font-nums">{selectedOption.annualReturn}%</p>
-                  </div>
-                </>
-              )}
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {[
+                { label: 'Plan', value: product.name },
+                { label: 'Amount', value: `${product.currency} ${parseFloat(amount).toLocaleString()}` },
+                ...(selectedOption ? [
+                  { label: 'Duration', value: selectedOption.duration },
+                  { label: 'Withdrawal', value: selectedOption.withdrawalFrequency },
+                  { label: 'ROI', value: `${selectedOption.roi}%` },
+                  { label: 'Annual Return', value: `${selectedOption.annualReturn}%` },
+                ] : []),
+              ].map(({ label, value }) => (
+                <div key={label}>
+                  <p className="font-optima text-xs uppercase tracking-wide text-brand-grey">{label}</p>
+                  <p className="font-optima font-semibold text-brand-blue mt-0.5 font-nums">{value}</p>
+                </div>
+              ))}
             </div>
 
             {notes && (
               <div className="text-sm">
-                <p className="text-gray-600">Your Notes</p>
-                <p className="bg-gray-50 p-2 rounded mt-1">{notes}</p>
+                <p className="font-optima text-xs uppercase tracking-wide text-brand-grey mb-1">Your Notes</p>
+                <p className="font-georgia bg-brand-blue/5 border border-brand-blue/10 p-3 rounded-lg text-brand-grey">{notes}</p>
               </div>
             )}
 
             {projectedReturns && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-xs font-semibold text-gray-600 uppercase mb-2">
+              <div className="bg-brand-blue rounded-lg p-4">
+                <p className="font-optima text-[0.6rem] tracking-[0.2em] text-white/50 uppercase mb-2">
                   Projected Returns
                 </p>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-700">Total at Maturity</span>
-                  <span className="text-lg font-bold text-green-600 font-nums">
+                  <span className="font-georgia text-sm text-white/70">Total at Maturity</span>
+                  <span className="font-optima font-bold text-white text-lg font-nums">
                     {product.currency} {Math.round(projectedReturns.totalAmount).toLocaleString()}
                   </span>
                 </div>
@@ -780,19 +752,24 @@ export function ProductDetail({ product, clientRM, rmLoading }: ProductDetailPro
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => setShowConfirmDialog(false)}
               disabled={submitting}
+              className="font-optima border-gray-300 hover:border-brand-blue hover:text-brand-blue"
             >
               Cancel
             </Button>
-            <Button onClick={submitRequest} disabled={submitting}>
+            <Button
+              onClick={submitRequest}
+              disabled={submitting}
+              className="font-optima bg-brand-blue hover:bg-brand-blue/90 text-white"
+            >
               {submitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
+                  Submitting…
                 </>
               ) : (
                 'Confirm Request'

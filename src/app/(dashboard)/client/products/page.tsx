@@ -75,33 +75,31 @@ export default function ClientProductsPage() {
         <div className="max-w-5xl mx-auto">
           <h2 className="font-optima text-subheading font-bold text-center text-brand-blue mb-10">How It Works</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-4 sm:gap-6 lg:gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
-                <span className="font-optima text-2xl font-bold font-nums">1</span>
+            {[
+              {
+                step: '1',
+                title: 'Browse Ventures',
+                desc: 'Explore Venture A, B, and C — each designed with a different risk profile and return structure.',
+              },
+              {
+                step: '2',
+                title: 'Configure Your Option',
+                desc: 'Pick your preferred duration and withdrawal frequency from the available plan options.',
+              },
+              {
+                step: '3',
+                title: 'Submit & Get Processed',
+                desc: 'Your dedicated Relationship Manager reviews and processes your request with care.',
+              },
+            ].map(({ step, title, desc }) => (
+              <div key={step} className="text-center">
+                <div className="w-14 h-14 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border border-brand-blue/20">
+                  <span className="font-optima text-xl font-bold font-nums">{step}</span>
+                </div>
+                <h3 className="font-optima font-semibold text-base mb-2 text-brand-blue">{title}</h3>
+                <p className="font-georgia text-brand-grey leading-relaxed text-sm">{desc}</p>
               </div>
-              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Choose a Plan</h3>
-              <p className="font-georgia text-brand-grey leading-relaxed text-sm">
-                Select a plan aligned with your investment goals and financial capacity
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
-                <span className="font-optima text-2xl font-bold font-nums">2</span>
-              </div>
-              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Select Your Plan</h3>
-              <p className="font-georgia text-brand-grey leading-relaxed text-sm">
-                Choose your preferred investment duration and withdrawal frequency
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="w-16 h-16 rounded-full bg-brand-blue/10 text-brand-blue flex items-center justify-center mx-auto mb-4 border-2 border-brand-blue/20">
-                <span className="font-optima text-2xl font-bold font-nums">3</span>
-              </div>
-              <h3 className="font-optima font-semibold text-lg mb-2 text-brand-blue">Submit Request</h3>
-              <p className="font-georgia text-brand-grey leading-relaxed text-sm">
-                Your dedicated Relationship Manager will review and process your request
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </div>

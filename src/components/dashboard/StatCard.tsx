@@ -18,6 +18,15 @@ interface StatCardProps {
     loading?: boolean;
 }
 
+const statusConfig = {
+    default: { value: "text-brand-blue",  icon: "text-brand-blue/60" },
+    success: { value: "text-emerald-600", icon: "text-emerald-500"   },
+    warning: { value: "text-amber-600",   icon: "text-amber-500"     },
+    danger:  { value: "text-red-600",     icon: "text-red-500"       },
+    info:    { value: "text-blue-600",    icon: "text-blue-500"      },
+    neutral: { value: "text-gray-600",    icon: "text-gray-400"      },
+};
+
 export function StatCard({
     title,
     value,
@@ -31,67 +40,40 @@ export function StatCard({
     className,
     loading = false,
 }: StatCardProps) {
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "success":
-                return "text-emerald-600";
-            case "warning":
-                return "text-amber-600";
-            case "danger":
-                return "text-red-600";
-            case "info":
-                return "text-blue-600";
-            case "neutral":
-                return "text-gray-600";
-            default:
-                return "text-brand-blue";
-        }
-    };
-
-    const statusColorClass = getStatusColor(status);
+    const cfg = statusConfig[status];
 
     const Content = (
         <>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 px-4 pt-4">
-                <CardTitle className="text-xs font-medium text-gray-600">
+                <CardTitle className="text-[0.7rem] tracking-wide uppercase font-optima text-gray-500">
                     {title}
                 </CardTitle>
-                <div className="p-1.5">
-                    <Icon
-                        className={cn(
-                            "h-5 w-5",
-                            status === "default" ? "text-gray-500" : statusColorClass,
-                        )}
-                    />
-                </div>
+                <Icon className={cn("h-4 w-4 shrink-0", cfg.icon)} />
             </CardHeader>
             <CardContent className="px-4 pb-4">
                 {loading ? (
                     <div className="h-7 w-24 bg-gray-200 rounded animate-pulse" />
                 ) : (
-                    <div className={cn("text-2xl font-bold truncate font-nums", statusColorClass)}>
+                    <div className={cn("text-2xl font-bold truncate font-nums", cfg.value)}>
                         {value}
                     </div>
                 )}
                 {(subValue || trendValue) && (
-                    <div className="flex items-center mt-1 space-x-2">
-                        {trend && (
+                    <div className="flex items-center mt-1 gap-2">
+                        {trend && trendValue && (
                             <span
                                 className={cn(
-                                    "text-xs font-medium flex items-center font-nums",
-                                    trend === "up"
-                                        ? "text-emerald-600"
-                                        : trend === "down"
-                                            ? "text-red-600"
-                                            : "text-gray-600",
+                                    "text-xs font-medium font-nums",
+                                    trend === "up"   ? "text-emerald-600" :
+                                    trend === "down" ? "text-red-600"     : "text-gray-500",
                                 )}
                             >
-                                {trend === "up" ? "+" : trend === "down" ? "-" : ""}
+                                {trend === "up" ? "+" : trend === "down" ? "−" : ""}
                                 {trendValue}
                             </span>
                         )}
                         {subValue && (
-                            <p className="text-xs text-muted-foreground truncate font-medium">
+                            <p className="text-xs text-muted-foreground truncate font-optima">
                                 {subValue}
                             </p>
                         )}
@@ -102,8 +84,8 @@ export function StatCard({
     );
 
     const cardClasses = cn(
-        "border-gray-200 transition-all duration-200 hover:shadow-sm",
-        (onClick || href) && "cursor-pointer hover:border-gray-300",
+        "border-gray-200 transition-all duration-200 hover:shadow-md",
+        (onClick || href) && "cursor-pointer",
         className,
     );
 
