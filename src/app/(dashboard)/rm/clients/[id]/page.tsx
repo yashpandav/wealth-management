@@ -219,11 +219,10 @@ export default function RMClientDetailPage() {
                     Joined {format(new Date(client.user.createdAt), 'MMM d, yyyy')}
                   </span>
                   <Badge
-                    className={`text-[10px] font-optima border ${
-                      client.kycVerified
+                    className={`text-[10px] font-optima border ${client.kycVerified
                         ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/30'
                         : 'bg-amber-500/20 text-amber-200 border-amber-400/30'
-                    }`}
+                      }`}
                   >
                     {client.kycVerified ? (
                       <><CheckCircle className="h-2.5 w-2.5 mr-1" />KYC Verified</>
@@ -279,13 +278,12 @@ export default function RMClientDetailPage() {
                   {label}
                 </span>
               </div>
-              <p className={`font-optima text-2xl font-bold font-nums ${
-                highlight
+              <p className={`font-optima text-2xl font-bold font-nums ${highlight
                   ? 'text-white'
                   : positive === false
                     ? 'text-red-600'
                     : 'text-brand-blue'
-              }`}>
+                }`}>
                 {positive === false ? '−' : ''}{value}
               </p>
             </CardContent>
