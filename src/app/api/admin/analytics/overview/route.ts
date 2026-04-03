@@ -16,6 +16,9 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
     // Fetch all metrics in parallel
     const [
       totalClients,
@@ -28,8 +31,9 @@ export async function GET() {
       completedTransactions,
       allRMs,
       allInvestments,
-      allPurchaseRequests,
-      allTransactions,
+      purchaseRequestStatusCounts,
+      transactionTrendRaw,
+      clientAumByClient,
     ] = await Promise.all([
       // Total clients
       prisma.client.count(),
@@ -42,10 +46,7 @@ export async function GET() {
 
       // Total AUM (sum of all completed purchase transactions)
       prisma.transaction.aggregate({
-        where: {
-          type: 'PURCHASE',
-          status: 'COMPLETED',
-        },
+        where: { type: 'PURCHASE', status: 'COMPLETED' },
         _sum: { amount: true },
       }),
 
@@ -63,121 +64,99 @@ export async function GET() {
 
       // All RMs with clients for distribution
       prisma.relationshipManager.findMany({
-        include: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          assignedClients: {
-            select: {
-              id: true,
-            },
-          },
+        select: {
+          id: true,
+          user: { select: { firstName: true, lastName: true } },
+          assignedClients: { select: { id: true } },
         },
       }),
 
-      // All investments (no type field in new model)
+      // All active investments for distribution chart
       prisma.investment.findMany({
         where: { isActive: true },
-        select: {
-          id: true,
-          name: true,
-        },
+        select: { id: true, name: true },
       }),
 
-      // All purchase requests for trends
-      prisma.productPurchaseRequest.findMany({
-        select: {
-          id: true,
-          status: true,
-          createdAt: true,
-          amount: true,
-        },
+      // Purchase request status counts via groupBy (replaces unbounded findMany)
+      prisma.productPurchaseRequest.groupBy({
+        by: ['status'],
+        _count: { _all: true },
       }),
 
-      // All transactions for trends
-      prisma.transaction.findMany({
-        select: {
-          id: true,
-          type: true,
-          createdAt: true,
-          amount: true,
-          status: true,
-        },
+      // Transaction volume trend — last 30 days grouped by date + type (replaces unbounded findMany)
+      prisma.$queryRaw<Array<{ date: Date; type: string; volume: number }>>`
+        SELECT
+          DATE(created_at) AS date,
+          type,
+          SUM(amount)::float AS volume
+        FROM transactions
+        WHERE created_at >= ${thirtyDaysAgo}
+        GROUP BY DATE(created_at), type
+        ORDER BY date
+      `,
+
+      // AUM per client (for RM distribution) — one query replacing N per-RM aggregates
+      prisma.transaction.groupBy({
+        by: ['clientId'],
+        where: { type: 'PURCHASE', status: 'COMPLETED' },
+        _sum: { amount: true },
       }),
     ]);
 
-    // Calculate RM distribution by client count and AUM
-    const rmDistribution = await Promise.all(
-      allRMs.map(async (rm) => {
-        // Calculate AUM for this RM's clients from transactions
-        const clientIds = rm.assignedClients.map((c) => c.id);
-        const aumAgg = await prisma.transaction.aggregate({
-          where: {
-            clientId: { in: clientIds },
-            type: 'PURCHASE',
-            status: 'COMPLETED',
-          },
-          _sum: { amount: true },
-        });
+    // Build client → AUM map
+    const clientAumMap = new Map(
+      clientAumByClient.map((r) => [r.clientId, Number(r._sum.amount || 0)])
+    );
 
-        return {
-          name: `${rm.user.firstName} ${rm.user.lastName}`,
-          clients: rm.assignedClients.length,
-          aum: Number(aumAgg._sum.amount || 0),
-        };
-      })
-    ).then((rms) => rms.sort((a, b) => b.aum - a.aum).slice(0, 10));
+    // RM distribution: sum client AUMs per RM in JS (no extra DB calls)
+    const rmDistribution = allRMs
+      .map((rm) => ({
+        name: `${rm.user.firstName} ${rm.user.lastName}`,
+        clients: rm.assignedClients.length,
+        aum: rm.assignedClients.reduce((sum, c) => sum + (clientAumMap.get(c.id) || 0), 0),
+      }))
+      .sort((a, b) => b.aum - a.aum)
+      .slice(0, 10);
 
     // Calculate investment distribution by name
     const investmentDistribution = allInvestments.map((inv) => ({
       name: inv.name,
-      value: 1, // Each investment plan
+      value: 1,
     }));
 
-    // Transaction volume trend (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Build transaction trend from grouped DB result
+    const trendByDate = new Map<string, { purchases: number; withdrawals: number }>();
+    for (const row of transactionTrendRaw) {
+      const dateStr = new Date(row.date).toISOString().split('T')[0];
+      if (!trendByDate.has(dateStr)) trendByDate.set(dateStr, { purchases: 0, withdrawals: 0 });
+      const entry = trendByDate.get(dateStr)!;
+      if (row.type === 'PURCHASE') entry.purchases += row.volume;
+      else if (row.type === 'WITHDRAWAL') entry.withdrawals += row.volume;
+    }
 
     const transactionTrend = [];
     for (let i = 29; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-
-      const dayTransactions = allTransactions.filter((txn) => {
-        const txnDate = new Date(txn.createdAt).toISOString().split('T')[0];
-        return txnDate === dateStr;
-      });
-
-      const purchaseVolume = dayTransactions
-        .filter((t) => t.type === 'PURCHASE')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-
-      const withdrawalVolume = dayTransactions
-        .filter((t) => t.type === 'WITHDRAWAL')
-        .reduce((sum, t) => sum + Number(t.amount), 0);
-
+      const entry = trendByDate.get(dateStr) || { purchases: 0, withdrawals: 0 };
       transactionTrend.push({
         date: dateStr,
-        purchases: purchaseVolume,
-        withdrawals: withdrawalVolume,
-        total: purchaseVolume + withdrawalVolume,
+        purchases: entry.purchases,
+        withdrawals: entry.withdrawals,
+        total: entry.purchases + entry.withdrawals,
       });
     }
 
-    // Request status distribution
-    const purchaseStatusCounts = allPurchaseRequests.reduce((acc, req) => {
-      acc[req.status] = (acc[req.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    // Build request status distribution from groupBy result
+    const purchaseStatusMap = new Map(
+      purchaseRequestStatusCounts.map((r) => [r.status, r._count._all])
+    );
 
     const requestStatusDistribution = [
-      { name: 'Purchase - Pending', value: purchaseStatusCounts['PENDING'] || 0, fill: '#fbbf24' },
-      { name: 'Purchase - Approved', value: purchaseStatusCounts['APPROVED'] || 0, fill: '#10b981' },
-      { name: 'Purchase - Rejected', value: purchaseStatusCounts['REJECTED'] || 0, fill: '#ef4444' },
+      { name: 'Purchase - Pending', value: purchaseStatusMap.get('PENDING') || 0, fill: '#fbbf24' },
+      { name: 'Purchase - Approved', value: purchaseStatusMap.get('APPROVED') || 0, fill: '#10b981' },
+      { name: 'Purchase - Rejected', value: purchaseStatusMap.get('REJECTED') || 0, fill: '#ef4444' },
     ].filter((item) => item.value > 0);
 
     // User growth trend - simplified (using current counts)

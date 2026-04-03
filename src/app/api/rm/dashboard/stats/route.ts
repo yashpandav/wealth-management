@@ -53,12 +53,16 @@ export async function GET() {
 
     const clientIds = rm.assignedClients.map((c) => c.id);
 
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
     // Fetch all statistics in parallel
     const [
       totalClients,
       pendingProductRequests,
       totalAUM,
-      allProductPurchaseRequests,
+      requestStatusCounts,
+      trendRequests,
       topClientsByAUM,
       recentProductRequests,
     ] = await Promise.all([
@@ -69,13 +73,10 @@ export async function GET() {
 
       // Pending product purchase requests
       prisma.productPurchaseRequest.count({
-        where: {
-          clientId: { in: clientIds },
-          status: 'PENDING',
-        },
+        where: { clientId: { in: clientIds }, status: 'PENDING' },
       }),
 
-      // Total AUM (Assets Under Management) from completed product purchases
+      // Total AUM from completed product purchases
       prisma.productPurchaseRequest.aggregate({
         where: {
           clientId: { in: clientIds },
@@ -84,34 +85,30 @@ export async function GET() {
         _sum: { amount: true },
       }),
 
-      // All product purchase requests for stats
-      prisma.productPurchaseRequest.findMany({
+      // Status distribution via groupBy (replaces unbounded findMany)
+      prisma.productPurchaseRequest.groupBy({
+        by: ['status'],
         where: { clientId: { in: clientIds } },
-        select: {
-          id: true,
-          status: true,
-          createdAt: true,
-          amount: true,
-        },
+        _count: { _all: true },
       }),
 
-      // Top clients by AUM (based on their total invested amounts)
+      // Activity trend: only last 30 days, bounded (replaces unbounded findMany)
+      prisma.productPurchaseRequest.findMany({
+        where: {
+          clientId: { in: clientIds },
+          createdAt: { gte: thirtyDaysAgo },
+        },
+        select: { createdAt: true },
+      }),
+
+      // Top clients by AUM
       prisma.client.findMany({
         where: { id: { in: clientIds } },
-        include: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
+        select: {
+          user: { select: { firstName: true, lastName: true } },
           productPurchaseRequests: {
-            where: {
-              status: { in: ['APPROVED', 'COMPLETED'] },
-            },
-            select: {
-              amount: true,
-            },
+            where: { status: { in: ['APPROVED', 'COMPLETED'] } },
+            select: { amount: true },
           },
         },
         take: 10,
@@ -122,23 +119,17 @@ export async function GET() {
         where: { clientId: { in: clientIds } },
         take: 10,
         orderBy: { createdAt: 'desc' },
-        include: {
+        select: {
+          id: true,
+          status: true,
+          amount: true,
+          createdAt: true,
           client: {
-            include: {
-              user: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-          investment: {
             select: {
-              name: true,
-              currency: true,
+              user: { select: { firstName: true, lastName: true } },
             },
           },
+          investment: { select: { name: true, currency: true } },
         },
       }),
     ]);
@@ -155,18 +146,15 @@ export async function GET() {
       createdAt: req.createdAt.toISOString(),
     }));
 
-    // Calculate request status distribution
-    const productStatusCounts = allProductPurchaseRequests.reduce((acc, req) => {
-      acc[req.status] = (acc[req.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    // Build status map from groupBy result
+    const productStatusMap = new Map(requestStatusCounts.map((r) => [r.status, r._count._all]));
 
     const requestStatusData = [
-      { name: 'Plans - Pending', value: productStatusCounts['PENDING'] || 0, fill: '#f59e0b' },
-      { name: 'Plans - Processing', value: productStatusCounts['PROCESSING'] || 0, fill: '#3b82f6' },
-      { name: 'Plans - Approved', value: productStatusCounts['APPROVED'] || 0, fill: '#10b981' },
-      { name: 'Plans - Completed', value: productStatusCounts['COMPLETED'] || 0, fill: '#06b6d4' },
-      { name: 'Plans - Rejected', value: productStatusCounts['REJECTED'] || 0, fill: '#ef4444' },
+      { name: 'Plans - Pending', value: productStatusMap.get('PENDING') || 0, fill: '#f59e0b' },
+      { name: 'Plans - Processing', value: productStatusMap.get('PROCESSING') || 0, fill: '#3b82f6' },
+      { name: 'Plans - Approved', value: productStatusMap.get('APPROVED') || 0, fill: '#10b981' },
+      { name: 'Plans - Completed', value: productStatusMap.get('COMPLETED') || 0, fill: '#06b6d4' },
+      { name: 'Plans - Rejected', value: productStatusMap.get('REJECTED') || 0, fill: '#ef4444' },
     ].filter((item) => item.value > 0);
 
     // Top clients by AUM - calculate total invested per client
@@ -186,33 +174,28 @@ export async function GET() {
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
 
-    // Activity trend (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Activity trend (last 30 days) — built from bounded trendRequests
+    const trendByDate = new Map<string, number>();
+    for (const req of trendRequests) {
+      const dateStr = req.createdAt.toISOString().split('T')[0];
+      trendByDate.set(dateStr, (trendByDate.get(dateStr) || 0) + 1);
+    }
 
     const activityTrend = [];
     for (let i = 29; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
-
-      const productCount = allProductPurchaseRequests.filter((req) => {
-        const reqDate = new Date(req.createdAt).toISOString().split('T')[0];
-        return reqDate === dateStr;
-      }).length;
-
       activityTrend.push({
         date: dateStr,
-        withdrawals: 0, // Removed withdrawal functionality
-        products: productCount,
+        withdrawals: 0,
+        products: trendByDate.get(dateStr) || 0,
       });
     }
 
-    // Approval rates
-    const totalProductRequests = allProductPurchaseRequests.length;
-    const approvedProducts = allProductPurchaseRequests.filter((r) =>
-      ['APPROVED', 'COMPLETED'].includes(r.status)
-    ).length;
+    // Approval rates — derived from groupBy status map
+    const totalProductRequests = Array.from(productStatusMap.values()).reduce((s, n) => s + n, 0);
+    const approvedProducts = (productStatusMap.get('APPROVED') || 0) + (productStatusMap.get('COMPLETED') || 0);
 
     const approvalRates = {
       withdrawalApprovalRate: 0, // Removed withdrawal functionality
@@ -233,28 +216,21 @@ export async function GET() {
       prisma.payout.findMany({
         where: {
           clientId: { in: clientIds },
-          scheduledDate: {
-            gte: thirtyDaysAgo,
-          },
+          scheduledDate: { gte: thirtyDaysAgo },
         },
-        include: {
+        select: {
+          id: true,
+          amount: true,
+          scheduledDate: true,
+          status: true,
           client: {
-            include: {
-              user: {
-                select: {
-                  firstName: true,
-                  lastName: true,
-                },
-              },
+            select: {
+              user: { select: { firstName: true, lastName: true } },
             },
           },
           productPurchaseRequest: {
-            include: {
-              investment: {
-                select: {
-                  name: true,
-                },
-              },
+            select: {
+              investment: { select: { name: true } },
             },
           },
         },

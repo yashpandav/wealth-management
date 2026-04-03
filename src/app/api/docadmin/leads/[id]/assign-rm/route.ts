@@ -8,6 +8,7 @@ import { requireRole } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { sendRMNewLeadAssignedEmail } from '@/lib/email';
+import { runInBackground } from '@/lib/background';
 
 const assignRmSchema = z.object({
   rmId: z.string().uuid('Invalid RM ID format'),
@@ -52,19 +53,38 @@ export async function PATCH(
 
     const { rmId, notes } = validationResult.data;
 
-    // Verify lead exists
-    const lead = await prisma.userLead.findUnique({
-      where: { id: leadId },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        phoneNumber: true,
-        rmReference: true,
-        status: true,
-      },
-    });
+    // Fetch lead and RM in parallel — both only need IDs from the validated body
+    const [lead, rm] = await Promise.all([
+      prisma.userLead.findUnique({
+        where: { id: leadId },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phoneNumber: true,
+          rmReference: true,
+          status: true,
+        },
+      }),
+      prisma.relationshipManager.findUnique({
+        where: { id: rmId },
+        select: {
+          id: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              status: true,
+              isActive: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     if (!lead) {
       return NextResponse.json(
@@ -72,23 +92,6 @@ export async function PATCH(
         { status: 404 }
       );
     }
-
-    // Verify RM exists and is active
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { id: rmId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            status: true,
-            isActive: true,
-          },
-        },
-      },
-    });
 
     if (!rm) {
       return NextResponse.json(
@@ -128,67 +131,65 @@ export async function PATCH(
       },
     });
 
-    // Create audit log
-    await prisma.auditLog.create({
-      data: {
-        userId: docAdmin.id,
-        action: 'CLIENT_ASSIGN', // Using CLIENT_ASSIGN for lead RM assignment
-        entityType: 'UserLead',
-        entityId: leadId,
-        description: `DocAdmin assigned RM ${rm.user.firstName} ${rm.user.lastName} to lead ${lead.firstName} ${lead.lastName}`,
-        metadata: {
-          leadId,
-          leadEmail: lead.email,
-          rmId,
-          rmName: `${rm.user.firstName} ${rm.user.lastName}`,
-          rmEmail: rm.user.email,
-          previousRmReference: lead.rmReference,
-          newRmReference: updatedLead.rmReference,
-          notes: notes || null,
-          assignedBy: docAdmin.email,
-        },
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
-        userAgent: request.headers.get('user-agent') || 'unknown',
-      },
-    });
-
-    // Create in-app notification for RM
-    await prisma.notification.create({
-      data: {
-        userId: rm.userId,
-        type: 'INFO',
-        category: 'ASSIGNMENT',
-        title: 'New Lead Assigned',
-        message: `New lead ${lead.firstName} ${lead.lastName} has been assigned to you. Please review and follow up.`,
-        isRead: false,
-        actionUrl: '/rm/leads',
-        actionText: 'View Leads',
-        entityType: 'UserLead',
-        entityId: leadId,
-        priority: 'HIGH',
-        metadata: {
-          leadId: lead.id,
-          leadName: `${lead.firstName} ${lead.lastName}`,
-          leadEmail: lead.email,
-          leadPhone: lead.phoneNumber || 'N/A',
-          leadStatus: updatedLead.status,
-          assignedBy: docAdmin.email,
-          notes: notes || null,
-        },
-      },
-    }).catch(err => console.error('Failed to create RM notification:', err));
-
-    // Send notification email to RM about new lead assignment
+    // Fire-and-forget all side effects — audit log, notification, email
     const rmName = `${rm.user.firstName} ${rm.user.lastName}`;
     const leadName = `${lead.firstName} ${lead.lastName}`;
 
-    sendRMNewLeadAssignedEmail(
-      rm.user.email,
-      rmName,
-      leadName,
-      lead.email,
-      lead.phoneNumber || 'N/A'
-    ).catch(err => console.error('Failed to send RM lead assignment email:', err));
+    runInBackground(
+      prisma.auditLog.create({
+        data: {
+          userId: docAdmin.id,
+          action: 'CLIENT_ASSIGN',
+          entityType: 'UserLead',
+          entityId: leadId,
+          description: `DocAdmin assigned RM ${rmName} to lead ${leadName}`,
+          metadata: {
+            leadId,
+            leadEmail: lead.email,
+            rmId,
+            rmName,
+            rmEmail: rm.user.email,
+            previousRmReference: lead.rmReference,
+            newRmReference: updatedLead.rmReference,
+            notes: notes || null,
+            assignedBy: docAdmin.email,
+          },
+          ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+          userAgent: request.headers.get('user-agent') || 'unknown',
+        },
+      }),
+      prisma.notification.create({
+        data: {
+          userId: rm.userId,
+          type: 'INFO',
+          category: 'ASSIGNMENT',
+          title: 'New Lead Assigned',
+          message: `New lead ${leadName} has been assigned to you. Please review and follow up.`,
+          isRead: false,
+          actionUrl: '/rm/leads',
+          actionText: 'View Leads',
+          entityType: 'UserLead',
+          entityId: leadId,
+          priority: 'HIGH',
+          metadata: {
+            leadId: lead.id,
+            leadName,
+            leadEmail: lead.email,
+            leadPhone: lead.phoneNumber || 'N/A',
+            leadStatus: updatedLead.status,
+            assignedBy: docAdmin.email,
+            notes: notes || null,
+          },
+        },
+      }),
+      sendRMNewLeadAssignedEmail(
+        rm.user.email,
+        rmName,
+        leadName,
+        lead.email,
+        lead.phoneNumber || 'N/A'
+      )
+    );
 
     return NextResponse.json({
       success: true,

@@ -20,23 +20,17 @@ export async function GET() {
       );
     }
 
-    // Fetch pending document verification count (PENDING + UNDER_REVIEW)
-    const pendingDocuments = await prisma.document.count({
-      where: {
-        verificationStatus: {
-          in: ['PENDING', 'UNDER_REVIEW']
-        }
-      }
-    });
-
-    // Fetch clients pending RM assignment
-    // (Clients who have VERIFIED status but no RM assigned)
-    const pendingRmAssignment = await prisma.client.count({
-      where: {
-        verificationStatus: 'VERIFIED',
-        assignedRMId: null
-      }
-    });
+    // Fetch both counts in parallel
+    const [pendingDocuments, pendingRmAssignment] = await Promise.all([
+      // Pending document verification count (PENDING + UNDER_REVIEW)
+      prisma.document.count({
+        where: { verificationStatus: { in: ['PENDING', 'UNDER_REVIEW'] } },
+      }),
+      // Clients with VERIFIED KYC but no RM assigned yet
+      prisma.client.count({
+        where: { verificationStatus: 'VERIFIED', assignedRMId: null },
+      }),
+    ]);
 
     return NextResponse.json({
       success: true,

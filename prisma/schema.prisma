@@ -274,6 +274,9 @@ model Client {
   // Archival metadata (for compliance and audit)
   archivedReason String? @db.Text // Reason for archival (e.g., "KYC_EXPIRED_DAY_7")
 
+  // Timestamps
+  updatedAt DateTime @updatedAt
+
   // Relationships
   transactions            Transaction[]
   documents               Document[]
@@ -283,6 +286,7 @@ model Client {
 
   @@index([assignedRMId])
   @@index([verificationStatus])
+  @@index([assignedRMId, verificationStatus]) // Composite: RM dashboard KYC filters
   @@map("clients")
 }
 
@@ -299,6 +303,10 @@ model RelationshipManager {
 
   // Performance metrics
   totalAUM Decimal @default(0) @db.Decimal(15, 2) // Assets Under Management
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
   assignedClients         Client[]
@@ -364,6 +372,7 @@ model Transaction {
   @@index([completedAt])
   @@index([processedById])
   @@index([createdAt])
+  @@index([clientId, type, status]) // Composite: AUM/analytics queries filtering all three
   @@map("transactions")
 }
 
@@ -409,6 +418,7 @@ model AuditLog {
   // Indexes
   @@index([userId])
   @@index([action])
+  @@index([userId, action]) // Composite: filter specific user's actions in audit log viewer
   @@index([entityType, entityId])
   @@index([createdAt])
   @@index([severity])
@@ -537,6 +547,7 @@ model Document {
   // Indexes
   @@index([clientId])
   @@index([clientId, documentType]) // Composite index for faster lookup
+  @@index([clientId, verificationStatus]) // Composite: DocAdmin fetches pending docs per client
   @@index([documentType])
   @@index([verificationStatus])
   @@index([verifiedById])
@@ -719,6 +730,8 @@ model ProductPurchaseRequest {
   @@index([status])
   @@index([createdAt])
   @@index([contractDocumentId])
+  @@index([assignedRMId, status]) // Composite: RM performance counts by status
+  @@index([clientId, status])     // Composite: client request lists filtered by status
   @@map("investment_purchase_requests")
 }
 
@@ -757,6 +770,7 @@ model PayoutSchedule {
   @@index([clientId])
   @@index([scheduledDate])
   @@index([isProcessed])
+  @@index([scheduledDate, isProcessed]) // Composite: cron job fetches unprocessed schedules due by date
   @@map("payout_schedules")
 }
 
@@ -808,5 +822,7 @@ model Payout {
   @@index([status])
   @@index([scheduledDate])
   @@index([processedById])
+  @@index([clientId, scheduledDate]) // Composite: dashboard fetches recent payouts per RM's clients
+  @@index([clientId, status])        // Composite: groupBy status for payout stats per client set
   @@map("payouts")
 }
