@@ -91,12 +91,24 @@ export async function GET(request: NextRequest) {
           { scheduledDate: 'desc' },
           { createdAt: 'desc' },
         ],
-        include: {
+        select: {
+          id: true,
+          productPurchaseRequestId: true,
+          payoutScheduleId: true,
+          clientId: true,
+          amount: true,
+          periodStart: true,
+          periodEnd: true,
+          scheduledDate: true,
+          status: true,
+          processedAt: true,
+          createdAt: true,
+          updatedAt: true,
           client: {
-            include: {
+            select: {
+              id: true,
               user: {
                 select: {
-                  id: true,
                   firstName: true,
                   lastName: true,
                   email: true,
@@ -105,7 +117,9 @@ export async function GET(request: NextRequest) {
             },
           },
           productPurchaseRequest: {
-            include: {
+            select: {
+              id: true,
+              trackingNumber: true,
               investment: {
                 select: {
                   id: true,

@@ -61,6 +61,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ];
     }
 
+    // Push assignment/RM filters into the DB query so totalCount is accurate
+    if (assignmentStatus === 'assigned') {
+      userWhere.client = { isNot: null };
+    } else if (assignmentStatus === 'unassigned') {
+      userWhere.client = { is: null };
+    }
+
+    if (rmId) {
+      userWhere.client = {
+        ...((userWhere.client as object) || {}),
+        assignedRMId: rmId,
+      };
+    }
+
     // Calculate pagination
     const skip = (page - 1) * limit;
 
@@ -95,24 +109,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       prisma.user.count({ where: userWhere }),
     ]);
 
-    // Filter by assignment status
-    let filteredUsers = users;
-
-    if (assignmentStatus === 'assigned') {
-      filteredUsers = users.filter((u) => u.client !== null);
-    } else if (assignmentStatus === 'unassigned') {
-      filteredUsers = users.filter((u) => u.client === null);
-    }
-
-    // Filter by specific RM
-    if (rmId) {
-      filteredUsers = filteredUsers.filter(
-        (u) => u.client && u.client.assignedRMId === rmId
-      );
-    }
-
     // Format response
-    const clientData = filteredUsers.map((user) => ({
+    const clientData = users.map((user) => ({
       id: user.id,
       email: user.email,
       firstName: user.firstName,

@@ -10,6 +10,7 @@ import { requireRole } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { z } from 'zod';
 import { config } from '@/lib/config';
+import { runInBackground } from '@/lib/background';
 
 const assignRmSchema = z.object({
   rmId: z.string().uuid('Invalid RM ID format'),
@@ -54,22 +55,38 @@ export async function PATCH(
 
     const { rmId, notes } = validationResult.data;
 
-    // Verify client exists and get current status
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-      select: {
-        id: true,
-        verificationStatus: true,
-        assignedRMId: true,
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
+    // Fetch client and RM in parallel — both only need IDs from the validated body
+    const [client, rm] = await Promise.all([
+      prisma.client.findUnique({
+        where: { id: clientId },
+        select: {
+          id: true,
+          userId: true,
+          verificationStatus: true,
+          assignedRMId: true,
+          user: {
+            select: { firstName: true, lastName: true, email: true },
           },
         },
-      },
-    });
+      }),
+      prisma.relationshipManager.findUnique({
+        where: { id: rmId },
+        select: {
+          id: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              status: true,
+              isActive: true,
+            },
+          },
+        },
+      }),
+    ]);
 
     if (!client) {
       return NextResponse.json(
@@ -100,23 +117,6 @@ export async function PATCH(
         { status: 400 }
       );
     }
-
-    // Verify RM exists and is active
-    const rm = await prisma.relationshipManager.findUnique({
-      where: { id: rmId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            status: true,
-            isActive: true,
-          },
-        },
-      },
-    });
 
     if (!rm) {
       return NextResponse.json(
@@ -154,9 +154,10 @@ export async function PATCH(
       },
     });
 
-    // Create audit log
-    if (config.features.auditLog) {
-      await prisma.auditLog.create({
+    // Fire-and-forget all side effects — audit log + both notifications
+    // client.userId is fetched directly (no extra DB call needed)
+    const sideEffects = [
+      ...(config.features.auditLog ? [prisma.auditLog.create({
         data: {
           userId: docAdmin.id,
           action: 'CLIENT_ASSIGN',
@@ -175,20 +176,11 @@ export async function PATCH(
           ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
           userAgent: request.headers.get('user-agent') || 'unknown',
         },
-      });
-    }
-
-    // Create in-app notifications
-    const clientUserId = await prisma.user.findUnique({
-      where: { email: client.user.email },
-      select: { id: true },
-    });
-
-    // Notify client about RM assignment
-    if (clientUserId) {
-      await prisma.notification.create({
+      })] : []),
+      // Notify client — use client.userId directly (no extra DB round-trip)
+      prisma.notification.create({
         data: {
-          userId: clientUserId.id,
+          userId: client.userId,
           type: 'SUCCESS',
           category: 'ASSIGNMENT',
           title: 'Relationship Manager Assigned',
@@ -207,35 +199,34 @@ export async function PATCH(
             notes: notes || null,
           },
         },
-      }).catch(err => console.error('Failed to create client notification:', err));
-    }
-
-    // Notify RM about new client assignment
-    await prisma.notification.create({
-      data: {
-        userId: rm.userId,
-        type: 'INFO',
-        category: 'ASSIGNMENT',
-        title: 'New Client Assigned',
-        message: `Client ${client.user.firstName} ${client.user.lastName} has been assigned to you. Please review their profile and reach out.`,
-        isRead: false,
-        actionUrl: '/rm/clients',
-        actionText: 'View Client',
-        entityType: 'Client',
-        entityId: clientId,
-        priority: 'HIGH',
-        metadata: {
-          clientId,
-          clientName: `${client.user.firstName} ${client.user.lastName}`,
-          clientEmail: client.user.email,
-          verificationStatus: client.verificationStatus,
-          assignedBy: docAdmin.email,
-          notes: notes || null,
+      }),
+      // Notify RM about new client assignment
+      prisma.notification.create({
+        data: {
+          userId: rm.userId,
+          type: 'INFO',
+          category: 'ASSIGNMENT',
+          title: 'New Client Assigned',
+          message: `Client ${client.user.firstName} ${client.user.lastName} has been assigned to you. Please review their profile and reach out.`,
+          isRead: false,
+          actionUrl: '/rm/clients',
+          actionText: 'View Client',
+          entityType: 'Client',
+          entityId: clientId,
+          priority: 'HIGH',
+          metadata: {
+            clientId,
+            clientName: `${client.user.firstName} ${client.user.lastName}`,
+            clientEmail: client.user.email,
+            verificationStatus: client.verificationStatus,
+            assignedBy: docAdmin.email,
+            notes: notes || null,
+          },
         },
-      },
-    }).catch(err => console.error('Failed to create RM notification:', err));
+      }),
+    ];
 
-    // TODO: Send notification emails (email notifications for assignment)
+    runInBackground(...sideEffects);
 
     return NextResponse.json({
       success: true,
