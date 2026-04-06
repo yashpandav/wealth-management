@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   Mail,
   Phone,
-  MessageCircle,
   TrendingUp,
   Users,
 } from 'lucide-react';

@@ -1,18 +1,28 @@
-/**
- * Prisma Client Instance
- * Singleton pattern for database connection
- */
-
 import { PrismaClient } from '@prisma/client';
-import 'dotenv/config'
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
-// PrismaClient is attached to the `global` object in development
-// to prevent exhausting database connections during hot-reload
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+// Create pg pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// Create adapter
+const adapter = new PrismaPg(pool);
+
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    adapter, // ✅ REQUIRED
+  });
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}
 // Graceful shutdown
 export async function disconnectDatabase() {
   await prisma.$disconnect();

@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { RequireAdmin } from '@/lib/auth';
+import { RequireAdmin } from '@/lib/auth/rbac.page-guards';
 import {
   Table,
   TableBody,
@@ -17,8 +17,6 @@ import {
 } from '@/components/ui/table';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -160,12 +158,12 @@ function AssignmentsContent() {
     fetchClients();
   };
 
-  const openAssignModal = (client: Client) => {
-    setSelectedClient(client);
-    setSelectedRMId(client.assignedRM?.id || '');
-    setAssignmentReason('');
-    setShowAssignModal(true);
-  };
+  // const openAssignModal = (client: Client) => {
+  //   setSelectedClient(client);
+  //   setSelectedRMId(client.assignedRM?.id || '');
+  //   setAssignmentReason('');
+  //   setShowAssignModal(true);
+  // };
 
   const closeAssignModal = () => {
     setShowAssignModal(false);
@@ -210,27 +208,27 @@ function AssignmentsContent() {
     }
   };
 
-  const toggleSelectClient = (clientId: string) => {
-    if (selectedClients.includes(clientId)) {
-      setSelectedClients(selectedClients.filter((id) => id !== clientId));
-    } else {
-      setSelectedClients([...selectedClients, clientId]);
-    }
-  };
+  // const toggleSelectClient = (clientId: string) => {
+  //   if (selectedClients.includes(clientId)) {
+  //     setSelectedClients(selectedClients.filter((id) => id !== clientId));
+  //   } else {
+  //     setSelectedClients([...selectedClients, clientId]);
+  //   }
+  // };
 
-  const toggleSelectAll = () => {
-    if (selectedClients.length === clients.length) {
-      setSelectedClients([]);
-    } else {
-      setSelectedClients(clients.map((c) => c.id));
-    }
-  };
+  // const toggleSelectAll = () => {
+  //   if (selectedClients.length === clients.length) {
+  //     setSelectedClients([]);
+  //   } else {
+  //     setSelectedClients(clients.map((c) => c.id));
+  //   }
+  // };
 
-  const openBulkModal = () => {
-    setBulkRMId('');
-    setBulkReason('');
-    setShowBulkModal(true);
-  };
+  // const openBulkModal = () => {
+  //   setBulkRMId('');
+  //   setBulkReason('');
+  //   setShowBulkModal(true);
+  // };
 
   const closeBulkModal = () => {
     setShowBulkModal(false);

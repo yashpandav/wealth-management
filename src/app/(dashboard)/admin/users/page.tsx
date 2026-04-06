@@ -6,8 +6,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { RequireAdmin } from '@/lib/auth';
+
+import { RequireAdmin } from '@/lib/auth/rbac.page-guards';
 import {
   Table,
   TableBody,
@@ -18,9 +18,7 @@ import {
 } from '@/components/ui/table';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -59,7 +57,6 @@ function AdminUsersContent() {
   const [pagination, setPagination] = useState<PaginationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,9 +67,7 @@ function AdminUsersContent() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // Bulk operations states
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [bulkOperation, setBulkOperation] = useState('');
-  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
@@ -125,109 +120,7 @@ function AdminUsersContent() {
     setCurrentPage(1);
   };
 
-  // Handle status change for individual user
-  const handleStatusChange = async (userId: string, newStatus: string) => {
-    setError('');
-    setSuccess('');
 
-    try {
-      const response = await fetch(`/api/admin/users/${userId}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setSuccess(`User status updated to ${newStatus}`);
-        fetchUsers();
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(data.error || 'Failed to update status');
-      }
-    } catch (err) {
-      setError('An error occurred while updating status');
-    }
-  };
-
-  // Handle unlock account
-  const handleUnlock = async (userId: string) => {
-    setError('');
-    setSuccess('');
-
-    try {
-      const response = await fetch(`/api/admin/users/${userId}/unlock`, {
-        method: 'POST',
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setSuccess('User account unlocked successfully');
-        fetchUsers();
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(data.error || 'Failed to unlock account');
-      }
-    } catch (err) {
-      setError('An error occurred while unlocking account');
-    }
-  };
-
-  // Handle bulk operations
-  const handleBulkOperation = async () => {
-    if (!bulkOperation || selectedUsers.length === 0) return;
-
-    setError('');
-    setSuccess('');
-    setIsBulkProcessing(true);
-
-    try {
-      const response = await fetch('/api/admin/users/bulk-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userIds: selectedUsers,
-          operation: bulkOperation,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setSuccess(data.message || 'Bulk operation completed successfully');
-        setSelectedUsers([]);
-        setBulkOperation('');
-        fetchUsers();
-        setTimeout(() => setSuccess(''), 3000);
-      } else {
-        setError(data.error || 'Failed to perform bulk operation');
-      }
-    } catch (err) {
-      setError('An error occurred during bulk operation');
-    } finally {
-      setIsBulkProcessing(false);
-    }
-  };
-
-  // Toggle select all users
-  const toggleSelectAll = () => {
-    if (selectedUsers.length === users.length) {
-      setSelectedUsers([]);
-    } else {
-      setSelectedUsers(users.map((u) => u.id));
-    }
-  };
-
-  // Toggle select individual user
-  const toggleSelectUser = (userId: string) => {
-    if (selectedUsers.includes(userId)) {
-      setSelectedUsers(selectedUsers.filter((id) => id !== userId));
-    } else {
-      setSelectedUsers([...selectedUsers, userId]);
-    }
-  };
 
 
 
@@ -366,15 +259,6 @@ function AdminUsersContent() {
           <p className="text-sm text-red-800">{error}</p>
         </div>
       )}
-
-      {/* Success Message */}
-      {success && (
-        <div className="mb-6 rounded-md bg-green-50 p-4">
-          <p className="text-sm text-green-800">{success}</p>
-        </div>
-      )}
-
-
 
       {/* Users Table */}
       <ResponsiveTable>

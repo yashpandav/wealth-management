@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { RequireAdmin } from '@/lib/auth';
+import { RequireAdmin } from '@/lib/auth/rbac.page-guards';
 import {
   Select,
   SelectContent,
