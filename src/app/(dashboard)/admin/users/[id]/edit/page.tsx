@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { RequireAdmin } from '@/lib/auth';
+import { RequireAdmin } from '@/lib/auth/rbac.page-guards';
 
 interface User {
   id: string;

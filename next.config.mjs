@@ -31,6 +31,7 @@ const nextConfig = {
   },
   experimental: {
     typedRoutes: true,
+    serverComponentsExternalPackages: ['pg', '@prisma/adapter-pg', 'pg-connection-string'],
   },
 };
 

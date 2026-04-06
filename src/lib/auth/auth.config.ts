@@ -2,7 +2,6 @@
  * NextAuth.js Configuration
  * Credentials provider with email/password authentication
  */
-
 import { NextAuthOptions, Session, User as NextAuthUser } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';

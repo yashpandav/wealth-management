@@ -6,7 +6,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { RequireAdmin } from '@/lib/auth';
+import { RequireAdmin } from '@/lib/auth/rbac.page-guards';
 import {
   Table,
   TableBody,
@@ -17,8 +17,6 @@ import {
 } from '@/components/ui/table';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -160,12 +158,12 @@ function AssignmentsContent() {
     fetchClients();
   };
 
-  const openAssignModal = (client: Client) => {
-    setSelectedClient(client);
-    setSelectedRMId(client.assignedRM?.id || '');
-    setAssignmentReason('');
-    setShowAssignModal(true);
-  };
+  // const openAssignModal = (client: Client) => {
+  //   setSelectedClient(client);
+  //   setSelectedRMId(client.assignedRM?.id || '');
+  //   setAssignmentReason('');
+  //   setShowAssignModal(true);
+  // };
 
   const closeAssignModal = () => {
     setShowAssignModal(false);
@@ -210,27 +208,27 @@ function AssignmentsContent() {
     }
   };
 
-  const toggleSelectClient = (clientId: string) => {
-    if (selectedClients.includes(clientId)) {
-      setSelectedClients(selectedClients.filter((id) => id !== clientId));
-    } else {
-      setSelectedClients([...selectedClients, clientId]);
-    }
-  };
+  // const toggleSelectClient = (clientId: string) => {
+  //   if (selectedClients.includes(clientId)) {
+  //     setSelectedClients(selectedClients.filter((id) => id !== clientId));
+  //   } else {
+  //     setSelectedClients([...selectedClients, clientId]);
+  //   }
+  // };
 
-  const toggleSelectAll = () => {
-    if (selectedClients.length === clients.length) {
-      setSelectedClients([]);
-    } else {
-      setSelectedClients(clients.map((c) => c.id));
-    }
-  };
+  // const toggleSelectAll = () => {
+  //   if (selectedClients.length === clients.length) {
+  //     setSelectedClients([]);
+  //   } else {
+  //     setSelectedClients(clients.map((c) => c.id));
+  //   }
+  // };
 
-  const openBulkModal = () => {
-    setBulkRMId('');
-    setBulkReason('');
-    setShowBulkModal(true);
-  };
+  // const openBulkModal = () => {
+  //   setBulkRMId('');
+  //   setBulkReason('');
+  //   setShowBulkModal(true);
+  // };
 
   const closeBulkModal = () => {
     setShowBulkModal(false);
@@ -340,7 +338,7 @@ function AssignmentsContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name or email..."
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                className="mt-1 block w-full h-10 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -356,7 +354,7 @@ function AssignmentsContent() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="mt-1 w-full h-10">
                   <SelectValue placeholder="All Clients" />
                 </SelectTrigger>
                 <SelectContent>
@@ -379,7 +377,7 @@ function AssignmentsContent() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="mt-1 w-full h-10">
                   <SelectValue placeholder="All RMs" />
                 </SelectTrigger>
                 <SelectContent>
@@ -430,71 +428,36 @@ function AssignmentsContent() {
         </div>
       )}
 
-      {/* Bulk Operations Toolbar */}
-      {selectedClients.length > 0 && (
-        <div className="mb-6 rounded-lg bg-brand-blue/10 p-4 shadow">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-blue-900">
-                <span className="font-nums">{selectedClients.length}</span> client(s) selected
-              </span>
-              <button
-                onClick={openBulkModal}
-                className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90"
-              >
-                Bulk Assign
-              </button>
-            </div>
-            <button
-              onClick={() => setSelectedClients([])}
-              className="text-sm text-brand-blue hover:text-brand-blue/80"
-            >
-              Clear Selection
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Clients Table */}
       <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={selectedClients.length === clients.length && clients.length > 0}
-                  onCheckedChange={toggleSelectAll}
-                />
-              </TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Assigned RM</TableHead>
               <TableHead>Assigned Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                   Searching...
                 </TableCell>
               </TableRow>
             ) : clients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                   No clients found
                 </TableCell>
               </TableRow>
             ) : (
               clients.map((client) => (
                 <TableRow key={client.id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedClients.includes(client.id)}
-                      onCheckedChange={() => toggleSelectClient(client.id)}
-                    />
-                  </TableCell>
+
                   <TableCell>
                     <div className="font-medium text-gray-900">{client.fullName}</div>
                     {client.emailVerified ? (
@@ -523,15 +486,7 @@ function AssignmentsContent() {
                   <TableCell className="text-muted-foreground">
                     {client.assignedAt ? <span className="font-nums">{new Date(client.assignedAt).toLocaleDateString()}</span> : '-'}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="link"
-                      className="text-brand-blue hover:text-brand-blue/80 p-0 h-auto font-medium"
-                      onClick={() => openAssignModal(client)}
-                    >
-                      {client.isAssigned ? 'Reassign' : 'Assign'}
-                    </Button>
-                  </TableCell>
+
                 </TableRow>
               ))
             )}

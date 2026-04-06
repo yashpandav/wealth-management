@@ -86,12 +86,12 @@ export async function GET() {
       // Transaction volume trend — last 30 days grouped by date + type (replaces unbounded findMany)
       prisma.$queryRaw<Array<{ date: Date; type: string; volume: number }>>`
         SELECT
-          DATE(created_at) AS date,
+          DATE("createdAt") AS date,
           type,
           SUM(amount)::float AS volume
         FROM transactions
-        WHERE created_at >= ${thirtyDaysAgo}
-        GROUP BY DATE(created_at), type
+        WHERE "createdAt" >= ${thirtyDaysAgo}
+        GROUP BY DATE("createdAt"), type
         ORDER BY date
       `,
 
