@@ -31,7 +31,7 @@ interface AuditLog {
     lastName: string;
     email: string;
     role: string;
-  };
+  } | null;
 }
 
 interface PaginationData {
@@ -168,7 +168,7 @@ function AuditLogsContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by description, user, entity..."
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                className="mt-1 block w-full h-10 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -184,18 +184,57 @@ function AuditLogsContent() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="mt-1 w-full h-10">
                   <SelectValue placeholder="All Actions" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Actions</SelectItem>
                   <SelectItem value="LOGIN">Login</SelectItem>
                   <SelectItem value="LOGOUT">Logout</SelectItem>
+                  <SelectItem value="PASSWORD_CHANGE">Password Change</SelectItem>
+                  <SelectItem value="MFA_ENABLE">MFA Enable</SelectItem>
+                  <SelectItem value="MFA_DISABLE">MFA Disable</SelectItem>
                   <SelectItem value="USER_CREATE">User Create</SelectItem>
                   <SelectItem value="USER_UPDATE">User Update</SelectItem>
                   <SelectItem value="USER_DELETE">User Delete</SelectItem>
                   <SelectItem value="USER_ACTIVATE">User Activate</SelectItem>
                   <SelectItem value="USER_DEACTIVATE">User Deactivate</SelectItem>
+                  <SelectItem value="CLIENT_ASSIGN">Client Assign</SelectItem>
+                  <SelectItem value="CLIENT_REASSIGN">Client Reassign</SelectItem>
+                  <SelectItem value="PURCHASE_REQUEST_CREATE">Purchase Request Create</SelectItem>
+                  <SelectItem value="PURCHASE_REQUEST_APPROVE">Purchase Request Approve</SelectItem>
+                  <SelectItem value="PURCHASE_REQUEST_REJECT">Purchase Request Reject</SelectItem>
+                  <SelectItem value="PURCHASE_REQUEST_CANCEL">Purchase Request Cancel</SelectItem>
+                  <SelectItem value="WITHDRAWAL_REQUEST_CREATE">Withdrawal Request Create</SelectItem>
+                  <SelectItem value="WITHDRAWAL_REQUEST_RM_APPROVE">Withdrawal Request RM Approve</SelectItem>
+                  <SelectItem value="WITHDRAWAL_REQUEST_RM_REJECT">Withdrawal Request RM Reject</SelectItem>
+                  <SelectItem value="WITHDRAWAL_REQUEST_ADMIN_APPROVE">Withdrawal Request Admin Approve</SelectItem>
+                  <SelectItem value="WITHDRAWAL_REQUEST_ADMIN_REJECT">Withdrawal Request Admin Reject</SelectItem>
+                  <SelectItem value="WITHDRAWAL_REQUEST_CANCEL">Withdrawal Request Cancel</SelectItem>
+                  <SelectItem value="TRANSACTION_CREATE">Transaction Create</SelectItem>
+                  <SelectItem value="TRANSACTION_REVERSE">Transaction Reverse</SelectItem>
+                  <SelectItem value="TRANSACTION_FAIL">Transaction Fail</SelectItem>
+                  <SelectItem value="DOCUMENT_UPLOAD">Document Upload</SelectItem>
+                  <SelectItem value="DOCUMENT_VERIFY">Document Verify</SelectItem>
+                  <SelectItem value="DOCUMENT_REJECT">Document Reject</SelectItem>
+                  <SelectItem value="DOCUMENT_DELETE">Document Delete</SelectItem>
+                  <SelectItem value="CLIENT_VERIFICATION_STATUS_UPDATE">Client Verification Status Update</SelectItem>
+                  <SelectItem value="PAYOUT_SCHEDULE_CREATED">Payout Schedule Created</SelectItem>
+                  <SelectItem value="PAYOUT_CREATED">Payout Created</SelectItem>
+                  <SelectItem value="PAYOUT_COMPLETED">Payout Completed</SelectItem>
+                  <SelectItem value="PAYOUT_FAILED">Payout Failed</SelectItem>
+                  <SelectItem value="PAYOUT_RECEIPT_UPLOADED">Payout Receipt Uploaded</SelectItem>
+                  <SelectItem value="INVESTMENT_CREATE">Investment Create</SelectItem>
+                  <SelectItem value="INVESTMENT_UPDATE">Investment Update</SelectItem>
+                  <SelectItem value="INVESTMENT_DELETE">Investment Delete</SelectItem>
+                  <SelectItem value="INVESTMENT_OPTION_CREATE">Investment Option Create</SelectItem>
+                  <SelectItem value="INVESTMENT_OPTION_UPDATE">Investment Option Update</SelectItem>
+                  <SelectItem value="INVESTMENT_OPTION_DELETE">Investment Option Delete</SelectItem>
+                  <SelectItem value="CLIENT_ARCHIVE">Client Archive</SelectItem>
+                  <SelectItem value="CLIENT_RESTORE">Client Restore</SelectItem>
+                  <SelectItem value="SYSTEM_CONFIG_CHANGE">System Config Change</SelectItem>
+                  <SelectItem value="DATA_EXPORT">Data Export</SelectItem>
+                  <SelectItem value="DATA_IMPORT">Data Import</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -212,7 +251,7 @@ function AuditLogsContent() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="mt-1 w-full h-10">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -237,7 +276,7 @@ function AuditLogsContent() {
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                className="mt-1 block w-full h-10 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -250,7 +289,7 @@ function AuditLogsContent() {
                 id="endDate"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                className="mt-1 block w-full h-10 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -340,11 +379,17 @@ function AuditLogsContent() {
                       <span className="font-nums">{new Date(log.createdAt).toLocaleString()}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {log.user.firstName} {log.user.lastName}
-                      </div>
-                      <div className="text-xs text-gray-500">{log.user.email}</div>
-                      <div className="text-xs text-gray-500">{log.user.role}</div>
+                      {log.user ? (
+                        <>
+                          <div className="text-sm font-medium text-gray-900">
+                            {log.user.firstName} {log.user.lastName}
+                          </div>
+                          <div className="text-xs text-gray-500">{log.user.email}</div>
+                          <div className="text-xs text-gray-500">{log.user.role}</div>
+                        </>
+                      ) : (
+                        <div className="text-sm italic text-gray-500">System</div>
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       <span

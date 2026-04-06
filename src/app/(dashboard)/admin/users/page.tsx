@@ -267,12 +267,6 @@ function AdminUsersContent() {
             Manage all users, roles, and permissions
           </p>
         </div>
-        <a
-          href="/admin/users/create"
-          className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90"
-        >
-          Create User
-        </a>
       </div>
 
       {/* Search and Filters */}
@@ -290,7 +284,7 @@ function AdminUsersContent() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name or email..."
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
+                className="mt-1 block w-full h-10 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-brand-blue focus:outline-none focus:ring-brand-blue"
               />
             </div>
 
@@ -306,7 +300,7 @@ function AdminUsersContent() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="mt-1 w-full h-10">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
                 <SelectContent>
@@ -330,7 +324,7 @@ function AdminUsersContent() {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="mt-1 w-full h-10">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -380,58 +374,13 @@ function AdminUsersContent() {
         </div>
       )}
 
-      {/* Bulk Operations Toolbar */}
-      {selectedUsers.length > 0 && (
-        <div className="mb-6 rounded-lg bg-brand-blue/10 p-4 shadow">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-blue-900">
-                {selectedUsers.length} user(s) selected
-              </span>
-              <Select
-                value={bulkOperation}
-                onValueChange={setBulkOperation}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Operation" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="activate">Activate</SelectItem>
-                  <SelectItem value="deactivate">Deactivate</SelectItem>
-                  <SelectItem value="lock">Lock</SelectItem>
-                  <SelectItem value="unlock">Unlock</SelectItem>
-                  <SelectItem value="delete">Delete (Soft)</SelectItem>
-                </SelectContent>
-              </Select>
-              <button
-                onClick={handleBulkOperation}
-                disabled={!bulkOperation || isBulkProcessing}
-                className="rounded-md bg-brand-blue px-4 py-2 text-sm font-medium text-white hover:bg-brand-blue/90 disabled:opacity-50"
-              >
-                {isBulkProcessing ? 'Processing...' : 'Apply'}
-              </button>
-            </div>
-            <button
-              onClick={() => setSelectedUsers([])}
-              className="text-sm text-brand-blue hover:text-brand-blue/80"
-            >
-              Clear Selection
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* Users Table */}
       <ResponsiveTable>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]">
-                <Checkbox
-                  checked={selectedUsers.length === users.length && users.length > 0}
-                  onCheckedChange={toggleSelectAll}
-                />
-              </TableHead>
               <TableHead
                 className="cursor-pointer hover:bg-muted/50"
                 onClick={() => handleSort('lastName')}
@@ -458,31 +407,25 @@ function AdminUsersContent() {
               >
                 Last Login {sortBy === 'lastLogin' && (sortOrder === 'asc' ? '↑' : '↓')}
               </TableHead>
-              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   Searching...
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                   No users found
                 </TableCell>
               </TableRow>
             ) : (
               users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedUsers.includes(user.id)}
-                      onCheckedChange={() => toggleSelectUser(user.id)}
-                    />
-                  </TableCell>
+
                   <TableCell>
                     <div className="font-medium">
                       {user.firstName} {user.lastName}
@@ -519,47 +462,7 @@ function AdminUsersContent() {
                       ? <span className="font-nums">{new Date(user.lastLogin).toLocaleDateString()}</span>
                       : 'Never'}
                   </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {/* Unlock Button */}
-                      {(user.status === 'LOCKED' ||
-                        (user.accountLockedUntil && new Date(user.accountLockedUntil) > new Date())) && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleUnlock(user.id)}
-                            className="text-green-600 hover:text-green-900"
-                            title="Unlock Account"
-                          >
-                            🔓
-                          </Button>
-                        )}
 
-                      {/* Status Dropdown - simplified to native for now as replacing with Select inside Table might be tricky layout-wise, but let's stick to native for simplicity or native styled. Actually let's use the native one for now to minimize complex interaction changes, or better yet, just keep the actions simple. */}
-                      {/* Status Dropdown */}
-                      <Select
-                        value={user.status}
-                        onValueChange={(value) => handleStatusChange(user.id, value)}
-                      >
-                        <SelectTrigger className="h-8 w-[100px] text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ACTIVE">Active</SelectItem>
-                          <SelectItem value="INACTIVE">Inactive</SelectItem>
-                          <SelectItem value="LOCKED">Locked</SelectItem>
-                        </SelectContent>
-                      </Select>
-
-                      {/* Edit Link */}
-                      <Link
-                        href={`/admin/users/${user.id}/edit`}
-                        className="text-sm font-medium text-brand-blue hover:text-brand-blue/80"
-                      >
-                        Edit
-                      </Link>
-                    </div>
-                  </TableCell>
                 </TableRow>
               ))
             )}
