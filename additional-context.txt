@@ -1,34 +1,149 @@
-additional context(post analzyis of PDFs): 
+Ran command: `cd /home/yash/wealth-management && npx -y tsx src/scripts/demo-payout-setup.ts status 2>&1 | tail -20`
+Ran command: `cd /home/yash/wealth-management && npx -y tsx src/scripts/demo-payout-setup.ts list 2>&1 | grep -v "SECURITY\|In the next\|prepare\|sslmode\|uselibpq\|See https\|Use \`node" | head -50`
+Ran command: `cd /home/yash/wealth-management && npx -y tsx -e "
+import { config } from 'dotenv';
+import { resolve } from 'path';
+config({ path: resolve(process.cwd(), '.env.local') });
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter } as never);
+async function run() {
+  const completed = await prisma.productPurchaseRequest.count({ where: { status: 'COMPLETED' } });
+  const all = await prisma.productPurchaseRequest.count();
+  console.log('COMPLETED contracts:', completed);
+  console.log('Total contracts:', all);
+  await prisma.\$disconnect();
+  pool.end();
+}
+run().catch(console.error);
+" 2>&1 | grep -v "SECURITY\|next major\|prepare\|sslmode\|uselibpq\|See https\|Use \`"`
 
-a wealth management platform where customers will be managed by their relation managers. These RM will be administered by admins. 
+Now I have the full picture. There are **0 completed contracts** in the database — there's no real investment data yet. Let me write a clear, complete testing guide:
 
-Now, how will the interface look like
+---
 
-each customer can come to our platform and try to invest on instruments, These instruments are created by admin
+## How to Test the Payout Functionality
 
-customer need not log in necessarily, they can explore, the instruments, the RM portfolio and the general trends. but to invest in those instruments, they need to sign in, sign up, reset pass forget pass, general shit, in their profile page. 
+Your database currently has **no COMPLETED investment contracts**, so you need to either create one through the normal app flow, OR use the existing test data seeder. Here's both paths:
 
+---
 
-now after login, 
+## Path A — Fast Demo (Use Test Data Seeder)
 
-clients will be able to see their assigned RM, their details, and their email and phone number, 
-they should be able to put a purchase request in their instruments as well as put a withdrawl request which both will be handled by their RM's 
+This creates **fake contracts** specifically for testing payouts in under 2 minutes.
 
-admin will oversee the withdrawl and admin will approve the final withdrawl . 
-note that no payment gateway is involved, it's a manual process and rm's and admins will refer to their bank statements and then approve, reject or process withdrawls. 
+### Step 1 — Seed test contracts + set dates to today
+```bash
+# In terminal 1 — make sure dev server is running
+pnpm dev
+```
 
-admin page should have general analytics and other dashboard relevant stuffs, should be able to create instruments, assign clients to RM
+```bash
+# In terminal 2 — seed payout test data (creates fake contracts)
+npx tsx src/scripts/seed-payout-test-data.ts
+```
 
-note that multiple client can be assigned to one RM, but only one RM get's assigned to one client. 
-also keep the assignment process simple on admin side. 
+This creates ~6 fake COMPLETED contracts with payout schedules already in the past (so they're immediately demoable).
 
-note that. admin will administer the flow. 
+### Step 2 — Run the demo setup script
+```bash
+pnpm demo:payout:all
+```
 
-more so, general analytics relevant to each user should be visible to them.
+Output tells you exactly what was created and which URLs to visit.
 
+### Step 3 — Demo walkthrough in browser
 
-proejct will b doen on next, js, typescript, prisma, postgres (rest additinal planning and design can be done baswed on AI's analysis ), SHOULD HAVE BEAUTIFUL ,REPSOSNIVE UI , AND A LOOKER OF A FROTNEND,W ITH ROBUST BCKEND , DATABSE, AUTH EVEYTHING END TO END 
+| Role | URL | What to show |
+|------|-----|--------------|
+| **DocAdmin** | `http://localhost:3000/docadmin/payouts` | Pending payouts list, upload receipt |
+| **Client** | `http://localhost:3000/client/payouts` | Payout history, status |
+| **Client** | `http://localhost:3000/client/portfolio` | Interest earned balance |
 
+### Step 4 — Complete a payout (DocAdmin)
+1. Log in as DocAdmin → go to `/docadmin/payouts`
+2. See pending payouts in the list
+3. Click a payout → upload any PDF as receipt
+4. Payout moves to "Completed"
+5. The client gets a **notification** + **email**
 
-DB CREDENTIALS:
-DATABASE_URL="postgresql://postgres:password@localhost:5432/fintech"
+### Step 5 — Reset after demo
+```bash
+pnpm demo:payout:reset
+```
+
+---
+
+## Path B — Real Flow Demo (Production-like)
+
+This uses a real investment request going through the full workflow.
+
+### Step 1 — Create a purchase request (as Client)
+1. Login as a client → `/client/products`
+2. Select an investment → Submit a purchase request
+
+### Step 2 — RM approves (as RM)
+1. Login as RM → `/rm/product-requests`
+2. Find the request → Approve it, set payout window (`1-15` or `16-30`)
+
+### Step 3 — DocAdmin completes (as DocAdmin)
+1. Login as DocAdmin → `/docadmin/product-requests`
+2. Upload a contract document → Mark as **COMPLETED**
+3. This auto-generates payout schedules for the full contract duration
+
+### Step 4 — Run demo setup to move the payout to today
+```bash
+pnpm demo:payout:list        # See the contract you just created
+pnpm demo:payout:all         # Move payout date to today & run cron
+```
+
+### Step 5 — Show DocAdmin completing the payout
+1. Go to `/docadmin/payouts`
+2. Upload receipt → mark complete
+3. Client sees notification + updated portfolio
+
+---
+
+## Quick Reference Commands
+
+```bash
+# See all commands
+pnpm demo:payout
+
+# List real/test contracts in DB
+pnpm demo:payout:list
+
+# Set up all contracts for demo (move dates to today + run cron)
+pnpm demo:payout:all
+
+# For a specific contract (use tracking number from list)
+npx tsx src/scripts/demo-payout-setup.ts INV-2025-001234
+
+# Check what's pending right now
+pnpm demo:payout:status
+
+# Run only the cron job (if dates already moved)
+pnpm demo:payout:cron
+
+# Undo everything
+pnpm demo:payout:reset
+```
+
+---
+
+## Since your DB is empty — Start here right now:
+
+```bash
+# Terminal 1
+pnpm dev
+
+# Terminal 2 (run these in order)
+npx tsx src/scripts/seed-payout-test-data.ts   # Creates test contracts
+pnpm demo:payout:all                            # Moves dates to today + runs cron
+pnpm demo:payout:status                         # Confirm pending payouts exist
+```
+
+Then open `http://localhost:3000/docadmin/payouts` as DocAdmin and you'll see the pending payouts ready to be completed.

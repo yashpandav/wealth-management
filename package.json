@@ -21,7 +21,13 @@
     "test": "echo \"Tests coming soon\"",
     "test:watch": "echo \"Tests coming soon\"",
     "test:coverage": "echo \"Tests coming soon\"",
-    "postinstall": "prisma generate || true"
+    "postinstall": "prisma generate || true",
+    "demo:payout": "npx tsx src/scripts/demo-payout-setup.ts",
+    "demo:payout:list": "npx tsx src/scripts/demo-payout-setup.ts list",
+    "demo:payout:all": "npx tsx src/scripts/demo-payout-setup.ts all",
+    "demo:payout:status": "npx tsx src/scripts/demo-payout-setup.ts status",
+    "demo:payout:cron": "npx tsx src/scripts/demo-payout-setup.ts run-cron",
+    "demo:payout:reset": "npx tsx src/scripts/demo-payout-setup.ts reset"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

@@ -1,8 +1,3 @@
-/**
- * Admin Dashboard Page
- * Main analytics dashboard for administrators
- */
-
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { authOptions } from '@/lib/auth';
@@ -21,8 +16,8 @@ export default async function AdminDashboardPage() {
   }
 
   return (
-    <div className="container px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
-      <div>
+    <div className="container px-4 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8 space-y-6">
+      <div className="mb-4">
         <h1 className="font-optima text-2xl font-bold text-brand-blue">Admin Dashboard</h1>
         <p className="font-georgia text-brand-grey mt-1 text-sm">System-wide analytics and insights</p>
       </div>

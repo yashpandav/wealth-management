@@ -8,12 +8,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Users, TrendingUp, RefreshCw, ArrowUpDown } from 'lucide-react';
 import { DirhamIcon } from '@/components/ui/dirham-icon';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { StatCard } from '@/components/dashboard/StatCard';
 import { toast } from 'react-hot-toast';
 
 interface RMPerformance {
@@ -179,62 +180,46 @@ export default function RMPerformancePage() {
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-sm">Total Relationship Managers</CardDescription>
-            <CardTitle className="text-3xl text-brand-blue font-nums">{totalRMs}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              {activeRMs} Active • {totalRMs - activeRMs} Inactive
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Relationship Managers"
+          value={totalRMs}
+          icon={Users}
+          subValue={`${activeRMs} Active • ${totalRMs - activeRMs} Inactive`}
+        />
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-sm">Total Clients Managed</CardDescription>
-            <CardTitle className="text-3xl text-brand-blue font-nums">{totalClients}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              Avg: {totalRMs > 0 ? (totalClients / totalRMs).toFixed(1) : 0} per RM
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Clients Managed"
+          value={totalClients}
+          icon={Users}
+          subValue={`Avg: ${totalRMs > 0 ? (totalClients / totalRMs).toFixed(1) : 0} per RM`}
+        />
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-sm">Total Investment Amount</CardDescription>
-            <div className="flex items-center">
-              <DirhamIcon className="h-6 w-6 mr-1 text-brand-blue" />
-              <CardTitle className="text-3xl text-brand-blue font-nums">
-                {(totalInvestment / 1000000).toFixed(1)}M
-              </CardTitle>
+        <StatCard
+          title="Total Investment Amount"
+          value={
+            <div className="flex items-center font-nums">
+              <DirhamIcon className="h-5 w-5 mr-1" />
+              {(totalInvestment / 1000000).toFixed(1)}M
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center text-sm text-gray-600">
+          }
+          icon={TrendingUp}
+          subValue={
+            <div className="flex items-center">
               <span>Avg per RM:</span>
               <DirhamIcon className="h-3 w-3 mx-1" />
               <span className="font-nums">
                 {totalRMs > 0 ? ((totalInvestment / totalRMs) / 1000000).toFixed(1) : 0}M
               </span>
             </div>
-          </CardContent>
-        </Card>
+          }
+        />
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription className="text-sm">Average Approval Rate</CardDescription>
-            <CardTitle className="text-3xl text-brand-blue font-nums">
-              {avgApprovalRate.toFixed(1)}%
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">Across all Relationship Managers</p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Average Approval Rate"
+          value={`${avgApprovalRate.toFixed(1)}%`}
+          icon={TrendingUp}
+          subValue="Across all Relationship Managers"
+        />
       </div>
 
       {/* Sort Controls */}
@@ -368,9 +353,8 @@ export default function RMPerformancePage() {
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Gain/Loss:</span>
                         <div
-                          className={`flex items-center font-semibold ${
-                            rm.aum.gainLoss >= 0 ? 'text-brand-blue' : 'text-gray-600'
-                          }`}
+                          className={`flex items-center font-semibold ${rm.aum.gainLoss >= 0 ? 'text-brand-blue' : 'text-gray-600'
+                            }`}
                         >
                           {rm.aum.gainLoss >= 0 ? '+' : ''}
                           <DirhamIcon className="h-3 w-3 mx-1" />

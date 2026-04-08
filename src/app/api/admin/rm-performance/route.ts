@@ -66,14 +66,13 @@ export async function GET(_request: NextRequest) {
     const allRmIds = rms.map((rm) => rm.id);
     const allClientIds = rms.flatMap((rm) => rm.assignedClients.map((c) => c.id));
 
-    const [requestCountsByRmAndStatus, completedAumByClient] = await Promise.all([
-      // One groupBy replaces 4 count() calls per RM
+    // One groupBy replaces per-RM findMany for AUM calculation
+    const [requestCountsByClientAndStatus, completedAumByClient] = await Promise.all([
       prisma.productPurchaseRequest.groupBy({
-        by: ['assignedRMId', 'status'],
-        where: { assignedRMId: { in: allRmIds } },
+        by: ['clientId', 'status'],
+        where: { clientId: { in: allClientIds } },
         _count: { _all: true },
       }),
-      // One groupBy replaces per-RM findMany for AUM calculation
       prisma.productPurchaseRequest.groupBy({
         by: ['clientId'],
         where: { clientId: { in: allClientIds }, status: 'COMPLETED' },
@@ -81,39 +80,47 @@ export async function GET(_request: NextRequest) {
       }),
     ]);
 
-    // Build lookup: rmId → { status → count }
-    const rmRequestMap = new Map<string, Record<string, number>>();
-    for (const row of requestCountsByRmAndStatus) {
-      if (!row.assignedRMId) continue;
-      if (!rmRequestMap.has(row.assignedRMId)) rmRequestMap.set(row.assignedRMId, {});
-      rmRequestMap.get(row.assignedRMId)![row.status] = row._count._all;
+    // Build lookup: clientId → { status → count }
+    const clientRequestMap = new Map<string, Record<string, number>>();
+    for (const row of requestCountsByClientAndStatus) {
+      if (!clientRequestMap.has(row.clientId)) clientRequestMap.set(row.clientId, {});
+      clientRequestMap.get(row.clientId)![row.status] = row._count._all;
     }
 
-    // Build lookup: clientId → { aum, hasCompleted }
+    // Build lookup: clientId → { aum }
     const clientAumMap = new Map(
       completedAumByClient.map((r) => [r.clientId, Number(r._sum.amount || 0)])
     );
 
-    // Assemble per-RM metrics entirely in JS — zero additional DB calls
+    // Assemble per-RM metrics entirely in JS
     const rmPerformance = rms.map((rm) => {
-      const counts = rmRequestMap.get(rm.id) || {};
-      const totalPurchaseRequests = Object.values(counts).reduce((s, n) => s + n, 0);
-      const approvedPurchaseRequests = counts['APPROVED'] || 0;
-      const rejectedPurchaseRequests = counts['REJECTED'] || 0;
-      const pendingPurchaseRequests = counts['PENDING'] || 0;
+      let totalPurchaseRequests = 0;
+      let approvedPurchaseRequests = 0;
+      let rejectedPurchaseRequests = 0;
+      let pendingPurchaseRequests = 0;
 
-      const totalClients = rm.assignedClients.length;
       let totalAUM = 0;
       let activeClients = 0;
+      const totalClients = rm.assignedClients.length;
+
       for (const c of rm.assignedClients) {
+        // Aggregate AUM
         const aum = clientAumMap.get(c.id);
-        if (aum !== undefined) {
+        if (aum !== undefined && aum > 0) {
           totalAUM += aum;
           activeClients++;
         }
+
+        // Aggregate Requests
+        const counts = clientRequestMap.get(c.id) || {};
+        totalPurchaseRequests += Object.values(counts).reduce((s, n) => s + n, 0);
+        approvedPurchaseRequests += counts['APPROVED'] || 0;
+        rejectedPurchaseRequests += counts['REJECTED'] || 0;
+        pendingPurchaseRequests += counts['PENDING'] || 0;
+        // COMPLETED requests are also intrinsically approved at some point but standard enum might just be COMPLETED.
+        approvedPurchaseRequests += counts['COMPLETED'] || 0;
       }
 
-      const totalGainLoss = 0;
       const avgAUMPerClient = totalClients > 0 ? totalAUM / totalClients : 0;
       const purchaseApprovalRate =
         totalPurchaseRequests > 0 ? (approvedPurchaseRequests / totalPurchaseRequests) * 100 : 0;
@@ -131,7 +138,7 @@ export async function GET(_request: NextRequest) {
         aum: {
           total: totalAUM,
           invested: totalAUM,
-          gainLoss: totalGainLoss,
+          gainLoss: 0,
           avgPerClient: avgAUMPerClient,
         },
         purchaseRequests: {

@@ -1,8 +1,3 @@
-/**
- * Admin Dashboard Component
- * Comprehensive analytics dashboard with system-wide metrics
- */
-
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +6,6 @@ import {
   UserCheck,
   TrendingUp,
   FileText,
-  CheckCircle,
   Clock,
   BarChart3,
   AlertCircle,
@@ -33,10 +27,8 @@ import {
   Pie,
   Cell,
   Legend,
-  LineChart,
-  Line,
-  Area,
   AreaChart,
+  Area,
 } from 'recharts';
 
 interface AnalyticsOverview {
@@ -78,11 +70,13 @@ async function fetchAnalytics(): Promise<AnalyticsResponse> {
   return response.json();
 }
 
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
 export function AdminDashboard() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin-analytics-overview'],
     queryFn: fetchAnalytics,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
   });
 
   if (isLoading) {
@@ -100,8 +94,6 @@ export function AdminDashboard() {
 
   const overview = data.data.overview;
   const charts = data.data.charts;
-
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
   return (
     <div className="space-y-4">
@@ -121,7 +113,7 @@ export function AdminDashboard() {
               }
             </div>
           }
-          icon={DirhamIcon}
+          icon={TrendingUp}
         />
 
         {/* Total Clients Card */}
@@ -140,10 +132,12 @@ export function AdminDashboard() {
 
         {/* Pending Requests Card */}
         <StatCard
-          title="Pending"
+          title="Pending Workflow Actions"
           value={overview.pendingRequests}
           icon={Clock}
-          status="warning"
+          status={overview.pendingRequests > 0 ? "warning" : "default"}
+          href={"/admin/purchase-requests" as any}
+          subValue={overview.pendingPurchaseRequests > 0 ? "Investment Requests needing review" : undefined}
         />
       </div>
 
@@ -151,7 +145,7 @@ export function AdminDashboard() {
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {/* Active Instruments Card */}
         <StatCard
-          title="Instruments"
+          title="Active Plans"
           value={overview.totalInstruments}
           icon={BarChart3}
         />
@@ -163,142 +157,120 @@ export function AdminDashboard() {
           icon={FileText}
         />
 
-        {/* Transaction Success Rate Card */}
+        {/* Pending Withdrawals */}
         <StatCard
-          title="Success Rate"
-          value={`${overview.transactionSuccessRate.toFixed(0)}%`}
-          icon={CheckCircle}
-          status="success"
+          title="Pending Withdrawals"
+          value={overview.pendingWithdrawalRequests}
+          icon={AlertCircle}
+          status={overview.pendingWithdrawalRequests > 0 ? "danger" : "default"}
         />
-      </div>
-
-      {/* Quick Insights */}
-      <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
-        <Card className="border-gray-200">
-          <CardHeader className="pb-2 px-3 pt-3">
-            <CardTitle className="font-optima text-sm font-semibold text-brand-blue flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4" />
-              Platform Health
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-600">Client/RM Ratio</span>
-              <span className="text-sm font-semibold font-nums">
-                {overview.totalRMs > 0 ? `${(overview.totalClients / overview.totalRMs).toFixed(1)}:1` : 'N/A'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-600">Avg Investment/Client</span>
-              <span className="text-sm font-semibold flex items-center font-nums">
-                <DirhamIcon className="w-3 h-3 mr-1" />
-                {overview.totalClients > 0 ? ((overview.totalAUM / overview.totalClients) / 1000).toFixed(1) + 'K' : '0'}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-gray-200">
-          <CardHeader className="pb-2 px-3 pt-3">
-            <CardTitle className="font-optima text-sm font-semibold text-brand-blue flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              Pending Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-3 pb-3 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-600">Investment Requests</span>
-              <span className="text-sm font-semibold text-brand-blue font-nums">{overview.pendingPurchaseRequests}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-gray-600">Withdrawal Requests</span>
-              <span className="text-sm font-semibold text-orange-600 font-nums">{overview.pendingWithdrawalRequests}</span>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Charts Section */}
       {charts && (
-        <>
-          {/* User Growth Trend - Line Chart */}
-          {charts.userGrowthTrend.length > 0 && (
-            <Card className="border-gray-200">
-              <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="font-optima text-sm font-semibold text-brand-blue">User Growth (6 Months)</CardTitle>
+        <div className="grid gap-4 mt-6">
+
+          {/* Top Row: Transaction Volume (AreaChart) fully spanned horizontally */}
+          {charts.transactionTrend.length > 0 && (
+            <Card className="border-gray-200 shadow-sm w-full">
+              <CardHeader className="pb-2 pt-4 px-4">
+                <CardTitle className="text-sm font-semibold text-gray-900">Transaction Volume (30 Days)</CardTitle>
               </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <div className="w-full overflow-x-auto pb-4">
-                  <div className="min-w-[500px]">
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart data={charts.userGrowthTrend}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                        <YAxis tick={{ fontSize: 11 }} />
-                        <Tooltip />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey="clients"
-                          stroke="#3b82f6"
-                          strokeWidth={2}
-                          name="Clients"
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="rms"
-                          stroke="#10b981"
-                          strokeWidth={2}
-                          name="RMs"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+              <CardContent className="px-4 pb-4">
+                <div className="w-full h-[280px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={charts.transactionTrend} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        tickFormatter={(value) => {
+                          const date = new Date(value);
+                          return `${date.getMonth() + 1}/${date.getDate()}`;
+                        }}
+                        axisLine={false}
+                        tickLine={false}
+                        dy={10}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: '#6b7280' }}
+                        tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        labelFormatter={(value) => new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        formatter={(value: number) => `AED ${value.toLocaleString('en-US', { minimumFractionDigits: 0 })}`}
+                      />
+                      <Legend verticalAlign="top" height={36} />
+                      <Area
+                        type="monotone"
+                        dataKey="purchases"
+                        stackId="1"
+                        stroke="#3b82f6"
+                        fill="#3b82f6"
+                        fillOpacity={0.6}
+                        name="Investments"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="withdrawals"
+                        stackId="1"
+                        stroke="#f59e0b"
+                        fill="#f59e0b"
+                        fillOpacity={0.6}
+                        name="Withdrawals"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Charts Grid */}
-          <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
+          {/* Bottom Row Grids */}
+          <div className="grid gap-4 lg:grid-cols-2">
+
             {/* RM Distribution - Bar Chart */}
             {charts.rmDistribution.length > 0 && (
-              <Card className="border-gray-200">
-                <CardHeader className="pb-2 px-3 pt-3">
-                  <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Top RMs</CardTitle>
+              <Card className="border-gray-200 shadow-sm h-full">
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <CardTitle className="text-sm font-semibold text-gray-900">Top RMs by AUM</CardTitle>
                 </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  <div className="w-full overflow-x-auto pb-4">
-                    <div className="min-w-[400px]">
-                      <ResponsiveContainer width="100%" height={250}>
-                        <BarChart data={charts.rmDistribution} layout="vertical">
-                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                          <XAxis
-                            type="number"
-                            tick={{ fontSize: 11 }}
-                            tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                          />
-                          <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 10 }} />
-                          <Tooltip
-                            formatter={(value: number, name: string) => {
-                              if (name === 'aum') {
-                                return (
-                                  <div className="flex items-center font-nums">
-                                    <DirhamIcon className="w-3 h-3 mr-1" />
-                                    {value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                                  </div>
-                                );
-                              }
-                              return value;
-                            }
-                            }
-                          />
-                          <Legend />
-                          <Bar dataKey="aum" fill="#3b82f6" name="Investment Amount" radius={[0, 4, 4, 0]} />
-                          <Bar dataKey="clients" fill="#10b981" name="Clients" radius={[0, 4, 4, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                <CardContent className="px-4 pb-4">
+                  <div className="w-full h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={charts.rmDistribution} layout="vertical" margin={{ left: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
+                        <XAxis
+                          type="number"
+                          tick={{ fontSize: 12, fill: '#6b7280' }}
+                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          width={100}
+                          tick={{ fontSize: 12, fill: '#6b7280' }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <Tooltip
+                          cursor={{ fill: 'transparent' }}
+                          contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          formatter={(value: number, name: string) => {
+                            if (name === 'AUM') return `AED ${value.toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
+                            return value;
+                          }}
+                        />
+                        <Legend verticalAlign="top" height={36} />
+                        <Bar dataKey="aum" fill="#3b82f6" name="AUM" radius={[0, 4, 4, 0]} barSize={16} />
+                        <Bar dataKey="clients" fill="#10b981" name="Clients" radius={[0, 4, 4, 0]} barSize={16} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
@@ -306,138 +278,38 @@ export function AdminDashboard() {
 
             {/* Instrument Distribution - Pie Chart */}
             {charts.instrumentDistribution.length > 0 && (
-              <Card className="border-gray-200">
-                <CardHeader className="pb-2 px-3 pt-3">
-                  <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Instrument Types</CardTitle>
+              <Card className="border-gray-200 shadow-sm h-full">
+                <CardHeader className="pb-2 pt-4 px-4">
+                  <CardTitle className="text-sm font-semibold text-gray-900">Instrument Overview</CardTitle>
                 </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  <div className="w-full overflow-x-auto pb-4">
-                    <div className="min-w-[300px]">
-                      <ResponsiveContainer width="100%" height={250}>
-                        <PieChart>
-                          <Pie
-                            data={charts.instrumentDistribution}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, value }) => `${name}: ${value}`}
-                            outerRadius={70}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            {charts.instrumentDistribution.map((_entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                          <Legend />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                <CardContent className="px-4 pb-4">
+                  <div className="w-full h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={charts.instrumentDistribution}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {charts.instrumentDistribution.map((_entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
+                          ))}
+                        </Pie>
+                        <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardContent>
               </Card>
             )}
+
           </div>
-
-          {/* Transaction Volume Trend - Area Chart */}
-          {charts.transactionTrend.length > 0 && (
-            <Card className="border-gray-200">
-              <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Transaction Volume (30 Days)</CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <div className="w-full overflow-x-auto pb-4">
-                  <div className="min-w-[500px]">
-                    <ResponsiveContainer width="100%" height={250}>
-                      <AreaChart data={charts.transactionTrend}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis
-                          dataKey="date"
-                          tick={{ fontSize: 10 }}
-                          tickFormatter={(value) => {
-                            const date = new Date(value);
-                            return `${date.getMonth() + 1}/${date.getDate()}`;
-                          }}
-                        />
-                        <YAxis
-                          tick={{ fontSize: 11 }}
-                          tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
-                        />
-                        <Tooltip
-                          labelFormatter={(value) => {
-                            const date = new Date(value);
-                            return date.toLocaleDateString();
-                          }}
-                          formatter={(value: number) => (
-                            <div className="flex items-center font-nums">
-                              <DirhamIcon className="w-3 h-3 mr-1" />
-                              {value.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            </div>
-                          )}
-                        />
-                        <Legend />
-                        <Area
-                          type="monotone"
-                          dataKey="purchases"
-                          stackId="1"
-                          stroke="#3b82f6"
-                          fill="#3b82f6"
-                          fillOpacity={0.6}
-                          name="Investments"
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="withdrawals"
-                          stackId="1"
-                          stroke="#f97316"
-                          fill="#f97316"
-                          fillOpacity={0.6}
-                          name="Withdrawals"
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Request Status Distribution - Pie Chart */}
-          {charts.requestStatusDistribution.length > 0 && (
-            <Card className="border-gray-200">
-              <CardHeader className="pb-2 px-3 pt-3">
-                <CardTitle className="font-optima text-sm font-semibold text-brand-blue">Request Status</CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <div className="w-full overflow-x-auto pb-4">
-                  <div className="min-w-[300px]">
-                    <ResponsiveContainer width="100%" height={250}>
-                      <PieChart>
-                        <Pie
-                          data={charts.requestStatusDistribution}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, value }) => `${name}: ${value}`}
-                          outerRadius={70}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {charts.requestStatusDistribution.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </>
+        </div>
       )}
     </div>
   );
