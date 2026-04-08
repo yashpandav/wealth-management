@@ -1,310 +1,139 @@
-MAIN SYSTEM DIAGRAM
-flowchart TD
-
-%% ===== START =====
-Start((Start))
-
-%% ===== USER ENTRY =====
-Start --> A[User Visits Platform]
-
-A --> B{User Type}
-
-%% =========================================
-%% MARKETING LEAD FLOW
-%% =========================================
-B -->|Marketing Lead| C[Submit Lead Form]
-
-C --> D[Create UserLead Record]
-
-D --> E[DocAdmin Reviews Lead]
-
-E --> F[Assign Relationship Manager]
-
-F --> G[RM Contacts Lead]
-
-G --> H{Lead Interested?}
-
-H -->|No| I[Mark Lead LOST]
-I --> End1((End))
-
-H -->|Yes| J[Lead Registers Account]
-
-%% =========================================
-%% DIRECT USER REGISTRATION FLOW
-%% =========================================
-B -->|Direct Website User| J2[User Clicks Register]
-
-J2 --> K2[Fill Registration Form]
-
-K2 --> L2[Create User Account]
-
-L2 --> K[Email Verification]
-
-%% =========================================
-%% CLIENT REGISTRATION
-%% =========================================
-J --> K
-
-K --> L{Email Verified?}
-
-L -->|No| K
-
-L -->|Yes| M[Client Account Created]
-
-%% =========================================
-%% KYC PROCESS
-%% =========================================
-M --> N[Client Uploads KYC Documents]
-
-N --> O[DocAdmin Reviews Documents]
-
-O --> P{Documents Valid?}
-
-P -->|Reject| Q[Send Rejection Notification]
-
-Q --> N
-
-P -->|Approve| R[KYC Verified]
-
-%% =========================================
-%% INVESTMENT ACCESS
-%% =========================================
-R --> S[Client Dashboard Access]
-
-S --> T[Browse Investment Plans]
-
-T --> U[Select Investment + Option]
-
-U --> V[Submit Purchase Request]
-
-%% =========================================
-%% RM REVIEW
-%% =========================================
-V --> W[RM Reviews Request]
-
-W --> X{Approve Request?}
-
-X -->|Reject| Y[Notify Client of Rejection]
-
-Y --> S
-
-X -->|Approve| Z[RM Sets Payout Window]
-
-Z --> AA[Send Request to DocAdmin]
-
-%% =========================================
-%% CONTRACT FINALIZATION
-%% =========================================
-AA --> AB[DocAdmin Uploads Contract]
-
-AB --> AC[Finalize Purchase Request]
-
-AC --> AD[Generate Payout Schedule]
-
-AD --> AE[Investment Contract Active]
-
-%% =========================================
-%% PARALLEL OPERATIONS
-%% =========================================
-AE --> AF{Parallel Operations}
-
-AF --> AG[Client Views Portfolio]
-
-AF --> AH[System Schedules Payouts]
-
-%% ===== END =====
-AG --> End((End))
-AH --> End
+# Activity Diagrams — EMDEE Ventures Wealth Management CRM
 
 ---
 
+## 1. Lead → Client Conversion Activity
 
-LEAD MANAGEMENT ACTIVITY DIAGRAM
-
-
+```mermaid
 flowchart TD
-
-Start((Start))
-
-Start --> A[Lead Submits Enquiry Form]
-
-A --> B[Create UserLead Record]
-
-B --> C[DocAdmin Reviews Lead]
-
-C --> D[Assign Relationship Manager]
-
-D --> E[RM Contacts Lead]
-
-E --> F{Lead Status}
-
-F -->|Contacted| G[Update Status CONTACTED]
-
-G --> H{Interested?}
-
-H -->|Yes| I[Mark Lead INTERESTED]
-I --> J[Send Registration Link]
-
-J --> K[User Registers]
-
-K --> L[Lead Status → CONVERTED]
-
-L --> End((End))
-
-H -->|No| M[Mark Lead NOT_INTERESTED]
-M --> N[Lead Status LOST]
-
-N --> End
-
+    A([Start: Visitor Submits Enquiry Form]) --> B[System creates UserLead\nstatus = NEW]
+    B --> C[DocAdmin reviews new leads]
+    C --> D{Has suitable RM?}
+    D -- No --> E[Wait / Reassign later]
+    D -- Yes --> F[Assign RM to Lead\nstatus = CONTACTED]
+    F --> G[RM contacts Visitor]
+    G --> H{Visitor interested?}
+    H -- No --> I[Update LeadStatus = LOST]
+    I --> Z([End])
+    H -- Yes --> J[RM updates LeadStatus = INTERESTED]
+    J --> K[Visitor registers account\n/register]
+    K --> L[System creates User + Client record\nLinks UserLead.userId\nstatus = CONVERTED]
+    L --> M[Email Verification sent]
+    M --> N{Visitor clicks verify link?}
+    N -- Expired --> O[Resend verification email]
+    O --> N
+    N -- Yes --> P[User.emailVerified = true]
+    P --> Z2([End: Client Account Active])
+```
 
 ---
 
-INVESTMENT PURCHASE ACTIVITY DIAGRAM
+## 2. KYC Document Verification Activity
 
-
+```mermaid
 flowchart TD
-
-Start((Start))
-
-Start --> A[Client Selects Investment]
-
-A --> B[Enter Investment Amount]
-
-B --> C[Submit Purchase Request]
-
-C --> D[System Creates Request Status PENDING]
-
-D --> E[Notify RM]
-
-E --> F[RM Reviews Request]
-
-F --> G{Approve?}
-
-G -->|Reject| H[Add Rejection Reason]
-H --> I[Notify Client]
-I --> End((End))
-
-G -->|Approve| J[Set Payout Window 15 or 30]
-
-J --> K[Update Status APPROVED]
-
-K --> L[Send to DocAdmin]
-
-L --> M[DocAdmin Uploads Contract]
-
-M --> N[Verify Contract]
-
-N --> O{Valid Contract?}
-
-O -->|No| M
-
-O -->|Yes| P[Finalize Request]
-
-P --> Q[Contract Start Date Set]
-
-Q --> R[Generate PayoutSchedule Records]
-
-R --> S[Investment Active]
-
-S --> End
-
+    A([Start: Client Uploads Document]) --> B[INSERT Document\nverificationStatus = PENDING]
+    B --> C[Client.verificationStatus = PENDING]
+    C --> D[DocAdmin notified via email + notification]
+    D --> E[DocAdmin opens Document list]
+    E --> F[DocAdmin reviews document]
+    F --> G{Decision?}
+    G -- VERIFY --> H[Document.verificationStatus = VERIFIED]
+    H --> I{All documents verified?}
+    I -- No --> J[Client remains PENDING]
+    I -- Yes --> K[Client.verificationStatus = VERIFIED]
+    K --> L[Email: KYC Approved]
+    L --> M([End: Client KYC Verified])
+    G -- REJECT --> N[Document.verificationStatus = REJECTED\nRejection reason recorded]
+    N --> O[Client.verificationStatus = REJECTED]
+    O --> P[Email: KYC Rejected with reason]
+    P --> Q[Client re-uploads document]
+    Q --> B
+    J --> Z([Waiting for more uploads])
+```
 
 ---
 
+## 3. Investment Purchase Request Lifecycle
 
-PAYOUT PROCESSING ACTIVITY 
-
-
-
-
+```mermaid
 flowchart TD
-
-Start((Start))
-
-Start --> A[Daily Cron Job Trigger]
-
-A --> B{Is Today 15th or 30th?}
-
-B -->|No| C[Skip Processing]
-C --> End((End))
-
-B -->|Yes| D[Fetch Due PayoutSchedules]
-
-D --> E{Schedule Exists?}
-
-E -->|No| End
-
-E -->|Yes| F[Create Payout Record]
-
-F --> G[Status = PENDING]
-
-G --> H[Show in DocAdmin Dashboard]
-
-H --> I[DocAdmin Reviews Payout]
-
-I --> J[Upload Receipt Document]
-
-J --> K[Verify Receipt]
-
-K --> L[Mark Payout COMPLETED]
-
-L --> M[Create Transaction]
-
-M --> N[Link Receipt + Transaction]
-
-N --> O[Update Schedule isProcessed = true]
-
-O --> P[Send Email to Client]
-
-P --> Q[Client Views Receipt in Dashboard]
-
-Q --> End
-
+    A([Start: Client Submits Purchase Request]) --> B[INSERT ProductPurchaseRequest\nstatus = PENDING\ntrackingNumber = WM-xxxx]
+    B --> C[RM notified via email + notification]
+    C --> D[RM reviews request]
+    D --> E{RM Decision?}
+    E -- REJECT --> F[status = REJECTED\nrejectionReason recorded\nClient notified]
+    F --> Z([End: Request Rejected])
+    E -- APPROVE --> G[status = APPROVED\npayoutWindow set: 1-15 or 16-30\nClient & DocAdmin notified]
+    G --> H[DocAdmin uploads Investment Agreement contract]
+    H --> I[INSERT Document\ntype = INVESTMENT_AGREEMENT]
+    I --> J[Document linked to request\ncontractDocumentId set]
+    J --> K[DocAdmin finalizes contract]
+    K --> L[status = COMPLETED\ncontractStartDate = today\ncompletedAt = now]
+    L --> M[System generates PayoutSchedules\nbased on duration + ROI + frequency]
+    M --> N[Email: Investment Activated to Client]
+    N --> O([End: Investment Active, Payouts Scheduled])
+```
 
 ---
 
+## 4. Automated Payout Processing Activity
 
-KYC TIME-BASED AUTOMATION DIAGRAM
-
-
-
+```mermaid
 flowchart TD
+    A([Cron Job: Daily 2 AM UTC]) --> B[Query due PayoutSchedules\nscheduledDate <= TODAY\nisProcessed = false]
+    B --> C{Any due schedules?}
+    C -- No --> Z([End: Nothing to process])
+    C -- Yes --> D[For each due PayoutSchedule]
+    D --> E[INSERT Payout record\nstatus = PENDING]
+    E --> F[UPDATE PayoutSchedule\nisProcessed = true]
+    F --> G[INSERT AuditLog: PAYOUT_CREATED]
+    G --> H[Notify DocAdmin via email + notification]
+    H --> I{More schedules?}
+    I -- Yes --> D
+    I -- No --> J[DocAdmin reviews pending payouts]
+    J --> K[DocAdmin uploads receipt document]
+    K --> L[DocAdmin marks payout COMPLETED]
+    L --> M[UPDATE Payout: status = COMPLETED\nprocessedById, processedAt]
+    M --> N[INSERT Transaction\ntype = INTEREST_PAYOUT\nstatus = COMPLETED]
+    N --> O[INSERT Notification for Client]
+    O --> P[Email: Interest Payout Processed to Client]
+    P --> Q([End: Payout Complete])
+```
 
-Start((Start))
+---
 
-Start --> A[User Email Verified]
+## 5. Admin User & RM Management Activity
 
-A --> B[RM Assigned]
+```mermaid
+flowchart TD
+    A([Admin logs in]) --> B[View system dashboard\n/admin]
+    B --> C{Action?}
 
-B --> C[Waiting for KYC Submission]
+    C -- Manage Users --> D[View all users /admin/users]
+    D --> E{User action?}
+    E -- Activate/Deactivate --> F[UPDATE User.status\nINSERT AuditLog]
+    E -- Create RM --> G[POST /api/admin/users\nrole = RM\nRelationshipManager record created]
 
-C --> D{Day 3}
+    C -- Assign Clients --> H[View unassigned clients\n/admin/assignments]
+    H --> I[Select Client + RM]
+    I --> J[UPDATE Client.assignedRMId\nINSERT AuditLog: CLIENT_ASSIGN\nNotify RM + Client]
 
-D --> E[Send KYC Reminder Email]
+    C -- Manage Plans --> K[View investment plans\n/admin/investment-plans]
+    K --> L{Plan action?}
+    L -- Create Plan --> M[INSERT Investment + InvestmentOptions]
+    L -- Toggle Active --> N[UPDATE Investment.isActive]
+    L -- Edit Option --> O[UPDATE InvestmentOption]
 
-E --> F{KYC Submitted?}
+    C -- Monitor Performance --> P[View RM performance dashboard\n/admin/rm-performance]
+    C -- View Audit Logs --> Q[View audit trail\n/admin/audit-logs]
 
-F -->|Yes| G[DocAdmin Verification]
-
-G --> H{Approved?}
-
-H -->|Yes| I[KYC Verified]
-I --> End
-
-H -->|No| C
-
-F -->|No| J{Day 6}
-
-J --> K[Send Final Reminder]
-
-K --> L{Still No KYC?}
-
-L -->|Yes| M{Day 7}
-
-M --> N[Account Marked KYC_EXPIRED]
-
-N --> O[Archive Client]
-
-O --> End
-
-L -->|No| G
+    F --> Z([Done])
+    G --> Z
+    J --> Z
+    M --> Z
+    N --> Z
+    O --> Z
+    P --> Z
+    Q --> Z
+```
