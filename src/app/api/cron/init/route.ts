@@ -15,11 +15,14 @@ if (typeof window === 'undefined') {
   // Only run on server-side
   try {
     initializeEmailCronJobs();
+    // eslint-disable-next-line no-console
     console.log('[CRON] Email notification cron jobs initialized at server startup');
 
     initializePayoutCronJobs();
+    // eslint-disable-next-line no-console
     console.log('[CRON] Payout cron jobs initialized at server startup');
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[CRON] Failed to initialize cron jobs:', error);
   }
 }

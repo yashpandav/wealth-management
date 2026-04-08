@@ -69,11 +69,13 @@ export async function archiveUser(
     });
 
     if (!user) {
+      // eslint-disable-next-line no-console
       console.error(`[ARCHIVAL] User not found: ${userId}`);
       return null;
     }
 
     if (user.isArchived) {
+      // eslint-disable-next-line no-console
       console.log(`[ARCHIVAL] User already archived: ${userId}`);
       return null;
     }
@@ -85,8 +87,10 @@ export async function archiveUser(
     if (sendEmail) {
       try {
         await sendKYCExpiredEmail(user.email, user.firstName);
+        // eslint-disable-next-line no-console
         console.log(`[ARCHIVAL] Final email sent to: ${user.email}`);
       } catch (emailError) {
+        // eslint-disable-next-line no-console
         console.error(`[ARCHIVAL] Failed to send email to ${user.email}:`, emailError);
         // Continue with archival even if email fails
       }
@@ -157,10 +161,12 @@ export async function archiveUser(
       reason,
     };
 
+    // eslint-disable-next-line no-console
     console.log(`[ARCHIVAL] Successfully archived user: ${user.email} (${userId})`);
     return archivalDetails;
 
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(`[ARCHIVAL] Error archiving user ${userId}:`, error);
     return null;
   }
@@ -346,6 +352,7 @@ export async function restoreArchivedUser(
       });
     });
 
+    // eslint-disable-next-line no-console
     console.log(`[ARCHIVAL] Successfully restored user: ${user.email} (${userId})`);
 
     return {
@@ -356,6 +363,7 @@ export async function restoreArchivedUser(
     };
 
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(`[ARCHIVAL] Error restoring user ${userId}:`, error);
     return {
       success: false,
@@ -408,6 +416,7 @@ export async function getEligibleUsersForArchival(): Promise<string[]> {
 
     return users.map(u => u.id);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[ARCHIVAL] Error fetching eligible users:', error);
     return [];
   }
@@ -454,6 +463,7 @@ export async function getArchivalStats() {
       archivedThisWeek,
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[ARCHIVAL] Error fetching stats:', error);
     return {
       totalArchived: 0,

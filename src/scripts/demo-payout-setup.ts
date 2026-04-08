@@ -66,9 +66,13 @@ const hr = () => console.log(`${c.dim}${'─'.repeat(76)}${c.reset}`);
 
 function header(title: string) {
   const pad = ' '.repeat(Math.max(0, 72 - title.length));
+  // eslint-disable-next-line no-console
   console.log('\n');
+  // eslint-disable-next-line no-console
   console.log(`${c.bold}${c.bgBlue}  ${'═'.repeat(72)}  ${c.reset}`);
+  // eslint-disable-next-line no-console
   console.log(`${c.bold}${c.bgBlue}    ${title}${pad}  ${c.reset}`);
+  // eslint-disable-next-line no-console
   console.log(`${c.bold}${c.bgBlue}  ${'═'.repeat(72)}  ${c.reset}\n`);
 }
 
@@ -124,6 +128,7 @@ async function createPendingPayoutsInline(lookAheadDays: number = 3): Promise<nu
       await prisma.payoutSchedule.update({ where: { id: schedule.id }, data: { isProcessed: true } });
       createdCount++;
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(`Failed for schedule ${schedule.id}:`, e);
     }
   }
@@ -503,6 +508,7 @@ async function main() {
     else await cmdSetupDemo([arg]);
   } catch (error) {
     err('Script failed:');
+    // eslint-disable-next-line no-console
     console.error(error);
     process.exit(1);
   } finally {

@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast, Toaster } from 'react-hot-toast';
+import Image from 'next/image';
 import PhoneInput, { isPossiblePhoneNumber } from 'react-phone-number-input';
 import {
   Select,
@@ -95,9 +96,12 @@ export default function UserFormPage() {
       <Toaster position="top-right" />
       <div className="max-w-2xl mx-auto">
         <div className="flex justify-center">
-          <img
+          <Image
             src="/images/logo/primary-logo-1.png"
             alt="EMDEE VENTURES"
+            width={240}
+            height={80}
+            priority
             className="
             w-full
             max-w-[180px]

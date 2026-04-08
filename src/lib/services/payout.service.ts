@@ -145,10 +145,12 @@ export async function generatePayoutSchedules(
       },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Failed to create audit log for payout schedule generation:', error);
     // Don't fail the operation if audit log creation fails
   }
 
+  // eslint-disable-next-line no-console
   console.log(`Generated ${schedules.length} payout schedules for contract ${productPurchaseRequestId}`);
 }
 
@@ -269,16 +271,19 @@ export async function createPendingPayouts(lookAheadDays: number = 3): Promise<n
           },
         });
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error('Failed to create audit log for payout creation:', error);
         // Don't fail the operation if audit log creation fails
       }
 
       createdCount++;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Failed to create payout for schedule ${schedule.id}:`, error);
     }
   }
 
+  // eslint-disable-next-line no-console
   console.log(`Created ${createdCount} pending payouts`);
   return createdCount;
 }
@@ -368,6 +373,7 @@ export async function completePayout(
         },
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to create notification for payout completion:', error);
       // Don't fail the operation if notification creation fails
     }
@@ -387,8 +393,10 @@ export async function completePayout(
         receiptUrl
       );
 
+      // eslint-disable-next-line no-console
       console.log(`Sent payout completion email to ${payout.client.user.email}`);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to send payout completion email:', error);
       // Don't fail the operation if email sending fails
     }
@@ -424,10 +432,12 @@ export async function completePayout(
         },
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Failed to create audit log for payout completion:', error);
       // Don't fail the operation if audit log creation fails
     }
 
+    // eslint-disable-next-line no-console
     console.log(`Completed payout ${payoutId} with transaction ${transaction.id}`);
   } catch (error) {
     // Create audit log for failed payout completion
@@ -451,6 +461,7 @@ export async function completePayout(
         },
       });
     } catch (auditError) {
+      // eslint-disable-next-line no-console
       console.error('Failed to create audit log for payout failure:', auditError);
     }
 

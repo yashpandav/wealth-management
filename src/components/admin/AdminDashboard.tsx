@@ -136,7 +136,6 @@ export function AdminDashboard() {
           value={overview.pendingRequests}
           icon={Clock}
           status={overview.pendingRequests > 0 ? "warning" : "default"}
-          href={"/admin/purchase-requests" as any}
           subValue={overview.pendingPurchaseRequests > 0 ? "Investment Requests needing review" : undefined}
         />
       </div>

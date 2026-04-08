@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Execute the cron job handler
+    // eslint-disable-next-line no-console
     console.log(`[CRON TEST] Admin ${session.user.email} triggered job: ${job}`);
     const handler = emailCronHandlers[job as keyof typeof emailCronHandlers];
     const result = await handler();
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[CRON TEST] Error executing cron job:', error);
     return NextResponse.json(
       {
@@ -129,6 +131,7 @@ export async function GET() {
     });
 
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[CRON TEST] Error fetching cron job list:', error);
     return NextResponse.json(
       {

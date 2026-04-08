@@ -6,6 +6,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import {
@@ -63,9 +64,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* EMDEE VENTURES Logo */}
         <Link href="/" className="mr-6 flex items-center">
           <div className="flex h-9 items-center">
-            <img
+            <Image
               src="/images/logo/primary-logo-1.png"
               alt="EMDEE VENTURES"
+              width={90}
+              height={36}
+              priority
               className="
               w-[90px]
               h-auto

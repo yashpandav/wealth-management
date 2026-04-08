@@ -23,12 +23,15 @@ const colors = {
 };
 
 function log(message: string, color: string = colors.reset) {
+  // eslint-disable-next-line no-console
   console.log(`${color}${message}${colors.reset}`);
 }
 
 function section(title: string) {
+  // eslint-disable-next-line no-console
   console.log('\n' + '='.repeat(80));
   log(`  ${title}`, colors.bright + colors.cyan);
+  // eslint-disable-next-line no-console
   console.log('='.repeat(80) + '\n');
 }
 
@@ -436,6 +439,7 @@ async function main() {
 
   } catch (error) {
     log('\n❌ Error seeding payout test data:', colors.red);
+    // eslint-disable-next-line no-console
     console.error(error);
     process.exit(1);
   } finally {

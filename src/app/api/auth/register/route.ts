@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
 
     // REACTIVATION WORKFLOW: If user was archived, restore their account
     if (existingUser?.isArchived) {
+      // eslint-disable-next-line no-console
       console.log(`[REACTIVATION] Restoring archived user: ${email}`);
 
       const restorationResult = await restoreArchivedUser(existingUser.id);
@@ -96,6 +97,7 @@ export async function POST(request: NextRequest) {
           );
         }
       } else {
+        // eslint-disable-next-line no-console
         console.error('[REACTIVATION] Failed to restore user:', restorationResult.message);
         return NextResponse.json(
           {
@@ -215,6 +217,7 @@ export async function POST(request: NextRequest) {
       const emailSent = await sendVerificationEmail(email, token, firstName);
 
       if (!emailSent) {
+        // eslint-disable-next-line no-console
         console.error('Failed to send verification email to:', email);
         // Don't fail registration if email fails
       }
@@ -251,6 +254,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Registration error:', error);
     return NextResponse.json(
       {

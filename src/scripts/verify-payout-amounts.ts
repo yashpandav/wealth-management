@@ -19,6 +19,7 @@ const colors = {
 };
 
 function log(message: string, color: string = colors.reset) {
+  // eslint-disable-next-line no-console
   console.log(`${color}${message}${colors.reset}`);
 }
 
@@ -194,6 +195,7 @@ async function verifyPayoutCalculations() {
 
 verifyPayoutCalculations()
   .catch((error) => {
+    // eslint-disable-next-line no-console
     console.error('❌ Error:', error);
     process.exit(1);
   })

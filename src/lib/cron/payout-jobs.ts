@@ -14,12 +14,15 @@ import cron from 'node-cron';
  * Creates payouts for schedules due within next 3 days
  */
 export async function dailyPayoutGenerationJob(): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log('[CRON] Starting daily payout generation job');
 
   try {
     const createdCount = await createPendingPayouts(3); // Look ahead 3 days
+    // eslint-disable-next-line no-console
     console.log(`[CRON] Daily payout generation completed: ${createdCount} payouts created`);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[CRON] Daily payout generation failed:', error);
     throw error;
   }
@@ -31,6 +34,7 @@ export async function dailyPayoutGenerationJob(): Promise<void> {
  * Sends email to DocAdmins about payouts due on 15th
  */
 export async function payoutReminder15thJob(): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log('[CRON] Starting 15th payout reminder job');
 
   try {
@@ -40,6 +44,7 @@ export async function payoutReminder15thJob(): Promise<void> {
 
     // Check if tomorrow is the 15th
     if (tomorrow.getDate() !== 15) {
+      // eslint-disable-next-line no-console
       console.log('[CRON] Skipping: Tomorrow is not the 15th');
       return;
     }
@@ -51,6 +56,7 @@ export async function payoutReminder15thJob(): Promise<void> {
     const pendingPayouts = await getPendingPayouts(startOfDay, endOfDay);
 
     if (pendingPayouts.length === 0) {
+      // eslint-disable-next-line no-console
       console.log('[CRON] No pending payouts for the 15th');
       return;
     }
@@ -68,8 +74,10 @@ export async function payoutReminder15thJob(): Promise<void> {
       await sendDocAdminPayoutReminder(docAdmin.email, startOfDay, pendingPayouts);
     }
 
+    // eslint-disable-next-line no-console
     console.log(`[CRON] Sent 15th payout reminders to ${docAdmins.length} DocAdmins`);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[CRON] 15th payout reminder failed:', error);
     throw error;
   }
@@ -81,6 +89,7 @@ export async function payoutReminder15thJob(): Promise<void> {
  * Sends email to DocAdmins about payouts due on last day of month
  */
 export async function payoutReminderMonthEndJob(): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log('[CRON] Starting month-end payout reminder job');
 
   try {
@@ -90,6 +99,7 @@ export async function payoutReminderMonthEndJob(): Promise<void> {
     // Check if we're 1-2 days before month end
     const daysUntilMonthEnd = lastDayOfMonth.getDate() - today.getDate();
     if (daysUntilMonthEnd < 0 || daysUntilMonthEnd > 2) {
+      // eslint-disable-next-line no-console
       console.log('[CRON] Skipping: Not close enough to month end');
       return;
     }
@@ -101,6 +111,7 @@ export async function payoutReminderMonthEndJob(): Promise<void> {
     const pendingPayouts = await getPendingPayouts(startOfDay, endOfDay);
 
     if (pendingPayouts.length === 0) {
+      // eslint-disable-next-line no-console
       console.log('[CRON] No pending payouts for month-end');
       return;
     }
@@ -118,8 +129,10 @@ export async function payoutReminderMonthEndJob(): Promise<void> {
       await sendDocAdminPayoutReminder(docAdmin.email, lastDayOfMonth, pendingPayouts);
     }
 
+    // eslint-disable-next-line no-console
     console.log(`[CRON] Sent month-end payout reminders to ${docAdmins.length} DocAdmins`);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[CRON] Month-end payout reminder failed:', error);
     throw error;
   }
@@ -130,6 +143,7 @@ export async function payoutReminderMonthEndJob(): Promise<void> {
  * Can be called from API route or external cron service
  */
 export async function runPayoutCronJobs(jobType: 'daily' | 'reminder-15th' | 'reminder-month-end'): Promise<void> {
+  // eslint-disable-next-line no-console
   console.log(`[CRON] Running job type: ${jobType}`);
 
   try {
@@ -147,8 +161,10 @@ export async function runPayoutCronJobs(jobType: 'daily' | 'reminder-15th' | 're
         throw new Error(`Unknown job type: ${jobType}`);
     }
 
+    // eslint-disable-next-line no-console
     console.log(`[CRON] Job ${jobType} completed successfully`);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(`[CRON] Job ${jobType} failed:`, error);
     throw error;
   }
@@ -161,22 +177,26 @@ export async function runPayoutCronJobs(jobType: 'daily' | 'reminder-15th' | 're
 export function initializePayoutCronJobs() {
   // Daily payout generation - Run at 00:00 (midnight) every day
   cron.schedule('0 0 * * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('[CRON] Running daily payout generation...');
     await dailyPayoutGenerationJob();
   });
 
   // 15th reminder - Run on 14th at 9:00 AM
   cron.schedule('0 9 14 * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('[CRON] Running 15th payout reminder...');
     await payoutReminder15thJob();
   });
 
   // Month-end reminder - Run on 29th at 9:00 AM
   cron.schedule('0 9 29 * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('[CRON] Running month-end payout reminder...');
     await payoutReminderMonthEndJob();
   });
 
+  // eslint-disable-next-line no-console
   console.log('[CRON] Payout cron jobs initialized successfully');
 }
 

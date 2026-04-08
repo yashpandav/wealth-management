@@ -63,7 +63,6 @@ export async function GET(_request: NextRequest) {
     });
 
     // Batch all RM metrics into two queries instead of 5 per RM
-    const allRmIds = rms.map((rm) => rm.id);
     const allClientIds = rms.flatMap((rm) => rm.assignedClients.map((c) => c.id));
 
     // One groupBy replaces per-RM findMany for AUM calculation

@@ -33,12 +33,14 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
       select: { isArchived: true },
     });
     if (user?.isArchived) {
+      // eslint-disable-next-line no-console
       console.log(`[Email] Blocked archived user: ${options.to}`);
       return false;
     }
   } catch { /* fail open */ }
 
   if (config.email.skip) {
+    // eslint-disable-next-line no-console
     console.log('[Email] Skipped:', options.to, '|', options.subject);
     return true;
   }
@@ -50,6 +52,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
     });
     return true;
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('[Email] Failed:', err);
     return false;
   }

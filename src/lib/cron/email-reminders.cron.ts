@@ -56,6 +56,7 @@ export async function sendKYCDay3Reminders() {
       },
     });
 
+    // eslint-disable-next-line no-console
     console.log(`Sending KYC Day 3 reminders to ${users.length} users`);
 
     for (const user of users) {
@@ -67,6 +68,7 @@ export async function sendKYCDay3Reminders() {
       count: users.length,
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error sending KYC Day 3 reminders:', error);
     return {
       success: false,
@@ -107,6 +109,7 @@ export async function sendKYCDay6Reminders() {
       },
     });
 
+    // eslint-disable-next-line no-console
     console.log(`Sending KYC Day 6 warnings to ${users.length} users`);
 
     for (const user of users) {
@@ -118,6 +121,7 @@ export async function sendKYCDay6Reminders() {
       count: users.length,
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error sending KYC Day 6 reminders:', error);
     return {
       success: false,
@@ -139,12 +143,14 @@ export async function sendKYCDay6Reminders() {
  */
 export async function handleKYCExpiry() {
   try {
+    // eslint-disable-next-line no-console
     console.log('[CRON] Starting KYC expiry archival process...');
 
     // Get eligible users for archival
     const eligibleUserIds = await getEligibleUsersForArchival();
 
     if (eligibleUserIds.length === 0) {
+      // eslint-disable-next-line no-console
       console.log('[CRON] No users eligible for archival today');
       return {
         success: true,
@@ -153,14 +159,17 @@ export async function handleKYCExpiry() {
       };
     }
 
+    // eslint-disable-next-line no-console
     console.log(`[CRON] Found ${eligibleUserIds.length} users eligible for archival`);
 
     // Archive users in batch
     const result = await archiveUsersBatch(eligibleUserIds, 'KYC_EXPIRED_DAY_7');
 
+    // eslint-disable-next-line no-console
     console.log(`[CRON] Archival complete: ${result.archivedCount} archived, ${result.errors.length} errors`);
 
     if (result.errors.length > 0) {
+      // eslint-disable-next-line no-console
       console.error('[CRON] Archival errors:', result.errors);
     }
 
@@ -170,6 +179,7 @@ export async function handleKYCExpiry() {
       errors: result.errors,
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('[CRON] Error handling KYC expiry:', error);
     return {
       success: false,
@@ -221,6 +231,7 @@ export async function sendMonthlyPayoutReminders() {
       },
     });
 
+    // eslint-disable-next-line no-console
     console.log(`Sending monthly payout reminders to ${activeInvestments.length} clients`);
 
     for (const investment of activeInvestments) {
@@ -242,6 +253,7 @@ export async function sendMonthlyPayoutReminders() {
       count: activeInvestments.length,
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error sending monthly payout reminders:', error);
     return {
       success: false,
@@ -294,6 +306,7 @@ export async function sendContractRenewalReminders() {
       },
     });
 
+    // eslint-disable-next-line no-console
     console.log(`Sending contract renewal reminders to ${expiringInvestments.length} clients`);
 
     for (const investment of expiringInvestments) {
@@ -316,6 +329,7 @@ export async function sendContractRenewalReminders() {
       count: expiringInvestments.length,
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error sending contract renewal reminders:', error);
     return {
       success: false,
@@ -331,32 +345,38 @@ export async function sendContractRenewalReminders() {
 export function initializeEmailCronJobs() {
   // KYC reminders - Run daily at 9:00 AM
   cron.schedule('0 9 * * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('Running KYC Day 3 reminders...');
     await sendKYCDay3Reminders();
   });
 
   cron.schedule('0 9 * * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('Running KYC Day 6 reminders...');
     await sendKYCDay6Reminders();
   });
 
   cron.schedule('0 9 * * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('Running KYC expiry checks...');
     await handleKYCExpiry();
   });
 
   // Monthly payout reminder - Run on 15th of every month at 9:00 AM
   cron.schedule('0 9 15 * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('Running monthly payout reminders...');
     await sendMonthlyPayoutReminders();
   });
 
   // Contract renewal reminders - Run daily at 9:00 AM
   cron.schedule('0 9 * * *', async () => {
+    // eslint-disable-next-line no-console
     console.log('Running contract renewal reminders...');
     await sendContractRenewalReminders();
   });
 
+  // eslint-disable-next-line no-console
   console.log('Email cron jobs initialized successfully');
 }
 
