@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { uploadToS3 } from '@/lib/storage/s3';
 
 /**
  * POST - Upload file (bank statement or payment proof)
@@ -77,23 +78,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, upload to cloud storage (S3, Azure, etc.)
-    // For now, we'll create a simulated file reference
-    // In a real implementation, you would:
-    // 1. Generate a unique filename
-    // 2. Upload to cloud storage
-    // 3. Return the storage URL/reference
-
     const timestamp = Date.now();
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const fileReference = `${fileType}/${timestamp}_${sanitizedFilename}`;
+    const s3Key = `uploads/rm/${fileType}/${timestamp}_${sanitizedFilename}`;
 
-    // In production, you'd upload the file here
-    // const uploadUrl = await uploadToS3(file, fileReference);
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    await uploadToS3(s3Key, fileBuffer, file.type);
 
-    // For development, we'll return a simulated reference
-    // In a real app, this would be the actual S3 URL or file path
-    const fileUrl = `/uploads/${fileReference}`;
+    const fileUrl = s3Key;
 
     return NextResponse.json({
       success: true,
@@ -101,7 +93,7 @@ export async function POST(request: NextRequest) {
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
-        fileReference: fileReference,
+        fileReference: s3Key,
         fileUrl: fileUrl,
         uploadedAt: new Date().toISOString(),
         uploadedBy: session.user.id,

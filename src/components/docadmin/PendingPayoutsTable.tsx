@@ -85,7 +85,6 @@ interface Payout {
   receiptDocument: {
     id: string;
     fileName: string;
-    filePath: string;
   } | null;
   createdAt: string;
 }
@@ -268,9 +267,9 @@ export function PendingPayoutsTable() {
     });
   };
 
-  const handleDownloadReceipt = (filePath: string, fileName: string) => {
+  const handleDownloadReceipt = (documentId: string, fileName: string) => {
     const link = document.createElement('a');
-    link.href = filePath;
+    link.href = `/api/documents/${documentId}/download`;
     link.download = fileName;
     link.target = '_blank';
     document.body.appendChild(link);
@@ -962,7 +961,7 @@ export function PendingPayoutsTable() {
                             className="text-brand-blue hover:text-brand-blue/80 hover:bg-brand-blue/5"
                             onClick={() =>
                               handleDownloadReceipt(
-                                payout.receiptDocument!.filePath,
+                                payout.receiptDocument!.id,
                                 payout.receiptDocument!.fileName
                               )
                             }
@@ -1220,7 +1219,7 @@ export function PendingPayoutsTable() {
                           className="h-auto p-0 text-brand-blue hover:text-brand-blue/80"
                           onClick={() =>
                             handleDownloadReceipt(
-                              detailDialog.payout!.receiptDocument!.filePath,
+                              detailDialog.payout!.receiptDocument!.id,
                               detailDialog.payout!.receiptDocument!.fileName
                             )
                           }

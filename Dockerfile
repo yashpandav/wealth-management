@@ -10,8 +10,8 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # HUSKY=0 prevents husky from installing git hooks (no .git in Docker)
-# postinstall script runs `prisma generate` automatically
-RUN HUSKY=0 pnpm install --frozen-lockfile
+# DATABASE_URL dummy needed for prisma generate in postinstall (Prisma 7 requirement)
+RUN HUSKY=0 DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm install --frozen-lockfile
 
 
 # ── Stage 2: Build ─────────────────────────────────────────────────────────────
@@ -26,9 +26,14 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Ensure prisma client is generated in builder context
-RUN pnpm prisma generate
-RUN pnpm build
+# DATABASE_URL is required by Prisma 7 even for generate (schema validation only, no real connection)
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm prisma generate
+
+# Dummy env vars required by Zod config validation during next build (replaced by real values at runtime)
+RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
+    NEXTAUTH_URL="http://localhost:3000" \
+    NEXTAUTH_SECRET="dummy-secret-for-build-time-only-minimum-32-chars" \
+    pnpm build
 
 
 # ── Stage 3: Production runner (minimal image) ─────────────────────────────────

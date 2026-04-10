@@ -56,12 +56,14 @@ const c = {
   bgGreen: '\x1b[42m',
 };
 
+// eslint-disable-next-line no-console
 const log = (msg: string, color = c.reset) => console.log(`${color}${msg}${c.reset}`);
 const ok = (msg: string) => log(`${msg}`, c.green);
 const warn = (msg: string) => log(`${msg}`, c.yellow);
 const err = (msg: string) => log(`${msg}`, c.red);
 const step = (n: number, msg: string) => log(`\n${c.bold}${c.blue}[STEP ${n}]${c.reset} ${c.bold}${msg}${c.reset}`);
 const info = (msg: string) => log(`  ℹ  ${msg}`, c.cyan);
+// eslint-disable-next-line no-console
 const hr = () => console.log(`${c.dim}${'─'.repeat(76)}${c.reset}`);
 
 function header(title: string) {

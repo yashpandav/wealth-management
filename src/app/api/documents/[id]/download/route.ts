@@ -7,8 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
+import { downloadFromS3 } from '@/lib/storage/s3';
 
 export async function GET(
   request: NextRequest,
@@ -75,9 +74,8 @@ export async function GET(
       );
     }
 
-    // Read file from disk
-    const filePath = join(process.cwd(), document.filePath);
-    const fileBuffer = await readFile(filePath);
+    // Read file from S3
+    const fileBuffer = await downloadFromS3(document.filePath);
 
     // Create audit log for document access
     await prisma.auditLog.create({
@@ -105,7 +103,7 @@ export async function GET(
     });
 
     // Return file with appropriate headers
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers: {
         'Content-Type': document.mimeType || 'application/octet-stream',

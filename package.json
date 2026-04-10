@@ -30,6 +30,7 @@
     "demo:payout:reset": "npx tsx src/scripts/demo-payout-setup.ts reset"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1028.0",
     "@hookform/resolvers": "^3.10.0",
     "@prisma/adapter-neon": "^7.5.0",
     "@prisma/adapter-pg": "^7.6.0",

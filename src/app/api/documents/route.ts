@@ -52,7 +52,6 @@ export async function GET() {
         documentType: true,
         fileName: true,
         fileSize: true,
-        filePath: true,
         description: true,
         verificationStatus: true,
         uploadedAt: true,

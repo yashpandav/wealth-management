@@ -107,7 +107,6 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               fileName: true,
-              filePath: true,
             },
           },
           transaction: {

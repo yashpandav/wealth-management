@@ -13,10 +13,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 import { prisma } from '@/lib/db/prisma';
+import { uploadToS3 } from '@/lib/storage/s3';
 import { getCurrentUser } from '@/lib/auth/session';
 import { sendDocumentUploadNotification } from '@/lib/email';
 import { config } from '@/lib/config';
@@ -142,19 +140,13 @@ export async function POST(request: NextRequest) {
       sanitizedOriginalName
     );
 
-    // Create upload directory
-    const uploadDir = path.join(process.cwd(), 'public', 'documents', user.id);
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Save file
-    const filePath = path.join(uploadDir, storageFilename);
+    // Upload to S3
+    const s3Key = `documents/${user.id}/${storageFilename}`;
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, fileBuffer);
+    await uploadToS3(s3Key, fileBuffer, file.type);
 
-    // Relative path for storage in DB (accessible via URL)
-    const relativePath = `/documents/${user.id}/${storageFilename}`;
+    // Store S3 key in DB (used by download API to fetch from S3)
+    const relativePath = s3Key;
 
     // Check if a document of the same type already exists for this client
     const existingDocument = await prisma.document.findFirst({

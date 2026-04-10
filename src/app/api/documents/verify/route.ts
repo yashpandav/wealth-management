@@ -324,7 +324,6 @@ export async function GET(request: NextRequest) {
           documentType: doc.documentType,
           fileName: doc.fileName,
           fileSize: doc.fileSize,
-          filePath: doc.filePath,
           verificationStatus: doc.verificationStatus,
           uploadedAt: doc.uploadedAt,
           verifiedAt: doc.verifiedAt,

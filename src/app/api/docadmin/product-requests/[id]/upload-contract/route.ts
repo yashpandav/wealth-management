@@ -17,8 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getCurrentUser } from '@/lib/auth/session';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { uploadToS3 } from '@/lib/storage/s3';
 import { config } from '@/lib/config';
 import { sendContractUploadedEmail } from '@/lib/email';
 import { generatePayoutSchedules } from '@/lib/services/payout.service';
@@ -115,22 +114,17 @@ export async function POST(
       );
     }
 
-    // Save file to disk
+    // Upload to S3
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'contracts');
-    await mkdir(uploadsDir, { recursive: true });
-
-    // Generate unique filename
     const timestamp = Date.now();
     const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const fileName = `contract_${productRequest.trackingNumber}_${timestamp}_${sanitizedFileName}`;
-    const filePath = join(uploadsDir, fileName);
-    const publicPath = `/uploads/contracts/${fileName}`;
+    const s3Key = `uploads/contracts/${fileName}`;
 
-    await writeFile(filePath, buffer);
+    await uploadToS3(s3Key, buffer, file.type);
+    const publicPath = s3Key;
 
     const contractStartDate = productRequest.processedAt || new Date();
     const durationMatch = productRequest.investmentOption.duration.match(/(\d+)/);

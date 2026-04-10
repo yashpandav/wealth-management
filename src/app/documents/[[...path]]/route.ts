@@ -2,18 +2,15 @@
  * Document Static File Serving API (Catch-all)
  * GET /documents/[...path]
  *
- * Serves documents from public/documents directory with proper security
- * Works with Cloudflare tunnel and other proxies by handling requests through Next.js API routes
- * instead of relying on static file serving
+ * Serves documents from S3 with proper security checks.
+ * Path format: /documents/{userId}/{filename}
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
+import { downloadFromS3 } from '@/lib/storage/s3';
 
 export async function GET(
   _request: NextRequest,
@@ -22,7 +19,6 @@ export async function GET(
   try {
     const pathSegments = params.path || [];
 
-    // Must have at least userId and filename
     if (pathSegments.length < 2) {
       return NextResponse.json(
         { success: false, error: 'Invalid document path' },
@@ -32,29 +28,9 @@ export async function GET(
 
     const [userId, ...filenameParts] = pathSegments;
     const filename = filenameParts.join('/');
-
-    // Construct file path
-    const filePath = join(process.cwd(), 'public', 'documents', userId, filename);
-
-    // Security: Prevent directory traversal
-    const normalizedPath = join(process.cwd(), 'public', 'documents', userId);
-    if (!filePath.startsWith(normalizedPath)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid file path' },
-        { status: 400 }
-      );
-    }
-
-    // Check if file exists
-    if (!existsSync(filePath)) {
-      return NextResponse.json(
-        { success: false, error: 'Document not found' },
-        { status: 404 }
-      );
-    }
+    const s3Key = `documents/${userId}/${filename}`;
 
     // Optional authentication check
-    // For authenticated users, verify they have permission
     const session = await getServerSession(authOptions);
 
     if (session) {
@@ -63,7 +39,6 @@ export async function GET(
       const isDocAdmin = userRole === 'DOCADMIN';
       const isAdmin = userRole === 'ADMIN';
 
-      // Check if user is assigned RM
       let isAssignedRM = false;
       if (userRole === 'RM') {
         const rm = await prisma.relationshipManager.findUnique({
@@ -78,8 +53,6 @@ export async function GET(
         isAssignedRM = (rm?.assignedClients?.length ?? 0) > 0;
       }
 
-      // Allow access if: owner, docadmin, admin, or assigned RM
-      // For unauthenticated users, allow access (you can change this based on requirements)
       if (!isOwner && !isDocAdmin && !isAdmin && !isAssignedRM) {
         return NextResponse.json(
           { success: false, error: 'Forbidden - You do not have permission to access this document' },
@@ -88,10 +61,9 @@ export async function GET(
       }
     }
 
-    // Read file
-    const fileBuffer = await readFile(filePath);
+    // Fetch from S3
+    const fileBuffer = await downloadFromS3(s3Key);
 
-    // Determine MIME type from extension
     const mimeTypes: Record<string, string> = {
       '.pdf': 'application/pdf',
       '.jpg': 'image/jpeg',
@@ -105,8 +77,7 @@ export async function GET(
     const ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
     const mimeType = mimeTypes[ext] || 'application/octet-stream';
 
-    // Return file with proper headers that work through Cloudflare tunnel
-    return new NextResponse(fileBuffer, {
+    return new NextResponse(new Uint8Array(fileBuffer), {
       status: 200,
       headers: {
         'Content-Type': mimeType,
@@ -118,22 +89,13 @@ export async function GET(
     });
   } catch (error) {
     console.error('Error serving document:', error);
-
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      return NextResponse.json(
-        { success: false, error: 'Document file not found' },
-        { status: 404 }
-      );
-    }
-
     return NextResponse.json(
-      { success: false, error: 'Failed to serve document' },
-      { status: 500 }
+      { success: false, error: 'Document file not found' },
+      { status: 404 }
     );
   }
 }
 
-// Enable CORS for document access
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,

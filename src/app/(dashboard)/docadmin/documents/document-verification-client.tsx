@@ -8,7 +8,6 @@ interface Document {
   documentType: string;
   fileName: string;
   fileSize: number;
-  filePath: string;
   verificationStatus: string;
   uploadedAt: string;
   verifiedAt: string | null;
@@ -69,7 +68,6 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
           documentType: string;
           fileName: string;
           fileSize: number;
-          filePath: string;
           verificationStatus: string;
           uploadedAt: string;
           verifiedAt: string | null;
@@ -103,7 +101,6 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
             documentType: doc.documentType,
             fileName: doc.fileName,
             fileSize: doc.fileSize,
-            filePath: doc.filePath,
             verificationStatus: doc.verificationStatus,
             uploadedAt: doc.uploadedAt,
             verifiedAt: doc.verifiedAt,
@@ -403,7 +400,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                             </td>
                             <td className="py-3">
                               <a
-                                href={doc.filePath}
+                                href={`/api/documents/${doc.id}/download`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-brand-blue hover:text-brand-blue/80 text-sm"
@@ -501,7 +498,7 @@ export function DocumentVerificationClient({ relationshipManagers }: DocumentVer
                 </div>
                 <div className="mt-4">
                   <a
-                    href={selectedDocument.filePath}
+                    href={`/api/documents/${selectedDocument.id}/download`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-brand-blue hover:text-brand-blue/80"

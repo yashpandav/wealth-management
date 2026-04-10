@@ -42,7 +42,6 @@ interface Document {
   documentType: string;
   fileName: string;
   fileSize: number;
-  filePath: string;
   description: string | null;
   verificationStatus: string;
   uploadedAt: string;
@@ -329,7 +328,7 @@ export function KYCDocumentsPanel() {
                     </div>
                   </div>
                   <a
-                    href={identityProof.filePath}
+                    href={`/api/documents/${identityProof.id}/download`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1 text-xs text-brand-blue hover:text-brand-blue/80 hover:underline transition-colors duration-200"

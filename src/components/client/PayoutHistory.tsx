@@ -78,7 +78,6 @@ interface Payout {
   receiptDocument: {
     id: string;
     fileName: string;
-    filePath: string;
   } | null;
   createdAt: string;
 }
@@ -175,10 +174,10 @@ export function PayoutHistory() {
     }
   };
 
-  const handleDownloadReceipt = (filePath: string, fileName: string) => {
-    // Create a temporary link to download the receipt
+  const handleDownloadReceipt = (documentId: string, fileName: string) => {
+    // Use authenticated API route — filePath is now an S3 key, not a URL
     const link = document.createElement('a');
-    link.href = filePath;
+    link.href = `/api/documents/${documentId}/download`;
     link.download = fileName;
     link.target = '_blank';
     document.body.appendChild(link);
@@ -388,7 +387,7 @@ export function PayoutHistory() {
                           className="text-brand-blue hover:text-brand-blue/80 hover:bg-brand-blue/5"
                           onClick={() =>
                             handleDownloadReceipt(
-                              payout.receiptDocument!.filePath,
+                              payout.receiptDocument!.id,
                               payout.receiptDocument!.fileName
                             )
                           }
@@ -542,7 +541,7 @@ export function PayoutHistory() {
                           className="h-auto p-0 text-brand-blue hover:text-brand-blue/80"
                           onClick={() =>
                             handleDownloadReceipt(
-                              detailDialog.payout!.receiptDocument!.filePath,
+                              detailDialog.payout!.receiptDocument!.id,
                               detailDialog.payout!.receiptDocument!.fileName
                             )
                           }

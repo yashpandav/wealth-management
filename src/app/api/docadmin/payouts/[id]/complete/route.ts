@@ -8,8 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db/prisma';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { uploadToS3 } from '@/lib/storage/s3';
 import { completePayout } from '@/lib/services/payout.service';
 
 export async function POST(
@@ -103,22 +102,17 @@ export async function POST(
       );
     }
 
-    // Save receipt file to disk
+    // Upload receipt to S3
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'payout-receipts');
-    await mkdir(uploadsDir, { recursive: true });
-
-    // Generate unique filename
     const timestamp = Date.now();
     const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const fileName = `payout_receipt_${payoutId}_${timestamp}_${sanitizedFileName}`;
-    const filePath = join(uploadsDir, fileName);
-    const publicPath = `/uploads/payout-receipts/${fileName}`;
+    const s3Key = `uploads/payout-receipts/${fileName}`;
 
-    await writeFile(filePath, buffer);
+    await uploadToS3(s3Key, buffer, file.type);
+    const publicPath = s3Key;
 
     // Create receipt document
     const receiptDocument = await prisma.document.create({
@@ -184,7 +178,6 @@ export async function POST(
           select: {
             id: true,
             fileName: true,
-            filePath: true,
           },
         },
         transaction: {
