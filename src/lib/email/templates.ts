@@ -6,12 +6,12 @@
 export type AccentColor = 'navy' | 'green' | 'amber' | 'red' | 'steel' | 'gold';
 
 const ACCENT: Record<AccentColor, { bg: string; border: string; text: string; light: string; label: string }> = {
-  navy:  { bg: '#002369', border: '#002369', text: '#ffffff', light: '#EBF0F8', label: '#002369' },
+  navy: { bg: '#002369', border: '#002369', text: '#ffffff', light: '#EBF0F8', label: '#002369' },
   green: { bg: '#0f6b4d', border: '#0f6b4d', text: '#ffffff', light: '#E8F5EE', label: '#0f6b4d' },
   amber: { bg: '#b8860b', border: '#C9A84C', text: '#ffffff', light: '#FBF5E0', label: '#8a6200' },
-  red:   { bg: '#9b2020', border: '#9b2020', text: '#ffffff', light: '#FDEAEA', label: '#7a1515' },
+  red: { bg: '#9b2020', border: '#9b2020', text: '#ffffff', light: '#FDEAEA', label: '#7a1515' },
   steel: { bg: '#4a6580', border: '#657997', text: '#ffffff', light: '#EEF2F6', label: '#3d5570' },
-  gold:  { bg: '#9A7B2E', border: '#C9A84C', text: '#ffffff', light: '#FBF5E0', label: '#7a6020' },
+  gold: { bg: '#9A7B2E', border: '#C9A84C', text: '#ffffff', light: '#FBF5E0', label: '#7a6020' },
 };
 
 /** App base URL for logo & links */

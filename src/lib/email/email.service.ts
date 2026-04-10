@@ -120,8 +120,6 @@ export async function sendWelcomeEmailWithKYCPrompt(
     intro: 'Congratulations — your email has been verified successfully. Your account is now active. To unlock the full suite of investment products, please complete your KYC verification.',
     rows: [
       { label: 'Identity Proof', value: 'Government ID, Passport or Driver\'s Licence' },
-      { label: 'Address Proof', value: 'Utility bill or Bank statement (last 3 months)' },
-      { label: 'Income Proof', value: 'Salary slip, Tax return or Employment letter' },
     ],
     callout: { title: 'Why KYC?', body: 'KYC (Know Your Customer) is mandatory under financial regulations to protect your investments and prevent fraud. Once verified, you gain full access to all AED-denominated investment tiers.', color: 'navy' },
     cta: { label: 'Complete KYC Now', href: kycUrl },
@@ -146,8 +144,6 @@ export async function sendKYCReminderDay3(
     intro: 'Your Wealth Management account is waiting for KYC verification. Completing this step unlocks your access to all investment tiers and payout schedules.',
     rows: [
       { label: 'Identity Proof', value: 'Government ID, Passport or Driver\'s Licence' },
-      { label: 'Address Proof', value: 'Utility bill or Bank statement (last 3 months)' },
-      { label: 'Income Proof', value: 'Salary slip or Employment letter' },
     ],
     callout: { title: 'Processing Time', body: 'Document verification takes just 1–2 business days. The earlier you submit, the sooner you can start earning defined returns.', color: 'steel' },
     cta: { label: 'Upload Documents', href: url },
@@ -208,8 +204,8 @@ export async function sendDocumentUploadNotification(
   clientName: string, clientEmail: string,
   documentType: string, documentId: string
 ): Promise<boolean> {
-  const reviewUrl = `${config.app.url}/admin/documents/${documentId}`;
-  const pendingUrl = `${config.app.url}/admin/documents?status=PENDING`;
+  const reviewUrl = `${config.app.url}/docadmin/documents`;
+  const pendingUrl = `${config.app.url}/docadmin/documents`;
   const docLabel = documentType.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
   const html = buildEmail({
     accent: 'steel',
@@ -351,7 +347,7 @@ export async function sendPurchaseRequestApprovedEmail(
     footerNote: 'If you have any questions about this investment, please contact your Relationship Manager.',
   });
   return sendEmail({
-    to: email, subject: `Investment Approved — ${trackingNumber}`, html,
+    to: email, subject: `Investment Request Approved — ${trackingNumber}`, html,
     text: `Dear ${firstName},\n\nYour request ${trackingNumber} has been approved.\nView: ${url}\n\n© ${new Date().getFullYear()} Wealth Management CRM`
   });
 }
@@ -537,8 +533,8 @@ export async function sendRMPurchaseRequestNotification(
 ): Promise<boolean> {
   const url = `${config.app.url}/rm/purchase-requests`;
   const html = buildEmail({
-    accent: 'amber',
-    heading: 'New Investment Request',
+    accent: 'navy',
+    heading: 'New Plan Investment Request',
     subheading: 'Action required',
     greeting: `Dear ${rmName},`,
     intro: `One of your clients has submitted a new investment request that requires your review and approval.`,
@@ -552,7 +548,7 @@ export async function sendRMPurchaseRequestNotification(
     cta: { label: 'Review Request', href: url },
   });
   return sendEmail({
-    to: rmEmail, subject: `New Investment Request — ${trackingNumber}`, html,
+    to: rmEmail, subject: `New Plan Investment Request — ${trackingNumber}`, html,
     text: `Dear ${rmName},\n\n${clientName} submitted request ${trackingNumber}.\nAmount: ${fmtAED(amount, currency)}\nReview: ${url}\n\n© ${new Date().getFullYear()} Wealth Management CRM`
   });
 }
@@ -662,8 +658,7 @@ export async function sendContractUploadedEmail(
       { label: 'Action', value: 'Review & Confirm' },
     ],
     callout: { title: 'Next Steps', body: '1. Review the contract carefully<br>2. Contact your RM if you have questions<br>3. Confirm your acceptance<br>4. Your investment will be activated', color: 'navy' },
-    cta: { label: 'View Contract', href: contractUrl },
-    cta2: { label: 'Dashboard', href: dashUrl },
+    cta: { label: 'View Requests', href: dashUrl },
     footerNote: 'Take your time reviewing all terms. Your Relationship Manager is available to clarify any clause.',
   });
   return sendEmail({

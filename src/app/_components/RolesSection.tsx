@@ -11,7 +11,7 @@ const roles = [
     cta: { label: 'Open an Account', href: '/register' as const },
     items: [
       'Browse verified investment plans and products',
-      'Submit purchase and withdrawal requests',
+      'Submit purchase requests',
       'Track portfolio holdings and transaction history',
       'View your assigned Relationship Manager',
       'Receive payout notifications and receipts',
@@ -25,7 +25,6 @@ const roles = [
     items: [
       'Review and approve purchase requests',
       'Verify bank statements before processing',
-      'Forward withdrawals for admin approval',
       'Upload client documents and receipts',
       'Monitor assigned client portfolios',
     ],

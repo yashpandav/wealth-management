@@ -111,10 +111,10 @@ export default function HomePage() {
           {/* Right: Stats column */}
           <div className="flex-1 md:pl-14 md:border-l border-[#002369]/12 divide-y divide-[#002369]/10">
             {[
-              { value: 'AED 50,000',   label: 'Minimum investment' },
-              { value: 'Up to 60%',    label: 'Returns over investment period' },
+              { value: 'AED 50,000', label: 'Minimum investment' },
+              { value: 'Up to 60%', label: 'Returns over investment period' },
               { value: 'KYC verified', label: 'Before any investment is processed' },
-              { value: 'Assigned RM',  label: 'Personal relationship manager' },
+              { value: 'Assigned RM', label: 'Personal relationship manager' },
             ].map(({ value, label }) => (
               <div key={label} className="stat-item py-5 first:pt-0">
                 <p className="text-[1.5rem] md:text-[1.75rem] font-optima font-semibold text-[#002369] leading-tight">{value}</p>
@@ -163,7 +163,7 @@ export default function HomePage() {
               alt="EMDEE Ventures"
               width={88}
               height={59}
-              className="object-contain brightness-0 invert opacity-65"
+              className="object-contain opacity-90"
             />
             <p className="font-georgia text-[0.75rem] text-[#F6F6F6]/35 mt-4 max-w-[210px] leading-[1.7]">
               Enterprise wealth management for verified investors. UAE-based. AED-denominated.

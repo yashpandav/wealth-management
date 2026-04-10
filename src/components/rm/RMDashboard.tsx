@@ -139,7 +139,7 @@ export function RMDashboard() {
   return (
     <div className="space-y-4">
       {/* Metrics Cards */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
+      <div className="flex flex-wrap gap-3 [&>*]:flex-1 [&>*]:min-w-[200px]">
         {/* Total Clients */}
         <StatCard
           title="Clients"
@@ -444,13 +444,12 @@ export function RMDashboard() {
                     </span>
                     <Badge
                       variant="outline"
-                      className={`border-0 font-medium ${
-                        payout.status === 'COMPLETED'
-                          ? 'bg-green-500/10 text-green-700'
-                          : payout.status === 'PENDING'
-                            ? 'bg-amber-500/10 text-amber-700'
-                            : 'bg-red-500/10 text-red-700'
-                      }`}
+                      className={`border-0 font-medium ${payout.status === 'COMPLETED'
+                        ? 'bg-green-500/10 text-green-700'
+                        : payout.status === 'PENDING'
+                          ? 'bg-amber-500/10 text-amber-700'
+                          : 'bg-red-500/10 text-red-700'
+                        }`}
                     >
                       {payout.status}
                     </Badge>

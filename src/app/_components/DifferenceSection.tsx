@@ -12,12 +12,12 @@ const points = [
     body: 'No investment moves forward without full KYC verification. Every investor is reviewed before access is granted.',
   },
   {
-    heading: 'Two approvals, always.',
-    body: 'Withdrawals require RM review followed by Admin approval. No single authority can release your funds alone.',
-  },
-  {
     heading: 'One contact. Full accountability.',
     body: 'Your assigned Relationship Manager is your single point of contact — accountable for every action on your account.',
+  },
+  {
+    heading: 'Independent oversight.',
+    body: 'Strict separation of duties protects your portfolio. Transactions and contracts are verified and executed by administrators, independent of your Relationship Manager.',
   },
 ];
 
@@ -69,7 +69,7 @@ export function DifferenceSection() {
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:border-l border-[#002369]/12">
           {points.map(({ heading, body }, i) => {
             const isLeft = i % 2 === 0;
-            const isTop  = i < 2;
+            const isTop = i < 2;
             return (
               <div
                 key={heading}
@@ -77,7 +77,7 @@ export function DifferenceSection() {
                   'group px-8 md:px-10 py-10 cursor-default',
                   'transition-colors duration-300 hover:bg-[#002369]/[0.025]',
                   isLeft ? 'sm:border-r border-[#002369]/12' : '',
-                  isTop  ? 'border-b border-[#002369]/12'    : '',
+                  isTop ? 'border-b border-[#002369]/12' : '',
                 ].join(' ')}
                 style={anim(i + 2)}
               >
