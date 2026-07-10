@@ -72,7 +72,7 @@ export function getContentSecurityPolicy(_nonce?: string): string {
       "'self'",
       isDevelopment ? 'ws://localhost:*' : '', // Next.js dev mode WebSocket
       isDevelopment ? 'http://localhost:*' : '', // Next.js dev mode
-      'https://fund-management.sakayanagiresearch.in', // Production domain
+      'https://wealthmanagementcrm.yashpandav.dev', // Production domain
     ].filter(Boolean),
 
     // Media

@@ -10,7 +10,7 @@ const nextConfig = {
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Origin', value: process.env.APP_URL || 'https://fund-management.sakayanagiresearch.in' },
+          { key: 'Access-Control-Allow-Origin', value: process.env.APP_URL || 'https://wealthmanagementcrm.yashpandav.dev' },
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,POST,PUT,DELETE' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, Authorization' },
         ],
