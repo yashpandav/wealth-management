@@ -26,13 +26,8 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # DATABASE_URL is required by Prisma 7 even for generate (schema validation only, no real connection)
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" pnpm prisma generate
+RUN pnpm prisma generate
 
-# Dummy env vars required by Zod config validation during next build (replaced by real values at runtime)
-RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" \
-    NEXTAUTH_URL="http://localhost:3000" \
-    NEXTAUTH_SECRET="dummy-secret-for-build-time-only-minimum-32-chars" \
-    pnpm build
 
 
 # ── Stage 3: Production runner (minimal image) ─────────────────────────────────
@@ -50,7 +45,6 @@ RUN addgroup --system --gid 1001 nodejs && \
 RUN npm install -g prisma
 
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
