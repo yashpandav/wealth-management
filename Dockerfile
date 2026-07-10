@@ -47,10 +47,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
+# Install prisma in the runner stage to run migrations
+RUN npm install -g prisma
+
 # next.config.mjs `output: standalone` copies only what's needed
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy prisma directory for migrations
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 USER nextjs
 
@@ -58,4 +63,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+# Create a start script to run migrations and start the server
+# Using sh -c to ensure migrations run before the server starts
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
