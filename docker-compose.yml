@@ -40,29 +40,10 @@ services:
     networks:
       - wealth-net
 
-  postgres:
-    image: postgres:15-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-      POSTGRES_DB: ${POSTGRES_DB:-fintech}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-fintech}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - wealth-net
-
 networks:
   wealth-net:
     driver: bridge
 
 volumes:
-  pgdata:
-    name: wealth-db-data
   uploads:
     name: wealth-uploads
