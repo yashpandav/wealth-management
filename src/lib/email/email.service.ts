@@ -202,7 +202,7 @@ export async function sendKYCExpiredEmail(
 export async function sendDocumentUploadNotification(
   docAdminEmail: string, docAdminName: string,
   clientName: string, clientEmail: string,
-  documentType: string, documentId: string
+  documentType: string, _documentId: string
 ): Promise<boolean> {
   const reviewUrl = `${config.app.url}/docadmin/documents`;
   const pendingUrl = `${config.app.url}/docadmin/documents`;
