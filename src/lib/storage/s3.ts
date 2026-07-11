@@ -20,7 +20,7 @@ async function ensureDirectoryExistence(filePath: string) {
 export async function uploadToS3(
   key: string,
   buffer: Buffer,
-  mimeType: string
+  _mimeType: string
 ): Promise<string> {
   const fullPath = path.join(UPLOADS_DIR, key);
   await ensureDirectoryExistence(fullPath);
@@ -37,9 +37,9 @@ export async function deleteFromS3(key: string): Promise<void> {
   const fullPath = path.join(UPLOADS_DIR, key);
   try {
     await fs.unlink(fullPath);
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Ignore if file doesn't exist
-    if (error.code !== 'ENOENT') {
+    if (error && typeof error === 'object' && 'code' in error && (error as NodeJS.ErrnoException).code !== 'ENOENT') {
       throw error;
     }
   }

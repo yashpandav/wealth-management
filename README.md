@@ -197,6 +197,32 @@ See `.env.example` for all available configuration options.
 4. Ensure linting passes
 5. Submit a pull request
 
+## Deployment Journey: From AWS to GCP VPS
+
+### The Motivation
+Initially, this project was deployed and hosted using **AWS Elastic Beanstalk** (with files stored in Amazon S3). However, when AWS credits expired, maintaining the managed infrastructure became cost-prohibitive. Furthermore, there was a growing need for a centralized, self-managed Virtual Private Server (VPS) that could host multiple independent projects simultaneously without racking up individual service costs.
+
+### The Migration Strategy
+To solve this, the infrastructure was migrated to a **Google Cloud Platform (GCP) VPS** utilizing **Dokploy**—a free, open-source Platform as a Service (PaaS) that simplifies Docker-based deployments.
+
+### Key Deployment Steps
+1. **Infrastructure Provisioning**: 
+   - Spun up a VM on Google Cloud Platform.
+   - Assigned a **Static External IP** to ensure the server address remains permanent even after VM reboots.
+   - Configured GCP Firewalls to explicitly allow inbound HTTP (Port 80) and HTTPS (Port 443) traffic.
+
+2. **Dokploy & Containerization**:
+   - Installed Dokploy to manage applications, databases, and SSL certificates automatically.
+   - Containerized the Next.js application by writing a custom `Dockerfile` and `docker-compose.yml`.
+   - Migrated away from AWS S3 by mounting a local Docker volume (`uploads:/app/public/uploads`) for persistent, free file storage.
+
+3. **DNS Routing & Security (Cloudflare)**:
+   - Mapped the custom domain (`wealthmanagementcrm.yashpandav.dev`) in **Cloudflare**.
+   - Updated the `A` record to point directly to the GCP Static IP.
+   - Set Cloudflare Proxy status to **DNS Only (Grey Cloud)** to allow Dokploy's built-in Traefik router to successfully negotiate and manage SSL certificates via Let's Encrypt.
+
+This new architecture provides full root-level control over the infrastructure, eliminates recurring PaaS costs, and allows for infinite scalability when hosting additional personal projects on the exact same machine.
+
 ## License
 
 Proprietary - All rights reserved
