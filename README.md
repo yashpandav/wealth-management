@@ -1,8 +1,63 @@
 # Wealth Management CRM
 
-Enterprise-grade Wealth Management CRM platform designed for financial institutions.
 
-## Features
+An enterprise-grade, comprehensive Wealth Management CRM platform designed specifically for financial institutions, wealth managers, and their elite clients.
+
+🌟 **Live Demo:** [https://wealthmanagementcrm.yashpandav.dev/](https://wealthmanagementcrm.yashpandav.dev/)
+
+---
+
+## 📸 Platform Previews
+
+![Wealth Management CRM Hero](Documentation/uiphotos/landing-page.png)
+
+### 🔐 Public & Authentication
+<table width="100%">
+  <tr>
+    <td width="50%"><b>Login Portal</b><br><img src="Documentation/uiphotos/login.png" alt="Login"></td>
+    <td width="50%"><b>Registration</b><br><img src="Documentation/uiphotos/register.png" alt="Register"></td>
+  </tr>
+</table>
+
+### 👔 Client Portal
+<table width="100%">
+  <tr>
+    <td width="50%"><b>Client Portfolio Overview</b><br><img src="Documentation/uiphotos/client-portfolio.png" alt="Client Portfolio"></td>
+    <td width="50%"><b>Earnings & Payouts</b><br><img src="Documentation/uiphotos/client-payouts.png" alt="Client Payouts"></td>
+  </tr>
+  <tr>
+    <td width="50%"><b>KYC Document Management</b><br><img src="Documentation/uiphotos/client-kyc.png" alt="Client KYC"></td>
+    <td width="50%"></td>
+  </tr>
+</table>
+
+### 💼 Relationship Manager (RM) Space
+<table width="100%">
+  <tr>
+    <td width="50%"><b>RM Analytics Dashboard</b><br><img src="Documentation/uiphotos/rm-dashboard.png" alt="RM Dashboard"></td>
+    <td width="50%"><b>Active Client Tracking</b><br><img src="Documentation/uiphotos/rm-clients.png" alt="RM Active Clients"></td>
+  </tr>
+  <tr>
+    <td width="50%"><b>Investment Plan Requests</b><br><img src="Documentation/uiphotos/rm-requests.png" alt="RM Plan Requests"></td>
+    <td width="50%"></td>
+  </tr>
+</table>
+
+### ⚙️ Administration & Compliance (DocAdmin)
+<table width="100%">
+  <tr>
+    <td width="50%"><b>Global Investment Plans</b><br><img src="Documentation/uiphotos/admin-plans.png" alt="Admin Plans Configuration"></td>
+    <td width="50%"><b>Document Verification Pipeline</b><br><img src="Documentation/uiphotos/admin-verification.png" alt="Document Verification"></td>
+  </tr>
+  <tr>
+    <td width="50%"><b>New Enquiries</b><br><img src="Documentation/uiphotos/admin-enquiries.png" alt="New Enquiries"></td>
+    <td width="50%"><b>Pending Payout Approvals</b><br><img src="Documentation/uiphotos/admin-payouts.png" alt="Pending Payouts"></td>
+  </tr>
+</table>
+
+---
+
+## 🚀 Features
 
 - **Client Portal**: Browse instruments, submit requests, view portfolio
 - **Relationship Manager Dashboard**: Manage clients, process transactions
@@ -23,76 +78,70 @@ Enterprise-grade Wealth Management CRM platform designed for financial instituti
 
 ## Getting Started
 
-### Prerequisites
+You can run this project locally using either **Docker** (Recommended) or a **Manual Node.js Setup**.
 
-- Node.js 18.17.0 or higher
-- PostgreSQL 15 or higher
-- pnpm 8.0.0 or higher
+### Option 1: Running with Docker (Recommended)
+This is the easiest way to run the application. It guarantees that the environment exactly matches production and handles database initialization automatically.
 
-### Installation
+**Prerequisites:**
+- Docker & Docker Compose installed
+- Git
 
-1. **Clone the repository**
+**Steps:**
+1. Clone the repository and navigate into it:
+   ```bash
+   git clone <repository-url>
+   cd fin-mgmt
+   ```
+2. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+3. Build and start the container in the background:
+   ```bash
+   docker compose up --build -d
+   ```
+4. Access the application at **[http://localhost:3001](http://localhost:3001)**. All file uploads will be persisted automatically via Docker volumes in the local `public/uploads` folder.
 
-```bash
-git clone <repository-url>
-cd fin-mgmt
-```
+---
 
-2. **Install dependencies**
+### Option 2: Manual Node.js Setup
 
-```bash
-pnpm install
-```
+**Prerequisites:**
+- Node.js 18.17.0+
+- PostgreSQL 15+
+- pnpm 8.0.0+
 
-3. **Set up environment variables**
+**Steps:**
+1. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+2. Set up environment variables (`cp .env.example .env.local`) and configure `DATABASE_URL` and `NEXTAUTH_SECRET`.
+3. Set up the database:
+   ```bash
+   pnpm db:generate  # Generate Prisma client
+   pnpm db:migrate   # Run migrations
+   pnpm db:seed      # (Optional) Seed with test data
+   ```
+4. Start the development server:
+   ```bash
+   pnpm dev
+   ```
+5. Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local` and configure:
-
-- `DATABASE_URL`: Your PostgreSQL connection string
-- `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
-- `SMTP_*`: Email configuration (optional for development)
-
-4. **Set up the database**
-
-```bash
-# Generate Prisma client
-pnpm db:generate
-
-# Run migrations
-pnpm db:migrate
-
-# (Optional) Seed with test data
-pnpm db:seed
-```
-
-5. **Start development server**
-
-```bash
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Development
-
-### Available Scripts
+## Development Scripts
 
 ```bash
 pnpm dev          # Start development server
 pnpm build        # Build for production
 pnpm start        # Start production server
-pnpm lint         # Run ESLint
-pnpm lint:fix     # Fix ESLint errors
+pnpm lint         # Run ESLint checks
 pnpm format       # Format code with Prettier
 pnpm type-check   # Check TypeScript types
-pnpm test         # Run tests
 ```
 
-### Database Commands
+### Database Commands (Prisma)
 
 ```bash
 pnpm db:generate  # Generate Prisma client
@@ -102,40 +151,58 @@ pnpm db:studio    # Open Prisma Studio GUI
 pnpm db:seed      # Seed database
 ```
 
-### Code Quality
+## Project Structure
 
-The project uses:
-
-- **ESLint**: Strict TypeScript rules
-- **Prettier**: Consistent code formatting
-- **Husky**: Pre-commit hooks
-- **lint-staged**: Run checks on staged files
-
-All commits must pass linting and formatting checks.
-
-### Folder Structure
-
-```
-src/
-├── app/                 # Next.js App Router pages
-├── components/          # React components
-│   ├── ui/             # Reusable UI components
-│   ├── forms/          # Form components
-│   ├── layout/         # Layout components
-│   ├── dashboard/      # Dashboard widgets
-│   ├── auth/           # Auth components
-│   ├── client/         # Client-specific
-│   ├── rm/             # RM-specific
-│   └── admin/          # Admin-specific
-├── lib/                # Core utilities
-│   ├── auth/           # Authentication
-│   ├── db/             # Database utilities
-│   ├── email/          # Email utilities
-│   ├── utils/          # Helper functions
-│   └── validation/     # Zod schemas
-├── types/              # TypeScript types
-├── utils/              # Utility functions
-└── hooks/              # Custom React hooks
+```text
+wealth-management/
+├── Diagrams/                # System Architecture, ER, UML, and Data Flow Diagrams
+├── docs/                    # Design System, Accessibility, and Component Documentation
+├── Documentation/           # Requirement Specifications, Planning, and UI Screenshots
+├── prisma/                  # Database schema & migrations
+│   ├── migrations/          # Version-controlled database migrations
+│   ├── schema.prisma        # Prisma data model definition
+│   └── seed.ts              # Database seed script for initial data
+├── public/                  # Static assets (images, logos, robots.txt)
+│   └── uploads/             # Local file storage directory (Docker volume for contracts/receipts)
+├── src/
+│   ├── app/                 # Next.js App Router (Pages & API)
+│   │   ├── (auth)/          # Authentication flows (Login, Register, Forgot Password)
+│   │   ├── (dashboard)/     # Role-based dashboards (Admin, DocAdmin, RM, Client)
+│   │   ├── api/             # Backend API Routes (REST endpoints)
+│   │   │   ├── admin/       # Administrator endpoints
+│   │   │   ├── auth/        # NextAuth & custom auth endpoints
+│   │   │   ├── client/      # Client portal endpoints
+│   │   │   ├── cron/        # Scheduled background jobs (payouts, reminders)
+│   │   │   ├── docadmin/    # Document admin endpoints
+│   │   │   ├── documents/   # Secure file upload/download endpoints
+│   │   │   └── rm/          # Relationship manager endpoints
+│   │   └── _components/     # Landing page & global app components
+│   ├── components/          # Reusable React components
+│   │   ├── admin/           # Admin-specific UI (Investment Plans, Users)
+│   │   ├── client/          # Client-specific UI (Portfolio, KYC, Payouts)
+│   │   ├── docadmin/        # DocAdmin UI (Verification, Lead Management)
+│   │   ├── layout/          # Global layouts (Sidebar, Header, Dashboard Wrapper)
+│   │   ├── rm/              # RM-specific UI (Client Tracking, Requests)
+│   │   ├── shared/          # Shared functional components (File Uploads, Notifications)
+│   │   └── ui/              # shadcn/ui base components (Buttons, Dialogs, Tables)
+│   ├── hooks/               # Custom React hooks
+│   ├── lib/                 # Core business logic and utilities
+│   │   ├── analytics/       # Financial calculations and reporting logic
+│   │   ├── auth/            # NextAuth configuration, RBAC, session management
+│   │   ├── cron/            # Cron job definitions (Email Reminders, Payouts)
+│   │   ├── db/              # Prisma client initialization
+│   │   ├── email/           # Email service and HTML templates
+│   │   ├── security/        # Rate limiting, sanitization, and secure headers
+│   │   ├── services/        # Archival and Payout services
+│   │   ├── storage/         # Local File Storage / AWS S3 implementations
+│   │   └── validation/      # Zod schemas for strict request validation
+│   ├── scripts/             # Utility scripts (Payout testing, Demo setup)
+│   ├── types/               # Global TypeScript interfaces & types
+│   ├── utils/               # General helper functions
+│   └── middleware.ts        # Next.js route protection & security middleware
+├── Dockerfile               # Production container image definition
+├── docker-compose.yml       # Local development & production orchestration
+└── tailwind.config.ts       # Tailwind CSS configuration and theme tokens
 ```
 
 ## User Roles
