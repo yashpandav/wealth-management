@@ -31,7 +31,6 @@ ENV NEXTAUTH_SECRET=dummy-secret-key-for-build-time-validation-only
 RUN pnpm prisma generate
 RUN pnpm build
 
-
 # Stage 3 - Runner
 FROM node:22-alpine
 
@@ -50,6 +49,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 USER nextjs
