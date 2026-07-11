@@ -1,5 +1,6 @@
 services:
   app:
+    build: .
     image: yashpandav1997/wealth-management:latest
 
     restart: unless-stopped
